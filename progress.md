@@ -15,3 +15,7 @@
 
 ## Task Progress
 - Task 1: complete (commit `02194613f38481fe203d0dd502cce496052ee2b4`; tests: `node --experimental-strip-types scripts/verify-workspace.test.ts` → 8/8 pass; report: `docs/task-1-report.md`)
+- Task 2: in progress — TypeScript model interfaces and `createEmptyDiagram` factory created in `packages/core/src/models/*`; `index.test.ts` passes; pending commit
+
+## Rulings
+- **Task 2: Ruling: model imports use explicit `.ts` extensions** — Node v26 `--experimental-strip-types` resolves ESM specifiers literally. Bundlers (Vite/rollup/tsc with `allowImportingTsExtensions`) accept `.ts` extensions. Cost if wrong: slightly non-standard appearance; mitigated by consistent project-wide convention.
