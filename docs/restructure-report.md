@@ -24,6 +24,16 @@ project is the Vue workspace in `sdk-workspace`.
    (`.github`, `.husky`, `.vscode`, `src`, `public`, `node_modules`) and the
    files of the root were moved as they were, so the application still starts
    with `npm run dev` in that directory.
+   - The `node_modules` of the application had been created by pnpm, so it
+     contains 2077 junctions with **absolute** targets. Moving the tree broke
+     every one of them, because the targets still pointed at the old location.
+     A one-off script rewrote the 2077 targets to the new prefix
+     (`.../drawdb-app/node_modules/.pnpm/...`) and recreated the junctions.
+   - The tree that pnpm had produced was inconsistent (the installed `vite`
+     8.3.4 expects a `rolldown` that exports `./parse-ast`, the installed
+     `rolldown` 1.2.14 does not), so the dependencies of the reference
+     application were installed again with npm (`npm install --ignore-scripts`),
+     which follows the `package-lock.json` of the application.
 3. **The store of pnpm was deleted** (`.pnpm-store`, 328 MB). It was a leftover
    of an installation of the root and is not used any more.
 4. **The documentation of the work was moved** into `sdk-workspace/docs/`
