@@ -41,7 +41,7 @@
   - Report: `docs/task-14-report.md`
 - Task 15: complete (commit `fe719bcc0fd7f2735353c95a79c1c6684447ab59`; the physical and the logical view of the canvas; `LogicalTable` and `LogicalRelationship`; the mode lives in the UI store and is driven by the `viewMode` prop of the editor; 8/8 new specs, 289/289 workspace specs pass; typecheck clean)
   - Report: `docs/task-15-report.md`
-- Task 16: complete (commit `PENDING`; the locales of drawDB migrated into the format of Vue I18n; 51 JSON files, the list of the languages, `createI18n` and a shared instance; the editor follows the `locale` prop; 9/9 new specs, 299/299 workspace specs pass; typecheck clean)
+- Task 16: complete (commit `854647d`; the locales of drawDB migrated into the format of Vue I18n; 51 JSON files, the list of the languages, `createI18n` and a shared instance; the editor follows the `locale` prop; 9/9 new specs, 299/299 workspace specs pass; typecheck clean)
   - Report: `docs/task-16-report.md`
 
 ## Rulings
