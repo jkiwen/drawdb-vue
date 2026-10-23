@@ -39,7 +39,7 @@
   - Report: `docs/task-13-report.md`
 - Task 14: complete (commit `dcfea03fbade8334a7b3a067f5757b10e644bd61`; `DrawDBEditor` composes the header, the canvas and the side panel; controlled and uncontrolled mode, automatic saving, plugin life cycle, event emission; the package entry point offers `DrawDBVueSdk`; 15/15 new specs, 281/281 workspace specs pass; typecheck clean)
   - Report: `docs/task-14-report.md`
-- Task 15: complete (commit `PENDING`; the physical and the logical view of the canvas; `LogicalTable` and `LogicalRelationship`; the mode lives in the UI store and is driven by the `viewMode` prop of the editor; 8/8 new specs, 289/289 workspace specs pass; typecheck clean)
+- Task 15: complete (commit `fe719bcc0fd7f2735353c95a79c1c6684447ab59`; the physical and the logical view of the canvas; `LogicalTable` and `LogicalRelationship`; the mode lives in the UI store and is driven by the `viewMode` prop of the editor; 8/8 new specs, 289/289 workspace specs pass; typecheck clean)
   - Report: `docs/task-15-report.md`
 
 ## Rulings
