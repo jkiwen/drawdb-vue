@@ -35,6 +35,8 @@
   - Report: `docs/task-11-report.md`
 - Task 12: complete (commit `b8d0a87562229cb4dfa078d3c49bd4ad1ad24275`; `Header` / `MenuBar` / `Toolbar` / `UndoRedoButtons` built with Naive UI; new `UpdateDiagramCommand`; 10/10 new specs, 253/253 workspace specs pass; typecheck clean)
   - Report: `docs/task-12-report.md`
+- Task 13: complete (commit `f6fe2068d1d1a3dcc7dca35e9d11f5099ba58f54`; `SidePanel` with the seven tabs; the tables tab edits the selected table and its fields; 13/13 new specs, 266/266 workspace specs pass; typecheck clean)
+  - Report: `docs/task-13-report.md`
 
 ## Rulings
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
@@ -75,3 +77,9 @@
 - **Task 12: Ruling: the header changes the title and the database with a core command** — `UpdateDiagramCommand` changes the top level properties of a diagram and can be undone, so the title field and the database selector of the header behave like every other change. Cost if wrong: one more command in the core package.
 - **Task 12: Ruling: the menu bar is data driven** — The entries are described by a `groups` property and the component only reports the selected key, so the host application can add or rename entries without replacing the component. Cost if wrong: the default entries are defined in the SDK and cannot be changed without passing the property.
 - **Task 12: Ruling: the IndexedDB adapter resolves the factory from `globalThis` and `window`** — `fake-indexeddb/auto` installs its implementation on `window` when a window exists, so reading only `globalThis.indexedDB` fails in a browser emulation. Cost if wrong: none; in a browser both are the same object.
+
+## Rulings
+- **Task 13: Ruling: the tab bar is a list of buttons and not an `NTabs`** — An `NTabPane` renders its content only after it has been activated, so the content of the other tabs would vanish from the markup and the specs could not assert on it. Cost if wrong: the keyboard navigation of `NTabs` has to be implemented by hand.
+- **Task 13: Ruling: a rename is committed when the input loses the focus** — The name of a table and the name and the type of a field are edited in a local draft and written to the diagram on the `change` event of the input. A rename is therefore one undoable step instead of one step per keystroke. Cost if wrong: the panel does not save while the user is still typing.
+- **Task 13: Ruling: the tables tab edits the fields of the selected table** — The plan only names the tabs. The React side panel spends most of its time in the editor of the fields, so the tab reproduces it: name, type, primary, unique and not null, plus adding and removing a field. Cost if wrong: the panel is bigger than the plan asked for.
+- **Task 13: Ruling: the search field of the tables tab writes into the UI store** — The search term is part of the ephemeral state of the editor, so the canvas and the panel always filter with the same term. Cost if wrong: none.
