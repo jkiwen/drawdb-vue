@@ -1,5 +1,6 @@
 import type { Command } from "./command.ts";
 import type { Diagram } from "../models/diagram.ts";
+import { deepClone } from "../utils/clone.ts";
 
 /** Collections of a diagram that hold flat, identifiable entities. */
 export type DiagramEntityCollection =
@@ -15,8 +16,16 @@ export interface DiagramEntity {
   name?: string;
 }
 
+/** The identity of an entity: its id, or its name when it has no id. */
 function identity(entity: DiagramEntity): string | number | undefined {
   return entity.id ?? entity.name;
+}
+
+/** True when the entity is the one that the target addresses. */
+function matches(entity: DiagramEntity, target: string | number | undefined): boolean {
+  if (target === undefined) return false;
+  if (identity(entity) === target) return true;
+  return typeof target === "string" && entity.name === target;
 }
 
 /**
@@ -57,14 +66,67 @@ export class AddEntityCommand implements Command {
   undo(): void {
     const list = this.list();
     const target = identity(this.entity);
-    const idx = list.findIndex((item) => identity(item) === target);
+    const idx = list.findIndex((item) => matches(item, target));
     if (idx < 0) return;
 
     list.splice(idx, 1);
   }
 }
 
-/** Removes an entity from one of the flat diagram collections. */
+/**
+ * Changes an entity of one of the flat diagram collections.
+ */
+export class UpdateEntityCommand implements Command {
+  private readonly diagram: Diagram;
+  private readonly collection: DiagramEntityCollection;
+  private readonly target: string | number | undefined;
+  private readonly updates: Record<string, unknown>;
+  private previousEntity: DiagramEntity | undefined;
+
+  constructor(
+    diagram: Diagram,
+    collection: DiagramEntityCollection,
+    target: string | number | undefined,
+    updates: Record<string, unknown>,
+  ) {
+    this.diagram = diagram;
+    this.collection = collection;
+    this.target = target;
+    this.updates = updates;
+  }
+
+  get description(): string {
+    return `Update ${this.collection.replace(/s$/, "")} ${this.target ?? ""}`.trim();
+  }
+
+  private list(): DiagramEntity[] {
+    return (this.diagram[this.collection] ??= []) as unknown as DiagramEntity[];
+  }
+
+  execute(): void {
+    const list = this.list();
+    const idx = list.findIndex((item) => matches(item, this.target));
+    if (idx < 0) return;
+
+    const current = list[idx];
+    this.previousEntity = deepClone(current);
+    list[idx] = { ...current, ...this.updates } as DiagramEntity;
+  }
+
+  undo(): void {
+    if (!this.previousEntity) return;
+
+    const list = this.list();
+    const idx = list.findIndex((item) => matches(item, this.target));
+    if (idx < 0) return;
+
+    list[idx] = this.previousEntity;
+  }
+}
+
+/**
+ * Removes an entity from one of the flat diagram collections.
+ */
 export class RemoveEntityCommand implements Command {
   private readonly diagram: Diagram;
   private readonly collection: DiagramEntityCollection;
@@ -94,7 +156,7 @@ export class RemoveEntityCommand implements Command {
 
   execute(): void {
     const list = this.list();
-    const idx = list.findIndex((item) => identity(item) === this.target);
+    const idx = list.findIndex((item) => matches(item, this.target));
     if (idx < 0) return;
 
     this.removedIndex = idx;

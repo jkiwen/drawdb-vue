@@ -2,11 +2,9 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { createEmptyDiagram } from "../models/diagram.ts";
 import { CommandManager } from "./command-manager.ts";
-import { AddTableCommand } from "./add-table.ts";
-import { UpdateTableCommand } from "./update-table.ts";
-import { RemoveTableCommand } from "./remove-table.ts";
-import { AddRelationshipCommand } from "./add-relationship.ts";
-import { UpdateFieldCommand } from "./update-field.ts";
+import { AddTableCommand, RemoveTableCommand, UpdateTableCommand } from "./table-commands.ts";
+import { AddRelationshipCommand } from "./relationship-commands.ts";
+import { UpdateFieldCommand } from "./field-commands.ts";
 
 const emptyTable = (id: string, name: string) => ({
   id,
