@@ -15,7 +15,11 @@
 
 ## Task Progress
 - Task 1: complete (commit `02194613f38481fe203d0dd502cce496052ee2b4`; tests: `node --experimental-strip-types scripts/verify-workspace.test.ts` → 8/8 pass; report: `docs/task-1-report.md`)
-- Task 2: in progress — TypeScript model interfaces and `createEmptyDiagram` factory created in `packages/core/src/models/*`; `index.test.ts` passes; pending commit
+- Task 2: complete (commit `64cd4d26b48c6ac63b10b79f6d8c9bd0fdef4092`; tests: `node --experimental-strip-types packages/core/src/models/index.test.ts` → 3/3 pass)
+- Task 3: complete (pending commit)
+
+## Rulings
+- **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
 
 ## Rulings
 - **Task 2: Ruling: model imports use explicit `.ts` extensions** — Node v26 `--experimental-strip-types` resolves ESM specifiers literally. Bundlers (Vite/rollup/tsc with `allowImportingTsExtensions`) accept `.ts` extensions. Cost if wrong: slightly non-standard appearance; mitigated by consistent project-wide convention.
