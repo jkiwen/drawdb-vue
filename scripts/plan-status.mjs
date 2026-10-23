@@ -4,6 +4,7 @@
 //   node scripts/plan-status.mjs --task 21 \
 //        --commit <hash> [--report docs/task-21-report.md]   marks a task as complete
 //
+// The plan is `docs/plan.md` unless another one is named with `--plan <path>`.
 // A task is complete when its heading carries a status line and every step of
 // its section is checked. The script writes both.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -52,7 +53,7 @@ export function readState(planPath = PLAN) {
 }
 
 function parseArgs(argv) {
-  const args = { task: null, commit: null, report: null };
+  const args = { task: null, commit: null, report: null, plan: null };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
     const value = argv[index + 1];
@@ -65,6 +66,9 @@ function parseArgs(argv) {
     } else if (flag === "--report") {
       args.report = value;
       index += 1;
+    } else if (flag === "--plan") {
+      args.plan = value;
+      index += 1;
     }
   }
   return args;
@@ -72,7 +76,8 @@ function parseArgs(argv) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const lines = readFileSync(PLAN, "utf-8").split("\n");
+  const plan = args.plan ? resolve(args.plan) : PLAN;
+  const lines = readFileSync(plan, "utf-8").split("\n");
   const sections = readSections(lines.join("\n"));
 
   if (args.task === null) {
@@ -126,7 +131,7 @@ function main() {
     process.exit(1);
   }
 
-  writeFileSync(PLAN, out.join("\n"), "utf-8");
+  writeFileSync(plan, out.join("\n"), "utf-8");
   console.log(`task ${args.task} marked as complete (commit ${args.commit})`);
 }
 

@@ -93,3 +93,16 @@ test("the script of the plan reports the twenty finished tasks", async () => {
     );
   }
 });
+
+test("the script reads an alternative plan", async () => {
+  const { readState } = await import("./plan-status.mjs");
+  const state = readState(
+    resolve(ROOT, "docs/superpowers/plans/2026-10-23-drawdb-vue-sdk-parity-plan.md"),
+  );
+  assert.equal(state.length, 12, "the parity plan does not have the twelve tasks");
+  assert.deepEqual(
+    state.map((section) => section.task),
+    Array.from({ length: 12 }, (_, index) => index + 21),
+    "the tasks of the parity plan are not numbered from 21 to 32",
+  );
+});

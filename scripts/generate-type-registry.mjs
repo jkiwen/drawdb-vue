@@ -21,12 +21,43 @@ const namesBody = order
   })
   .join("\n");
 
+/** The kind of value a type accepts as a default. */
+const NUMERIC_TYPES = new Set([
+  "INT", "INT2", "INT4", "INT8", "INTEGER", "SMALLINT", "TINYINT",
+  "MEDIUMINT", "BIGINT", "DECIMAL", "NUMERIC", "NUMBER", "FLOAT", "REAL",
+  "DOUBLE", "DOUBLE PRECISION", "MONEY", "SERIAL", "SMALLSERIAL",
+  "BIGSERIAL", "YEAR", "BIT",
+]);
+
+const BOOLEAN_TYPES = new Set(["BOOLEAN", "BOOL"]);
+
+const DATE_TYPES = new Set([
+  "DATE", "DATETIME", "DATETIME2", "DATETIMEOFFSET", "TIMESTAMP",
+  "TIMESTAMPTZ", "TIME", "TIMETZ", "SMALLDATETIME", "DATETIME2 TZ",
+]);
+
+/**
+ * The kind of default a type accepts.
+ *
+ * A type that cannot have a default at all is \`none\`; the other kinds are
+ * derived from the name of the type.
+ */
+function classifyDefaultKind(name, flags) {
+  if (flags.noDefault) return "none";
+  const upper = name.toUpperCase();
+  if (NUMERIC_TYPES.has(upper)) return "numeric";
+  if (BOOLEAN_TYPES.has(upper)) return "boolean";
+  if (DATE_TYPES.has(upper)) return "date";
+  return "text";
+}
+
 const metadataBody = order
   .map((db) => {
     const entries = Object.entries(data[db]).map(([name, flags]) => {
       const parts = Object.entries(flags).map(
         ([k, v]) => `${k}: ${v ? "true" : "false"}`,
       );
+      parts.push(`defaultKind: ${JSON.stringify(classifyDefaultKind(name, flags))}`);
       return `    ${JSON.stringify(name)}: { ${parts.join(", ")} },`;
     });
     return `  ${db}: {\n${entries.join("\n")}\n  },`;
@@ -45,6 +76,17 @@ export const DATABASE_TYPE_NAMES: Record<DatabaseType, readonly string[]> = {
 ${namesBody}
 };
 
+/**
+ * The kind of value a type accepts as a default.
+ *
+ * - \`numeric\` — a number,
+ * - \`boolean\` — true or false,
+ * - \`date\` — a date or a timestamp,
+ * - \`text\` — any text,
+ * - \`none\` — the type cannot have a default at all.
+ */
+export type DefaultKind = "numeric" | "boolean" | "date" | "text" | "none";
+
 /** Per-type capability flags carried over from the React drawDB type tables. */
 export interface TypeMetadata {
   isSized?: boolean;
@@ -54,6 +96,7 @@ export interface TypeMetadata {
   signed?: boolean;
   hasCheck?: boolean;
   noDefault?: boolean;
+  defaultKind?: DefaultKind;
 }
 
 /**
@@ -156,6 +199,35 @@ export function typeTakesSize(
 ): boolean {
   const meta = getTypeMetadata(database, type);
   return Boolean(meta && (meta.isSized || meta.hasPrecision));
+}
+
+const NUMERIC_TYPE_NAMES = new Set([
+${[...NUMERIC_TYPES].map((n) => `  ${JSON.stringify(n)},`).join("\n")}
+]);
+
+const BOOLEAN_TYPE_NAMES = new Set([
+${[...BOOLEAN_TYPES].map((n) => `  ${JSON.stringify(n)},`).join("\n")}
+]);
+
+const DATE_TYPE_NAMES = new Set([
+${[...DATE_TYPES].map((n) => `  ${JSON.stringify(n)},`).join("\n")}
+]);
+
+/**
+ * The kind of default a type accepts, derived from its name.
+ *
+ * Used for the types that the dialect tables do not know.
+ */
+export function classifyDefaultKind(
+  type: string,
+  noDefault = false,
+): DefaultKind {
+  if (noDefault) return "none";
+  const upper = String(type ?? "").toUpperCase();
+  if (NUMERIC_TYPE_NAMES.has(upper)) return "numeric";
+  if (BOOLEAN_TYPE_NAMES.has(upper)) return "boolean";
+  if (DATE_TYPE_NAMES.has(upper)) return "date";
+  return "text";
 }
 `;
 
