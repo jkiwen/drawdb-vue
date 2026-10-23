@@ -16,7 +16,8 @@
 ## Task Progress
 - Task 1: complete (commit `02194613f38481fe203d0dd502cce496052ee2b4`; tests: `node --experimental-strip-types scripts/verify-workspace.test.ts` → 8/8 pass; report: `docs/task-1-report.md`)
 - Task 2: complete (commit `64cd4d26b48c6ac63b10b79f6d8c9bd0fdef4092`; tests: `node --experimental-strip-types packages/core/src/models/index.test.ts` → 3/3 pass)
-- Task 3: complete (pending commit)
+- Task 3: complete (commit `c7db564137998812b7eedfeb1b67225406b978f9`; tests: `node --experimental-strip-types packages/core/src/commands/command-manager.test.ts` → 6/6 pass)
+- Task 4: partial (MySQL dialect + shared export engine; remaining 6 dialects delegated/queued)
 
 ## Rulings
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
