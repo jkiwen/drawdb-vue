@@ -49,6 +49,8 @@
   - Report: `docs/task-18-report.md`
 - Task 19: complete (commit `87a837ead7092a5fc4afbfd39a044a7202686694`; the readmes of the workspace, of the core, of the SDK and of the application; the publishable build of the core (tsc) and of the SDK (vue-tsc + the in-process compiler of the components); the specification that verifies the artifacts; 6/6 artifact specs, 321/321 workspace specs pass; typecheck clean for the four programs)
   - Report: `docs/task-19-report.md`
+- Task 20: complete (commit `PENDING`; the continuous integration (the type check, the build of the two packages, the tests) and the job of the end to end tests; the release workflow that publishes the two packages; the changelog; the example `examples/vue-embed`; the three packages at the version 1.0.0; 6/6 release specs, 327/327 workspace specs pass; typecheck clean for the five programs)
+  - Report: `docs/task-20-report.md`
 
 ## Rulings
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.

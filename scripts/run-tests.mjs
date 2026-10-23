@@ -60,7 +60,9 @@ function collect(dir) {
 }
 
 const files = SOURCE_ROOTS.flatMap(collect)
-  .filter((file) => !filter || file.includes(filter))
+  // The filter is matched against the path with forward slashes, so that the
+  // same filter works on Windows and on Linux.
+  .filter((file) => !filter || file.split("\\").join("/").includes(filter))
   .sort();
 
 if (files.length === 0) {

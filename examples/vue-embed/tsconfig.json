@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": [],
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@drawdb/core": ["../../packages/core/src/index.ts"],
+      "@drawdb/vue-sdk": ["../../packages/sdk/src/index.ts"],
+      "oracle-sql-parser": ["../../packages/core/src/types/oracle-sql-parser.d.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

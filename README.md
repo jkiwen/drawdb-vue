@@ -63,15 +63,30 @@ import { DrawDBEditor } from "@drawdb/vue-sdk";
 | --- | --- |
 | `pnpm dev` | starts the development server of the application |
 | `pnpm build` | builds every package |
-| `pnpm test:node` | runs the specifications of the workspace in a single process |
-| `pnpm typecheck` | checks the types of the core, the SDK, the application and the e2e specifications |
+| `pnpm build:packages` | builds the distribution of the core and of the SDK |
+| `pnpm test` | runs the specifications of the workspace in a single process |
+| `pnpm test:all` | builds the two packages and runs the specifications |
+| `pnpm typecheck` | checks the types of the core, of the SDK, of the application, of the example and of the e2e specifications |
 | `pnpm e2e` | runs the Playwright specifications (a browser is needed) |
 | `pnpm --filter @drawdb/core build` | builds the distribution of the core |
 | `pnpm --filter @drawdb/vue-sdk build` | builds the distribution of the SDK |
 
 The specifications of the workspace run with the test runner of Node
 (`scripts/run-tests.mjs`), because the sandboxed Windows environment blocks the child
-processes that vitest and `node --test` spawn.
+processes that vitest and `node --test` spawn. The specification of the artifacts
+(`scripts/verify-artifacts.test.ts`) needs the distribution of the packages, so
+`pnpm test` has to follow `pnpm build:packages` (`pnpm test:all` does both).
+
+## The release
+
+| Command | Description |
+| --- | --- |
+| `pnpm --filter @drawdb/core publish --access public` | publishes `@drawdb/core` |
+| `pnpm --filter @drawdb/vue-sdk publish --access public` | publishes `@drawdb/vue-sdk` |
+
+The tag `v1.0.0` triggers `.github/workflows/release.yml`, which checks the
+workspace, publishes the two packages and creates the GitHub release. The changes
+of every version are written in [CHANGELOG.md](CHANGELOG.md).
 
 ## The documentation
 
@@ -81,6 +96,8 @@ processes that vitest and `node --test` spawn.
 | [docs/plan.md](docs/plan.md) | the plan with the 20 tasks of the implementation |
 | [docs/task-N-report.md](docs) | the report of every task |
 | [progress.md](progress.md) | the ledger with the state of the work and the decisions |
+| [CHANGELOG.md](CHANGELOG.md) | the changes of every version |
+| [examples/vue-embed](examples/vue-embed) | an application that embeds the editor |
 
 ## The license
 

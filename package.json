@@ -1,6 +1,6 @@
 {
   "name": "drawdb-vue",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.28.5",
@@ -8,11 +8,10 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "test:workspace": "vitest run scripts/verify-workspace.test.ts",
-    "test:node": "node --experimental-strip-types scripts/run-tests.mjs",
-    "typecheck": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/sdk/tsconfig.json && tsc --noEmit -p packages/app/tsconfig.json && tsc --noEmit -p e2e/tsconfig.json",
+    "build:packages": "pnpm --filter @drawdb/core run build && pnpm --filter @drawdb/vue-sdk run build",
+    "test": "node --experimental-strip-types scripts/run-tests.mjs",
+    "test:all": "pnpm run build:packages && pnpm run test",
+    "typecheck": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/sdk/tsconfig.json && tsc --noEmit -p packages/app/tsconfig.json && vue-tsc --noEmit -p examples/vue-embed/tsconfig.json && tsc --noEmit -p e2e/tsconfig.json",
     "e2e": "playwright test --config e2e/playwright.config.ts",
     "e2e:install": "playwright install --with-deps chromium"
   },

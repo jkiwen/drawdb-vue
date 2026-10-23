@@ -1,15 +1,15 @@
 {
   "name": "drawdb-vue-app",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Standalone drawDB editor built with @drawdb/vue-sdk",
+  "license": "MIT",
   "type": "module",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "vitest run",
-    "lint": "eslint ."
+    "test": "node --experimental-strip-types ../../scripts/run-tests.mjs packages/app"
   },
   "dependencies": {
     "@drawdb/core": "workspace:*",

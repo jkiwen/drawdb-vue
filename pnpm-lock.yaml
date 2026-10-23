@@ -33,6 +33,31 @@ importers:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@22.20.5)(jsdom@30.1.3)
 
+  examples/vue-embed:
+    dependencies:
+      '@drawdb/vue-sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      pinia:
+        specifier: ^2.2.0
+        version: 2.3.1(typescript@5.9.3)(vue@3.5.44(typescript@5.9.3))
+      vue:
+        specifier: ^3.5.0
+        version: 3.5.44(typescript@5.9.3)
+    devDependencies:
+      '@vitejs/plugin-vue':
+        specifier: ^5.1.0
+        version: 5.2.4(vite@5.4.21(@types/node@22.20.5))(vue@3.5.44(typescript@5.9.3))
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vite:
+        specifier: ^5.4.0
+        version: 5.4.21(@types/node@22.20.5)
+      vue-tsc:
+        specifier: ^2.1.0
+        version: 2.2.12(typescript@5.9.3)
+
   packages/app:
     dependencies:
       '@drawdb/core':
