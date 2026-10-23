@@ -181,6 +181,8 @@
 
 ## Task 22: core 自动布局与关系推断（layout）
 
+**Status:** complete — commit `321b84b` · report: `docs/task-22-report.md`
+
 **Files:**
 - Create: `packages/core/src/layout/auto-arrange.ts`
 - Create: `packages/core/src/layout/auto-relationships.ts`
@@ -211,12 +213,12 @@
   ): Relationship[];                // 候选；id = `infer_<startTable>_<startField>_<endTable>`，name = `fk_<startTable>_<startField>_<endTable>`
   ```
 
-- [ ] **Step 1: 安装 dagre**
+- [x] **Step 1: 安装 dagre**
 
   Run: `pnpm --filter @drawdb/core add @dagrejs/dagre@3.1.1`
   Expected: 退出码 0（若报 `ERR_PNPM_IGNORED_BUILDS` 属正常，dagre 无构建步骤）
 
-- [ ] **Step 2: 写失败的测试 `packages/core/src/layout/layout.test.ts`**
+- [x] **Step 2: 写失败的测试 `packages/core/src/layout/layout.test.ts`**
 
   必须包含：
   ```ts
@@ -256,27 +258,27 @@
 
   断言基数用 `assert.equal(candidate.cardinality, "many_to_one")`（core 内部用小写下划线形式，与 `models/constants.ts` 的 `Cardinality` 一致）。
 
-- [ ] **Step 3: 运行测试确认失败**
+- [x] **Step 3: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs layout`
   Expected: FAIL —— `ERR_MODULE_NOT_FOUND`（`packages/core/src/layout/index.ts`）
 
-- [ ] **Step 4: 实现 `auto-arrange.ts`**
+- [x] **Step 4: 实现 `auto-arrange.ts`**
 
   端口自 React `drawdb-app/src/utils/autoArrange.js`：用 `@dagrejs/dagre` 的 `graphlib.Graph` 建图，每个未 locked 的表是一个节点（宽 = `table.width ?? 220`，高 = 50 + 36 × 字段数），每条关系连一条边（`startTableId` → `endTableId`）；`graphlib.layout(graph, { nodeSep, rankSep, edgesep, rankdir, marginx, marginy })`；把 dagre 的坐标转回画布坐标（`x - width/2`，`y - height/2`）。**孤立的表**（无任何边）单独用 `isolatedGap` 排成一列。**locked 的表**不建节点，返回其原坐标。dagre 抛错时**捕获并返回全部原坐标**（spec §7：自动布局失败不改图）。
 
-- [ ] **Step 5: 实现 `auto-relationships.ts`**
+- [x] **Step 5: 实现 `auto-relationships.ts`**
 
   端口自 React `drawdb-app/src/utils/autoRelationships.js`：候选字段名后缀为 `users_id` / `user_id` / `usersid` / `userid`（当目标表主键名不是 `id` 时也接受裸主键名，即字段名恰好等于目标表主键名）；跳过起止表相同的自引用；跳过 `existing` 中已有的**字段级**与**字段对级**关系；基数按子字段是否 `unique` 决定（unique → `one_to_one`，否则 `many_to_one`）；`updateConstraint`/`deleteConstraint` 置 `"No action"`。
 
-- [ ] **Step 6: 导出并整体验证**
+- [x] **Step 6: 导出并整体验证**
 
   `packages/core/src/index.ts` 增加 `export * from "./layout/index.ts";`
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）与 `pnpm run typecheck`
   Expected: 0 fail；typecheck 无错误
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
   ```bash
   git add packages/core/src/layout packages/core/package.json packages/core/src/index.ts pnpm-lock.yaml

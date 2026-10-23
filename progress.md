@@ -54,6 +54,8 @@
   - Report: `docs/task-20-report.md`
 - Task 21: complete (commit `eac4bb3`; the core module `validation` with the structured issues `table.*`, `field.*`, `relationship.*`, `view.*`, `join.*`, `view_column.*`, `index.*`, `unique_constraint.*`, `type.*`, `type_field.*`, `enum.*`; the `defaultKind` of the type registry; `plan-status.mjs` accepts `--plan`; 46/46 new specs, 381/381 workspace specs pass; typecheck clean for the five programs)
   - Report: `docs/task-21-report.md`
+- Task 22: complete (commit `321b84b`; the core module `layout` with `autoArrange` (dagre, the locked tables stay, the isolated tables are placed in rows) and `inferRelationships` (the names `users_id`, `user_id`, `usersid`, `userid`); the dependency `@dagrejs/dagre@3.1.1`; 14/14 new specs, 395/395 workspace specs pass; typecheck clean for the five programs)
+  - Report: `docs/task-22-report.md`
 - Restructure: complete (the outer repository of the React application was removed, the React application moved into `../drawdb-app` as a reference, the history kept in `../drawdb-history.bundle`, the packages packed locally instead of published to npm; 327/327 workspace specs pass; typecheck clean)
   - Report: `docs/restructure-report.md`
 
@@ -154,3 +156,7 @@
 - **Task 21: Ruling: the kind of a default lives in the type registry** — `DefaultKind` is defined in `packages/core/src/types/registry.ts` and re-exported by the validation module, because the generator of the registry needs it and the registry must not import the validation (a cycle). Cost if wrong: none; the name is exported once, through the validation.
 - **Task 21: Ruling: the validator never throws** — A malformed diagram is reported as a single `validation.internal_error` issue of the severity `error`. The panel of the issues can therefore assume that it always receives an array. Cost if wrong: the callers have to guard the call.
 - **Task 21: Ruling: `plan-status.mjs` takes the path of the plan** — The plan of the first phase and the plan of the second phase are two files, so the script takes `--plan <path>` and keeps `docs/plan.md` as the default. Cost if wrong: none.
+- **Task 22: Ruling: the layout returns only the coordinates** — `autoArrange` returns one `{x, y}` per table, in the order of the input, instead of the `[{id, x, y}]` of the React reference. The SDK addresses the tables by their position, and the core stays free of the ids of the diagram. Cost if wrong: a caller that needs the id of a table has to zip the result with the input.
+- **Task 22: Ruling: the direction of the layout defaults to `TB`** — The React reference uses `LR`, but the canvas of the SDK is vertical by default. The option `direction` makes both possible, and the default is the one that fits the canvas. Cost if wrong: a host that prefers the horizontal layout has to pass the option.
+- **Task 22: Ruling: the inference compares only the names of the fields** — The React reference also compares the type of the foreign key with the type of the primary key. The SDK leaves that judgement to the user, who accepts or rejects the candidates in the dialog of Task 28. Cost if wrong: the SDK proposes a relationship that the types contradict.
+- **Task 22: Ruling: the layout never throws** — A dagre error leaves every table where it is, and the function returns the original coordinates. Cost if wrong: none.
