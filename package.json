@@ -10,7 +10,9 @@
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "test:workspace": "vitest run scripts/verify-workspace.test.ts"
+    "test:workspace": "vitest run scripts/verify-workspace.test.ts",
+    "test:node": "node --experimental-strip-types scripts/run-tests.mjs",
+    "typecheck": "tsc --noEmit -p packages/core/tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
