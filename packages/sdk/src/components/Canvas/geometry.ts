@@ -28,7 +28,7 @@ export const DEFAULT_VIEWPORT_WIDTH = 1200;
 export const DEFAULT_VIEWPORT_HEIGHT = 800;
 export const DEFAULT_GRID_SIZE = 10;
 
-export interface Point {
+export interface GeometryPoint {
   x: number;
   y: number;
 }
@@ -116,7 +116,7 @@ export function fieldAnchor(
   table: Table,
   fieldId: FieldId,
   side: "left" | "right",
-): Point {
+): GeometryPoint {
   const index = table.fields.findIndex((field) => field.id === fieldId);
   const row = index < 0 ? 0 : index;
   const x = side === "right" ? table.x + tableWidth(table) : table.x;
@@ -134,7 +134,7 @@ export function relationshipAnchors(
   relationship: Relationship,
   startTable: Table,
   endTable: Table,
-): { start: Point; end: Point } {
+): { start: GeometryPoint; end: GeometryPoint } {
   const startSide = startTable.x <= endTable.x ? "right" : "left";
   const endSide = startSide === "right" ? "left" : "right";
 
@@ -159,7 +159,7 @@ export function relationshipBounds(
 }
 
 /** A cubic bezier between two anchors, drawn as a horizontal S curve. */
-export function relationshipPath(start: Point, end: Point): string {
+export function relationshipPath(start: GeometryPoint, end: GeometryPoint): string {
   const distance = Math.abs(end.x - start.x);
   const control = Math.max(40, distance / 2);
 
@@ -190,7 +190,7 @@ export function cardinalitySides(
  */
 export function cardinalityMarker(
   side: CardinalitySide,
-  at: Point,
+  at: GeometryPoint,
   direction: "left" | "right",
 ): string {
   const dir = direction === "right" ? 1 : -1;

@@ -159,18 +159,20 @@ export class PluginManager {
    *
    * `registerExtension` is bound to this manager so the contributed
    * extensions can be removed again when the plugin is deactivated.
+   *
+   * The context is created with `Object.create` so it inherits every member of
+   * the host context. A host application may extend the context with its own
+   * members (the Vue SDK adds the Pinia stores and the slot and command
+   * registries) and those members must survive the activation.
    */
   private createContext(base: PluginContext, owner: string): PluginContext {
-    return {
-      diagram: base.diagram,
-      metadata: base.metadata,
-      registerExtension: <THandler>(extension: Extension<THandler>) => {
-        this.extensions.push({
-          extension: extension as Extension<never>,
-          owner,
-        });
-      },
-      getStore: <TStore>(storeId: string) => base.getStore<TStore>(storeId),
+    const context = Object.create(base) as PluginContext;
+    context.registerExtension = <THandler>(extension: Extension<THandler>) => {
+      this.extensions.push({
+        extension: extension as Extension<never>,
+        owner,
+      });
     };
+    return context;
   }
 }
