@@ -31,7 +31,7 @@
   - Report: `docs/task-9-report.md`
 - Task 10: complete (commit `80e684d`; `useSelection` / `useViewport` / `useDrag` / `useHotkeys` / `useCanvasEvents` / `useStorage`; 28/28 new specs, 227/227 workspace specs pass; typecheck clean)
   - Report: `docs/task-10-report.md`
-- Task 11: complete (commit `PENDING`; SVG canvas with `foreignObject` tables, relationship paths, areas, notes and views; viewport culling; 16/16 new specs, 244/244 workspace specs pass; typecheck clean)
+- Task 11: complete (commit `b0a332787c36d5851572d00de941375e297d5004`; SVG canvas with `foreignObject` tables, relationship paths, areas, notes and views; viewport culling; 16/16 new specs, 244/244 workspace specs pass; typecheck clean)
   - Report: `docs/task-11-report.md`
 
 ## Rulings
