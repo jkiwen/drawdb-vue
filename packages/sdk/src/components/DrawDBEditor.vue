@@ -3,11 +3,12 @@ import { computed, onBeforeUnmount } from "vue";
 import type { PropType } from "vue";
 import { NConfigProvider, NGlobalStyle, darkTheme, lightTheme } from "naive-ui";
 import { setActivePinia } from "pinia";
-import { deepClone } from "@drawdb/core";
+import { deepClone, validateDiagram } from "@drawdb/core";
 import type {
   CustomType,
   DatabaseType,
   Diagram,
+  DiagramIssue,
   MetadataSchema,
   StorageAdapter,
 } from "@drawdb/core";
@@ -154,6 +155,12 @@ defineExpose({
   importSql: commands.importSql,
   runCommand: plugins.runCommand,
   getDiagram: (): Diagram => deepClone(diagramStore.diagram),
+  /** Arranges the tables of the diagram. */
+  autoArrange: (): void => diagramStore.autoArrange(),
+  /** Validates the diagram and returns the issues it has. */
+  validate: (): DiagramIssue[] => validateDiagram(diagramStore.diagram),
+  /** Opens the tab that lists the issues of the diagram. */
+  openIssuesTab: (): void => uiStore.setActiveTab("issues"),
 });
 </script>
 

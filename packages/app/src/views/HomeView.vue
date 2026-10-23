@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import { createId, type Diagram } from "@drawdb/core";
+import { downloadDiagramJson, readDiagramJsonFile } from "../services/diagram-io.ts";
 import { getStorage } from "../services/storage.ts";
 
+const router = useRouter();
 const diagrams = ref<Diagram[]>([]);
 const loading = ref(true);
 const error = ref("");
+
+/** Opens the file picker of the browser. */
+let picker: HTMLInputElement | undefined;
 
 async function refresh() {
   loading.value = true;
@@ -25,6 +30,22 @@ async function remove(id: string) {
   await refresh();
 }
 
+/** Imports a diagram the user picked and opens it in the editor. */
+async function importDiagram(file: File) {
+  try {
+    const diagram = await readDiagramJsonFile(file);
+    await getStorage().save(diagram);
+    await router.push(`/editor/${String(diagram.id)}`);
+  } catch (cause) {
+    error.value = cause instanceof Error ? cause.message : String(cause);
+  }
+}
+
+/** Hands the file input of the browser the click of the button. */
+function pickDiagram() {
+  picker?.click();
+}
+
 onMounted(refresh);
 </script>
 
@@ -39,6 +60,17 @@ onMounted(refresh);
         <RouterLink class="button" to="/templates" data-testid="link-templates">
           Templates
         </RouterLink>
+        <button class="button" type="button" data-testid="import-json" @click="pickDiagram">
+          Import JSON
+        </button>
+        <input
+          ref="picker"
+          class="visually-hidden"
+          type="file"
+          accept="application/json,.json"
+          data-testid="import-json-input"
+          @change="importDiagram(($event.target as HTMLInputElement).files?.[0] as File)"
+        />
       </div>
     </div>
 
@@ -54,6 +86,14 @@ onMounted(refresh);
           {{ diagram.title || "Untitled" }}
         </RouterLink>
         <span class="muted">{{ diagram.database }}</span>
+        <button
+          class="button ghost"
+          type="button"
+          data-testid="export-json"
+          @click="downloadDiagramJson(diagram)"
+        >
+          Export JSON
+        </button>
         <button
           class="button ghost"
           type="button"

@@ -77,6 +77,50 @@ test("deletes a stored diagram", async () => {
   assert.ok(wrapper.find('[data-testid="home-empty"]').exists());
 });
 
+test("downloads a diagram as json and imports one back", async () => {
+  const { wrapper, router } = await mountApp("/", async (storage) => {
+    await storage.save(createEmptyDiagram({ id: "d1", title: "Billing" }));
+  });
+
+  const downloads: { name: string; text: string }[] = [];
+  const createObjectURL = (blob: Blob) => {
+    downloads.push({ name: "", text: "" });
+    void blob.text().then((text) => {
+      downloads[downloads.length - 1].text = text;
+    });
+    return "blob:test";
+  };
+  const click = HTMLAnchorElement.prototype.click;
+  HTMLAnchorElement.prototype.click = function patched(this: HTMLAnchorElement) {
+    downloads[downloads.length - 1].name = this.download;
+  };
+  (globalThis as { URL: unknown }).URL = {
+    createObjectURL,
+    revokeObjectURL: () => undefined,
+  };
+
+  try {
+    await wrapper.find('[data-testid="export-json"]').trigger("click");
+    await settle();
+
+    assert.equal(downloads.length, 1);
+    assert.equal(downloads[0].name, "billing.json");
+    assert.match(downloads[0].text, /"title": "Billing"/);
+    assert.match(downloads[0].text, /"id": "d1"/);
+
+    // The user picks the file they just downloaded.
+    const input = wrapper.find('[data-testid="import-json-input"]');
+    const file = { text: () => Promise.resolve(downloads[0].text) } as unknown as File;
+    Object.defineProperty(input.element, "files", { value: [file] });
+    await input.trigger("change");
+    await settle();
+
+    assert.equal(router.currentRoute.value.path, "/editor/d1");
+  } finally {
+    HTMLAnchorElement.prototype.click = click;
+  }
+});
+
 test("opens the editor of a diagram", async () => {
   const { wrapper, router } = await mountApp(
     "/editor/d1",
@@ -102,6 +146,43 @@ test("opens the editor of a diagram", async () => {
     1,
   );
   assert.equal(router.currentRoute.value.name, "editor-diagram");
+});
+
+test("arranges the tables and opens the issues of the diagram", async () => {
+  const { wrapper } = await mountApp("/editor/d1", async (storage) => {
+    const diagram = createEmptyDiagram({ id: "d1", title: "Billing" });
+    diagram.tables = [
+      {
+        id: "t1",
+        name: "users",
+        x: 4000,
+        y: 3000,
+        fields: [{ id: "f1", name: "id", type: "INTEGER", primary: true }],
+      },
+      {
+        id: "t2",
+        name: "invoices",
+        x: 9000,
+        y: 3000,
+        fields: [{ id: "f2", name: "id", type: "INTEGER", primary: true }],
+      },
+    ];
+    await storage.save(diagram);
+  });
+
+  await wrapper.find('[data-testid="auto-layout"]').trigger("click");
+  await settle();
+
+  const placed = wrapper.findAll('[data-testid^="table-"][data-table-id]');
+  assert.equal(placed.length, 2);
+  const far = placed.filter((node) => String(node.attributes("transform")).includes("9000"));
+  assert.equal(far.length, 0);
+
+  await wrapper.find('[data-testid="validate-diagram"]').trigger("click");
+  await settle();
+
+  assert.ok(wrapper.find('[data-testid="issues-tab"]').exists());
+  assert.ok(wrapper.find('[data-testid="issues-empty"]').exists());
 });
 
 test("shows the templates", async () => {

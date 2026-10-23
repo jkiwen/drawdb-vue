@@ -90,6 +90,12 @@ const tabProps = computed(() => {
 
     <section class="side-panel__body" :data-testid="`${ui.activeTab}-panel`">
       <component :is="activeComponent" v-bind="tabProps" />
+      <p
+        v-if="ui.activeTab === 'issues' && issues.length === 0"
+        data-testid="issues-empty"
+      >
+        No issues found.
+      </p>
     </section>
   </aside>
 </template>
