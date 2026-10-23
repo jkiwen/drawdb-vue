@@ -50,6 +50,7 @@
     "@intlify/message-compiler": "11.4.16",
     "@intlify/shared": "11.4.16",
     "@vue/devtools-api": "^6.5.0",
+    "html-to-image": "1.11.13",
     "naive-ui": "2.38.0",
     "pinia": "^2.2.0",
     "vue-demi": "^0.14.10",

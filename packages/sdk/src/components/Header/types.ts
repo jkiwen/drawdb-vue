@@ -33,6 +33,7 @@ export const DEFAULT_MENU_GROUPS: MenuBarGroup[] = [
       { key: "export-dbml", label: "Export DBML" },
       { key: "export-json", label: "Export JSON" },
       { key: "export-png", label: "Export PNG" },
+      { key: "toggle-fullscreen", label: "Fullscreen" },
     ],
   },
   {
@@ -59,8 +60,7 @@ export const DEFAULT_MENU_GROUPS: MenuBarGroup[] = [
       { key: "toggle-sidebar", label: "Toggle side panel" },
       { key: "toggle-view-mode", label: "Toggle view mode" },
       { key: "validate", label: "Validate diagram" },
-    ],
-  },
+    ],  },
   {
     key: "help",
     label: "Help",

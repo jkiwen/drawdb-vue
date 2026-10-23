@@ -20,12 +20,15 @@ withDefaults(
     importOpen?: boolean;
     autoRelationshipsOpen?: boolean;
     imageExportOpen?: boolean;
+    /** The SVG markup of the canvas, handed to the image export. */
+    svg?: string;
   }>(),
   {
     sqlPreviewOpen: false,
     importOpen: false,
     autoRelationshipsOpen: false,
     imageExportOpen: false,
+    svg: "",
   },
 );
 
@@ -38,7 +41,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="ddb-editor__dialogs">
+  <div class="ddb-editor__dialogs" data-testid="editor-dialogs">
     <SqlPreviewDialog
       :open="sqlPreviewOpen"
       @update:open="emit('update:sqlPreviewOpen', $event)"
@@ -53,6 +56,7 @@ const emit = defineEmits<{
     />
     <ImageExportDialog
       :open="imageExportOpen"
+      :svg="svg"
       @update:open="emit('update:imageExportOpen', $event)"
     />
   </div>

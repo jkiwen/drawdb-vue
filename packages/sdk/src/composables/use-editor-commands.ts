@@ -153,6 +153,9 @@ export function useEditorCommands(
       case "edit:auto-layout":
         diagramStore.autoArrange();
         break;
+      case "file:toggle-fullscreen":
+        uiStore.setFullscreen(!uiStore.isFullscreen);
+        break;
       case "edit:add-table":
         addTable();
         break;

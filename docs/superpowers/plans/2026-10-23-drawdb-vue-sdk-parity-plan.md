@@ -808,6 +808,8 @@
 
 ## Task 28: sdk 弹窗与导入导出
 
+**Status:** complete — commit `067af13`
+
 **Files:**
 - Create: `packages/sdk/src/components/Dialogs/SqlPreviewDialog.vue`
 - Create: `packages/sdk/src/components/Dialogs/ImportDialog.vue`
@@ -829,7 +831,7 @@
   `EditorDialogs.vue` 的 props：`{ sqlPreviewOpen: boolean; importOpen: boolean; autoRelationshipsOpen: boolean; imageExportOpen: boolean }`，emits：`update:sqlPreviewOpen`、`update:importOpen`、`update:autoRelationshipsOpen`、`update:imageExportOpen`。
   菜单新 key：`file:import-json`、`file:export-json`、`file:export-png`、`file:auto-layout`、`file:auto-relationships`、`file:validate`。
 
-- [ ] **Step 1: 写失败的测试 `packages/sdk/src/components/Dialogs/dialogs.test.ts`**
+- [x] **Step 1: 写失败的测试 `packages/sdk/src/components/Dialogs/dialogs.test.ts`**
 
   必须包含（≥ 10 条）：
   ```ts
@@ -847,18 +849,18 @@
   test("the menu opens the import dialog", () => { /* 触发 "file:import-json" → 弹窗出现 */ });
   ```
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs dialogs`
   Expected: FAIL —— 弹窗组件不存在
 
-- [ ] **Step 3: 实现三个弹窗**
+- [x] **Step 3: 实现三个弹窗**
 
   - `SqlPreviewDialog.vue`：`data-testid="sql-preview-dialog"`；NButtonGroup 切换 SQL/DBML；`data-testid="sql-preview-content"` 显示内容；复制按钮调用 `navigator.clipboard.writeText`；下载按钮用 `Blob` + `URL.createObjectURL`。
   - `ImportDialog.vue`：`data-testid="import-dialog"`；格式下拉（SQL / DBML / JSON）；文本域 + 文件选择；解析错误显示在 `data-testid="import-error"`（含 `diagnostics` 的行/列）；确认导入前先弹二次确认（`data-testid="import-confirm"`）；成功后 `emit("imported", diagram)`。
   - `AutoRelationshipsDialog.vue`：`data-testid="auto-relationships-dialog"`；用 `inferRelationships` 列出候选（勾选框 + 表格名/字段名/基数）；确认后 `diagramStore.applyRelationships(selected)`（该 store 方法在 Step 4 补齐）。
 
-- [ ] **Step 4: 补齐 store 方法与菜单接线**
+- [x] **Step 4: 补齐 store 方法与菜单接线**
 
   `stores/diagram.ts` 新增：
   ```ts
@@ -868,19 +870,19 @@
   ```
   `Header/types.ts` 新增菜单项（file 组：导入 JSON / 导出 JSON / 导出 PNG；edit 组：自动布局 / 推断关系；view 组：质量校验），并在 `use-editor-commands.ts` 里接上对应动作。
 
-- [ ] **Step 5: i18n 新键**
+- [x] **Step 5: i18n 新键**
 
   新增键（英文为基准，其余 50 个语言文件用英文回填）：
   `file.importJson`、`file.exportJson`、`file.exportPng`、`file.autoLayout`、`file.autoRelationships`、`file.validate`、`dialog.sqlPreview`、`dialog.import`、`dialog.imageExport`、`dialog.autoRelationships`、`import.error`、`import.confirm`、`import.success`、`export.copied`、`export.download`、`autoRelationships.empty`、`autoRelationships.apply`、`layout.failed`。
 
   Run: `node scripts/migrate-i18n.ts`（迁移脚本会把缺失的键回填为英文），随后检查 `packages/sdk/src/i18n/locales/zh-CN.json` 等 51 个文件都含新键。
 
-- [ ] **Step 6: 整体验证**
+- [x] **Step 6: 整体验证**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）、`node --experimental-strip-types scripts/verify-constraints.test.ts`、`pnpm run typecheck`
   Expected: 0 fail；约束检查通过；typecheck 无错误
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
   ```bash
   git add packages/sdk/src

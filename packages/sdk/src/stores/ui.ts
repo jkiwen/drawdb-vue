@@ -63,7 +63,7 @@ export const useUIStore = defineStore("ui", () => {
   const searchTerm = ref("");
   const viewMode = ref<ViewMode>("physical");
   const contextMenu = ref<ContextMenuState | null>(null);
-
+  const isFullscreen = ref(false);
   // The state of the interactions of the canvas. The composables of the
   // canvas keep the behaviour, the store holds the state.
   const linking = ref<LinkingState | null>(null);
@@ -215,6 +215,11 @@ export const useUIStore = defineStore("ui", () => {
     contextMenu.value = null;
   }
 
+  /** Whether the editor of the host is on the whole screen. */
+  function setFullscreen(value: boolean): void {
+    isFullscreen.value = value;
+  }
+
   return {
     selectedTableIds,
     selectedRelationshipIds,
@@ -232,6 +237,7 @@ export const useUIStore = defineStore("ui", () => {
     searchTerm,
     viewMode,
     contextMenu,
+    isFullscreen,
     linking,
     resizing,
     selectionBox,
@@ -256,6 +262,7 @@ export const useUIStore = defineStore("ui", () => {
     toggleViewMode,
     openContextMenu,
     closeContextMenu,
+    setFullscreen,
   };
 });
 

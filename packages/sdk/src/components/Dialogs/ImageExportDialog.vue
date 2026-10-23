@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { exportDiagramJson } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import { exportPng } from "../../composables/use-image-export.ts";
 
 defineOptions({ name: "DrawDBImageExportDialog" });
 
@@ -27,6 +28,10 @@ const emit = defineEmits<{
 
 const diagram = useDiagramStore();
 const copied = ref(false);
+const scale = ref("1");
+const background = ref("#ffffff");
+const done = ref(false);
+const error = ref("");
 
 /** The JSON of the diagram, so that the image can carry its source. */
 function exportJson(): string {
@@ -36,6 +41,28 @@ function exportJson(): string {
 async function copyJson(): Promise<void> {
   await navigator.clipboard.writeText(exportJson());
   copied.value = true;
+}
+
+/** Renders the element of the preview as a PNG. */
+async function download(): Promise<void> {
+  done.value = false;
+  error.value = "";
+  const element = document.querySelector(
+    '[data-testid="image-export-preview"]',
+  ) as HTMLElement | null;
+  if (!element) {
+    error.value = "The canvas of the editor is not on the page";
+    return;
+  }
+  try {
+    await exportPng(element, {
+      pixelRatio: Number(scale.value),
+      backgroundColor: background.value,
+    });
+    done.value = true;
+  } catch (caught) {
+    error.value = caught instanceof Error ? caught.message : String(caught);
+  }
 }
 
 function close(): void {
@@ -51,6 +78,29 @@ function close(): void {
       data-testid="image-export-preview"
       v-html="props.svg"
     ></div>
+    <label class="ddb-image-export__option">
+      Scale
+      <select v-model="scale" class="ddb-image-export__scale" data-testid="image-export-scale">
+        <option value="1">1×</option>
+        <option value="2">2×</option>
+        <option value="3">3×</option>
+      </select>
+    </label>
+    <label class="ddb-image-export__option">
+      Background
+      <input
+        v-model="background"
+        class="ddb-image-export__background"
+        data-testid="image-export-background"
+        type="color"
+      />
+    </label>
+    <p v-if="done" class="ddb-image-export__done" data-testid="image-export-done">
+      The image was rendered
+    </p>
+    <p v-if="error" class="ddb-image-export__error" data-testid="image-export-error">
+      {{ error }}
+    </p>
     <p v-if="copied" class="ddb-image-export__copied" data-testid="image-export-copied">
       Copied the JSON to the clipboard
     </p>
@@ -59,7 +109,7 @@ function close(): void {
         class="ddb-image-export__png"
         data-testid="image-export-png"
         type="button"
-        @click="close"
+        @click="download"
       >
         Download the PNG
       </button>
@@ -108,6 +158,12 @@ function close(): void {
   overflow: auto;
   padding: 8px;
 }
+.ddb-image-export__option {
+  align-items: center;
+  display: flex;
+  font-size: 13px;
+  gap: 8px;
+}
 .ddb-image-export__actions {
   display: flex;
   gap: 8px;
@@ -121,8 +177,14 @@ function close(): void {
   cursor: pointer;
   padding: 6px 12px;
 }
-.ddb-image-export__copied {
+.ddb-image-export__copied,
+.ddb-image-export__done {
   color: var(--ddb-success, #18a058);
+  font-size: 13px;
+  margin: 0;
+}
+.ddb-image-export__error {
+  color: var(--ddb-danger, #d03050);
   font-size: 13px;
   margin: 0;
 }
