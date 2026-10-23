@@ -58,6 +58,8 @@
   - Report: `docs/task-22-report.md`
 - Task 23: complete (commit `a660877`; the core module `serialize` with `exportDiagramJson` and `importDiagramJson`, the class `ImportError` with the codes `json.parse_failed`, `json.invalid_shape`, `relationship.missing_table`, `relationship.missing_field` and `database.mismatch`; the old field names `references` and `areas`; 15/15 new specs, 410/410 workspace specs pass; typecheck clean for the five programs)
   - Report: `docs/task-23-report.md`
+- Task 24: complete (commit `9fd4fca`; the commands of the core reorganised into five files by family — `table-commands.ts`, `field-commands.ts`, `relationship-commands.ts`, `collection-commands.ts`, `auto-arrange-command.ts` — with the new commands `MoveFieldCommand`, `AddRelationshipsCommand`, `ResizeTableCommand`, `ToggleTableLockCommand` and the commands of the flat collections; no `SetDiagramCommand`, the properties of the diagram stay with `UpdateDiagramCommand`; 18/18 new specs, 428/428 workspace specs pass; typecheck clean for the five programs)
+  - Report: `docs/task-24-report.md`
 - Restructure: complete (the outer repository of the React application was removed, the React application moved into `../drawdb-app` as a reference, the history kept in `../drawdb-history.bundle`, the packages packed locally instead of published to npm; 327/327 workspace specs pass; typecheck clean)
   - Report: `docs/restructure-report.md`
 
@@ -165,3 +167,8 @@
 - **Task 23: Ruling: the import throws a typed error** — The errors are the instances of the class `ImportError`, which carries a `code` and the `diagnostics`. A dialog of the SDK therefore reacts to the code and not to the text of the message. Cost if wrong: a caller has to read the text of the message.
 - **Task 23: Ruling: the import never modifies its source** — The lists of the source are copied, so a diagram that is imported twice from the same object gives two independent diagrams. Cost if wrong: none.
 - **Task 23: Ruling: a dialect that the host does not expect is an error** — The import compares the dialect of the file with `options.database` and throws `database.mismatch`, unless `options.allowDatabaseOverride` is `true`. The React reference behaves the same way. Cost if wrong: a host cannot import a diagram of another dialect without the option.
+
+## Rulings
+- **Task 24: Ruling: the commands are grouped by family** — One file per family of the model (the tables, the fields, the relationships, the flat collections, the layout) instead of one file per command. The names of the classes and the behaviour did not change, so the imports of the SDK are untouched. Cost if wrong: none.
+- **Task 24: Ruling: the undo restores the exact previous state** — A command that writes a property that was absent before deletes it again on the undo, so that the diagram is deeply equal to the snapshot of the test. Cost if wrong: a diagram that is undone and redrawn carries empty properties that the original did not have.
+- **Task 24: Ruling: no `SetDiagramCommand`** — The properties of the diagram (the title, the dialect, the sql header) stay with the existing `UpdateDiagramCommand(diagram, updates)`, as the plan requires. The spec §4.4 mentions a `SetDiagramCommand`; the difference is recorded in the report of Task 24 and repeated in the report of Task 32. Cost if wrong: none.

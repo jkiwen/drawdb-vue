@@ -403,6 +403,8 @@
 
 ## Task 24: core 命令补全
 
+**Status:** complete — commit `9fd4fca` · report: `docs/task-24-report.md`
+
 **Files:**
 - Create: `packages/core/src/commands/field-commands.ts`
 - Create: `packages/core/src/commands/relationship-commands.ts`
@@ -442,7 +444,7 @@
   ```
   **不新增** `SetDiagramCommand`：图级属性（标题/数据库/SQL 头）由既有的 `UpdateDiagramCommand(diagram, updates: DiagramProperties)` 承担（spec §4.4 的 `SetDiagramCommand` 由此取代，实现时在 Task 32 的报告里记录该差异）。
 
-- [ ] **Step 1: 写失败的测试 `packages/core/src/commands/commands.test.ts`**
+- [x] **Step 1: 写失败的测试 `packages/core/src/commands/commands.test.ts`**
 
   每条命令写两条对称用例（execute 与 undo）：
   ```ts
@@ -459,12 +461,12 @@
   ```
   断言方式：直接 `new XCommand(diagram, …).execute()`，再检查 `diagram` 的内容；`undo()` 后检查与操作前 `deepClone` 的快照相等（用 `assert.deepEqual`）。
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs commands`
   Expected: FAIL —— `ERR_MODULE_NOT_FOUND`（新命令文件不存在）
 
-- [ ] **Step 3: 实现四个命令文件**
+- [x] **Step 3: 实现四个命令文件**
 
   - 把既有的 `add-table.ts` / `update-table.ts` / `remove-table.ts` / `add-relationship.ts` / `update-field.ts` / `add-field.ts` / `remove-field.ts` 的实现**原样迁入**新的四个文件（类名与行为不变），删除旧文件。
   - `UpdateTableCommand` 的 `structuredClone` **必须换成 `deepClone`**（`structuredClone` 不能克隆 Vue 代理，见 spec §4.4）。
@@ -475,16 +477,16 @@
   - `UpdateEntityCommand`：在 `diagram[collection]` 里按 `id`（或 `name`，枚举按名）找到实体并合并 `updates`，undo 还原旧值快照。
   - `AutoArrangeCommand`：execute 把 `positions[i]` 写到第 i 张表，undo 把 `previous[i]` 写回。
 
-- [ ] **Step 4: 更新导出**
+- [x] **Step 4: 更新导出**
 
   `packages/core/src/commands/index.ts` 改为导出四个新文件与 `auto-arrange-command.ts`；`packages/core/src/index.ts` 的 `export * from "./commands/index.ts";` 保持不变（名字集合不变，外部 import 不受影响）。
 
-- [ ] **Step 5: 整体验证**
+- [x] **Step 5: 整体验证**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）与 `pnpm run typecheck`
   Expected: 0 fail（既有 364 条 + 新增 ≥ 10 条）；typecheck 无错误
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
   ```bash
   git add packages/core/src/commands packages/core/src/index.ts
