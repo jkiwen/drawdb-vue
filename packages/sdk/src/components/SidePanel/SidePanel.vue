@@ -13,6 +13,8 @@ import ViewsTab from "./ViewsTab.vue";
 import TypesTab from "./TypesTab.vue";
 import CustomTypesTab from "./CustomTypesTab.vue";
 import SqlHeaderTab from "./SqlHeaderTab.vue";
+import IssuesTab from "./IssuesTab.vue";
+import { useIssues } from "../../composables/use-issues.ts";
 
 /**
  * The side panel of the editor.
@@ -33,6 +35,7 @@ const TABS: { name: UiTab; label: string }[] = [
   { name: "types", label: "Types" },
   { name: "customTypes", label: "Custom Types" },
   { name: "sqlHeader", label: "SQL Header" },
+  { name: "issues", label: "Issues" },
 ];
 
 const COMPONENTS = {
@@ -45,6 +48,7 @@ const COMPONENTS = {
   types: TypesTab,
   customTypes: CustomTypesTab,
   sqlHeader: SqlHeaderTab,
+  issues: IssuesTab,
 } as const;
 
 const props = defineProps({
@@ -54,11 +58,18 @@ const props = defineProps({
 
 const ui = useUIStore();
 const activeComponent = computed(() => COMPONENTS[ui.activeTab]);
+const { issues } = useIssues();
 
-/** Only the tab that edits the custom types of the host application needs them. */
-const tabProps = computed(() =>
-  ui.activeTab === "customTypes" ? { customTypes: props.customTypes } : {},
-);
+/** Only the tab that edits the custom types of the host application needs them, and the issues tab its list. */
+const tabProps = computed(() => {
+  if (ui.activeTab === "customTypes") {
+    return { customTypes: props.customTypes };
+  }
+  if (ui.activeTab === "issues") {
+    return { issues: issues.value };
+  }
+  return {};
+});
 </script>
 
 <template>

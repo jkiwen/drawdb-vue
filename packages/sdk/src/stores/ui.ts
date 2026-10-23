@@ -6,6 +6,7 @@ import type {
   ResizeState,
   SelectionBox,
 } from "../components/Canvas/interactions/interaction-state.ts";
+import { useFocusIssue } from "./selection-actions.ts";
 
 export type UiTab =
   | "tables"
@@ -16,7 +17,8 @@ export type UiTab =
   | "views"
   | "types"
   | "customTypes"
-  | "sqlHeader";
+  | "sqlHeader"
+  | "issues";
 
 export interface SelectedField {
   tableId: string;
@@ -144,11 +146,12 @@ export const useUIStore = defineStore("ui", () => {
       clearSelection();
     }
     const exists = selectedFields.value.some(
-      (field) => field.tableId === tableId && field.fieldId === fieldId,
+      (field: SelectedField) => field.tableId === tableId && field.fieldId === fieldId,
     );
     if (exists) {
       selectedFields.value = selectedFields.value.filter(
-        (field) => !(field.tableId === tableId && field.fieldId === fieldId),
+        (field: SelectedField) =>
+          !(field.tableId === tableId && field.fieldId === fieldId),
       );
       return;
     }
@@ -220,6 +223,9 @@ export const useUIStore = defineStore("ui", () => {
     isFullscreen.value = value;
   }
 
+  // Selects the object a problem of the diagram is about and scrolls to it.
+  const focusIssue = useFocusIssue();
+
   return {
     selectedTableIds,
     selectedRelationshipIds,
@@ -263,6 +269,7 @@ export const useUIStore = defineStore("ui", () => {
     openContextMenu,
     closeContextMenu,
     setFullscreen,
+    focusIssue,
   };
 });
 

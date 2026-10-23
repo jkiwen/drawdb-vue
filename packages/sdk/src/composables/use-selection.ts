@@ -118,7 +118,8 @@ export function useSelection(): SelectionApi {
     ui.selectedNoteIds = ui.selectedNoteIds.filter((item) => item !== id);
     ui.selectedAreaIds = ui.selectedAreaIds.filter((item) => item !== id);
     ui.selectedFields = ui.selectedFields.filter(
-      (field) => field.tableId !== id && field.fieldId !== id,
+      (field: { tableId: string; fieldId: string }) =>
+        field.tableId !== id && field.fieldId !== id,
     );
   }
 

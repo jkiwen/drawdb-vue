@@ -8,6 +8,7 @@ export { default as ViewsTab } from "./ViewsTab.vue";
 export { default as TypesTab } from "./TypesTab.vue";
 export { default as CustomTypesTab } from "./CustomTypesTab.vue";
 export { default as SqlHeaderTab } from "./SqlHeaderTab.vue";
+export { default as IssuesTab } from "./IssuesTab.vue";
 export { default as TypeEditor } from "./TypeEditor.vue";
 export { default as TypeFieldEditor } from "./TypeFieldEditor.vue";
 export { default as ViewEditor } from "./ViewEditor.vue";

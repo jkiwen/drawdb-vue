@@ -220,7 +220,9 @@ export function useEditorSync(options: EditorSyncOptions): EditorSyncApi {
         relationships: [...uiStore.selectedRelationshipIds],
         notes: [...uiStore.selectedNoteIds],
         areas: [...uiStore.selectedAreaIds],
-        fields: uiStore.selectedFields.map((field) => ({ ...field })),
+        fields: uiStore.selectedFields.map(
+          (field: { tableId: string; fieldId: string }) => ({ ...field }),
+        ),
       });
     },
   );

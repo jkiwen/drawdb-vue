@@ -893,6 +893,8 @@
 
 ## Task 29: sdk 全屏与图片导出
 
+**Status:** complete — commit `HEAD`
+
 **Files:**
 - Create: `packages/sdk/src/composables/use-image-export.ts`
 - Create: `packages/sdk/src/composables/use-fullscreen.ts`
@@ -912,12 +914,12 @@
   export function useFullscreen(target?: Ref<HTMLElement | null>): { isFullscreen: Ref<boolean>; toggle(): Promise<void>; };
   ```
 
-- [ ] **Step 1: 安装 `html-to-image`**
+- [x] **Step 1: 安装 `html-to-image`**
 
   Run: `pnpm --filter @drawdb/vue-sdk add html-to-image@1.11.13`
   Expected: 退出码 0
 
-- [ ] **Step 2: 写失败的测试 `packages/sdk/src/composables/image-export.test.ts`**
+- [x] **Step 2: 写失败的测试 `packages/sdk/src/composables/image-export.test.ts`**
 
   必须包含（≥ 8 条）：
   ```ts
@@ -931,26 +933,26 @@
   test("the image export dialog exports the canvas", () => { /* stub exportPng 被调用 */ });
   ```
 
-- [ ] **Step 3: 运行测试确认失败**
+- [x] **Step 3: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs image-export`
   Expected: FAIL —— 模块不存在
 
-- [ ] **Step 4: 实现两个 composable**
+- [x] **Step 4: 实现两个 composable**
 
   - `exportPng(element, options)`：`element.setAttribute("data-exporting", "true")` → 调用 `html-to-image` 的 `toPng(element, { pixelRatio, backgroundColor })` → `finally` 里 `element.removeAttribute("data-exporting")`；失败抛 `ImageExportError`。
   - `useFullscreen(target)`：`isFullscreen` 由 `document.fullscreenElement` 驱动；`toggle()` 调用 `requestFullscreen` / `exitFullscreen`，被拒绝时把 `isFullscreen` 保持 false。
 
-- [ ] **Step 5: 实现 `ImageExportDialog.vue` 并接线**
+- [x] **Step 5: 实现 `ImageExportDialog.vue` 并接线**
 
   `data-testid="image-export-dialog"`；缩放倍数下拉（1×/2×/3×）、背景色选择、导出按钮；导出期间禁用画布交互（`data-exporting` 属性的 CSS 已在 `styles.css` 隐藏交互层）。
 
-- [ ] **Step 6: 整体验证**
+- [x] **Step 6: 整体验证**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）、`node --experimental-strip-types scripts/verify-constraints.test.ts`、`pnpm run typecheck`
   Expected: 0 fail；约束检查通过；typecheck 无错误
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
   ```bash
   git add packages/sdk/src packages/sdk/package.json pnpm-lock.yaml
