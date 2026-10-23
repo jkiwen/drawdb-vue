@@ -1,6 +1,6 @@
 {
   "name": "drawdb-vue",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.28.5",
@@ -13,7 +13,8 @@
     "test:all": "pnpm run build:packages && pnpm run test",
     "typecheck": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/sdk/tsconfig.json && tsc --noEmit -p packages/app/tsconfig.json && vue-tsc --noEmit -p examples/vue-embed/tsconfig.json && tsc --noEmit -p e2e/tsconfig.json",
     "e2e": "playwright test --config e2e/playwright.config.ts",
-    "e2e:install": "playwright install --with-deps chromium"
+    "e2e:install": "playwright install --with-deps chromium",
+    "pack:packages": "pnpm --filter @drawdb/core pack --pack-destination ../../.release && pnpm --filter @drawdb/vue-sdk pack --pack-destination ../../.release"
   },
   "devDependencies": {
     "@playwright/test": "1.49.0",

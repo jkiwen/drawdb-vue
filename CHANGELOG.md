@@ -4,9 +4,13 @@ All notable changes of the drawDB Vue workspace are recorded in this file. The
 format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the
 packages follow [semantic versioning](https://semver.org/).
 
-## 1.0.0
+> The packages are **not published to npm**. The version number marks the state
+> of the development; the distribution is built and verified locally with
+> `pnpm run pack:packages` (see the readme).
 
-The first release of the Vue workspace. It publishes two packages and one
+## 0.1.0
+
+The first version of the Vue workspace. It publishes two packages and one
 standalone application.
 
 ### @drawdb/core

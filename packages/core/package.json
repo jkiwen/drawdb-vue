@@ -1,6 +1,6 @@
 {
   "name": "@drawdb/core",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Core data models, state logic, and import/export utilities for drawDB Vue SDK",
   "license": "MIT",
   "author": "drawDB contributors",

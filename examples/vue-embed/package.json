@@ -1,6 +1,6 @@
 {
   "name": "drawdb-vue-embed-example",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Example that embeds the drawDB editor into a Vue application",
   "license": "MIT",
   "private": true,

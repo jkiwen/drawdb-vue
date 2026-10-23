@@ -100,9 +100,11 @@ of its program.
 
 ## The versions
 
-The three packages are at `1.0.0`. The core and the SDK carry a license
+The three packages are at `0.1.0`. The core and the SDK carry a license
 (MIT), the keywords, the address of the repository and
-`publishConfig.access: public`.
+`publishConfig.access: public`. The number marks the state of the development:
+the packages are **not** published to npm, they are packed locally with
+`pnpm run pack:packages`.
 
 ## Differences from the plan
 
@@ -115,7 +117,9 @@ The three packages are at `1.0.0`. The core and the SDK carry a license
   application is left to the CI.
 - The plan tags the release with `v1.0.0`; the tag is created after the commit
   of this task, and the workflow of the release publishes the packages when the
-  tag is pushed.
+  tag is pushed. The development stage does not publish to npm: the tag is
+  `v0.1.0` and the workflow of the release only packs the packages and uploads
+  the tarballs.
 
 ## Tests
 

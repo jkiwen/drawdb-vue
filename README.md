@@ -79,14 +79,19 @@ processes that vitest and `node --test` spawn. The specification of the artifact
 
 ## The release
 
+The development stage does not publish to npm. The packages are packed locally
+and can be installed from the tarball:
+
 | Command | Description |
 | --- | --- |
-| `pnpm --filter @drawdb/core publish --access public` | publishes `@drawdb/core` |
-| `pnpm --filter @drawdb/vue-sdk publish --access public` | publishes `@drawdb/vue-sdk` |
+| `pnpm run pack:packages` | packs the two packages into `.release/*.tgz` |
+| `npm install ../.release/drawdb-core-0.1.0.tgz` | installs the core from the tarball |
 
-The tag `v1.0.0` triggers `.github/workflows/release.yml`, which checks the
-workspace, publishes the two packages and creates the GitHub release. The changes
-of every version are written in [CHANGELOG.md](CHANGELOG.md).
+The tag `v0.1.0` triggers `.github/workflows/release.yml`, which checks the
+workspace, builds the packages, runs the tests and uploads the tarballs as an
+artifact of the workflow. The publication to npm is added back when the packages
+are ready for the registry. The changes of every version are written in
+[CHANGELOG.md](CHANGELOG.md).
 
 ## The documentation
 

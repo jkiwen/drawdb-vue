@@ -18,7 +18,7 @@ test("the changelog announces the release", () => {
     existsSync(resolve(ROOT, "CHANGELOG.md")),
     "CHANGELOG.md is missing",
   );
-  assert.match(read("CHANGELOG.md"), /##\s+1\.0\.0/);
+  assert.match(read("CHANGELOG.md"), /##\s+0\.1\.0/);
 });
 
 test("the packages are published with the version of the release", () => {
@@ -29,7 +29,7 @@ test("the packages are published with the version of the release", () => {
   ]) {
     assert.equal(
       readManifest(manifest)["version"],
-      "1.0.0",
+      "0.1.0",
       `${manifest} is not at the version of the release`,
     );
   }
@@ -51,11 +51,20 @@ test("the continuous integration runs the checks, the build and the tests", () =
   assert.match(workflow, /pnpm run test/);
 });
 
-test("the release workflow publishes the two packages", () => {
+test("the release workflow packs the packages and does not publish them", () => {
   const workflow = read(".github/workflows/release.yml");
   assert.match(workflow, /tags:/);
-  assert.match(workflow, /@drawdb\/core/);
-  assert.match(workflow, /@drawdb\/vue-sdk/);
+  assert.match(workflow, /pnpm run pack:packages/);
+  assert.doesNotMatch(workflow, /pnpm .*publish/);
+});
+
+test("the packages can be packed locally", () => {
+  const scripts = readManifest("package.json")["scripts"] as Record<
+    string,
+    string
+  >;
+  assert.match(scripts["pack:packages"], /@drawdb\/core pack/);
+  assert.match(scripts["pack:packages"], /@drawdb\/vue-sdk pack/);
 });
 
 test("the example embeds the editor", () => {

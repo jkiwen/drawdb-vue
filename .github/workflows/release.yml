@@ -1,16 +1,23 @@
-name: Release
+name: Package
+
+# The development stage does not publish to npm. The workflow checks the
+# workspace, builds the two packages and packs them into tarballs, so that the
+# distribution can be installed and tested locally:
+#
+#   pnpm run pack:packages
+#   npm install ./drawdb-core-0.1.0.tgz
+#
+# The publication to npm is deliberately not a part of this workflow. It is
+# added back when the packages are ready for the registry.
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
-
-permissions:
-  contents: write
 
 jobs:
-  release:
+  pack:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,22 +28,15 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
       - run: pnpm run build:packages
       - run: pnpm run test
-      - name: Publish @drawdb/core
-        run: pnpm --filter @drawdb/core publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish @drawdb/vue-sdk
-        run: pnpm --filter @drawdb/vue-sdk publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Create the GitHub release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+      - name: Pack the two packages
+        run: pnpm run pack:packages
+      - name: Upload the tarballs
+        uses: actions/upload-artifact@v4
         with:
-          generate_release_notes: true
-          body_path: CHANGELOG.md
+          name: packages
+          path: .release/*.tgz
+          if-no-files-found: error
