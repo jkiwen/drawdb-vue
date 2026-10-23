@@ -31,10 +31,28 @@ packages/app
 │   ├── views                  HomeView, EditorView and TemplateView
 │   ├── services
 │   │   ├── storage.ts         the IndexedDB adapter of the browser
+│   │   ├── diagram-io.ts      the download and the reading of a diagram as JSON
 │   │   └── templates.ts       the starter diagrams
 │   └── styles.css             the styles of the application
 └── vite.config.ts             the aliases to the sources of the packages
 ```
+
+## Importing and exporting a diagram
+
+The list of the diagrams downloads a diagram as a JSON file and imports one back
+(`services/diagram-io.ts`):
+
+| Button | Test id | What it does |
+| --- | --- | --- |
+| `Download` | `export-json` | downloads `<title>.json` with `exportDiagramJson` |
+| `Import JSON` | `import-json` | opens the picker of a file, reads it with `importDiagramJson`, stores the diagram and opens it |
+
+The editor view has a toolbar with the two remaining commands of the phase 2 features:
+
+| Button | Test id | What it does |
+| --- | --- | --- |
+| `Auto layout` | `auto-layout` | calls `autoArrange()` on the editor, one undo step for the whole diagram |
+| `Validate` | `validate-diagram` | calls `validate()` and opens the issues panel of the side panel |
 
 The application imports the packages from their sources (the aliases of
 `vite.config.ts`), so that a change in the SDK is visible without a build of the

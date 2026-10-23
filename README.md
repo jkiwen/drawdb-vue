@@ -57,6 +57,44 @@ import { DrawDBEditor } from "@drawdb/vue-sdk";
   application that keeps the diagrams itself
 - the 51 locales of the original drawDB
 
+## The capabilities of 0.2.0
+
+The second version closes the gap with the React application of drawDB:
+
+- **the quality validation** — `validateDiagram` reports structured issues (a code,
+  a severity and the parameters of the message) for the tables, the fields, the
+  indices, the constraints, the types, the enums, the views and the relationships;
+  the side panel has an issues panel that lists them and selects the entity of one
+- **the automatic layout and the relationship inference** — `autoArrange` places the
+  tables with dagre, `inferRelationships` proposes the relationships that are missing
+  between the foreign keys; both are undoable as one step
+- **the diagram as JSON** — `exportDiagramJson` and `importDiagramJson`, including
+  the legacy `.ddb` shape of the React application and the diagnostics of a rejected
+  file; the application imports and exports a file from its own toolbar
+- **the canvas edited in place** — the relationships are drawn between two field
+  handles, the fields are reordered by dragging, the tables are locked, the viewport
+  is zoomed and the minimap jumps the canvas around
+- **the full side panel** — every editor of the React application: the views, the
+  types, the enums, the custom types, the SQL header and the issues
+- **the dialogs** — the SQL preview (SQL or DBML, copy to the clipboard), the import
+  (SQL, DBML and JSON, with a confirmation before the diagram is replaced), the image
+  export (a scale, a background colour, a PNG download) and the automatic
+  relationships; plus the fullscreen mode
+
+The API of these capabilities, in one place:
+
+```ts
+import {
+  validateDiagram,        // core: the issues of a diagram
+  autoArrange,            // core: the positions of the tables
+  inferRelationships,     // core: the missing relationships
+  exportDiagramJson,      // core: the diagram as JSON
+  importDiagramJson,      // core: a diagram from JSON, throws ImportError
+} from "@drawdb/core";
+
+import { exportPng } from "@drawdb/vue-sdk";  // an element as a PNG data url
+```
+
 ## The development
 
 | Command | Description |
@@ -85,9 +123,9 @@ and can be installed from the tarball:
 | Command | Description |
 | --- | --- |
 | `pnpm run pack:packages` | packs the two packages into `.release/*.tgz` |
-| `npm install ../.release/drawdb-core-0.1.0.tgz` | installs the core from the tarball |
+| `npm install ../.release/drawdb-core-0.2.0.tgz` | installs the core from the tarball |
 
-The tag `v0.1.0` triggers `.github/workflows/release.yml`, which checks the
+The tag `v0.2.0` triggers `.github/workflows/release.yml`, which checks the
 workspace, builds the packages, runs the tests and uploads the tarballs as an
 artifact of the workflow. The publication to npm is added back when the packages
 are ready for the registry. The changes of every version are written in

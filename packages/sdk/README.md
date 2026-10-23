@@ -88,6 +88,9 @@ const editor = ref<InstanceType<typeof DrawDBEditor>>();
 | `importSql(sql, database?)` | replaces the diagram with an imported one |
 | `runCommand(key)` | runs a command that a plugin registered |
 | `getDiagram()` | returns the current diagram |
+| `autoArrange()` | places the tables of the diagram with the automatic layout |
+| `validate()` | returns the issues of the diagram (`DiagramIssue[]`) |
+| `openIssuesTab()` | opens the issues panel of the side panel |
 
 ## The stores
 
@@ -113,6 +116,15 @@ ui.setActiveTab("tables");
 | `useUIStore` | the selection, the zoom, the active tab, the view mode |
 | `useSettingsStore` | the preferences of the user |
 | `useSaveStore` | the storage adapter and the state of the last save |
+| `useSelectionStore` | the selection of the canvas and the scroll position, shared by the canvas and the issues panel |
+
+The diagram store carries the actions of the phase 2 features as well:
+
+```ts
+diagram.applyRelationships(candidates); // the relationships the inference proposed
+diagram.autoArrange(); // the layout of the tables, undoable as one step
+diagram.setImportedDiagram(importDiagramJson(file)); // not part of the history
+```
 
 ## The composables
 
@@ -125,6 +137,9 @@ ui.setActiveTab("tables");
 | `useCanvasEvents()` | the pointer, the wheel and the keyboard events of an element |
 | `useStorage()` | the storage adapter of the editor |
 | `useVirtualization()` | the visible elements of a large canvas |
+| `useIssues()` | the localized issues of the diagram |
+| `useFullscreen()` | the fullscreen mode of the editor |
+| `useImageExport()` | the PNG export of an element (`exportPng`, `ImageExportError`) |
 
 ## The plugins
 

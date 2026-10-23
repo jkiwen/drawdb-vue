@@ -18,7 +18,7 @@ test("the changelog announces the release", () => {
     existsSync(resolve(ROOT, "CHANGELOG.md")),
     "CHANGELOG.md is missing",
   );
-  assert.match(read("CHANGELOG.md"), /##\s+0\.1\.0/);
+  assert.match(read("CHANGELOG.md"), /##\s+0\.2\.0/);
 });
 
 test("the packages are published with the version of the release", () => {
@@ -29,7 +29,7 @@ test("the packages are published with the version of the release", () => {
   ]) {
     assert.equal(
       readManifest(manifest)["version"],
-      "0.1.0",
+      "0.2.0",
       `${manifest} is not at the version of the release`,
     );
   }

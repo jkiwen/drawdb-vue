@@ -963,6 +963,8 @@
 
 ## Task 30: sdk 质量问题面板
 
+**Status:** complete — commit `15d893b`
+
 **Files:**
 - Create: `packages/sdk/src/components/SidePanel/IssuesTab.vue`
 - Create: `packages/sdk/src/composables/use-issues.ts`
@@ -981,7 +983,7 @@
   function focusIssue(issue: DiagramIssue): void;   // 选中对应表/字段并把画布滚动到该对象
   ```
 
-- [ ] **Step 1: 写失败的测试**
+- [x] **Step 1: 写失败的测试**
 
   `packages/sdk/src/composables/use-issues.test.ts`：
   ```ts
@@ -1003,25 +1005,25 @@
   test("the issue message is localized", () => { /* 中文 locale */ });
   ```
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs issues`
   Expected: FAIL —— 模块不存在
 
-- [ ] **Step 3: 实现 `use-issues.ts` 与 `IssuesTab.vue`**
+- [x] **Step 3: 实现 `use-issues.ts` 与 `IssuesTab.vue`**
 
   `useIssues` 是 `computed`：`validateDiagram(diagramStore.diagram)` 的结果按 `severity` 分组；每条 issue 的 `label` 用 `t(\`issues.${code}\`, issue.params)` 渲染，缺失键回退到 `issue.message`（英文兜底）。`IssuesTab.vue` 渲染错误组与警告组，点击某条调用 `ui.focusIssue(issue)`（选中表/字段 + 居中画布）。
 
-- [ ] **Step 4: i18n 新键**
+- [x] **Step 4: i18n 新键**
 
   为 30 余个 `code` 各加一个键（`issues.table.no_name` 等），英文为基准，其余语言回填英文。
 
-- [ ] **Step 5: 整体验证**
+- [x] **Step 5: 整体验证**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）、`node --experimental-strip-types scripts/verify-constraints.test.ts`、`pnpm run typecheck`
   Expected: 0 fail；约束检查通过；typecheck 无错误
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
   ```bash
   git add packages/sdk/src
@@ -1031,6 +1033,8 @@
 ---
 
 ## Task 31: app 最小适配
+
+**Status:** complete — commit `32ba516`
 
 **Files:**
 - Create: `packages/app/src/services/diagram-io.ts`
@@ -1046,7 +1050,7 @@
   export function readDiagramJsonFile(file: File): Promise<Diagram>;   // 失败抛 ImportError
   ```
 
-- [ ] **Step 1: 写失败的测试 `packages/app/src/services/diagram-io.test.ts`**
+- [x] **Step 1: 写失败的测试 `packages/app/src/services/diagram-io.test.ts`**
 
   ```ts
   test("downloadDiagramJson creates a json download", () => { /* stub URL.createObjectURL 与 a.click */ });
@@ -1054,27 +1058,27 @@
   test("readDiagramJsonFile rejects an invalid file", () => { /* 非法 JSON → 抛 ImportError */ });
   ```
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs diagram-io`
   Expected: FAIL —— 模块不存在
 
-- [ ] **Step 3: 实现服务与视图适配**
+- [x] **Step 3: 实现服务与视图适配**
 
   - `diagram-io.ts`：`downloadDiagramJson` 用 `exportDiagramJson(diagram, { pretty: true })` 生成文本，`Blob` + `URL.createObjectURL` 触发下载；`readDiagramJsonFile` 用 `file.text()` + `importDiagramJson`。
   - `HomeView.vue`：每张图加「导出 JSON」按钮；顶部加「导入 JSON」按钮（隐藏的 file input）。
   - `EditorView.vue`：工具条加「自动布局」「质量校验」按钮——自动布局调用 SDK 暴露的 `autoArrange()`（`defineExpose` 里新增 `autoArrange` 与 `validate`），质量校验打开 Issues Tab（通过 SDK 暴露的 `openIssuesTab()`）。
 
-- [ ] **Step 4: 扩展 SDK 的公开方法**
+- [x] **Step 4: 扩展 SDK 的公开方法**
 
   `DrawDBEditor.vue` 的 `defineExpose` 增加 `autoArrange(): void`、`validate(): DiagramIssue[]`、`openIssuesTab(): void`。
 
-- [ ] **Step 5: 整体验证**
+- [x] **Step 5: 整体验证**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）、`node --experimental-strip-types scripts/verify-constraints.test.ts`、`pnpm run typecheck`
   Expected: 0 fail；约束检查通过；typecheck 无错误
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
   ```bash
   git add packages/app/src packages/sdk/src

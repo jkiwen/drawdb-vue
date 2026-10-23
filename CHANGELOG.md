@@ -8,6 +8,51 @@ packages follow [semantic versioning](https://semver.org/).
 > of the development; the distribution is built and verified locally with
 > `pnpm run pack:packages` (see the readme).
 
+## 0.2.0
+
+The second version closes the gap with the React application of drawDB. Every
+capability of the phase 2 plan is in the SDK now, with the tests to hold it.
+
+### @drawdb/core
+
+- The quality validation of a diagram: `validateDiagram` reports structured
+  issues with a code, a severity and the parameters of the message, for the
+  tables, the fields, the indices, the constraints, the types, the enums, the
+  views and the relationships.
+- The automatic layout with dagre (`autoArrange`) and the inference of the
+  relationships from the foreign keys (`inferRelationships`).
+- The import and the export of a diagram as JSON (`exportDiagramJson`,
+  `importDiagramJson`), including the legacy `.ddb` shape and the diagnostics
+  of a rejected file.
+- The missing commands: the batch of relationships, the automatic layout and
+  the rest of the table, field and relationship operations.
+- The type registry and the plugins gained the entries the editors needed.
+
+### @drawdb/vue-sdk
+
+- The canvas can be edited in place: the relationships are drawn between two
+  handles, the fields are reordered by dragging, the tables are locked and the
+  viewport is zoomed, with the minimap.
+- The side panel carries every editor of the React application: the views, the
+  types, the enums, the custom types, the SQL header and the issues panel.
+- The dialogs: the SQL preview, the import (SQL, DBML and JSON), the image
+  export and the automatic relationships.
+- The fullscreen mode, the image export (`exportPng`) and the keyboard driven
+  editing.
+- The stores gained the actions of the phase 2 features and the selection was
+  split into a store of its own.
+
+### drawdb-vue-app
+
+- The application imports and exports a diagram as JSON, arranges the tables
+  and opens the issues of the diagram from its own toolbar.
+
+### The workspace
+
+- The workspace test runner runs every spec of every package in one process,
+  with the Vue single file components compiled on the fly and the mocks of the
+  UI library.
+
 ## 0.1.0
 
 The first version of the Vue workspace. It publishes two packages and one

@@ -1,6 +1,6 @@
 {
   "name": "@drawdb/vue-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Vue 3 SDK components and composables for drawDB",
   "license": "MIT",
   "author": "drawDB contributors",
