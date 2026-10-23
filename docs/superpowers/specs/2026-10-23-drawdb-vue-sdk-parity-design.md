@@ -238,6 +238,8 @@ SQL 与 DBML 的现有错误类型（`SQLImportError`、`DBMLParseError`）保�
 
 另加 `SetDiagramCommand`（标题/数据库/SQL 头）、`AutoArrangeCommand`（记录前后坐标，undo 还原）。
 
+> **实施差异（计划已定）**：不新增 `SetDiagramCommand`——图级属性（标题 / 数据库 / SQL 头）由 core 已有的 `UpdateDiagramCommand(diagram, updates: DiagramProperties)` 承担，避免两个职责重叠的命令；实施时在 Task 32 的报告里记录该差异。
+
 **约束**：所有命令实现 `execute/undo`，且 undo 能精确还原；命令不接受 reactive 代理（沿用 `utils/clone.ts` 的 `deepClone`，因为 `structuredClone` 不能克隆 Vue 代理）。
 
 ---
@@ -420,7 +422,7 @@ components/Canvas/
 | 31 | app 最小适配 | 25–30 | 图表列表导入导出 + 设置入口 |
 | 32 | 文档、版本 0.2.0 与发布前验证 | 全部 | 报告、CHANGELOG、打包验证 |
 
-详细的逐步实施计划见 `docs/plan-phase2.md`（由 writing-plans 产出）。
+详细的逐步实施计划见 `docs/superpowers/plans/2026-10-23-drawdb-vue-sdk-parity-plan.md`（由 writing-plans 产出）。
 
 ---
 
