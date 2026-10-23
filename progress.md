@@ -43,7 +43,7 @@
   - Report: `docs/task-15-report.md`
 - Task 16: complete (commit `854647d`; the locales of drawDB migrated into the format of Vue I18n; 51 JSON files, the list of the languages, `createI18n` and a shared instance; the editor follows the `locale` prop; 9/9 new specs, 299/299 workspace specs pass; typecheck clean)
   - Report: `docs/task-16-report.md`
-- Task 17: complete (commit `PENDING`; the standalone application with the routes for the diagrams, the editor and the templates; the persistence in the browser (IndexedDB) with a fallback to the memory; two starter diagrams; 6/6 new specs, 305/305 workspace specs pass; typecheck clean for the three packages)
+- Task 17: complete (commit `0a8c837`; the standalone application with the routes for the diagrams, the editor and the templates; the persistence in the browser (IndexedDB) with a fallback to the memory; two starter diagrams; 6/6 new specs, 305/305 workspace specs pass; typecheck clean for the three packages)
   - Report: `docs/task-17-report.md`
 
 ## Rulings
