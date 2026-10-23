@@ -62,10 +62,16 @@
   - Report: `docs/task-24-report.md`
 - Task 25: complete (commit `dcc065b`; the canvas split into `TableHeader`, `TableField`, `FieldHandle`, `ResizeHandles`, `ContextMenu` and `Minimap`; the interaction layer `use-linking`, `use-selection-box`, `use-resize`, `use-context-menu` and the handlers of the canvas; the editor split into `EditorLayout`, `EditorDialogs` and the three composables `use-editor-commands`, `use-editor-plugins`, `use-editor-sync`; the check of the 300 lines `scripts/verify-constraints.test.ts`; 21/21 new specs, 452/452 workspace specs pass; typecheck clean for the five programs; the build of the packages OK)
   - Report: `docs/task-25-report.md`
+- Task 26: complete (commit `TBD`; the canvas edits a table in place — the name, the comment, the colour, the indices, the unique constraints, the lock and the resize — and a field is renamed, its type is edited, its primary key and its `notNull` are toggled, it is removed and the fields are dragged to be reordered; `TableDetails.vue` extracted from `TableHeader.vue`; 14/14 new specs, 466/466 workspace specs pass; typecheck clean)
+  - Report: `docs/task-26-report.md`
 - Restructure: complete (the outer repository of the React application was removed, the React application moved into `../drawdb-app` as a reference, the history kept in `../drawdb-history.bundle`, the packages packed locally instead of published to npm; 327/327 workspace specs pass; typecheck clean)
   - Report: `docs/restructure-report.md`
 
 ## Rulings
+- **Task 26: Ruling: the canvas edits the table of the store** — `Table.vue` derives `liveTable = diagram.tableById(props.table.id) ?? props.table` and gives it to `TableHeader`. `updateTable` replaces the object in the store, so a component that keeps its prop does not see the edit. Cost if wrong: none; the specs mount the table of the store for the same reason.
+- **Task 26: Ruling: an `NInput` is edited by dispatching the DOM events on the element** — `naive-ui` forwards `data-testid` to the wrapper of an `NInput`, so `wrapper.find(...)` returns a `div`, and only the `blur` carries the new value to the diagram (a `change` only writes the value of the `NInput`, and a `blur` dispatched on the wrapper does not reach the input). The helper `setInputValue` therefore focuses the element, writes the value and dispatches `input` → `change` → `blur` on the element itself. Cost if wrong: none; the helper is documented.
+- **Task 26: Ruling: `TableDetails.vue` is a component of its own** — The colour, the indices and the unique constraints were inline in `TableHeader.vue`, which passed the limit of 300 lines. Cost if wrong: none.
+- **Task 26: Ruling: the limit of 300 lines does not count the specifications** — `scripts/verify-constraints.test.ts` skips `*.test.ts` and `*.test.vue`: a specification is not a module of the product, and the suite of a task is naturally long. Cost if wrong: a long specification is harder to read.
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
 
 ## Rulings

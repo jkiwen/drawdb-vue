@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { PropType } from "vue";
 import type { Table } from "@drawdb/core";
+import { VueDraggable } from "vue-draggable-plus";
 import { tableHeight, tableWidth } from "./geometry.ts";
+import { useDiagramStore } from "../../stores/diagram.ts";
+import { useSortable } from "../../composables/use-sortable.ts";
 import FieldHandle from "./FieldHandle.vue";
 import ResizeHandles from "./ResizeHandles.vue";
 import TableField from "./TableField.vue";
@@ -24,8 +27,17 @@ const emit = defineEmits([
   "resizestart",
 ]);
 
+const diagram = useDiagramStore();
+const resizing = ref(false);
+const { sortableOptions, onSort } = useSortable();
+
 const width = computed(() => tableWidth(props.table));
 const height = computed(() => tableHeight(props.table));
+
+// The table that is stored in the store, so that the edits on the canvas (the
+// inline editing, the indices, the unique constraints) always work on the live
+// object and never on a stale copy.
+const liveTable = computed(() => diagram.tableById(props.table.id) ?? props.table);
 
 function onPointerDown(event: PointerEvent): void {
   emit("dragstart", { id: props.table.id, event });
@@ -44,6 +56,9 @@ function onLinkStart(payload: {
   fieldId: string | number;
   event: PointerEvent;
 }): void {
+  if (props.table.locked) {
+    return;
+  }
   emit("linkstart", payload);
 }
 
@@ -53,8 +68,22 @@ function onResizeStart(payload: {
   height: number;
   event: PointerEvent;
 }): void {
+  resizing.value = true;
   emit("resizestart", payload);
 }
+
+function onToggleLock(): void {
+  diagram.toggleTableLock(props.table.id);
+}
+
+function onDragEnd(event: { oldIndex?: number; newIndex?: number }): void {
+  if (event.oldIndex === undefined || event.newIndex === undefined) {
+    return;
+  }
+  onSort(props.table.id, event.oldIndex, event.newIndex);
+}
+
+defineExpose({ resizing });
 </script>
 
 <template>
@@ -72,24 +101,36 @@ function onResizeStart(payload: {
         class="ddb-table__body"
         :class="{ 'is-selected': selected }"
       >
-        <TableHeader :table="table" :selected="selected" />
-        <div
-          v-for="field in table.fields"
-          :key="field.id"
-          class="ddb-table__row"
+        <TableHeader
+          :table="liveTable"
+          :selected="selected"
+          @togglelock="onToggleLock"
+        />
+        <VueDraggable
+          :model-value="liveTable.fields"
+          v-bind="sortableOptions"
+          @end="onDragEnd"
+          tag="div"
+          class="ddb-table__fields"
         >
-          <TableField
-            :table="table"
-            :field="field"
-            :show-field-types="showFieldTypes"
-            @fieldselect="onFieldSelect"
-          />
-          <FieldHandle
-            :table-id="table.id"
-            :field-id="field.id"
-            @linkstart="onLinkStart"
-          />
-        </div>
+          <div
+            v-for="field in liveTable.fields"
+            :key="field.id"
+            class="ddb-table__row"
+          >
+            <TableField
+              :table="liveTable"
+              :field="field"
+              :show-field-types="showFieldTypes"
+              @fieldselect="onFieldSelect"
+            />
+            <FieldHandle
+              :table-id="liveTable.id"
+              :field-id="field.id"
+              @linkstart="onLinkStart"
+            />
+          </div>
+        </VueDraggable>
         <ResizeHandles
           :table-id="table.id"
           :width="width"

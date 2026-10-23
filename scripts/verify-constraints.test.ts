@@ -47,6 +47,8 @@ export function collectSources(dir: string, found: string[] = []): string[] {
 /** The files of a tree that are longer than the limit. */
 export function findLongFiles(root: string, limit: number = LINE_LIMIT): string[] {
   return collectSources(root)
+    // A specification is not a module of the product: it has no line limit.
+    .filter((path) => !path.endsWith(".test.ts") && !path.endsWith(".test.vue"))
     .filter((path) => countLines(readFileSync(path, "utf-8")) > limit)
     .map((path) => relative(ROOT, path));
 }

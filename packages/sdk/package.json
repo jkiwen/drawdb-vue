@@ -53,6 +53,7 @@
     "naive-ui": "2.38.0",
     "pinia": "^2.2.0",
     "vue-demi": "^0.14.10",
+    "vue-draggable-plus": "0.6.1",
     "vue-i18n": "^11.4.16"
   },
   "devDependencies": {

@@ -3,10 +3,13 @@ import {
   AddFieldCommand,
   AddRelationshipCommand,
   AddTableCommand,
+  MoveFieldCommand,
   RemoveEntityCommand,
   RemoveFieldCommand,
   RemoveRelationshipCommand,
   RemoveTableCommand,
+  ResizeTableCommand,
+  ToggleTableLockCommand,
   UpdateFieldCommand,
   UpdateRelationshipCommand,
   UpdateTableCommand,
@@ -151,6 +154,34 @@ export const useDiagramStore = defineStore("diagram", () => {
     bump();
   }
 
+  /** Moves a field of a table to another place. */
+  function moveField(
+    tableId: TableId,
+    fromIndex: number,
+    toIndex: number,
+  ): void {
+    history.execute(new MoveFieldCommand(diagram, tableId, fromIndex, toIndex));
+    bump();
+  }
+
+  /** Changes the width of a table. */
+  function resizeTable(tableId: TableId, width: number): void {
+    history.execute(new ResizeTableCommand(diagram, tableId, width));
+    bump();
+  }
+
+  /** Locks a table, so that it cannot be moved any more. */
+  function toggleTableLock(tableId: TableId): void {
+    history.execute(new ToggleTableLockCommand(diagram, tableId));
+    bump();
+  }
+
+  /** Changes the header of the SQL that the diagram is exported to. */
+  function updateSqlHeader(sqlHeader: string): void {
+    history.execute(new UpdateDiagramCommand(diagram, { sqlHeader }));
+    bump();
+  }
+
   function addEntity(
     collection: DiagramEntityCollection,
     entity: { id?: string | number; name?: string },
@@ -192,6 +223,10 @@ export const useDiagramStore = defineStore("diagram", () => {
     addField,
     updateField,
     removeField,
+    moveField,
+    resizeTable,
+    toggleTableLock,
+    updateSqlHeader,
     addEntity,
     removeEntity,
   };

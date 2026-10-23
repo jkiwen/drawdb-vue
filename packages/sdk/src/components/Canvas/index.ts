@@ -9,6 +9,7 @@ export { default as Note } from "./Note.vue";
 export { default as Relationship } from "./Relationship.vue";
 export { default as ResizeHandles } from "./ResizeHandles.vue";
 export { default as Table } from "./Table.vue";
+export { default as TableDetails } from "./TableDetails.vue";
 export { default as TableField } from "./TableField.vue";
 export { default as TableHeader } from "./TableHeader.vue";
 export { default as View } from "./View.vue";
