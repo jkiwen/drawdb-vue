@@ -56,6 +56,8 @@
   - Report: `docs/task-21-report.md`
 - Task 22: complete (commit `321b84b`; the core module `layout` with `autoArrange` (dagre, the locked tables stay, the isolated tables are placed in rows) and `inferRelationships` (the names `users_id`, `user_id`, `usersid`, `userid`); the dependency `@dagrejs/dagre@3.1.1`; 14/14 new specs, 395/395 workspace specs pass; typecheck clean for the five programs)
   - Report: `docs/task-22-report.md`
+- Task 23: complete (commit `a660877`; the core module `serialize` with `exportDiagramJson` and `importDiagramJson`, the class `ImportError` with the codes `json.parse_failed`, `json.invalid_shape`, `relationship.missing_table`, `relationship.missing_field` and `database.mismatch`; the old field names `references` and `areas`; 15/15 new specs, 410/410 workspace specs pass; typecheck clean for the five programs)
+  - Report: `docs/task-23-report.md`
 - Restructure: complete (the outer repository of the React application was removed, the React application moved into `../drawdb-app` as a reference, the history kept in `../drawdb-history.bundle`, the packages packed locally instead of published to npm; 327/327 workspace specs pass; typecheck clean)
   - Report: `docs/restructure-report.md`
 
@@ -160,3 +162,6 @@
 - **Task 22: Ruling: the direction of the layout defaults to `TB`** — The React reference uses `LR`, but the canvas of the SDK is vertical by default. The option `direction` makes both possible, and the default is the one that fits the canvas. Cost if wrong: a host that prefers the horizontal layout has to pass the option.
 - **Task 22: Ruling: the inference compares only the names of the fields** — The React reference also compares the type of the foreign key with the type of the primary key. The SDK leaves that judgement to the user, who accepts or rejects the candidates in the dialog of Task 28. Cost if wrong: the SDK proposes a relationship that the types contradict.
 - **Task 22: Ruling: the layout never throws** — A dagre error leaves every table where it is, and the function returns the original coordinates. Cost if wrong: none.
+- **Task 23: Ruling: the import throws a typed error** — The errors are the instances of the class `ImportError`, which carries a `code` and the `diagnostics`. A dialog of the SDK therefore reacts to the code and not to the text of the message. Cost if wrong: a caller has to read the text of the message.
+- **Task 23: Ruling: the import never modifies its source** — The lists of the source are copied, so a diagram that is imported twice from the same object gives two independent diagrams. Cost if wrong: none.
+- **Task 23: Ruling: a dialect that the host does not expect is an error** — The import compares the dialect of the file with `options.database` and throws `database.mismatch`, unless `options.allowDatabaseOverride` is `true`. The React reference behaves the same way. Cost if wrong: a host cannot import a diagram of another dialect without the option.

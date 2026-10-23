@@ -289,6 +289,8 @@
 
 ## Task 23: core 图 JSON 导入导出（serialize）
 
+**Status:** complete — commit `a660877` · report: `docs/task-23-report.md`
+
 **Files:**
 - Create: `packages/core/src/serialize/types.ts`
 - Create: `packages/core/src/serialize/export.ts`
@@ -322,7 +324,7 @@
   ```
   错误码：`json.parse_failed`、`json.invalid_shape`、`relationship.missing_table`、`relationship.missing_field`、`database.mismatch`。
 
-- [ ] **Step 1: 写失败的测试 `packages/core/src/serialize/serialize.test.ts`**
+- [x] **Step 1: 写失败的测试 `packages/core/src/serialize/serialize.test.ts`**
 
   必须包含：
   ```ts
@@ -363,16 +365,16 @@
   });
   ```
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs serialize`
   Expected: FAIL —— `ERR_MODULE_NOT_FOUND`
 
-- [ ] **Step 3: 实现 `export.ts`**
+- [x] **Step 3: 实现 `export.ts`**
 
   `exportDiagramJson(diagram, options)`：构造 `DiagramJson`（`subjectAreas` 取 `diagram.areas ?? diagram.subjectAreas`），`JSON.stringify(value, null, options?.pretty ? 2 : undefined)`。
 
-- [ ] **Step 4: 实现 `import.ts`**
+- [x] **Step 4: 实现 `import.ts`**
 
   `importDiagramJson(source, options)`：
   1. `typeof source === "string"` → `JSON.parse`，失败抛 `ImportError("json.parse_failed")`，`diagnostics` 填 `{ message: err.message }`。
@@ -383,14 +385,14 @@
   6. 数据库不一致：`options.database` 与文件里的不同且 `allowDatabaseOverride !== true` → `ImportError("database.mismatch")`。
   7. 返回 `Diagram`（`createEmptyDiagram` 的字段齐全 + 导入内容）。
 
-- [ ] **Step 5: 导出并整体验证**
+- [x] **Step 5: 导出并整体验证**
 
   `packages/core/src/index.ts` 增加 `export * from "./serialize/index.ts";`
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）与 `pnpm run typecheck`
   Expected: 0 fail；typecheck 无错误
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
   ```bash
   git add packages/core/src/serialize packages/core/src/index.ts
