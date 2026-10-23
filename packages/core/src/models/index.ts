@@ -1,4 +1,5 @@
 export * from "./area.ts";
+export * from "./constants.ts";
 export * from "./diagram.ts";
 export * from "./enum.ts";
 export * from "./field.ts";
