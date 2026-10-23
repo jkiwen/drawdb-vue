@@ -12,12 +12,24 @@ const data = JSON.parse(
 
 const order = ["generic", "mysql", "mariadb", "postgres", "sqlite", "mssql", "oraclesql"];
 
-const body = order
+const namesBody = order
   .map((db) => {
-    const names = data[db]
+    const names = Object.keys(data[db])
       .map((n) => `    ${JSON.stringify(n)},`)
       .join("\n");
     return `  ${db}: [\n${names}\n  ],`;
+  })
+  .join("\n");
+
+const metadataBody = order
+  .map((db) => {
+    const entries = Object.entries(data[db]).map(([name, flags]) => {
+      const parts = Object.entries(flags).map(
+        ([k, v]) => `${k}: ${v ? "true" : "false"}`,
+      );
+      return `    ${JSON.stringify(name)}: { ${parts.join(", ")} },`;
+    });
+    return `  ${db}: {\n${entries.join("\n")}\n  },`;
   })
   .join("\n");
 
@@ -27,12 +39,34 @@ const out = `import type { DatabaseType } from "../models/diagram.ts";
  * Canonical type names recognised by each database dialect.
  *
  * Generated from the React drawDB \`src/data/datatypes.js\` type tables by
- * \`scripts/generate-type-registry.mjs\`. Only the type NAMES are carried
- * over here; the richer per-type metadata (colour, default checks, sizing
- * rules) is delivered by the metadata system in a later task.
+ * \`scripts/generate-type-registry.mjs\`.
  */
 export const DATABASE_TYPE_NAMES: Record<DatabaseType, readonly string[]> = {
-${body}
+${namesBody}
+};
+
+/** Per-type capability flags carried over from the React drawDB type tables. */
+export interface TypeMetadata {
+  isSized?: boolean;
+  hasPrecision?: boolean;
+  hasQuotes?: boolean;
+  canIncrement?: boolean;
+  signed?: boolean;
+  hasCheck?: boolean;
+  noDefault?: boolean;
+}
+
+/**
+ * Per-database type capability metadata.
+ *
+ * Generated from the React drawDB \`src/data/datatypes.js\` type tables by
+ * \`scripts/generate-type-registry.mjs\`.
+ */
+export const DATABASE_TYPE_METADATA: Record<
+  DatabaseType,
+  Record<string, TypeMetadata>
+> = {
+${metadataBody}
 };
 
 /**
@@ -102,6 +136,26 @@ export function canonicalTypeName(
   if (isKnownTypeName(database, raw)) return raw;
   const affinity = TYPE_AFFINITY[database] ?? {};
   return affinity[raw] ?? FALLBACK_TYPE;
+}
+
+/** Capability metadata for a type in a dialect, or undefined when unknown. */
+export function getTypeMetadata(
+  database: DatabaseType,
+  type: string,
+): TypeMetadata | undefined {
+  return DATABASE_TYPE_METADATA[database]?.[String(type ?? "").toUpperCase()];
+}
+
+/**
+ * True when the dialect type carries a size or precision argument, e.g.
+ * \`VARCHAR(255)\` or \`DECIMAL(10,2)\`.
+ */
+export function typeTakesSize(
+  type: string,
+  database: DatabaseType,
+): boolean {
+  const meta = getTypeMetadata(database, type);
+  return Boolean(meta && (meta.isSized || meta.hasPrecision));
 }
 `;
 

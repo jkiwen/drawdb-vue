@@ -38,21 +38,25 @@ export function getFkColumnNames(
   return { startColumns, endColumns };
 }
 
-function isKeyword(str: string): boolean {
-  // Minimal keyword guard for default values; expand as needed.
-  const keywords = new Set([
-    "NULL",
-    "TRUE",
-    "FALSE",
-    "CURRENT_TIMESTAMP",
-    "CURRENT_DATE",
-    "CURRENT_TIME",
-    "NOW",
-  ]);
-  return keywords.has(str.toUpperCase());
+const SQL_KEYWORDS = new Set([
+  "NULL",
+  "TRUE",
+  "FALSE",
+  "CURRENT_DATE",
+  "CURRENT_TIME",
+  "CURRENT_TIMESTAMP",
+  "LOCALTIME",
+  "LOCALTIMESTAMP",
+  "SYSDATE",
+  "SYSTIMESTAMP",
+]);
+
+export function isKeyword(str: string): boolean {
+  if (typeof str !== "string") return false;
+  return SQL_KEYWORDS.has(str.toUpperCase());
 }
 
-function isFunction(str: string): boolean {
+export function isFunction(str: string): boolean {
   return /\w+\([^)]*\)$/.test(str);
 }
 

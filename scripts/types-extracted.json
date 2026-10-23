@@ -1,230 +1,1279 @@
 {
-  "generic": [
-    "INT",
-    "SMALLINT",
-    "BIGINT",
-    "DECIMAL",
-    "NUMERIC",
-    "NUMBER",
-    "FLOAT",
-    "DOUBLE",
-    "REAL",
-    "CHAR",
-    "VARCHAR",
-    "VARCHAR2",
-    "TEXT",
-    "TIME",
-    "TIMESTAMP",
-    "DATE",
-    "DATETIME",
-    "BOOLEAN",
-    "BINARY",
-    "VARBINARY",
-    "BLOB",
-    "CLOB",
-    "NCLOB",
-    "JSON",
-    "UUID",
-    "ENUM",
-    "SET"
-  ],
-  "mysql": [
-    "TINYINT",
-    "SMALLINT",
-    "MEDIUMINT",
-    "INTEGER",
-    "BIGINT",
-    "DECIMAL",
-    "NUMERIC",
-    "FLOAT",
-    "DOUBLE",
-    "BIT",
-    "BOOLEAN",
-    "TIME",
-    "TIMESTAMP",
-    "DATE",
-    "DATETIME",
-    "YEAR",
-    "CHAR",
-    "VARCHAR",
-    "BINARY",
-    "VARBINARY",
-    "TINYBLOB",
-    "BLOB",
-    "MEDIUMBLOB",
-    "LONGBLOB",
-    "TINYTEXT",
-    "TEXT",
-    "MEDIUMTEXT",
-    "LONGTEXT",
-    "ENUM",
-    "SET",
-    "GEOMETRY",
-    "POINT",
-    "LINESTRING",
-    "POLYGON",
-    "MULTIPOINT",
-    "MULTILINESTRING",
-    "MULTIPOLYGON",
-    "GEOMETRYCOLLECTION",
-    "JSON"
-  ],
-  "postgres": [
-    "SMALLINT",
-    "INTEGER",
-    "BIGINT",
-    "DECIMAL",
-    "NUMERIC",
-    "REAL",
-    "SMALLSERIAL",
-    "SERIAL",
-    "BIGSERIAL",
-    "MONEY",
-    "CHAR",
-    "VARCHAR",
-    "TEXT",
-    "BYTEA",
-    "DATE",
-    "TIME",
-    "TIMETZ",
-    "TIMESTAMP",
-    "TIMESTAMPTZ",
-    "INTERVAL",
-    "BOOLEAN",
-    "POINT",
-    "LINE",
-    "LSEG",
-    "BOX",
-    "PATH",
-    "POLYGON",
-    "CIRCLE",
-    "CIDR",
-    "INET",
-    "MACADDR",
-    "MACADDR8",
-    "BIT",
-    "VARBIT",
-    "VECTOR",
-    "HALFVEC",
-    "SPARSEVEC",
-    "TSVECTOR",
-    "TSQUERY",
-    "JSON",
-    "JSONB",
-    "UUID",
-    "XML"
-  ],
-  "sqlite": [
-    "INTEGER",
-    "REAL",
-    "NUMERIC",
-    "BOOLEAN",
-    "VARCHAR",
-    "TEXT",
-    "BLOB",
-    "TIME",
-    "TIMESTAMP",
-    "DATE",
-    "DATETIME"
-  ],
-  "mssql": [
-    "TINYINT",
-    "SMALLINT",
-    "INTEGER",
-    "BIGINT",
-    "BIT",
-    "DECIMAL",
-    "NUMERIC",
-    "FLOAT",
-    "DOUBLE",
-    "REAL",
-    "MONEY",
-    "SMALLMONEY",
-    "DATE",
-    "DATETIME",
-    "DATETIME2",
-    "DATETIMEOFFSET",
-    "SMALLDATETIME",
-    "TIME",
-    "TIMESTAMP",
-    "CHAR",
-    "VARCHAR",
-    "TEXT",
-    "NCHAR",
-    "NVARCHAR",
-    "NTEXT",
-    "BINARY",
-    "VARBINARY",
-    "IMAGE",
-    "UNIQUEIDENTIFIER",
-    "XML",
-    "CURSOR",
-    "SQL_VARIANT",
-    "JSON"
-  ],
-  "oraclesql": [
-    "INTEGER",
-    "NUMBER",
-    "FLOAT",
-    "LONG",
-    "VARCHAR2",
-    "NVARCHAR2",
-    "CHAR",
-    "NCHAR",
-    "CLOB",
-    "NCLOB",
-    "BLOB",
-    "BFILE",
-    "JSON",
-    "VECTOR",
-    "DATE",
-    "TIMESTAMP",
-    "INTERVAL",
-    "BOOLEAN",
-    "RAW"
-  ],
-  "mariadb": [
-    "TINYINT",
-    "SMALLINT",
-    "MEDIUMINT",
-    "INTEGER",
-    "BIGINT",
-    "DECIMAL",
-    "NUMERIC",
-    "FLOAT",
-    "DOUBLE",
-    "BIT",
-    "BOOLEAN",
-    "TIME",
-    "TIMESTAMP",
-    "DATE",
-    "DATETIME",
-    "YEAR",
-    "CHAR",
-    "VARCHAR",
-    "BINARY",
-    "VARBINARY",
-    "TINYBLOB",
-    "BLOB",
-    "MEDIUMBLOB",
-    "LONGBLOB",
-    "TINYTEXT",
-    "TEXT",
-    "MEDIUMTEXT",
-    "LONGTEXT",
-    "ENUM",
-    "SET",
-    "GEOMETRY",
-    "POINT",
-    "LINESTRING",
-    "POLYGON",
-    "MULTIPOINT",
-    "MULTILINESTRING",
-    "MULTIPOLYGON",
-    "GEOMETRYCOLLECTION",
-    "JSON",
-    "UUID",
-    "INET4",
-    "INET6"
-  ]
+  "generic": {
+    "INT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "SMALLINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "BIGINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "DECIMAL": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "NUMERIC": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "NUMBER": {
+      "isSized": false,
+      "hasPrecision": true,
+      "canIncrement": false,
+      "hasCheck": true
+    },
+    "FLOAT": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "DOUBLE": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "REAL": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": true
+    },
+    "CHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "VARCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "VARCHAR2": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "TEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMESTAMP": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATETIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "BOOLEAN": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false
+    },
+    "BINARY": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "VARBINARY": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "BLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "CLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "NCLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "JSON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "UUID": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": false
+    },
+    "ENUM": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "SET": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    }
+  },
+  "mysql": {
+    "TINYINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "SMALLINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "MEDIUMINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "INTEGER": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "BIGINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "DECIMAL": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "NUMERIC": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "FLOAT": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "DOUBLE": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "BIT": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "BOOLEAN": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false
+    },
+    "TIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMESTAMP": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATETIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "YEAR": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false
+    },
+    "CHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "VARCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "BINARY": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "VARBINARY": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TINYBLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "BLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "MEDIUMBLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "LONGBLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "TINYTEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "TEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "MEDIUMTEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "LONGTEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "ENUM": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "SET": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "GEOMETRY": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "POINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "LINESTRING": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "POLYGON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "MULTIPOINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "MULTILINESTRING": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "MULTIPOLYGON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "GEOMETRYCOLLECTION": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "JSON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    }
+  },
+  "postgres": {
+    "SMALLINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "INTEGER": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "BIGINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "DECIMAL": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "NUMERIC": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "REAL": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "SMALLSERIAL": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": true
+    },
+    "SERIAL": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": true
+    },
+    "BIGSERIAL": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": true
+    },
+    "MONEY": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "CHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "VARCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "TEXT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "BYTEA": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMETZ": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMESTAMP": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMESTAMPTZ": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "INTERVAL": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "BOOLEAN": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false
+    },
+    "POINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false
+    },
+    "LINE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false
+    },
+    "LSEG": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false
+    },
+    "BOX": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "PATH": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "POLYGON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "CIRCLE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "CIDR": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "INET": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "MACADDR": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "MACADDR8": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "BIT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": true
+    },
+    "VARBIT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": true
+    },
+    "VECTOR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "HALFVEC": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "SPARSEVEC": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "TSVECTOR": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false
+    },
+    "TSQUERY": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false
+    },
+    "JSON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "JSONB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "UUID": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false,
+      "noDefault": false
+    },
+    "XML": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false,
+      "noDefault": true
+    }
+  },
+  "sqlite": {
+    "INTEGER": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "REAL": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "NUMERIC": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "BOOLEAN": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false
+    },
+    "VARCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "TEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "BLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "TIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMESTAMP": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATETIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    }
+  },
+  "mssql": {
+    "TINYINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "SMALLINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "INTEGER": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "BIGINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "BIT": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "DECIMAL": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "NUMERIC": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "FLOAT": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "DOUBLE": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "REAL": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": true
+    },
+    "MONEY": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "SMALLMONEY": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "DATE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATETIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATETIME2": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATETIMEOFFSET": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "SMALLDATETIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMESTAMP": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "CHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "VARCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "TEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "NCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "NVARCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "NTEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "BINARY": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "VARBINARY": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "IMAGE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "UNIQUEIDENTIFIER": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "XML": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "CURSOR": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "SQL_VARIANT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "JSON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false,
+      "noDefault": true
+    }
+  },
+  "oraclesql": {
+    "INTEGER": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "NUMBER": {
+      "isSized": false,
+      "hasPrecision": true,
+      "canIncrement": false,
+      "hasCheck": true
+    },
+    "FLOAT": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "LONG": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "hasCheck": true
+    },
+    "VARCHAR2": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "NVARCHAR2": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "CHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "NCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "CLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "NCLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "BLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "BFILE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "JSON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "VECTOR": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "DATE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMESTAMP": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "INTERVAL": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "BOOLEAN": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false
+    },
+    "RAW": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": false,
+      "hasCheck": false
+    }
+  },
+  "mariadb": {
+    "TINYINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "SMALLINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "MEDIUMINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "INTEGER": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "BIGINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "canIncrement": true,
+      "signed": true,
+      "hasCheck": true
+    },
+    "DECIMAL": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "NUMERIC": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "FLOAT": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "DOUBLE": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "BIT": {
+      "isSized": false,
+      "hasPrecision": true,
+      "hasCheck": true
+    },
+    "BOOLEAN": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false
+    },
+    "TIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TIMESTAMP": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATE": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "DATETIME": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "YEAR": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false
+    },
+    "CHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "VARCHAR": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "BINARY": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "VARBINARY": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "TINYBLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "BLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "MEDIUMBLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "LONGBLOB": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "TINYTEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "TEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "MEDIUMTEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "LONGTEXT": {
+      "isSized": true,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": true
+    },
+    "ENUM": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasQuotes": true,
+      "hasCheck": false
+    },
+    "SET": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "GEOMETRY": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "POINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "LINESTRING": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "POLYGON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "MULTIPOINT": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "MULTILINESTRING": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "MULTIPOLYGON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "GEOMETRYCOLLECTION": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "JSON": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": false,
+      "noDefault": true
+    },
+    "UUID": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": true,
+      "noDefault": false
+    },
+    "INET4": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": true,
+      "noDefault": false
+    },
+    "INET6": {
+      "isSized": false,
+      "hasPrecision": false,
+      "hasCheck": true,
+      "noDefault": false
+    }
+  }
 }

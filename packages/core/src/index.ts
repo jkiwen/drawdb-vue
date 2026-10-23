@@ -5,6 +5,15 @@ export * from "./sql/import/index.ts";
 export * from "./storage/index.ts";
 export * from "./metadata/index.ts";
 export * from "./plugins/index.ts";
-export * from "./types/registry.ts";
+export * from "./dbml/index.ts";
+export {
+  DATABASE_TYPE_METADATA,
+  DATABASE_TYPE_NAMES,
+  FALLBACK_TYPE,
+  TYPE_AFFINITY,
+  canonicalTypeName,
+  isKnownTypeName,
+  typeTakesSize,
+} from "./types/registry.ts";
 export * from "./utils/arrange-tables.ts";
 export * from "./utils/id.ts";

@@ -31,6 +31,7 @@
     "vitest": "^2.1.0"
   },
   "dependencies": {
+    "@dbml/core": "3.13.9",
     "node-sql-parser": "5.4.0",
     "oracle-sql-parser": "0.1.0",
     "uuid": "^10.0.0"

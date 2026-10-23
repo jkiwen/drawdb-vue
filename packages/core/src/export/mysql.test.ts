@@ -15,7 +15,7 @@ function makeDiagram() {
         {
           id: "uid",
           name: "id",
-          type: "INT",
+          type: "INTEGER",
           notNull: true,
           primary: true,
           increment: true,
@@ -61,7 +61,7 @@ function makeDiagram() {
         {
           id: "puid",
           name: "user_id",
-          type: "INT",
+          type: "INTEGER",
           notNull: true,
           unsigned: true,
         },
@@ -92,7 +92,7 @@ describe("toMySQL", () => {
   it("exports CREATE TABLE statements with all field attributes", () => {
     const sql = toMySQL(makeDiagram());
     assert.match(sql, /CREATE TABLE IF NOT EXISTS `users`/);
-    assert.match(sql, /`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,\n\t`username` VARCHAR\(255\) NOT NULL UNIQUE/);
+    assert.match(sql, /`id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,\n\t`username` VARCHAR\(255\) NOT NULL UNIQUE/);
     assert.match(sql, /PRIMARY KEY\(`id`\)/);
     assert.match(sql, /`username` VARCHAR\(255\) NOT NULL UNIQUE/);
     assert.match(sql, /`email` VARCHAR\(255\)/);
