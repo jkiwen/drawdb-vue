@@ -33,6 +33,8 @@
   - Report: `docs/task-10-report.md`
 - Task 11: complete (commit `b0a332787c36d5851572d00de941375e297d5004`; SVG canvas with `foreignObject` tables, relationship paths, areas, notes and views; viewport culling; 16/16 new specs, 244/244 workspace specs pass; typecheck clean)
   - Report: `docs/task-11-report.md`
+- Task 12: complete (commit `b8d0a87562229cb4dfa078d3c49bd4ad1ad24275`; `Header` / `MenuBar` / `Toolbar` / `UndoRedoButtons` built with Naive UI; new `UpdateDiagramCommand`; 10/10 new specs, 253/253 workspace specs pass; typecheck clean)
+  - Report: `docs/task-12-report.md`
 
 ## Rulings
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
@@ -67,3 +69,9 @@
 - **Task 11: Ruling: the components are tested with the server renderer of Vue** — vitest cannot run in the sandbox, and there is no DOM implementation available, so the specs render the components with `renderToString()` and assert on the generated markup. Cost if wrong: the specs do not cover the browser behaviour, such as the pointer handling, which is covered by the composable specs.
 - **Task 11: Ruling: the `.vue` files are compiled by a Node loader in the tests** — `scripts/sfc-loader.mjs` uses `@vue/compiler-sfc` and the TypeScript compiler to turn a component into a module. The production build uses `@vitejs/plugin-vue`. Cost if wrong: the test loader and the production build could drift; both use the same compiler.
 - **Task 11: Ruling: the properties of the components are declared at runtime** — A generic `defineProps<Props>()` would make the compiler of Vue resolve the imported model types of `@drawdb/core`, which it cannot do for a package that is not built. Cost if wrong: the properties are not checked against the model types by the compiler; the shim of the `*.vue` modules documents the types instead.
+
+## Rulings
+- **Task 12: Ruling: the components are tested with `mount` and a jsdom document** — Naive UI mounts its styles into the document and needs a browser API, so the specs cannot be rendered without a DOM. `scripts/dom.mjs` installs a jsdom document before the spec files are imported. Cost if wrong: the specs depend on a DOM implementation; the production build does not.
+- **Task 12: Ruling: the header changes the title and the database with a core command** — `UpdateDiagramCommand` changes the top level properties of a diagram and can be undone, so the title field and the database selector of the header behave like every other change. Cost if wrong: one more command in the core package.
+- **Task 12: Ruling: the menu bar is data driven** — The entries are described by a `groups` property and the component only reports the selected key, so the host application can add or rename entries without replacing the component. Cost if wrong: the default entries are defined in the SDK and cannot be changed without passing the property.
+- **Task 12: Ruling: the IndexedDB adapter resolves the factory from `globalThis` and `window`** — `fake-indexeddb/auto` installs its implementation on `window` when a window exists, so reading only `globalThis.indexedDB` fails in a browser emulation. Cost if wrong: none; in a browser both are the same object.
