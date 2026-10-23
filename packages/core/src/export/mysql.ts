@@ -1,5 +1,5 @@
 import type { Diagram } from "../models/diagram.ts";
-import type { Field, FieldId } from "../models/field.ts";
+import type { Field } from "../models/field.ts";
 import { getTypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,

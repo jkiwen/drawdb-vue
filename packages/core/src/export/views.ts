@@ -1,8 +1,7 @@
 import type { Diagram } from "../models/diagram.ts";
 import type { Field } from "../models/field.ts";
 import type { Table } from "../models/table.ts";
-import type { View, ViewCondition, ViewJoin } from "../models/view.ts";
-import { getRelationshipFields } from "./shared.ts";
+import type { View } from "../models/view.ts";
 
 export type QuoteFn = (s: string) => string;
 
@@ -50,20 +49,7 @@ function lookup(
   return { table, field };
 }
 
-function viewTableIds(view: View): Array<View["id"]> {
-  return [view.baseTableId, ...(view.joins ?? []).map((j) => j.tableId)].filter(
-    (id): id is View["id"] => id != null,
-  );
-}
-
-function viewScopeTables(view: View, tables: Table[]): Table[] {
-  const byId = new Map(tables.map((t) => [t.id, t]));
-  return viewTableIds(view)
-    .map((id) => byId.get(id))
-    .filter((t): t is Table => t != null);
-}
-
-function conditionValue(value: unknown, field: Field, database: string): string {
+function conditionValue(value: unknown): string {
   const raw = String(value ?? "").trim();
   if (!raw) return "''";
   if (raw.startsWith("(") && raw.endsWith(")")) return raw;
@@ -128,7 +114,7 @@ export function buildViewSQL(
       if (!resolved) return null;
       const qualified = `${quote(resolved.table.name)}.${quote(resolved.field.name)}`;
       const clause = condition.operator
-        ? `${qualified} ${condition.operator} ${conditionValue(condition.value, resolved.field, database)}`
+        ? `${qualified} ${condition.operator} ${conditionValue(condition.value)}`
         : `${qualified}`;
       return index === 0 ? clause : `${condition.connector ?? "AND"} ${clause}`;
     })

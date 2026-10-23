@@ -1,7 +1,5 @@
 import type { Diagram } from "../models/diagram.ts";
 import type { Field } from "../models/field.ts";
-import type { Relationship } from "../models/relationship.ts";
-import type { Table } from "../models/table.ts";
 import type { TypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
