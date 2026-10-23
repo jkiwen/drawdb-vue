@@ -14,9 +14,15 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { hooks } from "./ts-resolver.mjs";
 import { sfcHooks } from "./sfc-loader.mjs";
+import { installDom } from "./dom.mjs";
 
 registerHooks(hooks);
 registerHooks(sfcHooks);
+
+// Naive UI mounts its styles into the document, so the components need a DOM
+// even when they are rendered on the server. The globals have to exist before
+// the spec files import Vue and Naive UI.
+installDom();
 
 const ROOT = resolve(import.meta.dirname, "..");
 const SOURCE_ROOTS = [

@@ -10,3 +10,4 @@ export * from "./add-field.ts";
 export * from "./update-field.ts";
 export * from "./remove-field.ts";
 export * from "./add-entity.ts";
+export * from "./update-diagram.ts";

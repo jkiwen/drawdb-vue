@@ -10,11 +10,13 @@ import {
   UpdateFieldCommand,
   UpdateRelationshipCommand,
   UpdateTableCommand,
+  UpdateDiagramCommand,
   createEmptyDiagram,
 } from "@drawdb/core";
 import type {
   Diagram,
   DiagramEntityCollection,
+  DiagramProperties,
   Field,
   FieldId,
   Relationship,
@@ -85,6 +87,15 @@ export const useDiagramStore = defineStore("diagram", () => {
     setDiagram(createEmptyDiagram());
   }
 
+  /**
+   * Changes a top level property of the diagram, for example its title or the
+   * database it is written for. The change is undoable.
+   */
+  function updateDiagram(updates: DiagramProperties): void {
+    history.execute(new UpdateDiagramCommand(diagram, updates));
+    bump();
+  }
+
   function addTable(table: Table): void {
     history.execute(new AddTableCommand(diagram, table));
     bump();
@@ -142,7 +153,7 @@ export const useDiagramStore = defineStore("diagram", () => {
 
   function addEntity(
     collection: DiagramEntityCollection,
-    entity: { id?: string | number; name?: string },
+    entity: { id?: string | number; name?: string; [key: string]: unknown },
   ): void {
     history.execute(new AddEntityCommand(diagram, collection, entity));
     bump();
@@ -171,6 +182,7 @@ export const useDiagramStore = defineStore("diagram", () => {
     fieldById,
     setDiagram,
     reset,
+    updateDiagram,
     addTable,
     updateTable,
     removeTable,

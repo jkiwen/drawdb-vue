@@ -19,6 +19,21 @@ const DEFAULT_STORE_NAME = "diagrams";
 const DEFAULT_VERSION = 1;
 
 /**
+ * The IndexedDB factory of the environment.
+ *
+ * In a browser `globalThis` and `window` are the same object. In a test
+ * environment that emulates a browser they are not, and the implementation
+ * of IndexedDB is only installed on the window.
+ */
+function resolveIndexedDB(): IDBFactory | undefined {
+  if (globalThis.indexedDB) return globalThis.indexedDB;
+  const scope = globalThis as unknown as {
+    window?: { indexedDB?: IDBFactory };
+  };
+  return scope.window?.indexedDB;
+}
+
+/**
  * Browser storage adapter backed by IndexedDB.
  *
  * The adapter talks to the raw IndexedDB API so that `@drawdb/core` stays
@@ -90,7 +105,7 @@ export class IndexedDBStorageAdapter implements StorageAdapter {
     if (this.db) return this.db;
     if (!this.opening) {
       this.opening = new Promise<IDBDatabase>((resolve, reject) => {
-        const factory = globalThis.indexedDB;
+        const factory = resolveIndexedDB();
         if (!factory) {
           reject(
             new StorageError(
