@@ -23,6 +23,7 @@ import Canvas from "./Canvas/Canvas.vue";
 import Header from "./Header/Header.vue";
 import SidePanel from "./SidePanel/SidePanel.vue";
 import { resolvePinia } from "../composables/pinia.ts";
+import { setLocale } from "../i18n/index.ts";
 import { useDiagramStore } from "../stores/diagram.ts";
 import { useHistoryStore } from "../stores/history.ts";
 import { useSaveStore } from "../stores/save.ts";
@@ -94,6 +95,9 @@ const emit = defineEmits<{
 // The stores need an active pinia. The SDK falls back to its own instance so
 // that the editor also works outside of an application.
 setActivePinia(resolvePinia());
+
+// The labels of the editor follow the locale of the host application.
+setLocale(props.locale);
 
 const diagramStore = useDiagramStore();
 const uiStore = useUIStore();
@@ -413,6 +417,14 @@ watch(
 
 // The automatic saving follows the props.
 watch(() => [props.autoSave, props.autoSaveInterval], restartAutoSave);
+
+// The labels of the editor follow the locale of the host application.
+watch(
+  () => props.locale,
+  (value) => {
+    setLocale(value);
+  },
+);
 
 // The selection of the editor is reported to the host application.
 watch(

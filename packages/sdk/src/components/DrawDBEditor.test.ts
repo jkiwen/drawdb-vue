@@ -10,6 +10,7 @@ import { useUIStore } from "../stores/ui.ts";
 import { useSaveStore } from "../stores/save.ts";
 import { MemoryStorageAdapter } from "@drawdb/core";
 import type { Diagram } from "@drawdb/core";
+import { getLocale } from "../i18n/index.ts";
 
 // The editor owns timers and plugins, so every wrapper is unmounted again.
 enableAutoUnmount(afterEach);
@@ -82,6 +83,13 @@ describe("DrawDBEditor", () => {
   it("renders the header", () => {
     const wrapper = mountEditor();
     assert.ok(wrapper.find('[data-testid="header"]').exists());
+  });
+
+  it("follows the locale of the host application", async () => {
+    const wrapper = mountEditor({ locale: "zh-CN" });
+    assert.equal(getLocale(), "zh-CN");
+    await wrapper.setProps({ locale: "en" });
+    assert.equal(getLocale(), "en");
   });
 
   it("applies the initial value in the uncontrolled mode", () => {

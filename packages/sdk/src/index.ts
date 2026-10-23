@@ -15,6 +15,17 @@ export * from "./composables/index.ts";
 export * from "./stores/index.ts";
 export * from "./types/sdk-options.ts";
 export * from "./utils/elements.ts";
+export {
+  LANGUAGES,
+  availableLocales,
+  createI18n,
+  getLocale,
+  localeMessages,
+  resolveLocale,
+  setLocale,
+  t,
+} from "./i18n/index.ts";
+export type { Language, SdkI18n } from "./i18n/index.ts";
 
 /** The options of the Vue plugin of the SDK. */
 export interface DrawDBVueSdkOptions {
