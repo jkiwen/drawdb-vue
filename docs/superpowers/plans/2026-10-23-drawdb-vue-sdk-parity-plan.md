@@ -722,6 +722,8 @@
 
 ## Task 27: sdk 侧边栏完整编辑器
 
+**Status:** complete — commit `8128dc1` · report: `TASK-27-SUMMARY.md`
+
 **Files:**
 - Rewrite: `packages/sdk/src/components/SidePanel/ViewsTab.vue`
 - Rewrite: `packages/sdk/src/components/SidePanel/TypesTab.vue`
@@ -747,7 +749,7 @@
   function removeEnum(name: string): void;
   ```
 
-- [ ] **Step 1: 写失败的测试 `packages/sdk/src/components/SidePanel/side-panel-editors.test.ts`**
+- [x] **Step 1: 写失败的测试 `packages/sdk/src/components/SidePanel/side-panel-editors.test.ts`**
 
   必须包含（≥ 20 条）：
   ```ts
@@ -773,16 +775,16 @@
   test("switching tabs keeps the selection");
   ```
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs side-panel-editors`
   Expected: FAIL —— 断言缺失（`views-tab` 的编辑器不存在）
 
-- [ ] **Step 3: 扩展 store**
+- [x] **Step 3: 扩展 store**
 
   按 Interfaces 块实现 9 个 store 方法（全部走 `CommandManager`），并给 `UiTab` 联合类型加 `"customTypes"` 与 `"sqlHeader"`。
 
-- [ ] **Step 4: 重写三个编辑器 Tab**
+- [x] **Step 4: 重写三个编辑器 Tab**
 
   - `ViewsTab.vue`：`data-testid="views-tab"`；每个视图一块，包含基础表下拉、joins（表 + on 条件）、columns（表/字段/别名）、conditions（连接符/表/字段/运算符/值），下拉项来自 `diagramStore.tables` 与其字段。
   - `TypesTab.vue`：`data-testid="types-tab"`；类型名、注释、字段列表（名称/类型/默认值）。
@@ -790,12 +792,12 @@
   - `CustomTypesTab.vue`：`data-testid="customtypes-tab"`；来自 `DrawDBEditor` 的 `customTypes` prop 的新增/编辑（`props.customTypes` 通过 store 或 provide 传入）。
   - `SqlHeaderTab.vue`：`data-testid="sqlheader-tab"`；多行文本框 → `diagramStore.updateSqlHeader`。
 
-- [ ] **Step 5: 整体验证**
+- [x] **Step 5: 整体验证**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）、`node --experimental-strip-types scripts/verify-constraints.test.ts`、`pnpm run typecheck`
   Expected: 0 fail；约束检查通过；typecheck 无错误
 
-- [ ] **Step 6: 提交**
+- [x] **Step 6: 提交**
 
   ```bash
   git add packages/sdk/src
