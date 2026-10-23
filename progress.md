@@ -27,8 +27,10 @@
   - Report: `docs/task-7-report.md`
 - Task 8: complete (commit `76f3d9a5ee4b9ceca65f0480d799fe99c19938b1`; `parseDBML` / `exportDBML` / `diffDBML` / `reconcileDBML`; 20/20 new specs, 189/189 workspace specs pass; typecheck clean)
   - Report: `docs/task-8-report.md`
-- Task 9: complete (commit `PENDING`; `useDiagramStore` / `useHistoryStore` / `useUIStore` / `useSettingsStore` / `useSaveStore`; 10/10 new specs, 199/199 workspace specs pass; typecheck clean)
+- Task 9: complete (commit `9ad1763`; `useDiagramStore` / `useHistoryStore` / `useUIStore` / `useSettingsStore` / `useSaveStore`; 10/10 new specs, 199/199 workspace specs pass; typecheck clean)
   - Report: `docs/task-9-report.md`
+- Task 10: complete (commit `PENDING`; `useSelection` / `useViewport` / `useDrag` / `useHotkeys` / `useCanvasEvents` / `useStorage`; 28/28 new specs, 227/227 workspace specs pass; typecheck clean)
+  - Report: `docs/task-10-report.md`
 
 ## Rulings
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
@@ -51,3 +53,7 @@
 - **Task 9: Ruling: the workspace test runner resolves `@drawdb/core` through a Node resolve hook** — The sandbox cannot build the workspace packages and Node refuses to strip TypeScript types under `node_modules`, so the plain workspace symlink is unusable in tests. `scripts/ts-resolver.mjs` remaps the specifier to the core sources. Cost if wrong: test-only machinery; production builds resolve the published package normally.
 - **Task 9: Ruling: `vue-demi` and `@vue/devtools-api` are explicit dependencies of `@drawdb/vue-sdk`** — With the hoisted pnpm linker the transitive dependencies of a workspace package are not reachable from it, and `pinia` cannot resolve them. Cost if wrong: two extra declared dependencies; they are required by `pinia` anyway.
 - **Task 9: Ruling: pnpm build scripts stay disabled, installs use `--ignore-scripts`** — Running build scripts makes the install fail with `EPERM ... spawn` because the sandbox blocks child processes with piped stdio. The allow-list moved from the `pnpm` field of `package.json` (ignored by pnpm 11) to `pnpm-workspace.yaml`. Cost if wrong: native postinstall steps of dependencies do not run; `vue-demi` is switched to the Vue 3 build with `pnpm rebuild vue-demi`.
+- **Task 10: Ruling: the selection and the viewport stay in the UI store, the composables are the API** — Several components have to see the same selection and viewport, and Pinia keeps the state inspectable in the devtools. The composables add the semantics the raw store does not provide, such as resolving the kind of an id from the diagram and converting coordinates. Cost if wrong: the composables cannot be used to hold a second, independent selection.
+- **Task 10: Ruling: the composables fall back to a shared pinia instance** — `resolvePinia()` returns the active instance, or a module level fallback when there is none, so the composables work in plain unit tests without duplicating the state implementation. Cost if wrong: state created outside an application is not reset between tests; the tests create their own instance.
+- **Task 10: Ruling: the hotkey registry is DOM free and resolves `mod` against the platform** — `createHotkeyRegistry(platform)` matches bindings against plain keyboard event objects, which makes the shortcut behaviour testable without a browser. `mod` means control on Windows and Linux and command on macOS. Cost if wrong: a registry created for the wrong platform ignores the platform modifier.
+- **Task 10: Ruling: the drag composable only tracks the movement** — It does not change the diagram; the caller turns the result into a core command, which is what makes a move undoable. Cost if wrong: the caller has to apply the delta itself.
