@@ -37,6 +37,8 @@
   - Report: `docs/task-12-report.md`
 - Task 13: complete (commit `f6fe2068d1d1a3dcc7dca35e9d11f5099ba58f54`; `SidePanel` with the seven tabs; the tables tab edits the selected table and its fields; 13/13 new specs, 266/266 workspace specs pass; typecheck clean)
   - Report: `docs/task-13-report.md`
+- Task 14: complete (commit `dcfea03fbade8334a7b3a067f5757b10e644bd61`; `DrawDBEditor` composes the header, the canvas and the side panel; controlled and uncontrolled mode, automatic saving, plugin life cycle, event emission; the package entry point offers `DrawDBVueSdk`; 15/15 new specs, 281/281 workspace specs pass; typecheck clean)
+  - Report: `docs/task-14-report.md`
 
 ## Rulings
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
@@ -83,3 +85,10 @@
 - **Task 13: Ruling: a rename is committed when the input loses the focus** — The name of a table and the name and the type of a field are edited in a local draft and written to the diagram on the `change` event of the input. A rename is therefore one undoable step instead of one step per keystroke. Cost if wrong: the panel does not save while the user is still typing.
 - **Task 13: Ruling: the tables tab edits the fields of the selected table** — The plan only names the tabs. The React side panel spends most of its time in the editor of the fields, so the tab reproduces it: name, type, primary, unique and not null, plus adding and removing a field. Cost if wrong: the panel is bigger than the plan asked for.
 - **Task 13: Ruling: the search field of the tables tab writes into the UI store** — The search term is part of the ephemeral state of the editor, so the canvas and the panel always filter with the same term. Cost if wrong: none.
+
+## Rulings
+- **Task 14: Ruling: the plugin context inherits the members of the host** — The core built the context of a plugin as a new object with the four members of the core context, which dropped the stores, the slot registry and the command registry the SDK added. The core now builds the context with `Object.create(base)`, so the members of the host and their live getters survive the activation. Cost if wrong: the context of a plugin is not a plain object; the prototype chain carries the host members.
+- **Task 14: Ruling: the controlled mode ignores the echo of the editor** — The editor remembers the diagram it emitted last and compares the incoming diagram with the current one, so a host application that sends the emitted diagram back neither replaces the diagram nor clears the undo history. Cost if wrong: a host application that changes the diagram without changing it in the store is not detected.
+- **Task 14: Ruling: the props of the editor are declared at runtime** — The ruling of Task 11 applies: the Vue compiler cannot resolve the model types of the not yet built `@drawdb/core` package. The spec therefore casts the instance of the component to the interface of the exposed methods. Cost if wrong: the props are not checked by the compiler; `types/sdk-options.ts` documents them.
+- **Task 14: Ruling: the timer of the automatic saving is unref'd** — A Node process that renders the editor on the server must be able to end, and the browsers do not know `unref`, so the call is optional. Cost if wrong: none.
+- **Task 14: Ruling: the geometry of the canvas exports a `GeometryPoint`** — The viewport of the composables already exported a `Point`, and two modules of the entry point must not export the same name. Cost if wrong: the name of the type of the canvas helpers differs from the name of the type of the viewport.
