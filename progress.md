@@ -19,11 +19,11 @@
 - Task 3: complete (commit `c7db564137998812b7eedfeb1b67225406b978f9`; tests: `node --experimental-strip-types packages/core/src/commands/command-manager.test.ts` → 6/6 pass)
 - Task 4: complete (commit `e3f414716381f76dff0020cfd74f13103257c677`; all 7 SQL export dialects ported; 37/37 tests pass)
   - Report: `docs/task-4-report.md`
-- Task 5: complete (all 7 dialects import; dedicated T-SQL parser for MSSQL; 169/169 workspace specs pass)
+- Task 5: complete (commit `135cf47b6a09d472d72470a31853951641ae6e36`; all 7 dialects import; dedicated T-SQL parser for MSSQL; 169/169 workspace specs pass)
   - Report: `docs/task-5-report.md`
 - Task 6: complete (commit `42d1f34`; `StorageAdapter` + `MemoryStorageAdapter` + `IndexedDBStorageAdapter`; 17/17 tests pass)
   - Report: `docs/task-6-report.md`
-- Task 7: complete (`MetadataSchema` / `MetadataRegistry` / `Plugin` / `PluginManager` / extension points; 27/27 tests pass)
+- Task 7: complete (commit `9c3130a74e49f0cb5144abc12218ca9bf5f3ee5a`; `MetadataSchema` / `MetadataRegistry` / `Plugin` / `PluginManager` / extension points; 27/27 tests pass)
   - Report: `docs/task-7-report.md`
 
 ## Rulings
