@@ -7,6 +7,7 @@
 
 ## Decisions
 - SDK workspace is nested inside the drawDB repo because the file sandbox denies creating directories at the sibling level (`D:\dev\repos\github\drawdb-vue-sdk`). This is a workspace-location concession, not a code-structure concession; the SDK still ships as three independent packages from `packages/*`.
+- **Every finished task is marked in the plan itself.** The heading of a task carries a `**Status:**` line with the commit and the report of the task, and the steps of the task are checked. `scripts/plan-status.mjs` shows the state of the tasks and marks a new one as complete. The plan is therefore the state of the work, not only the intention of it.
 
 ## Rulings
 - **Task 1: Ruling: SDK workspace nested inside drawDB repo** — File sandbox denies creating `D:\dev\repos\github\drawdb-vue-sdk`; workspace lives at `D:\dev\repos\github\drawdb\sdk-workspace`. Cost if wrong: not a true independent repo; mitigated by separate Git history and `packages/*` layout.
