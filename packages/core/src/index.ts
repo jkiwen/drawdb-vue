@@ -7,6 +7,7 @@ export * from "./metadata/index.ts";
 export * from "./plugins/index.ts";
 export * from "./dbml/index.ts";
 export * from "./validation/index.ts";
+export * from "./layout/index.ts";
 export {
   DATABASE_TYPE_METADATA,
   DATABASE_TYPE_NAMES,
