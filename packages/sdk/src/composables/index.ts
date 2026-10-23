@@ -40,3 +40,10 @@ export {
   type CanvasEventsOptions,
 } from "./use-canvas-events.ts";
 export { useStorage, type StorageApi } from "./use-storage.ts";
+export {
+  useVirtualization,
+  type VirtualizableElement,
+  type VirtualizationApi,
+  type VirtualizationOptions,
+  type VirtualViewport,
+} from "./use-virtualization.ts";

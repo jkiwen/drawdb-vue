@@ -6,6 +6,10 @@ import { useCanvasEvents } from "../../composables/use-canvas-events.ts";
 import { useDrag } from "../../composables/use-drag.ts";
 import { useSelection } from "../../composables/use-selection.ts";
 import { useViewport } from "../../composables/use-viewport.ts";
+import {
+  useVirtualization,
+  type VirtualizableElement,
+} from "../../composables/use-virtualization.ts";
 import Area from "./Area.vue";
 import LogicalRelationship from "./LogicalRelationship.vue";
 import LogicalTable from "./LogicalTable.vue";
@@ -18,7 +22,6 @@ import {
   DEFAULT_VIEWPORT_HEIGHT,
   DEFAULT_VIEWPORT_WIDTH,
   areaBounds,
-  filterVisible,
   logicalRelationshipBounds,
   logicalTableBounds,
   noteBounds,
@@ -26,6 +29,7 @@ import {
   tableBounds,
   viewBounds,
   visibleWorldBounds,
+  type Bounds,
 } from "./geometry.ts";
 
 defineOptions({ name: "DrawDBCanvas" });
@@ -71,29 +75,89 @@ const world = computed(() =>
 /** The logical view draws the entities instead of the tables. */
 const isLogical = computed(() => ui.viewMode === "logical");
 
-const transform = computed(
-  () =>
-    `translate(${-ui.scrollX * ui.zoom} ${-ui.scrollY * ui.zoom}) scale(${ui.zoom})`,
+/** The visible area, in the coordinates of the canvas. */
+const viewportRect = computed(() => ({
+  x: world.value.minX,
+  y: world.value.minY,
+  width: world.value.maxX - world.value.minX,
+  height: world.value.maxY - world.value.minY,
+}));
+
+/** An element of the canvas together with the object it draws. */
+interface CanvasItem<T> extends VirtualizableElement {
+  item: T;
+}
+
+/** Turn the bounds of an element into an item of the virtualization. */
+function toItem<T>(item: T, bounds: Bounds): CanvasItem<T> {
+  return {
+    id: String((item as { id: string | number }).id),
+    x: bounds.minX,
+    y: bounds.minY,
+    width: bounds.maxX - bounds.minX,
+    height: bounds.maxY - bounds.minY,
+    item,
+  };
+}
+
+const areaItems = computed<CanvasItem<typeof diagram.areas[number]>[]>(() =>
+  diagram.areas.map((area) => toItem(area, areaBounds(area))),
+);
+
+const noteItems = computed<CanvasItem<typeof diagram.notes[number]>[]>(() =>
+  diagram.notes.map((note) => toItem(note, noteBounds(note))),
+);
+
+const viewItems = computed<CanvasItem<typeof diagram.views[number]>[]>(() =>
+  diagram.views.map((view) => toItem(view, viewBounds(view))),
+);
+
+const tableItems = computed<CanvasItem<typeof diagram.tables[number]>[]>(() =>
+  diagram.tables
+    .filter((table) => !table.hidden)
+    .map((table) =>
+      isLogical.value
+        ? toItem(table, logicalTableBounds(table))
+        : toItem(table, tableBounds(table)),
+    ),
+);
+
+const { visibleElements: visibleAreaItems } = useVirtualization(
+  areaItems,
+  viewportRect,
+);
+const { visibleElements: visibleNoteItems } = useVirtualization(
+  noteItems,
+  viewportRect,
+);
+const { visibleElements: visibleViewItems } = useVirtualization(
+  viewItems,
+  viewportRect,
+);
+const { visibleElements: visibleTableItems } = useVirtualization(
+  tableItems,
+  viewportRect,
 );
 
 const visibleAreas = computed(() =>
-  filterVisible(diagram.areas, areaBounds, world.value),
+  visibleAreaItems.value.map((entry) => entry.item),
 );
 
 const visibleNotes = computed(() =>
-  filterVisible(diagram.notes, noteBounds, world.value),
+  visibleNoteItems.value.map((entry) => entry.item),
 );
 
 const visibleViews = computed(() =>
-  filterVisible(diagram.views, viewBounds, world.value),
+  visibleViewItems.value.map((entry) => entry.item),
 );
 
 const visibleTables = computed(() =>
-  filterVisible(
-    diagram.tables.filter((table) => !table.hidden),
-    isLogical.value ? logicalTableBounds : tableBounds,
-    world.value,
-  ),
+  visibleTableItems.value.map((entry) => entry.item),
+);
+
+const transform = computed(
+  () =>
+    `translate(${-ui.scrollX * ui.zoom} ${-ui.scrollY * ui.zoom}) scale(${ui.zoom})`,
 );
 
 const visibleRelationships = computed(() =>

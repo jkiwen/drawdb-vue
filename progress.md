@@ -45,6 +45,8 @@
   - Report: `docs/task-16-report.md`
 - Task 17: complete (commit `0a8c837`; the standalone application with the routes for the diagrams, the editor and the templates; the persistence in the browser (IndexedDB) with a fallback to the memory; two starter diagrams; 6/6 new specs, 305/305 workspace specs pass; typecheck clean for the three packages)
   - Report: `docs/task-17-report.md`
+- Task 18: complete (commit `PENDING`; the virtualization of the canvas (`useVirtualization`) and its integration in `Canvas.vue`; the specifications of Playwright for the smoke test and the performance test (they run in the CI); an integration specification of the application that runs locally; 6/6 new composable specs, 4/4 new integration specs, 315/315 workspace specs pass; typecheck clean for the four programs)
+  - Report: `docs/task-18-report.md`
 
 ## Rulings
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
@@ -109,3 +111,10 @@
 - **Task 17: Ruling: the linker of the workspace is the hoisted one** — The isolated linker creates symbolic links that Node cannot follow on this Windows host, so that every package of the workspace received its own copy of Vue and of pinia. Two copies of Vue are two runtimes in one process, and the components of the SDK were rendered by a runtime that did not know the directives of the other one. The setting lives in `pnpm-workspace.yaml` (`nodeLinker: hoisted`), because pnpm 11 does not read the `.npmrc` of the workspace for it. Cost if wrong: two runtimes and a warning about the missing pinia in every specification that mounts the editor.
 - **Task 17: Ruling: the application installs its own pinia** — With the hoisted linker the application and the SDK share one instance of pinia, so the pinia that the application installs is the one the stores of the SDK use. Cost if wrong: none.
 - **Task 17: Ruling: the type check of the application includes the sources of the core** — The path of `@drawdb/core` points at the source of the workspace, so the program of the application contains the files of the core and needs the same path entries for the packages without declarations (`oracle-sql-parser`). Cost if wrong: the type check of the application fails on a file of the core.
+
+## Rulings
+- **Task 18: Ruling: the virtualization is a composable of the SDK and not a helper of the geometry** — `useVirtualization` works on a list of items and a viewport, so it can be tested without a DOM and reused by every canvas. The geometry module keeps the measures of the elements, the composable keeps the elements that are visible. Cost if wrong: none.
+- **Task 18: Ruling: the items of the canvas carry the object they draw** — The composable is generic, so the canvas attaches every table, note, area and view to its item and reads the object back after the culling, instead of looking it up again in the store. Cost if wrong: none.
+- **Task 18: Ruling: the relationships are not virtualized** — A relationship is only drawn when one of its two tables is visible, so the culling of the tables already decides about the relationships. Cost if wrong: none.
+- **Task 18: Ruling: the end to end tests of Playwright run in the CI** — The sandbox of the development environment cannot start a browser, so the specifications of the plan are written for the CI and an integration specification (`packages/app/src/integration.test.ts`) verifies the same flow with the test runner of the workspace. Cost if wrong: the end to end tests are only verified in the CI.
+- **Task 18: Ruling: the type check covers the end to end tests** — `pnpm run typecheck` checks `e2e/tsconfig.json` as well, so a specification of Playwright that does not compile is caught before the CI runs it. Cost if wrong: none.
