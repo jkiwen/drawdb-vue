@@ -48,7 +48,9 @@
 
 ---
 
-### Task 21: core 图质量校验（validation）
+## Task 21: core 图质量校验（validation）
+
+**Status:** complete — commit `eac4bb3` · report: `docs/task-21-report.md`
 
 **Files:**
 - Create: `packages/core/src/validation/types.ts`
@@ -89,7 +91,7 @@
   export interface TypeMetadata { /* 既有字段 */ defaultKind?: DefaultKind; }
   ```
 
-- [ ] **Step 1: 给 `plan-status.mjs` 加 `--plan` 选项**
+- [x] **Step 1: 给 `plan-status.mjs` 加 `--plan` 选项**
 
   `scripts/plan-status.mjs` 当前的 `PLAN` 常量硬编码为 `resolve("docs/plan.md")`。改为：CLI 接受 `--plan <path>`（相对 `sdk-workspace`），未给出时保持 `docs/plan.md`；`readState(planPath = PLAN)` 保持现有签名不变。
 
@@ -98,7 +100,7 @@
   Run: `node --experimental-strip-types scripts/run-tests.mjs verify-plan`
   Expected: PASS（现有 6 条用例仍然通过）
 
-- [ ] **Step 2: 写失败的测试 `packages/core/src/validation/validate.test.ts`**
+- [x] **Step 2: 写失败的测试 `packages/core/src/validation/validate.test.ts`**
 
   文件必须包含以下用例（断言 code 与 severity，消息用 `issue.code` 精确匹配）：
 
@@ -141,12 +143,12 @@
 
   另需按 spec §4.1 的规则表把剩余 code 补齐用例（`table.duplicate_name` 之外还有 `index.no_name`、`index.duplicate_name`、`unique_constraint.duplicate_name`、`type.no_name`、`type.duplicate_name`、`type_field.no_name`、`type_field.no_type`、`type_field.no_values`、`type_field.duplicate_name`、`enum.no_name`、`enum.duplicate_name`、`view.no_name`、`view.duplicate_name`、`join.no_condition`、`join.out_of_order`、`view_column.no_field`、`view_column.duplicate_name`、`field.not_null_is_null`、`field.inherited_duplicate`、`relationship.circular`），**文件内用例总数 ≥ 30**。
 
-- [ ] **Step 3: 运行测试确认失败**
+- [x] **Step 3: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs validation`
   Expected: FAIL —— `ERR_MODULE_NOT_FOUND: Cannot find module '.../packages/core/src/validation/index.ts'`
 
-- [ ] **Step 4: 实现校验模块**
+- [x] **Step 4: 实现校验模块**
 
   - `types.ts`：写入上面 Interfaces 块里的 `IssueSeverity`、`DefaultKind`、`DiagramIssue`、`ValidationOptions`（`DatabaseType` 从 `../models/diagram.ts` import type）。
   - `rules.ts`：每个规则一个导出函数，签名统一为 `(diagram: Diagram, database: DatabaseType) => DiagramIssue[]`，函数名用规则名（`checkTableNames`、`checkFieldNames`、`checkDefaultValues`、`checkRelationships`、`checkViews`、`checkTypes`、`checkEnums`、`checkIndices` …）。规则之间不互相调用，统一由 `validate.ts` 汇总。
@@ -154,21 +156,21 @@
   - `isDefaultValid(kind, value)`：按 spec §4.1 的表格实现；`value` 为空字符串、`null`/`undefined`，或 `isFunction(String(value))` 为真时一律返回 `true`。
   - 消息用英文兜底句式，例：`Table "${name}" has no primary key.`、`Field "${field}" of table "${table}" has a default that is not valid for type "${type}".`；同时填 `params`（如 `{ table: name, field: field, type: type }`）供 SDK 本地化。
 
-- [ ] **Step 5: 给类型注册表加 `defaultKind`**
+- [x] **Step 5: 给类型注册表加 `defaultKind`**
 
   `scripts/generate-type-registry.mjs` 在生成 `DATABASE_TYPE_METADATA` 时，为每个类型追加 `defaultKind`：类型名匹配 `^(INT|BIGINT|SMALLINT|TINYINT|MEDIUMINT|DECIMAL|NUMERIC|FLOAT|DOUBLE|REAL|MONEY)$` → `numeric`；`^(BOOL|BOOLEAN)$` → `boolean`；`^(DATE|DATETIME|TIMESTAMP|TIMESTAMPTZ|SMALLDATETIME|DATETIME2|DATETIMEOFFSET)$` → `date`；该类型 `noDefault === true` → `none`；其余 → `text`。`TypeMetadata` 接口加 `defaultKind?: DefaultKind`（`DefaultKind` 从 `../validation/types.ts` import type —— 若产生循环依赖，则把 `DefaultKind` 定义在 `packages/core/src/types/registry.ts` 并由 validation 重新导出）。
 
   Run: `node scripts/generate-type-registry.mjs && node --experimental-strip-types scripts/run-tests.mjs validation`
   Expected: 全部 validation 用例 PASS
 
-- [ ] **Step 6: 导出并整体验证**
+- [x] **Step 6: 导出并整体验证**
 
   `packages/core/src/index.ts` 增加 `export * from "./validation/index.ts";`（注意与 `./types/registry.ts` 的显式导出列表不冲突——`DefaultKind` 只从 validation 导出一次）。
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）与 `pnpm run typecheck`
   Expected: 全量用例数 ≥ 334 + 30 = 364 且 0 fail；typecheck 无错误
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
   ```bash
   git add packages/core/src/validation packages/core/src/types/registry.ts packages/core/src/index.ts scripts/generate-type-registry.mjs scripts/plan-status.mjs scripts/verify-plan.test.ts
@@ -177,7 +179,7 @@
 
 ---
 
-### Task 22: core 自动布局与关系推断（layout）
+## Task 22: core 自动布局与关系推断（layout）
 
 **Files:**
 - Create: `packages/core/src/layout/auto-arrange.ts`
@@ -283,7 +285,7 @@
 
 ---
 
-### Task 23: core 图 JSON 导入导出（serialize）
+## Task 23: core 图 JSON 导入导出（serialize）
 
 **Files:**
 - Create: `packages/core/src/serialize/types.ts`
@@ -395,7 +397,7 @@
 
 ---
 
-### Task 24: core 命令补全
+## Task 24: core 命令补全
 
 **Files:**
 - Create: `packages/core/src/commands/field-commands.ts`
@@ -487,7 +489,7 @@
 
 ---
 
-### Task 25: sdk 画布拆分与交互层
+## Task 25: sdk 画布拆分与交互层
 
 **Files:**
 - Create: `packages/sdk/src/components/Canvas/TableHeader.vue`
@@ -620,7 +622,7 @@
 
 ---
 
-### Task 26: sdk 表格内编辑与字段排序
+## Task 26: sdk 表格内编辑与字段排序
 
 **Files:**
 - Create: `packages/sdk/src/composables/use-sortable.ts`
@@ -708,7 +710,7 @@
 
 ---
 
-### Task 27: sdk 侧边栏完整编辑器
+## Task 27: sdk 侧边栏完整编辑器
 
 **Files:**
 - Rewrite: `packages/sdk/src/components/SidePanel/ViewsTab.vue`
@@ -792,7 +794,7 @@
 
 ---
 
-### Task 28: sdk 弹窗与导入导出
+## Task 28: sdk 弹窗与导入导出
 
 **Files:**
 - Create: `packages/sdk/src/components/Dialogs/SqlPreviewDialog.vue`
@@ -875,7 +877,7 @@
 
 ---
 
-### Task 29: sdk 全屏与图片导出
+## Task 29: sdk 全屏与图片导出
 
 **Files:**
 - Create: `packages/sdk/src/composables/use-image-export.ts`
@@ -943,7 +945,7 @@
 
 ---
 
-### Task 30: sdk 质量问题面板
+## Task 30: sdk 质量问题面板
 
 **Files:**
 - Create: `packages/sdk/src/components/SidePanel/IssuesTab.vue`
@@ -1012,7 +1014,7 @@
 
 ---
 
-### Task 31: app 最小适配
+## Task 31: app 最小适配
 
 **Files:**
 - Create: `packages/app/src/services/diagram-io.ts`
@@ -1065,7 +1067,7 @@
 
 ---
 
-### Task 32: 文档、版本 0.2.0 与发布前验证
+## Task 32: 文档、版本 0.2.0 与发布前验证
 
 **Files:**
 - Modify: `package.json`、`packages/core/package.json`、`packages/sdk/package.json`、`packages/app/package.json`（版本 → 0.2.0）

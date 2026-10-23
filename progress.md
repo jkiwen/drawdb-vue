@@ -52,7 +52,7 @@
   - Report: `docs/task-19-report.md`
 - Task 20: complete (commit `5af7b0491b912d770a97baa0fa7113e3d30c47e9`; the continuous integration (the type check, the build of the two packages, the tests) and the job of the end to end tests; the release workflow that packs the two packages; the changelog; the example `examples/vue-embed`; the three packages at the version 0.1.0; 7/7 release specs, 327/327 workspace specs pass; typecheck clean for the five programs)
   - Report: `docs/task-20-report.md`
-- Task 21: complete (commit `PENDING`; the core module `validation` with the structured issues `table.*`, `field.*`, `relationship.*`, `view.*`, `join.*`, `view_column.*`, `index.*`, `unique_constraint.*`, `type.*`, `type_field.*`, `enum.*`; the `defaultKind` of the type registry; `plan-status.mjs` accepts `--plan`; 46/46 new specs, 381/381 workspace specs pass; typecheck clean for the five programs)
+- Task 21: complete (commit `eac4bb3`; the core module `validation` with the structured issues `table.*`, `field.*`, `relationship.*`, `view.*`, `join.*`, `view_column.*`, `index.*`, `unique_constraint.*`, `type.*`, `type_field.*`, `enum.*`; the `defaultKind` of the type registry; `plan-status.mjs` accepts `--plan`; 46/46 new specs, 381/381 workspace specs pass; typecheck clean for the five programs)
   - Report: `docs/task-21-report.md`
 - Restructure: complete (the outer repository of the React application was removed, the React application moved into `../drawdb-app` as a reference, the history kept in `../drawdb-history.bundle`, the packages packed locally instead of published to npm; 327/327 workspace specs pass; typecheck clean)
   - Report: `docs/restructure-report.md`
