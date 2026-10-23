@@ -1089,6 +1089,8 @@
 
 ## Task 32: 文档、版本 0.2.0 与发布前验证
 
+**Status:** complete — commit `HEAD` · report: `docs/task-32-report.md`
+
 **Files:**
 - Modify: `package.json`、`packages/core/package.json`、`packages/sdk/package.json`、`packages/app/package.json`（版本 → 0.2.0）
 - Modify: `CHANGELOG.md`（新增 `## 0.2.0`）
@@ -1100,16 +1102,16 @@
 - Consumes: 全部前序任务的产出。
 - Produces: 版本 0.2.0 的发布候选（本地打包，不发布到 npm——沿用 v0.1.0 的既定策略）。
 
-- [ ] **Step 1: 写发布前验证测试 `scripts/verify-release.test.ts` 的新用例**
+- [x] **Step 1: 写发布前验证测试 `scripts/verify-release.test.ts` 的新用例**
 
   增加两条："the packages are at version 0.2.0"（四个 package.json + 根 package.json 的 `version` 字段）与 "the changelog documents 0.2.0"（`CHANGELOG.md` 含 `## 0.2.0` 且列出六项新能力）。
 
-- [ ] **Step 2: 运行测试确认失败**
+- [x] **Step 2: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs verify-release`
   Expected: FAIL —— 版本仍是 0.1.0
 
-- [ ] **Step 3: 升版本并写 CHANGELOG**
+- [x] **Step 3: 升版本并写 CHANGELOG**
 
   四个 `package.json` 与根 `package.json` 的 `version` 改为 `0.2.0`；`CHANGELOG.md` 新增：
 
@@ -1124,11 +1126,11 @@
   - 小地图、全屏、Issues 面板
   ```
 
-- [ ] **Step 4: 更新 README**
+- [x] **Step 4: 更新 README**
 
   `sdk-workspace/README.md` 增加「Phase 2 新增能力」小节与新的 API 示例（`validateDiagram`、`autoArrange`、`inferRelationships`、`exportDiagramJson`/`importDiagramJson`）；三个包的 README 同步各自的新增 API。
 
-- [ ] **Step 5: 发布前验证**
+- [x] **Step 5: 发布前验证**
 
   Run:
   ```bash
@@ -1139,11 +1141,11 @@
   ```
   Expected: typecheck 无错误；build 成功；测试 0 fail 且总数 ≥ 464（334 + 130）；`pack:packages` 产出 `.release/drawdb-core-0.2.0.tgz` 与 `.release/drawdb-vue-sdk-0.2.0.tgz`。
 
-- [ ] **Step 6: 写报告与账本**
+- [x] **Step 6: 写报告与账本**
 
   `docs/task-32-report.md` 记录本阶段的范围、每个任务的提交、验证结果、与 spec 的差异（特别是 `SetDiagramCommand` 被 `UpdateDiagramCommand` 取代、minimap 落在 Task 25 而非 Task 29）。`progress.md` 追加 Task 21–32 的条目与 Rulings。
 
-- [ ] **Step 7: 标注计划状态并提交**
+- [x] **Step 7: 标注计划状态并提交**
 
   ```bash
   node scripts/plan-status.mjs --plan docs/superpowers/plans/2026-10-23-drawdb-vue-sdk-parity-plan.md --task 32 --commit <hash> --report docs/task-32-report.md
