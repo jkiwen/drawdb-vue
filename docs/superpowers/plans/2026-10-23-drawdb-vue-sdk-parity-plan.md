@@ -497,6 +497,8 @@
 
 ## Task 25: sdk 画布拆分与交互层
 
+**Status:** complete — commit `dcc065b` · report: `docs/task-25-report.md`
+
 **Files:**
 - Create: `packages/sdk/src/components/Canvas/TableHeader.vue`
 - Create: `packages/sdk/src/components/Canvas/TableField.vue`
@@ -543,11 +545,11 @@
   ```
   `packages/sdk/src/stores/ui.ts` 新增状态：`linking`（`LinkingState | null`）、`resizing`、`selectionBox`、`contextMenu`（位置与目标）、`showMinimap`（布尔，默认 false）。
 
-- [ ] **Step 1: 写约束检查脚本 `scripts/verify-constraints.test.ts`**
+- [x] **Step 1: 写约束检查脚本 `scripts/verify-constraints.test.ts`**
 
   脚本扫描 `packages/sdk/src` 与 `packages/app/src` 下所有 `.ts`/`.vue` 文件，行数 > 300 即失败，并输出违规文件列表。断言里至少包含三个用例："no sdk file is longer than 300 lines"、"no app file is longer than 300 lines"、"the check detects a file that is too long"（用临时目录构造一个 301 行的文件，测完删除）。
 
-- [ ] **Step 2: 写失败的交互测试 `packages/sdk/src/components/Canvas/interactions/interactions.test.ts`**
+- [x] **Step 2: 写失败的交互测试 `packages/sdk/src/components/Canvas/interactions/interactions.test.ts`**
 
   必须包含（≥ 18 条）：
   ```ts
@@ -579,23 +581,23 @@
 
   组件测试沿用既有模式：本地 `let pinia: Pinia`，`mountComponent(component, props)` 辅助函数用 `global: { plugins: [pinia] }` 挂载（**不要**再调用 `scripts/dom.mjs` 的 `installDom()`，DOM 由 `scripts/run-tests.mjs` 统一安装）。
 
-- [ ] **Step 3: 运行测试确认失败**
+- [x] **Step 3: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs interactions`
   Expected: FAIL —— 模块不存在
 
-- [ ] **Step 4: 实现四个交互 composable**
+- [x] **Step 4: 实现四个交互 composable**
 
   - `use-linking.ts`：状态机按 spec §5.1 的五步实现（`pointerdown` 在字段手柄 → `start`；`pointermove` → `move`；`pointerup` → `finish(target)`；`Escape`/`pointercancel` → `cancel`）。`finish` 返回的 `Relationship` 由调用方（Canvas）通过 `AddRelationshipCommand` 落库；`finish` 内部**不**修改图。
   - `use-selection-box.ts`：`begin/move/end` 维护矩形；`idsIn(rect, tables)` 返回矩形内的表 id（矩形与表包围盒相交即算）。
   - `use-resize.ts`：`begin/move/end`，宽度最小 120、高度最小 60。
   - `use-context-menu.ts`：`open(x, y, target)` / `close()`。
 
-- [ ] **Step 5: 实现 `use-canvas-interactions.ts` 并扩展 UI store**
+- [x] **Step 5: 实现 `use-canvas-interactions.ts` 并扩展 UI store**
 
   `use-canvas-interactions.ts` 聚合四个 composable，并把 `linking` / `resizing` / `selectionBox` / `contextMenu` 同步到 UI store（store 是唯一真相源，composable 只是行为层）。
 
-- [ ] **Step 6: 拆分画布组件**
+- [x] **Step 6: 拆分画布组件**
 
   - `TableHeader.vue`：表名 + 注释 + 颜色条，props `{ table: Table; selected?: boolean }`。
   - `TableField.vue`：字段行（名称、类型、主键/非空标记），props `{ table: Table; field: Field; selected?: boolean }`。
@@ -606,7 +608,7 @@
   - `Table.vue` 重写为容器（≤ 150 行），组合 `TableHeader` + `TableField` 列表 + `FieldHandle` + `ResizeHandles`。
   - `Canvas.vue` 重写为渲染层 + 事件委派（≤ 200 行）：保留既有 `data-testid="canvas"` 与 `data-testid="canvas-content"`，保留虚拟化（`useVirtualization`），加入连线预览线、框选矩形、右键菜单、minimap 的挂载点。
 
-- [ ] **Step 7: 拆分 `DrawDBEditor.vue`**
+- [x] **Step 7: 拆分 `DrawDBEditor.vue`**
 
   - `EditorLayout.vue`：Naive UI Provider + Header + SidePanel + Canvas 的布局。
   - `EditorDialogs.vue`：弹窗宿主（Task 28 填充内容，本任务先留空壳组件）。
@@ -614,12 +616,12 @@
   - `use-editor-plugins.ts`：插件装配（从现有 `activatePlugins` 抽出）。
   - `DrawDBEditor.vue` 只保留 props/emits 与装配，≤ 250 行；**对外行为不变**（既有 `DrawDBEditor.test.ts` 的 16 条用例必须继续通过）。
 
-- [ ] **Step 8: 运行约束检查与全量测试**
+- [x] **Step 8: 运行约束检查与全量测试**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）、`node --experimental-strip-types scripts/verify-constraints.test.ts`、`pnpm run typecheck`
   Expected: 0 fail；约束检查通过（无 > 300 行的文件）；typecheck 无错误
 
-- [ ] **Step 9: 提交**
+- [x] **Step 9: 提交**
 
   ```bash
   git add packages/sdk/src scripts/verify-constraints.test.ts
