@@ -35,7 +35,11 @@ project is the Vue workspace in `sdk-workspace`.
      application were installed again with npm (`npm install --ignore-scripts`),
      which follows the `package-lock.json` of the application.
 3. **The store of pnpm was deleted** (`.pnpm-store`, 328 MB). It was a leftover
-   of an installation of the root and is not used any more.
+   of an installation of the root and is not used any more. The store of the
+   installations lives inside the main project now
+   (`storeDir: '.pnpm-store'` in `pnpm-workspace.yaml`, shared with the
+   reference application through its `.npmrc`), so the directory above the
+   project stays clean.
 4. **The documentation of the work was moved** into `sdk-workspace/docs/`
    (`docs/superpowers/plans` and `docs/superpowers/specs`, the copies of the
    plan and of the specification) and the empty `docs/` of the root was
@@ -71,9 +75,20 @@ project is the Vue workspace in `sdk-workspace`.
 
 ## The tests
 
-- `node --experimental-strip-types scripts/run-tests.mjs` — 327/327
+- `node --experimental-strip-types scripts/run-tests.mjs` — 328/328
   specifications pass after the restructure.
 - `pnpm run typecheck` — clean for the core, the SDK, the application, the
   example and the end to end tests.
 - `pnpm run build:packages` — the core and the SDK build without an error.
 - `pnpm run pack:packages` — the two tarballs are written into `.release/`.
+
+## What cannot be verified here
+
+The **build of the reference application** does not run in the sandbox of the
+development environment: vite spawns a child process to resolve the real path
+of a file (`optimizeSafeRealPathSync`) and the sandbox refuses the spawn with
+`Error: spawn EPERM`. The same restriction blocked vite and esbuild while the
+SDK was built, which is why the packages are built with `tsc` and
+`vue-tsc`. The dependencies of the reference application are installed and
+consistent (vite 8.3.5 with its own rolldown), so the build runs on a normal
+machine.

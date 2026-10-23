@@ -2,6 +2,10 @@ packages:
   - 'packages/*'
   - 'examples/*'
 
+# The store of the packages lives inside the workspace, so that the directory
+# above the project stays clean.
+storeDir: '.pnpm-store'
+
 # The isolated linker creates symbolic links that Node cannot follow on this
 # Windows host, so that a package of the workspace gets a second copy of Vue
 # (and of pinia). The hoisted linker keeps one copy of every package in the
