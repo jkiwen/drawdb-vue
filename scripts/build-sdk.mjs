@@ -50,6 +50,7 @@ function rewriteSpecifier(specifier, fromDir) {
   const candidates = [
     [base + ".vue", stem + ".vue.js"],
     [base + ".ts", stem + ".js"],
+    [base + ".css", stem + ".css"],
     [path.join(base, "index.ts"), stem + "/index.js"],
   ];
 
@@ -119,8 +120,15 @@ async function main() {
     (name) => name.endsWith(".vue") && !name.endsWith(".test.vue"),
   );
   const locales = await collect(SRC, (name) => name.endsWith(".json"));
+  const stylesheets = await collect(SRC, (name) => name.endsWith(".css"));
 
   for (const file of locales) {
+    const relative = path.relative(SRC, file);
+    const target = path.join(DIST, relative);
+    await copy(file, target);
+  }
+
+  for (const file of stylesheets) {
     const relative = path.relative(SRC, file);
     const target = path.join(DIST, relative);
     await copy(file, target);
@@ -144,7 +152,7 @@ async function main() {
 
   const info = await stat(path.join(DIST, "index.js"));
   console.log(
-    `SDK build finished: ${components.length} components, ${locales.length} locales, index.js ${info.size} bytes`,
+    `SDK build finished: ${components.length} components, ${locales.length} locales, ${stylesheets.length} stylesheets, index.js ${info.size} bytes`,
   );
 }
 

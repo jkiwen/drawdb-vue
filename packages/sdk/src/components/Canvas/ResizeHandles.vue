@@ -26,7 +26,10 @@ function onPointerDown(event: PointerEvent): void {
 <template>
   <div
     class="ddb-resize-handle"
-    :style="{ width: `${width}px`, height: `${height}px` }"
+    :style="{
+      width: '12px',
+      height: '12px',
+    }"
     :data-testid="`resize-handle-${tableId}`"
     @pointerdown="onPointerDown"
   />

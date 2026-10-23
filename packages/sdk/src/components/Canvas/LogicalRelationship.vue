@@ -3,8 +3,8 @@ import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Relationship, Table } from "@drawdb/core";
 import {
-  cardinalityMarker,
   cardinalitySides,
+  cardinalityText,
   logicalRelationshipAnchors,
   relationshipPath,
 } from "./geometry.ts";
@@ -34,27 +34,23 @@ const path = computed(() =>
 
 const sides = computed(() => cardinalitySides(props.relationship.cardinality));
 
-const startDirection = computed(() =>
-  anchors.value.end.x >= anchors.value.start.x ? "right" : "left",
-);
+const startLabel = computed(() => ({
+  x: anchors.value.start.x,
+  y: anchors.value.start.y,
+  text: cardinalityText(sides.value.start),
+}));
 
-const endDirection = computed(() =>
-  anchors.value.end.x >= anchors.value.start.x ? "left" : "right",
-);
-
-const startMarker = computed(() =>
-  cardinalityMarker(sides.value.start, anchors.value.start, startDirection.value),
-);
-
-const endMarker = computed(() =>
-  cardinalityMarker(sides.value.end, anchors.value.end, endDirection.value),
-);
+const endLabel = computed(() => ({
+  x: anchors.value.end.x,
+  y: anchors.value.end.y,
+  text: cardinalityText(sides.value.end),
+}));
 
 const label = computed(() => {
   const { start, end } = anchors.value;
   return {
     x: (start.x + end.x) / 2,
-    y: (start.y + end.y) / 2 - 6,
+    y: (start.y + end.y) / 2 - 14,
   };
 });
 </script>
@@ -66,8 +62,17 @@ const label = computed(() => {
     :data-testid="`logical-relationship-${relationship.id}`"
   >
     <path class="ddb-logical-relationship__line" :d="path" fill="none" />
-    <path class="ddb-logical-relationship__marker" :d="startMarker" fill="none" />
-    <path class="ddb-logical-relationship__marker" :d="endMarker" fill="none" />
+    <g
+      v-for="marker in [startLabel, endLabel]"
+      :key="marker.text"
+      class="ddb-relationship__cardinality"
+      :transform="`translate(${marker.x} ${marker.y})`"
+    >
+      <rect x="-9" y="-9" width="18" height="18" rx="9" ry="9" />
+      <text x="0" y="0" text-anchor="middle" dominant-baseline="central">
+        {{ marker.text }}
+      </text>
+    </g>
     <text
       v-if="relationship.name"
       class="ddb-logical-relationship__label"

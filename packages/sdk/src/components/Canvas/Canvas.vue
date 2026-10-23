@@ -17,6 +17,7 @@ import {
   DEFAULT_VIEWPORT_HEIGHT,
   DEFAULT_VIEWPORT_WIDTH,
 } from "./geometry.ts";
+import "./canvas.css";
 
 defineOptions({ name: "DrawDBCanvas" });
 

@@ -113,9 +113,7 @@ function onRemove(event: Event): void {
       :data-testid="`field-drag-handle-${field.id}`"
       @pointerdown.stop
       @dblclick.stop
-    >
-      ⠿
-    </span>
+    />
     <NInput
       v-if="editingName"
       class="ddb-table__field-input"

@@ -91,69 +91,73 @@ function onToggleLock(event: Event): void {
     :style="headerStyle"
     :data-testid="`table-header-${table.id}`"
   >
-    <NInput
-      v-if="editingName"
-      class="ddb-table__name-input"
-      size="tiny"
-      :value="nameDraft"
-      :data-testid="`table-name-input-${table.id}`"
-      @update:value="onNameInput"
-      @blur="onCommitName"
-      @keyup.enter="onCommitName"
-    />
-    <span
-      v-else
-      class="ddb-table__name"
-      :data-testid="`table-name-${table.id}`"
-      @dblclick="onStartName"
-    >
-      {{ table.name }}
-    </span>
-
-    <NInput
-      v-if="editingComment"
-      class="ddb-table__comment-input"
-      size="tiny"
-      :value="commentDraft"
-      :data-testid="`table-comment-input-${table.id}`"
-      @update:value="onCommentInput"
-      @blur="onCommitComment"
-      @keyup.enter="onCommitComment"
-    />
-    <span
-      v-else-if="table.comment"
-      class="ddb-table__comment"
-      :data-testid="`table-comment-${table.id}`"
-      @dblclick="onStartComment"
-    >
-      {{ table.comment }}
-    </span>
-
-    <button
-      type="button"
-      class="ddb-table__lock-toggle"
-      :data-testid="`table-lock-toggle-${table.id}`"
-      @pointerdown.stop
-      @click="onToggleLock"
-    >
-      {{ table.locked ? "🔒" : "🔓" }}
-    </button>
-
-    <button
-      type="button"
-      class="ddb-table__details-toggle"
-      :data-testid="`table-details-toggle-${table.id}`"
-      @pointerdown.stop
-      @click="toggleDetails"
-    >
-      ⋯
-    </button>
-
     <span
       v-if="table.color"
       class="ddb-table__color-strip"
       :style="{ height: `${TABLE_COLOR_STRIP_HEIGHT}px` }"
     />
+
+    <div class="ddb-table__header-main">
+      <NInput
+        v-if="editingName"
+        class="ddb-table__name-input"
+        size="tiny"
+        :value="nameDraft"
+        :data-testid="`table-name-input-${table.id}`"
+        @update:value="onNameInput"
+        @blur="onCommitName"
+        @keyup.enter="onCommitName"
+      />
+      <span
+        v-else
+        class="ddb-table__name"
+        :data-testid="`table-name-${table.id}`"
+        @dblclick="onStartName"
+      >
+        {{ table.name }}
+      </span>
+
+      <NInput
+        v-if="editingComment"
+        class="ddb-table__comment-input"
+        size="tiny"
+        :value="commentDraft"
+        :data-testid="`table-comment-input-${table.id}`"
+        @update:value="onCommentInput"
+        @blur="onCommitComment"
+        @keyup.enter="onCommitComment"
+      />
+      <span
+        v-else-if="table.comment"
+        class="ddb-table__comment"
+        :data-testid="`table-comment-${table.id}`"
+        @dblclick="onStartComment"
+      >
+        {{ table.comment }}
+      </span>
+
+      <button
+        type="button"
+        class="ddb-table__lock-toggle"
+        :data-testid="`table-lock-toggle-${table.id}`"
+        :title="table.locked ? 'Unlock the table' : 'Lock the table'"
+        @pointerdown.stop
+        @click="onToggleLock"
+      >
+        {{ table.locked ? "🔒" : "🔓" }}
+      </button>
+
+      <button
+        type="button"
+        class="ddb-table__details-toggle"
+        :data-testid="`table-details-toggle-${table.id}`"
+        title="The details of the table"
+        @pointerdown.stop
+        @click="toggleDetails"
+      >
+        ⋯
+      </button>
+    </div>
 
     <TableDetails
       v-if="detailsOpen"

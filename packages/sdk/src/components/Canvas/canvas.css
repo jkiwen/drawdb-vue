@@ -1,0 +1,589 @@
+/**
+ * The look of the canvas.
+ *
+ * The styles live in one file, because the nodes of the canvas are drawn in
+ * the SVG through foreignObject elements: the rules of a scoped style block
+ * would not reach the children of another component, and the whole canvas
+ * would then be rendered without any style.
+ *
+ * The file is imported by the components that need it, and it is not scoped:
+ * every class is prefixed with `ddb-`.
+ */
+
+/* ------------------------------------------------------------------ canvas */
+
+.ddb-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  background-image: radial-gradient(rgb(118, 118, 209) 1px, #ffffff 1px);
+  background-size: 20px 20px;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: #27272a;
+}
+
+.ddb-canvas__content {
+  transform-origin: 0 0;
+}
+
+/* ------------------------------------------------------------------- table */
+
+.ddb-table {
+  cursor: move;
+}
+
+.ddb-table__body {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 2px solid #d4d4d8;
+  border-radius: 8px;
+  background-color: #f4f4f5;
+  color: #27272a;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%), 0 4px 6px -4px rgb(0 0 0 / 10%);
+  user-select: none;
+}
+
+.ddb-table__body:hover {
+  border-style: dashed;
+  border-color: #3b82f6;
+}
+
+.ddb-table__body.is-selected {
+  border-style: solid;
+  border-color: #3b82f6;
+}
+
+.ddb-table.is-locked .ddb-table__body {
+  cursor: not-allowed;
+}
+
+.ddb-table__fields {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------------ header */
+
+.ddb-table__header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  border-bottom: 1px solid #9ca3af;
+  background-color: #f4f4f5;
+}
+
+/*
+ * The name row is 43px high, so that the header (the colour strip, 7px, plus
+ * the row) is exactly 50px high. The anchors of a relationship are computed
+ * with the constant TABLE_HEADER_HEIGHT (50) of the geometry, so the header
+ * has to keep that height whatever the name of the table is.
+ *
+ * The value 43 is TABLE_HEADER_HEIGHT (50) - TABLE_COLOR_STRIP_HEIGHT (7).
+ */
+.ddb-table__header-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 43px;
+  padding: 4px 12px;
+  gap: 2px;
+}
+
+.ddb-table__name,
+.ddb-table__comment {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ddb-table__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 18px;
+}
+
+.ddb-table__comment {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 14px;
+  color: #6b7280;
+}
+
+.ddb-table__lock-toggle,
+.ddb-table__details-toggle {
+  position: absolute;
+  top: 4px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  color: #71717a;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ddb-table__lock-toggle {
+  right: 26px;
+}
+
+.ddb-table__details-toggle {
+  right: 6px;
+}
+
+.ddb-table__header:hover .ddb-table__lock-toggle,
+.ddb-table__header:hover .ddb-table__details-toggle,
+.ddb-table__lock-toggle:focus-visible,
+.ddb-table__details-toggle:focus-visible {
+  display: flex;
+}
+
+.ddb-table__lock-toggle:hover,
+.ddb-table__details-toggle:hover {
+  background-color: #e4e4e7;
+  color: #27272a;
+}
+
+.ddb-table__color-strip {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------- field */
+
+.ddb-table__row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid #9ca3af;
+}
+
+.ddb-table__row:last-child {
+  border-bottom: none;
+}
+
+.ddb-table__field {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 0;
+  height: 36px;
+  padding: 4px 8px;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.ddb-table__field.is-selected {
+  background-color: rgb(59 130 246 / 12%);
+}
+
+.ddb-table__field-handle {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background-color: rgb(47 104 173 / 80%);
+  color: transparent;
+  font-size: 0;
+  cursor: grab;
+}
+
+.ddb-table__field-handle:hover {
+  background-color: rgb(47 104 173 / 100%);
+}
+
+.ddb-table__field-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ddb-table__field-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ddb-table__field-mark {
+  flex: 0 0 auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1;
+  color: #a1a1aa;
+}
+
+.ddb-table__field-mark.is-on {
+  color: #d97706;
+}
+
+.ddb-table__field-type {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1;
+  color: #71717a;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ddb-table__field-remove {
+  display: none;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background-color: rgb(212 32 32 / 70%);
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ddb-table__row:hover .ddb-table__field-remove,
+.ddb-table__field-remove:focus-visible {
+  display: flex;
+}
+
+/* ------------------------------------------------------------------ handle */
+
+.ddb-field-handle {
+  position: absolute;
+  top: 50%;
+  right: -5px;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background-color: rgb(47 104 173 / 80%);
+  cursor: crosshair;
+}
+
+.ddb-field-handle:hover {
+  background-color: rgb(47 104 173 / 100%);
+}
+
+/* ---------------------------------------------------------- resize handles */
+
+/*
+ * The handle is a small square in the corner of the table. It must not cover
+ * the table itself: the size is given by the component, so the rule below
+ * only draws the diagonal in the corner of that square.
+ */
+.ddb-resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  cursor: nwse-resize;
+}
+
+.ddb-resize-handle::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(
+    135deg,
+    transparent 0 45%,
+    #a1a1aa 45% 55%,
+    transparent 55% 70%,
+    #a1a1aa 70% 80%,
+    transparent 80%
+  );
+}
+
+/* ---------------------------------------------------------------- details */
+
+.ddb-table__details {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 4px 0 0;
+  padding: 8px 12px 12px;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%);
+  font-size: 12px;
+}
+
+.ddb-table__details-color {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ddb-table__details-list {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* -------------------------------------------------------------- relation */
+
+.ddb-relationship__line,
+.ddb-logical-relationship__line {
+  fill: none;
+  stroke: #808080;
+  stroke-width: 2.5;
+  stroke-linecap: butt;
+  transition:
+    stroke 0.2s,
+    stroke-width 0.2s;
+  pointer-events: stroke;
+}
+
+.ddb-relationship:hover .ddb-relationship__line,
+.ddb-logical-relationship:hover .ddb-logical-relationship__line {
+  stroke: #0084d1;
+  stroke-width: 6;
+  stroke-dasharray: 12 8;
+  animation: ddb-dash-right 1s linear infinite;
+}
+
+.ddb-relationship__marker,
+.ddb-logical-relationship__marker {
+  fill: none;
+  stroke: #808080;
+  stroke-width: 2.5;
+  pointer-events: stroke;
+}
+
+/*
+ * The cardinality is a label on a rounded background, like in the reference
+ * application: "1" for one and "n" for many.
+ */
+.ddb-relationship__cardinality rect {
+  fill: #808080;
+  stroke: none;
+}
+
+.ddb-relationship__cardinality text {
+  fill: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ddb-relationship:hover .ddb-relationship__cardinality rect {
+  fill: #0084d1;
+}
+
+.ddb-relationship:hover .ddb-relationship__marker,
+.ddb-logical-relationship:hover .ddb-logical-relationship__marker {
+  stroke: #0084d1;
+}
+
+.ddb-relationship__label,
+.ddb-logical-relationship__label {
+  fill: #52525b;
+  font-size: 11px;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: #ffffff;
+  stroke-width: 3px;
+}
+
+@keyframes ddb-dash-right {
+  100% {
+    stroke-dashoffset: -20;
+  }
+}
+
+/* ----------------------------------------------------------- logical view */
+
+.ddb-logical-table {
+  cursor: move;
+}
+
+.ddb-logical-table__body {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 8px 12px;
+  border: 2px solid #d4d4d8;
+  border-radius: 8px;
+  background-color: #f4f4f5;
+  color: #27272a;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%);
+  user-select: none;
+}
+
+.ddb-logical-table__body:hover {
+  border-style: dashed;
+  border-color: #3b82f6;
+}
+
+.ddb-logical-table__body.is-selected {
+  border-style: solid;
+  border-color: #3b82f6;
+}
+
+.ddb-logical-table__header {
+  font-weight: 700;
+}
+
+.ddb-logical-table__name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ddb-logical-table__comment {
+  margin-top: 2px;
+  overflow: hidden;
+  color: #6b7280;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- area/note */
+
+.ddb-area__rect {
+  stroke-width: 2;
+  rx: 8;
+  ry: 8;
+}
+
+.ddb-area__label {
+  fill: #52525b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ddb-note__body {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 8px 10px;
+  border: 1px solid #e7e5e4;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -2px rgb(0 0 0 / 10%);
+  font-size: 12px;
+  color: #292524;
+}
+
+.ddb-note__title {
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.ddb-note__content {
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+/* ------------------------------------------------------------------- view */
+
+.ddb-view__rect {
+  stroke-width: 2;
+  rx: 8;
+  ry: 8;
+}
+
+.ddb-view__label {
+  fill: #52525b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ddb-view__base {
+  fill: #71717a;
+  font-size: 11px;
+}
+
+/* ---------------------------------------------------------------- minimap */
+
+.ddb-minimap {
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  background-color: #ffffff;
+}
+
+.ddb-minimap__table {
+  fill: rgb(59 130 246 / 35%);
+  stroke: #3b82f6;
+  stroke-width: 1;
+}
+
+/* ------------------------------------------------------- canvas overlays */
+
+.ddb-canvas__link-preview {
+  fill: none;
+  stroke: #3b82f6;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
+
+.ddb-canvas__selection-box {
+  fill: rgb(59 130 246 / 10%);
+  stroke: #3b82f6;
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------------ dark */
+
+.ddb-canvas--dark {
+  background-color: #18181b;
+  background-image: radial-gradient(rgb(118, 118, 209) 1px, #18181b 1px);
+  color: #e4e4e7;
+}
+
+.ddb-canvas--dark .ddb-table__body,
+.ddb-canvas--dark .ddb-logical-table__body {
+  border-color: #52525b;
+  background-color: #27272a;
+  color: #e4e4e7;
+}
+
+.ddb-canvas--dark .ddb-table__header {
+  border-color: #52525b;
+  background-color: #27272a;
+}
+
+.ddb-canvas--dark .ddb-table__field-type,
+.ddb-canvas--dark .ddb-table__field-mark {
+  color: #a1a1aa;
+}
+
+.ddb-canvas--dark .ddb-relationship__label,
+.ddb-canvas--dark .ddb-logical-relationship__label {
+  fill: #a1a1aa;
+  stroke: #18181b;
+}

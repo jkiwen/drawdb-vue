@@ -183,6 +183,18 @@ export const sfcHooks = {
       };
     }
 
+    if (url.endsWith(".css")) {
+      // Node cannot parse a stylesheet. The styles of the canvas are only
+      // needed by a browser, and the specifications of the workspace check
+      // the structure of the components, not their look, so the stylesheet is
+      // replaced by an empty module.
+      return {
+        format: "module",
+        source: "export default {};\n",
+        shortCircuit: true,
+      };
+    }
+
     return nextLoad(url, context);
   },
 };

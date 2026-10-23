@@ -167,14 +167,29 @@ export function relationshipBounds(
   };
 }
 
-/** A cubic bezier between two anchors, drawn as a horizontal S curve. */
+/**
+ * A cubic bezier between two anchors, drawn as a horizontal S curve.
+ *
+ * The two anchors do not always come in the order of the axis: the anchor of
+ * a table that stands on the right of the other one is on its left border, so
+ * the curve has to be drawn backwards. The direction of the curve is chosen
+ * from the position of the anchors, not from the order of the relationship.
+ */
 export function relationshipPath(start: GeometryPoint, end: GeometryPoint): string {
   const distance = Math.abs(end.x - start.x);
   const control = Math.max(40, distance / 2);
 
+  if (end.x >= start.x) {
+    return [
+      `M ${start.x} ${start.y}`,
+      `C ${start.x + control} ${start.y}, ${end.x - control} ${end.y}, ${end.x} ${end.y}`,
+    ].join(" ");
+  }
+
+  // The curve is drawn from right to left: the control points are mirrored.
   return [
     `M ${start.x} ${start.y}`,
-    `C ${start.x + control} ${start.y}, ${end.x - control} ${end.y}, ${end.x} ${end.y}`,
+    `C ${start.x - control} ${start.y}, ${end.x + control} ${end.y}, ${end.x} ${end.y}`,
   ].join(" ");
 }
 
@@ -216,6 +231,17 @@ export function cardinalityMarker(
     `M ${at.x} ${at.y} l ${8 * dir} -6`,
     `M ${at.x} ${at.y} l ${8 * dir} 6`,
   ].join(" ");
+}
+
+/**
+ * The text of a cardinality side.
+ *
+ * The reference application draws the cardinality as a label ("1" or "n") on a
+ * rounded background, and not as a tick or a crow's foot: the label says
+ * exactly what the relation means.
+ */
+export function cardinalityText(side: CardinalitySide): string {
+  return side === "many" ? "n" : "1";
 }
 
 /** The part of the world that is currently visible. */

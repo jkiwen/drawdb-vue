@@ -98,7 +98,15 @@ describe("the view mode of the canvas", () => {
       endTable: diagram.tables[1],
     });
     assert.ok(wrapper.find('[data-testid="logical-relationship-r1"]').exists());
-    assert.equal(wrapper.findAll("path").length, 3);
+    assert.equal(wrapper.findAll("path").length, 1);
+
+    // The cardinality is drawn as a label on both ends of the relationship.
+    // The relationship of the seed is one to many: "1" on the start, "n" on
+    // the end.
+    const cardinalities = wrapper.findAll(".ddb-relationship__cardinality");
+    assert.equal(cardinalities.length, 2);
+    assert.equal(cardinalities[0].text(), "1");
+    assert.equal(cardinalities[1].text(), "n");
   });
 
   it("attaches the relationship to the fields in the physical view", () => {
