@@ -8,9 +8,12 @@ import type { Area, Note, Relationship, Table } from "@drawdb/core";
  * panel and the canvas create the same elements.
  */
 
-/** A name that is not used by one of the existing tables yet. */
-export function uniqueTableName(existing: readonly Table[], base = "table"): string {
-  const names = new Set(existing.map((table) => table.name.toLowerCase()));
+/** A name that is not used by one of the existing elements yet. */
+export function uniqueTableName(
+  existing: readonly { name: string }[],
+  base = "table",
+): string {
+  const names = new Set(existing.map((item) => item.name.toLowerCase()));
   if (!names.has(base)) {
     return base;
   }

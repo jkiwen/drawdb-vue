@@ -3,18 +3,21 @@
  *
  * The menu bar is data driven, so that the host application can add, remove
  * or rename entries without replacing the component.
+ *
+ * The entries are declared as types and not as interfaces, because the menu
+ * of Naive UI accepts an index signature and an interface does not have one.
  */
-export interface MenuBarItem {
+export type MenuBarItem = {
   key: string;
   label: string;
   disabled?: boolean;
-}
+};
 
-export interface MenuBarGroup {
+export type MenuBarGroup = {
   key: string;
   label: string;
   items: MenuBarItem[];
-}
+};
 
 export const DEFAULT_MENU_GROUPS: MenuBarGroup[] = [
   {

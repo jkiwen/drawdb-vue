@@ -189,7 +189,9 @@ function createPluginContext(): SDKPluginContext {
       return diagramStore.diagram;
     },
     metadata: metadataRegistry,
-    registerExtension: <THandler>(extension: Parameters<PluginManager["registerExtension"]>[0]) => {
+    registerExtension: (
+      extension: Parameters<PluginManager["registerExtension"]>[0],
+    ) => {
       pluginManager.registerExtension(extension as never);
     },
     getStore: <TStore>(storeId: string): TStore | undefined =>

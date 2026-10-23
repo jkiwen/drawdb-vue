@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { NButton, NEmpty, NInput, NTag } from "naive-ui";
+import { NButton } from "naive-ui";
 import { useUIStore, type UiTab } from "../../stores/ui.ts";
 import TablesTab from "./TablesTab.vue";
 import RelationshipsTab from "./RelationshipsTab.vue";

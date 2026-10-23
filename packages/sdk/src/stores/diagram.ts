@@ -153,7 +153,7 @@ export const useDiagramStore = defineStore("diagram", () => {
 
   function addEntity(
     collection: DiagramEntityCollection,
-    entity: { id?: string | number; name?: string; [key: string]: unknown },
+    entity: { id?: string | number; name?: string },
   ): void {
     history.execute(new AddEntityCommand(diagram, collection, entity));
     bump();
