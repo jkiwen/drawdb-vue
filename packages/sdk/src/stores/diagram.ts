@@ -10,6 +10,7 @@ import {
   RemoveTableCommand,
   ResizeTableCommand,
   ToggleTableLockCommand,
+  UpdateEntityCommand,
   UpdateFieldCommand,
   UpdateRelationshipCommand,
   UpdateTableCommand,
@@ -198,6 +199,8 @@ export const useDiagramStore = defineStore("diagram", () => {
     bump();
   }
 
+  const sidePanel = sidePanelActions(diagram, history, bump);
+
   return {
     diagram,
     revision,
@@ -229,7 +232,59 @@ export const useDiagramStore = defineStore("diagram", () => {
     updateSqlHeader,
     addEntity,
     removeEntity,
+    ...sidePanel,
   };
 });
+
+/**
+ * The actions the side panel writes the views, the types and the enums with.
+ *
+ * The three collections have the same shape — an entity with an id, a name
+ * and the rest of its properties — so one action per verb and collection
+ * covers all nine of them. Every action runs one command of the history and
+ * bumps the revision, which is what makes the renderers of the store see
+ * the new state.
+ */
+function sidePanelActions(
+  diagram: Diagram,
+  history: { execute(command: unknown): void },
+  bump: () => void,
+) {
+  const action = (
+    collection: DiagramEntityCollection,
+    verb: "add" | "update" | "remove",
+  ) => (target: unknown, updates?: unknown) => {
+    history.execute(
+      verb === "add"
+        ? new AddEntityCommand(diagram, collection, target as { id?: string | number; name?: string })
+        : verb === "update"
+          ? new UpdateEntityCommand(diagram, collection, target as string | number, updates as Record<string, unknown>)
+          : new RemoveEntityCommand(diagram, collection, target as string | number | undefined),
+    );
+    bump();
+  };
+
+  const addView = action("views", "add");
+  const updateView = action("views", "update");
+  const removeView = action("views", "remove");
+  const addType = action("types", "add");
+  const updateType = action("types", "update");
+  const removeType = action("types", "remove");
+  const addEnum = action("enums", "add");
+  const updateEnum = action("enums", "update");
+  const removeEnum = action("enums", "remove");
+
+  return {
+    addView,
+    updateView,
+    removeView,
+    addType,
+    updateType,
+    removeType,
+    addEnum,
+    updateEnum,
+    removeEnum,
+  };
+}
 
 export type DiagramStore = ReturnType<typeof useDiagramStore>;

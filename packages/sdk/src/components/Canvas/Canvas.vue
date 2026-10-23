@@ -36,6 +36,16 @@ const props = withDefaults(
 const diagram = useDiagramStore();
 const svgRef = ref<SVGSVGElement | null>(null);
 
+/**
+ * The table of a relationship, or a placeholder when the diagram does not
+ * have it. The two ends of a relationship are required by the component that
+ * draws it, and a relationship that points at a missing table is malformed —
+ * the drawer of the relationship stops at the placeholder, which sits at the
+ * origin, instead of crashing the canvas.
+ */
+const tableOf = (id: number | string) =>
+  diagram.tableById(id) ?? ({ id: 0, name: "", x: 0, y: 0, fields: [] });
+
 const items = useCanvasItems({
   width: () => props.width,
   height: () => props.height,
@@ -94,15 +104,15 @@ onBeforeUnmount(() => {
         <LogicalRelationship
           v-if="items.isLogical.value"
           :relationship="relationship"
-          :start-table="diagram.tableById(relationship.startTableId)!"
-          :end-table="diagram.tableById(relationship.endTableId)!"
+          :start-table="tableOf(relationship.startTableId)"
+          :end-table="tableOf(relationship.endTableId)"
           :selected="canvas.selection.isSelected(String(relationship.id))"
         />
         <Relationship
           v-else
           :relationship="relationship"
-          :start-table="diagram.tableById(relationship.startTableId)!"
-          :end-table="diagram.tableById(relationship.endTableId)!"
+          :start-table="tableOf(relationship.startTableId)"
+          :end-table="tableOf(relationship.endTableId)"
           :selected="canvas.selection.isSelected(String(relationship.id))"
         />
       </template>

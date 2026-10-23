@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PropType } from "vue";
 import type { Component } from "vue";
+import type { CustomType } from "@drawdb/core";
 import Canvas from "./Canvas/Canvas.vue";
 import EditorDialogs from "./EditorDialogs.vue";
 import Header from "./Header/Header.vue";
@@ -16,6 +17,8 @@ defineProps({
   },
   /** Whether the side panel is shown. */
   showSidePanel: { type: Boolean, default: true },
+  /** The custom types of the properties of the editor. */
+  customTypes: { type: Array as PropType<CustomType[]>, default: () => [] },
 });
 
 const emit = defineEmits(["save", "menu"]);
@@ -25,7 +28,7 @@ const emit = defineEmits(["save", "menu"]);
   <div class="ddb-editor__layout">
     <Header @save="emit('save')" @menu="emit('menu', $event)" />
     <div class="ddb-editor__body">
-      <SidePanel v-if="showSidePanel" class="ddb-editor__side-panel" />
+      <SidePanel v-if="showSidePanel" class="ddb-editor__side-panel" :custom-types="customTypes" />
       <div class="ddb-editor__canvas">
         <Canvas />
         <component

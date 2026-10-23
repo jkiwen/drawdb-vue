@@ -38,6 +38,7 @@ import type {
  * to. The work itself happens in the composables of the editor and in the
  * components of the layout.
  */
+defineOptions({ name: "DrawDBEditor" });
 
 /*
  * The props are declared at runtime. A generic `defineProps<Props>()` would
@@ -166,6 +167,7 @@ defineExpose({
     <EditorLayout
       :plugin-slots="plugins.pluginSlots.value"
       :show-side-panel="showSidePanel"
+      :custom-types="customTypes"
       @save="commands.runSave"
       @menu="commands.onMenu"
     />

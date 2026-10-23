@@ -1,58 +1,60 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { NButton, NEmpty, NTag } from "naive-ui";
+import { NButton } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import TypeEditor from "./TypeEditor.vue";
 
-/** The custom types tab of the side panel. */
+/** The custom types tab of the side panel: the types of the diagram. */
 
 const diagram = useDiagramStore();
 
 const types = computed(() => diagram.types);
+
+function addType(): void {
+  diagram.addType({
+    name: `type_${types.value.length + 1}`,
+    fields: [],
+  });
+}
 </script>
 
 <template>
-  <div class="entity-tab">
-    <ul class="entity-tab__list" data-testid="types-list">
-      <li v-for="type in types" :key="type.id">
-        <NButton
-          text
-          block
-          :data-testid="`type-item-${type.id}`"
-        >
-          {{ type.name }}
-        </NButton>
-        <NTag size="small" :bordered="false">
-          {{ type.fields.length }}
-        </NTag>
-        <NButton
-          size="tiny"
-          quaternary
-          type="error"
-          :data-testid="`remove-type-${type.id}`"
-          @click="diagram.removeEntity('types', type.id)"
-        >
-          ✕
-        </NButton>
-      </li>
-    </ul>
+  <div class="entity-tab" data-testid="types-tab">
+    <TypeEditor
+      v-for="type in types"
+      :key="type.id"
+      :type="type"
+      :type-key="type.id ?? type.name"
+      @rename="diagram.updateType(type.id ?? type.name, { name: $event })"
+      @update-comment="diagram.updateType(type.id ?? type.name, { comment: $event })"
+      @add-field="diagram.updateType(type.id ?? type.name, { fields: [...(type.fields ?? []), $event] })"
+      @update-field="
+        diagram.updateType(type.id ?? type.name, {
+          fields: type.fields.map((field, position) =>
+            position === $event.position ? { ...field, ...$event.updates } : field,
+          ),
+        })
+      "
+      @remove-field="
+        diagram.updateType(type.id ?? type.name, {
+          fields: type.fields.filter((_, position) => position !== $event),
+        })
+      "
+    />
 
-    <NEmpty v-if="types.length === 0" description="No custom types" />
+    <NButton
+      size="small"
+      class="entity-tab__add"
+      data-testid="add-type-btn"
+      @click="addType"
+    >
+      Add Type
+    </NButton>
   </div>
 </template>
 
 <style scoped>
-.entity-tab__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.entity-tab__list li {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.entity-tab__add {
+  margin-top: 8px;
 }
 </style>

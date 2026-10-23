@@ -1,58 +1,47 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { NButton, NEmpty, NTag } from "naive-ui";
+import { NButton } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import EnumEditor from "./EnumEditor.vue";
 
 /** The enums tab of the side panel. */
 
 const diagram = useDiagramStore();
 
 const enums = computed(() => diagram.enums);
+
+function addEnum(): void {
+  diagram.addEnum({
+    name: `enum_${enums.value.length + 1}`,
+    values: ["value_1"],
+  });
+}
 </script>
 
 <template>
-  <div class="entity-tab">
-    <ul class="entity-tab__list" data-testid="enums-list">
-      <li v-for="item in enums" :key="item.name">
-        <NButton
-          text
-          block
-          :data-testid="`enum-item-${item.name}`"
-        >
-          {{ item.name }}
-        </NButton>
-        <NTag size="small" :bordered="false">
-          {{ item.values.length }}
-        </NTag>
-        <NButton
-          size="tiny"
-          quaternary
-          type="error"
-          :data-testid="`remove-enum-${item.name}`"
-          @click="diagram.removeEntity('enums', item.name)"
-        >
-          ✕
-        </NButton>
-      </li>
-    </ul>
+  <div class="entity-tab" data-testid="enums-tab">
+    <EnumEditor
+      v-for="entry in enums"
+      :key="entry.name"
+      :entry="entry"
+      @rename="diagram.updateEnum(entry.name, { name: $event })"
+      @update-values="diagram.updateEnum(entry.name, { values: $event })"
+      @remove="diagram.removeEnum(entry.name)"
+    />
 
-    <NEmpty v-if="enums.length === 0" description="No enums" />
+    <NButton
+      size="small"
+      class="entity-tab__add"
+      data-testid="add-enum-btn"
+      @click="addEnum"
+    >
+      Add Enum
+    </NButton>
   </div>
 </template>
 
 <style scoped>
-.entity-tab__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.entity-tab__list li {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.entity-tab__add {
+  margin-top: 8px;
 }
 </style>

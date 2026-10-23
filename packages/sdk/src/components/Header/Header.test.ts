@@ -4,13 +4,14 @@ import { createPinia, setActivePinia } from "pinia";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import Header from "./Header.vue";
+import { naive } from "../../../../../scripts/naive-ui-mock.mjs";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 
 function mountHeader() {
   const pinia = createPinia();
   setActivePinia(pinia);
-  const wrapper = mount(Header, { global: { plugins: [pinia] } });
+  const wrapper = mount(Header, { global: { plugins: [pinia, naive] } });
   return { wrapper, pinia };
 }
 
@@ -136,8 +137,8 @@ test("the title of the diagram is shown in the header", async () => {
   await nextTick();
 
   // Naive UI puts the fallthrough attributes on the root element of the
-  // component, the text field itself is nested inside of it.
-  const input = wrapper.find('[data-testid="diagram-title-input"] input');
+  // component; the mock puts them on the element it renders itself.
+  const input = wrapper.find('[data-testid="diagram-title-input"]');
   assert.equal(input.exists(), true);
   assert.equal((input.element as HTMLInputElement).value, "Shop");
   wrapper.unmount();
@@ -153,6 +154,6 @@ test("the database of the diagram is shown in the header", async () => {
 
   const select = wrapper.find('[data-testid="database-select"]');
   assert.equal(select.exists(), true);
-  assert.match(select.html(), /MySQL/);
+  assert.ok((select.element as HTMLSelectElement).value === "mysql");
   wrapper.unmount();
 });

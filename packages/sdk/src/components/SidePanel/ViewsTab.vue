@@ -1,55 +1,42 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { NButton, NEmpty } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import ViewEditor from "./ViewEditor.vue";
 
 /** The views tab of the side panel. */
 
 const diagram = useDiagramStore();
 
 const views = computed(() => diagram.views);
+
+function rename(id: string | number, name: string): void {
+  diagram.updateView(id, { name });
+}
+
+function update(id: string | number, updates: Record<string, unknown>): void {
+  diagram.updateView(id, updates);
+}
 </script>
 
 <template>
-  <div class="entity-tab">
-    <ul class="entity-tab__list" data-testid="views-list">
-      <li v-for="view in views" :key="view.id">
-        <NButton
-          text
-          block
-          :data-testid="`view-item-${view.id}`"
-        >
-          {{ view.name || "Untitled view" }}
-        </NButton>
-        <NButton
-          size="tiny"
-          quaternary
-          type="error"
-          :data-testid="`remove-view-${view.id}`"
-          @click="diagram.removeEntity('views', view.id)"
-        >
-          ✕
-        </NButton>
-      </li>
-    </ul>
+  <div class="entity-tab" data-testid="views-tab">
+    <ViewEditor
+      v-for="view in views"
+      :key="view.id"
+      :view="view"
+      @rename="rename(view.id, $event)"
+      @update="update(view.id, $event)"
+      @remove="diagram.removeView(view.id)"
+    />
 
-    <NEmpty v-if="views.length === 0" description="No views" />
+    <p v-if="views.length === 0" class="entity-tab__empty">No views yet.</p>
   </div>
 </template>
 
 <style scoped>
-.entity-tab__list {
-  list-style: none;
+.entity-tab__empty {
   margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.entity-tab__list li {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
 }
 </style>

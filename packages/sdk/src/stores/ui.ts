@@ -14,7 +14,9 @@ export type UiTab =
   | "areas"
   | "enums"
   | "views"
-  | "types";
+  | "types"
+  | "customTypes"
+  | "sqlHeader";
 
 export interface SelectedField {
   tableId: string;

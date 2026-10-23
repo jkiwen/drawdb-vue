@@ -4,6 +4,7 @@ import { createPinia } from "pinia";
 import { mount } from "@vue/test-utils";
 import { createMemoryHistory } from "vue-router";
 import { MemoryStorageAdapter, createEmptyDiagram } from "@drawdb/core";
+import { DrawDBEditor } from "@drawdb/vue-sdk";
 import App from "./App.vue";
 import { createAppRouter } from "./router/index.ts";
 import { setStorage } from "./services/storage.ts";
@@ -17,7 +18,12 @@ interface EditorInstance {
   getDiagram(): { tables: { name: string }[] };
 }
 
-/** Mount the application with a router that keeps its history in memory. */
+/**
+ * Mount the application with a router that keeps its history in memory.
+ *
+ * The editor of the SDK is registered by name, so the view of the application
+ * can resolve it: the SDK entry point exports it as a value.
+ */
 async function mountApp(
   path = "/",
   prepare?: (storage: MemoryStorageAdapter) => Promise<void>,
@@ -31,7 +37,9 @@ async function mountApp(
   await router.isReady();
 
   const pinia = createPinia();
-  const wrapper = mount(App, { global: { plugins: [pinia, router] } });
+  const wrapper = mount(App, {
+    global: { plugins: [pinia, router], components: { DrawDBEditor } },
+  });
   await wrapper.vm.$nextTick();
   await settle();
 

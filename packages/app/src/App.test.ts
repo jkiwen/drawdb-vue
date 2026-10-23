@@ -4,6 +4,7 @@ import { createPinia } from "pinia";
 import { mount } from "@vue/test-utils";
 import { createMemoryHistory } from "vue-router";
 import { MemoryStorageAdapter, createEmptyDiagram } from "@drawdb/core";
+import { DrawDBEditor } from "@drawdb/vue-sdk";
 import App from "./App.vue";
 import { createAppRouter } from "./router/index.ts";
 import { setStorage } from "./services/storage.ts";
@@ -12,7 +13,10 @@ import { setStorage } from "./services/storage.ts";
  * Mount the application with a router that keeps its history in memory.
  *
  * The storage of the application is replaced with the memory adapter, so that
- * the specifications do not write into the browser.
+ * the specifications do not write into the browser. The editor of the SDK is
+ * registered by name: the SDK entry point exports it as a value, and the
+ * render function of the view of the application resolves the name at mount
+ * time.
  */
 async function mountApp(
   path = "/",
@@ -27,7 +31,9 @@ async function mountApp(
   await router.isReady();
 
   const pinia = createPinia();
-  const wrapper = mount(App, { global: { plugins: [pinia, router] } });
+  const wrapper = mount(App, {
+    global: { plugins: [pinia, router], components: { DrawDBEditor } },
+  });
   await wrapper.vm.$nextTick();
   await settle();
 
@@ -91,6 +97,10 @@ test("opens the editor of a diagram", async () => {
 
   assert.ok(wrapper.find('[data-testid="editor-view"]').exists());
   assert.ok(wrapper.find('[data-testid="canvas"]').exists());
+  assert.equal(
+    wrapper.find('[data-testid="canvas"]').findAllComponents({ name: "DrawDBTableNode" }).length,
+    1,
+  );
   assert.equal(router.currentRoute.value.name, "editor-diagram");
 });
 

@@ -6,6 +6,7 @@ import { nextTick } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useHistoryStore } from "../../stores/history.ts";
 import Table from "./Table.vue";
+import { naive } from "../../../../../scripts/naive-ui-mock.mjs";
 
 /**
  * The editing of a table on the canvas.
@@ -49,7 +50,7 @@ function mountTable(pinia: Pinia) {
   const diagram = useDiagramStore(pinia);
   return mount(Table, {
     props: { table: diagram.tableById("users")! },
-    global: { plugins: [pinia] },
+    global: { plugins: [pinia, naive] },
   });
 }
 
