@@ -45,7 +45,7 @@
   - Report: `docs/task-16-report.md`
 - Task 17: complete (commit `0a8c837`; the standalone application with the routes for the diagrams, the editor and the templates; the persistence in the browser (IndexedDB) with a fallback to the memory; two starter diagrams; 6/6 new specs, 305/305 workspace specs pass; typecheck clean for the three packages)
   - Report: `docs/task-17-report.md`
-- Task 18: complete (commit `PENDING`; the virtualization of the canvas (`useVirtualization`) and its integration in `Canvas.vue`; the specifications of Playwright for the smoke test and the performance test (they run in the CI); an integration specification of the application that runs locally; 6/6 new composable specs, 4/4 new integration specs, 315/315 workspace specs pass; typecheck clean for the four programs)
+- Task 18: complete (commit `15b49a9448ec6e907076daf6aeccdfa653906291`; the virtualization of the canvas (`useVirtualization`) and its integration in `Canvas.vue`; the specifications of Playwright for the smoke test and the performance test (they run in the CI); an integration specification of the application that runs locally; 6/6 new composable specs, 4/4 new integration specs, 315/315 workspace specs pass; typecheck clean for the four programs)
   - Report: `docs/task-18-report.md`
 
 ## Rulings
