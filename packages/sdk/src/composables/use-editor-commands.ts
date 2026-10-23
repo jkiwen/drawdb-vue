@@ -26,6 +26,13 @@ export interface EditorCommandsOptions {
   onError: (error: Error) => void;
   /** Called after an import, so that the editor can forget the last echo. */
   onImported?: () => void;
+  /**
+   * Reports the dialog a menu entry asks for.
+   *
+   * The dialogs themselves are rendered by the host application, which owns
+   * the open state of each one.
+   */
+  onOpenDialog?: (dialog: "sqlPreview" | "import" | "imageExport" | "autoRelationships") => void;
 }
 
 export interface EditorCommandsApi {
@@ -133,6 +140,18 @@ export function useEditorCommands(
         break;
       case "file:export-dbml":
         options.onExportDbml(exportDbml());
+        break;
+      case "file:import-json":
+        options.onOpenDialog?.("import");
+        break;
+      case "file:export-png":
+        options.onOpenDialog?.("imageExport");
+        break;
+      case "file:auto-relationships":
+        options.onOpenDialog?.("autoRelationships");
+        break;
+      case "edit:auto-layout":
+        diagramStore.autoArrange();
         break;
       case "edit:add-table":
         addTable();

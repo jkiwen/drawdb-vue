@@ -28,8 +28,11 @@ export const DEFAULT_MENU_GROUPS: MenuBarGroup[] = [
       { key: "open", label: "Open" },
       { key: "save", label: "Save" },
       { key: "import-sql", label: "Import SQL" },
+      { key: "import-json", label: "Import JSON" },
       { key: "export-sql", label: "Export SQL" },
       { key: "export-dbml", label: "Export DBML" },
+      { key: "export-json", label: "Export JSON" },
+      { key: "export-png", label: "Export PNG" },
     ],
   },
   {
@@ -40,6 +43,8 @@ export const DEFAULT_MENU_GROUPS: MenuBarGroup[] = [
       { key: "add-relationship", label: "Add relationship" },
       { key: "add-note", label: "Add note" },
       { key: "add-area", label: "Add area" },
+      { key: "auto-layout", label: "Auto layout" },
+      { key: "auto-relationships", label: "Auto create relationships" },
       { key: "delete", label: "Delete selection" },
     ],
   },
@@ -53,6 +58,7 @@ export const DEFAULT_MENU_GROUPS: MenuBarGroup[] = [
       { key: "toggle-grid", label: "Toggle grid" },
       { key: "toggle-sidebar", label: "Toggle side panel" },
       { key: "toggle-view-mode", label: "Toggle view mode" },
+      { key: "validate", label: "Validate diagram" },
     ],
   },
   {

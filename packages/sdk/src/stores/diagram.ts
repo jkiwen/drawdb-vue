@@ -2,7 +2,9 @@ import {
   AddEntityCommand,
   AddFieldCommand,
   AddRelationshipCommand,
+  AddRelationshipsCommand,
   AddTableCommand,
+  AutoArrangeCommand,
   MoveFieldCommand,
   RemoveEntityCommand,
   RemoveFieldCommand,
@@ -15,6 +17,7 @@ import {
   UpdateRelationshipCommand,
   UpdateTableCommand,
   UpdateDiagramCommand,
+  autoArrange,
   createEmptyDiagram,
 } from "@drawdb/core";
 import type {
@@ -68,10 +71,7 @@ export const useDiagramStore = defineStore("diagram", () => {
     return diagram.relationships.find((relationship) => relationship.id === id);
   }
 
-  function fieldById(
-    tableId: TableId,
-    fieldId: FieldId,
-  ): Field | undefined {
+  function fieldById(tableId: TableId, fieldId: FieldId): Field | undefined {
     return tableById(tableId)?.fields.find((field) => field.id === fieldId);
   }
 
@@ -105,10 +105,7 @@ export const useDiagramStore = defineStore("diagram", () => {
     bump();
   }
 
-  function updateTable(
-    id: TableId,
-    updates: Partial<Omit<Table, "id">>,
-  ): void {
+  function updateTable(id: TableId, updates: Partial<Omit<Table, "id">>): void {
     history.execute(new UpdateTableCommand(diagram, id, updates));
     bump();
   }
@@ -156,11 +153,7 @@ export const useDiagramStore = defineStore("diagram", () => {
   }
 
   /** Moves a field of a table to another place. */
-  function moveField(
-    tableId: TableId,
-    fromIndex: number,
-    toIndex: number,
-  ): void {
+  function moveField(tableId: TableId, fromIndex: number, toIndex: number): void {
     history.execute(new MoveFieldCommand(diagram, tableId, fromIndex, toIndex));
     bump();
   }
@@ -183,6 +176,35 @@ export const useDiagramStore = defineStore("diagram", () => {
     bump();
   }
 
+  /**
+   * Creates a batch of relationships the inference of the editor found.
+   *
+   * The batch is one entry of the history, so the undo takes all of them
+   * away at once.
+   */
+  function applyRelationships(relationships: Relationship[]): void {
+    if (relationships.length === 0) {
+      return;
+    }
+    history.execute(new AddRelationshipsCommand(diagram, relationships));
+    bump();
+  }
+
+  /** Moves the tables to the coordinates of an automatic layout. */
+  function autoArrangeTables(): void {
+    const positions = autoArrange(diagram.tables, diagram.relationships);
+    const previous = diagram.tables.map((table) => ({
+      x: table.x,
+      y: table.y,
+    }));
+    history.execute(new AutoArrangeCommand(diagram, positions, previous));
+    bump();
+  }
+
+  function setImportedDiagram(next: Diagram): void {
+    setDiagram(next);
+  }
+
   function addEntity(
     collection: DiagramEntityCollection,
     entity: { id?: string | number; name?: string },
@@ -202,36 +224,15 @@ export const useDiagramStore = defineStore("diagram", () => {
   const sidePanel = sidePanelActions(diagram, history, bump);
 
   return {
-    diagram,
-    revision,
-    tables,
-    relationships,
-    notes,
-    areas,
-    enums,
-    views,
-    types,
-    tableById,
-    relationshipById,
-    fieldById,
-    setDiagram,
-    reset,
-    updateDiagram,
-    addTable,
-    updateTable,
-    removeTable,
-    addRelationship,
-    updateRelationship,
-    removeRelationship,
-    addField,
-    updateField,
-    removeField,
-    moveField,
-    resizeTable,
-    toggleTableLock,
-    updateSqlHeader,
-    addEntity,
-    removeEntity,
+    diagram, revision, tables, relationships, notes, areas, enums, views, types,
+    tableById, relationshipById, fieldById,
+    setDiagram, reset, updateDiagram,
+    addTable, updateTable, removeTable,
+    addRelationship, updateRelationship, removeRelationship,
+    addField, updateField, removeField, moveField,
+    resizeTable, toggleTableLock, updateSqlHeader,
+    applyRelationships, autoArrange: autoArrangeTables, setImportedDiagram,
+    addEntity, removeEntity,
     ...sidePanel,
   };
 });
@@ -239,11 +240,10 @@ export const useDiagramStore = defineStore("diagram", () => {
 /**
  * The actions the side panel writes the views, the types and the enums with.
  *
- * The three collections have the same shape — an entity with an id, a name
- * and the rest of its properties — so one action per verb and collection
- * covers all nine of them. Every action runs one command of the history and
- * bumps the revision, which is what makes the renderers of the store see
- * the new state.
+ * The three collections share one shape, so one action per verb and
+ * collection covers all nine of them. Every action runs one command of the
+ * history and bumps the revision, which is what makes the renderers of the
+ * store see the new state.
  */
 function sidePanelActions(
   diagram: Diagram,
@@ -264,26 +264,16 @@ function sidePanelActions(
     bump();
   };
 
-  const addView = action("views", "add");
-  const updateView = action("views", "update");
-  const removeView = action("views", "remove");
-  const addType = action("types", "add");
-  const updateType = action("types", "update");
-  const removeType = action("types", "remove");
-  const addEnum = action("enums", "add");
-  const updateEnum = action("enums", "update");
-  const removeEnum = action("enums", "remove");
-
   return {
-    addView,
-    updateView,
-    removeView,
-    addType,
-    updateType,
-    removeType,
-    addEnum,
-    updateEnum,
-    removeEnum,
+    addView: action("views", "add"),
+    updateView: action("views", "update"),
+    removeView: action("views", "remove"),
+    addType: action("types", "add"),
+    updateType: action("types", "update"),
+    removeType: action("types", "remove"),
+    addEnum: action("enums", "add"),
+    updateEnum: action("enums", "update"),
+    removeEnum: action("enums", "remove"),
   };
 }
 
