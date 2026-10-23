@@ -1,6 +1,12 @@
 packages:
   - 'packages/*'
 
+# The isolated linker creates symbolic links that Node cannot follow on this
+# Windows host, so that a package of the workspace gets a second copy of Vue
+# (and of pinia). The hoisted linker keeps one copy of every package in the
+# root of the workspace.
+nodeLinker: hoisted
+
 onlyBuiltDependencies:
   - 'esbuild'
   - 'vue-demi'

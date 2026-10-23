@@ -16,12 +16,23 @@ const ROOT = resolvePath(import.meta.dirname, "..");
 const CORE_SOURCE = pathToFileURL(
   resolvePath(ROOT, "packages", "core", "src", "index.ts"),
 ).href;
+const SDK_SOURCE = pathToFileURL(
+  resolvePath(ROOT, "packages", "sdk", "src", "index.ts"),
+).href;
 
 export const hooks = {
   resolve(specifier, context, nextResolve) {
     if (specifier === "@drawdb/core") {
       return {
         url: CORE_SOURCE,
+        format: "module-typescript",
+        shortCircuit: true,
+      };
+    }
+
+    if (specifier === "@drawdb/vue-sdk") {
+      return {
+        url: SDK_SOURCE,
         format: "module-typescript",
         shortCircuit: true,
       };

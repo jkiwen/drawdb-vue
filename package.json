@@ -12,7 +12,7 @@
     "lint": "turbo run lint",
     "test:workspace": "vitest run scripts/verify-workspace.test.ts",
     "test:node": "node --experimental-strip-types scripts/run-tests.mjs",
-    "typecheck": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/sdk/tsconfig.json"
+    "typecheck": "tsc --noEmit -p packages/core/tsconfig.json && tsc --noEmit -p packages/sdk/tsconfig.json && tsc --noEmit -p packages/app/tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
