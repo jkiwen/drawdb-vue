@@ -1,27 +1,35 @@
-# Task 4 Report: Migrate SQL Export Utilities (MySQL foundation)
+# Task 4 Report: Migrate SQL Export Utilities
 
 ## Scope
-Task 4 is to migrate all 7 SQL export dialects from the React drawDB codebase into `@drawdb/core`. This session delivers the **shared engine + MySQL dialect**; the remaining 6 dialects will be added in follow-up work.
+Migrate all 7 SQL export dialects from the React drawDB codebase into `@drawdb/core`.
 
 ## Files Added
 
 ### Shared engine
-- `packages/core/src/export/dialect-meta.ts` — minimal per-type metadata (isSized, hasPrecision, signed, hasCheck). Only MySQL metadata is populated; Task 9 will expand this into a full system.
+- `packages/core/src/export/dialect-meta.ts` — minimal per-type metadata (isSized, hasPrecision, signed, hasCheck). Only MySQL metadata is populated; other dialects define local metadata maps. Task 9 will expand this into a full system.
 - `packages/core/src/export/shared.ts` — `getFkColumnNames`, `parseDefault`, `escapeQuotes`, `uniqueConstraintClause`, `getInlineFK`, `getRelationshipFields`.
 - `packages/core/src/export/views.ts` — `buildViewSQL`, `appendViews`, identifier quoting, and dialect-specific view statement generation.
-- `packages/core/src/export/index.ts` — `exportSQL(diagram)` dispatcher.
+- `packages/core/src/export/index.ts` — `exportSQL(diagram)` dispatcher and `SQLDialect` type.
 
-### MySQL dialect
-- `packages/core/src/export/mysql.ts` — `toMySQL(diagram)`.
+### Dialect implementations
+- `packages/core/src/export/mysql.ts` — `toMySQL()` (inline).
+- `packages/core/src/export/postgres.ts` — `toPostgres()` (subagent).
+- `packages/core/src/export/sqlite.ts` — `toSqlite()` (subagent).
+- `packages/core/src/export/mariadb.ts` — `toMariadb()` (subagent).
+- `packages/core/src/export/mssql.ts` — `toMssql()` (subagent).
+- `packages/core/src/export/oraclesql.ts` — `toOracleSql()` (subagent).
+- `packages/core/src/export/generic.ts` — `toGeneric()` (subagent, ANSI-style fallback).
 
 ### Tests
-- `packages/core/src/export/mysql.test.ts` — 6 tests covering:
-  - CREATE TABLE with field attributes (unsigned, not null, auto increment, unique, default, enum, decimal)
-  - table comment
-  - indices
-  - unique constraints
-  - ALTER TABLE foreign keys
-  - views with joins and aliases
+- `packages/core/src/export/mysql.test.ts` — 6 tests.
+- `packages/core/src/export/postgres.test.ts` — 6 tests.
+- `packages/core/src/export/mariadb.test.ts` — 5 tests.
+- `packages/core/src/export/sqlite.test.ts` — 4 tests.
+- `packages/core/src/export/mssql.test.ts` — 6 tests.
+- `packages/core/src/export/oraclesql.test.ts` — 5 tests.
+- `packages/core/src/export/generic.test.ts` — 5 tests.
+
+Total: **37 tests, all passing**.
 
 ## Model Change
 - Added `unsigned?: boolean` to `Field` (`packages/core/src/models/field.ts`) to support MySQL UNSIGNED.
@@ -31,11 +39,16 @@ Task 4 is to migrate all 7 SQL export dialects from the React drawDB codebase in
 ```bash
 cd sdk-workspace
 node --experimental-strip-types packages/core/src/export/mysql.test.ts
+node --experimental-strip-types packages/core/src/export/postgres.test.ts
+node --experimental-strip-types packages/core/src/export/mariadb.test.ts
+node --experimental-strip-types packages/core/src/export/sqlite.test.ts
+node --experimental-strip-types packages/core/src/export/mssql.test.ts
+node --experimental-strip-types packages/core/src/export/oraclesql.test.ts
+node --experimental-strip-types packages/core/src/export/generic.test.ts
 ```
 
-Result: **6/6 pass**.
+Result: **37/37 pass**.
 
 ## Known Gaps / Next Steps
-- `exportSQL` currently throws for `postgres`, `sqlite`, `mariadb`, `mssql`, `oraclesql`, and `generic`.
-- `dialect-meta.ts` only contains MySQL metadata; other dialects will need their own maps or a unified metadata source.
-- View SQL quoting is dialect-aware but only MySQL view generation has been exercised.
+- `dialect-meta.ts` is intentionally minimal; dialects keep local metadata. Task 9 will unify type metadata.
+- View SQL quoting is dialect-aware and exercised for all dialects, but complex view edge cases may need further alignment with the React implementation.
