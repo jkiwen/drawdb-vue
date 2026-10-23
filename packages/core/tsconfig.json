@@ -3,7 +3,10 @@
   "compilerOptions": {
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "oracle-sql-parser": ["./src/types/oracle-sql-parser.d.ts"]
+    }
   },
   "include": ["src"]
 }

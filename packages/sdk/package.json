@@ -25,7 +25,9 @@
   },
   "dependencies": {
     "@drawdb/core": "workspace:*",
-    "pinia": "^2.2.0"
+    "@vue/devtools-api": "^6.5.0",
+    "pinia": "^2.2.0",
+    "vue-demi": "^0.14.10"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.0",

@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@drawdb/core": ["../core/src/index.ts"],
+      "oracle-sql-parser": ["../core/src/types/oracle-sql-parser.d.ts"]
+    }
+  },
+  "include": ["src"]
+}

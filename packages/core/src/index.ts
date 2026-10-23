@@ -16,4 +16,5 @@ export {
   typeTakesSize,
 } from "./types/registry.ts";
 export * from "./utils/arrange-tables.ts";
+export * from "./utils/clone.ts";
 export * from "./utils/id.ts";

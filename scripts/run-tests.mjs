@@ -9,8 +9,12 @@
  * Usage: node --experimental-strip-types scripts/run-tests.mjs [filter]
  */
 import { readdirSync, statSync } from "node:fs";
+import { registerHooks } from "node:module";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { hooks } from "./ts-resolver.mjs";
+
+registerHooks(hooks);
 
 const ROOT = resolve(import.meta.dirname, "..");
 const SOURCE_ROOTS = [

@@ -2,6 +2,7 @@ import type { Command } from "./command.ts";
 import type { Diagram } from "../models/diagram.ts";
 import type { Field, FieldId } from "../models/field.ts";
 import type { TableId } from "../models/table.ts";
+import { deepClone } from "../utils/clone.ts";
 
 export class UpdateFieldCommand implements Command {
   private readonly diagram: Diagram;
@@ -32,7 +33,7 @@ export class UpdateFieldCommand implements Command {
     const fieldIdx = table.fields.findIndex((f) => f.id === this.fieldId);
     if (fieldIdx < 0) return;
 
-    this.previousField = structuredClone(table.fields[fieldIdx]);
+    this.previousField = deepClone(table.fields[fieldIdx]);
     table.fields[fieldIdx] = { ...table.fields[fieldIdx], ...this.updates };
   }
 

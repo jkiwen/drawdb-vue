@@ -1,4 +1,5 @@
 import type { Diagram } from "../models/diagram.ts";
+import { deepClone } from "../utils/clone.ts";
 
 /**
  * Persistence contract used by the SDK.
@@ -57,8 +58,5 @@ export function assertDiagramId(diagram: Diagram): string {
 
 /** Deep clone a diagram so stored data never aliases caller state. */
 export function cloneDiagram(diagram: Diagram): Diagram {
-  const clone = globalThis.structuredClone
-    ? globalThis.structuredClone(diagram)
-    : (JSON.parse(JSON.stringify(diagram)) as Diagram);
-  return clone;
+  return deepClone(diagram);
 }

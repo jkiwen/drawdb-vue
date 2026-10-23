@@ -1,6 +1,7 @@
 import type { Command } from "./command.ts";
 import type { Diagram } from "../models/diagram.ts";
 import type { Table, TableId } from "../models/table.ts";
+import { deepClone } from "../utils/clone.ts";
 
 export class UpdateTableCommand implements Command {
   private readonly diagram: Diagram;
@@ -26,7 +27,7 @@ export class UpdateTableCommand implements Command {
     const idx = this.diagram.tables.findIndex((t) => t.id === this.tableId);
     if (idx < 0) return;
     const target = this.diagram.tables[idx];
-    this.previousTable = structuredClone(target);
+    this.previousTable = deepClone(target);
     this.diagram.tables[idx] = { ...target, ...this.updates };
   }
 
