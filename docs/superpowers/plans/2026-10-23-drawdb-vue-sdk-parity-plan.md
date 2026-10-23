@@ -632,6 +632,8 @@
 
 ## Task 26: sdk 表格内编辑与字段排序
 
+**Status:** complete — commit `10bf68d` · report: `docs/task-26-report.md`
+
 **Files:**
 - Create: `packages/sdk/src/composables/use-sortable.ts`
 - Create: `packages/sdk/src/composables/use-sortable.test.ts`
@@ -657,12 +659,12 @@
   function updateSqlHeader(sqlHeader: string): void;
   ```
 
-- [ ] **Step 1: 安装 `vue-draggable-plus`**
+- [x] **Step 1: 安装 `vue-draggable-plus`**
 
   Run: `pnpm --filter @drawdb/vue-sdk add vue-draggable-plus@0.6.1`
   Expected: 退出码 0
 
-- [ ] **Step 2: 写失败的测试**
+- [x] **Step 2: 写失败的测试**
 
   `packages/sdk/src/composables/use-sortable.test.ts`：
   ```ts
@@ -691,25 +693,25 @@
   test("every canvas edit can be undone", () => { /* history.canUndo → undo → 还原 */ });
   ```
 
-- [ ] **Step 3: 运行测试确认失败**
+- [x] **Step 3: 运行测试确认失败**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs table-editing`
   Expected: FAIL —— `use-sortable.ts` 与 store 方法不存在
 
-- [ ] **Step 4: 实现 `use-sortable.ts` 与 store 方法**
+- [x] **Step 4: 实现 `use-sortable.ts` 与 store 方法**
 
   `useSortable` 返回 `sortableOptions`（`{ handle: ".field-drag-handle", animation: 150, ghostClass: "is-sorting" }`）与 `onSort(tableId, fromIndex, toIndex)`：调用 `useDiagramStore().moveField`（内部 `history.execute(new MoveFieldCommand(...))`）。**不要**把 `v-model` 直接绑到 `table.fields`，只在 `change` 事件里发命令（spec §5.1）。
 
-- [ ] **Step 5: 实现画布内编辑**
+- [x] **Step 5: 实现画布内编辑**
 
   在 `TableHeader.vue` / `TableField.vue` 内实现双击进入编辑（`contenteditable` 或 Naive UI `NInput`），`change` 时提交到 store；`Table.vue` 用 `vue-draggable-plus` 的 `VueDraggable` 包裹字段列表，元素 key 用 `field.id`；`ResizeHandles.vue` 的 `pointerdown/move/up` 序列发 `ResizeTableCommand`；`FieldHandle.vue` 增加锁定态的表不允许连线（直接忽略 `pointerdown`）。
 
-- [ ] **Step 6: 整体验证**
+- [x] **Step 6: 整体验证**
 
   Run: `node --experimental-strip-types scripts/run-tests.mjs`（全量）、`node --experimental-strip-types scripts/verify-constraints.test.ts`、`pnpm run typecheck`
   Expected: 0 fail；约束检查通过；typecheck 无错误
 
-- [ ] **Step 7: 提交**
+- [x] **Step 7: 提交**
 
   ```bash
   git add packages/sdk/src packages/sdk/package.json pnpm-lock.yaml

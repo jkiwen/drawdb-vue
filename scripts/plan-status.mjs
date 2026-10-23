@@ -4,14 +4,15 @@
 //   node scripts/plan-status.mjs --task 21 \
 //        --commit <hash> [--report docs/task-21-report.md]   marks a task as complete
 //
-// The plan is `docs/plan.md` unless another one is named with `--plan <path>`.
+// The plan is `docs/plan.md` unless another one is named with `--plan <path>`
+// or with the environment variable `PLAN`.
 // A task is complete when its heading carries a status line and every step of
 // its section is checked. The script writes both.
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const PLAN = resolve("docs/plan.md");
+const PLAN = resolve(process.env.PLAN ?? "docs/plan.md");
 
 /**
  * The sections of a plan: the number of the task, its title, its status line

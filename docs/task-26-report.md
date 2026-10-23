@@ -2,14 +2,15 @@
 
 ## Scope
 
-The plan section `docs/plan.md` "Task 26 (sdk 表格内编辑与字段排序)": the canvas edits a
+The plan section `docs/superpowers/plans/2026-10-23-drawdb-vue-sdk-parity-plan.md`
+"Task 26 (sdk 表格内编辑与字段排序)": the canvas edits a
 table in place, and the fields can be reordered by dragging.
 
 Files of the SDK: `packages/sdk/src/components/Canvas/Table.vue`,
 `packages/sdk/src/components/Canvas/TableHeader.vue`,
 `packages/sdk/src/components/Canvas/TableDetails.vue`,
 `packages/sdk/src/components/Canvas/table-editing.test.ts`, plus the store methods of
-`packages/sdk/src/stores/diagram.ts` (Task 26 of the first phase had already added
+`packages/sdk/src/stores/diagram.ts` (Task 24 had already added
 `moveField`, `resizeTable`, `toggleTableLock`, `updateSqlHeader`).
 
 ## What the canvas can do now
