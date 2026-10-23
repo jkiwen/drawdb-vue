@@ -29,8 +29,10 @@
   - Report: `docs/task-8-report.md`
 - Task 9: complete (commit `9ad1763`; `useDiagramStore` / `useHistoryStore` / `useUIStore` / `useSettingsStore` / `useSaveStore`; 10/10 new specs, 199/199 workspace specs pass; typecheck clean)
   - Report: `docs/task-9-report.md`
-- Task 10: complete (commit `PENDING`; `useSelection` / `useViewport` / `useDrag` / `useHotkeys` / `useCanvasEvents` / `useStorage`; 28/28 new specs, 227/227 workspace specs pass; typecheck clean)
+- Task 10: complete (commit `80e684d`; `useSelection` / `useViewport` / `useDrag` / `useHotkeys` / `useCanvasEvents` / `useStorage`; 28/28 new specs, 227/227 workspace specs pass; typecheck clean)
   - Report: `docs/task-10-report.md`
+- Task 11: complete (commit `PENDING`; SVG canvas with `foreignObject` tables, relationship paths, areas, notes and views; viewport culling; 16/16 new specs, 244/244 workspace specs pass; typecheck clean)
+  - Report: `docs/task-11-report.md`
 
 ## Rulings
 - **Task 3: Ruling: Node `--experimental-strip-types` does not support TypeScript parameter properties** — Converted all command classes to explicit constructor assignments. Cost if wrong: slightly more boilerplate; fully equivalent runtime behavior.
@@ -57,3 +59,11 @@
 - **Task 10: Ruling: the composables fall back to a shared pinia instance** — `resolvePinia()` returns the active instance, or a module level fallback when there is none, so the composables work in plain unit tests without duplicating the state implementation. Cost if wrong: state created outside an application is not reset between tests; the tests create their own instance.
 - **Task 10: Ruling: the hotkey registry is DOM free and resolves `mod` against the platform** — `createHotkeyRegistry(platform)` matches bindings against plain keyboard event objects, which makes the shortcut behaviour testable without a browser. `mod` means control on Windows and Linux and command on macOS. Cost if wrong: a registry created for the wrong platform ignores the platform modifier.
 - **Task 10: Ruling: the drag composable only tracks the movement** — It does not change the diagram; the caller turns the result into a core command, which is what makes a move undoable. Cost if wrong: the caller has to apply the delta itself.
+
+## Rulings
+- **Task 11: Ruling: the layout constants and the geometry helpers live in a pure module** — `components/Canvas/geometry.ts` holds the sizes of the elements, the relationship anchors and the culling. Keeping them out of the components makes them testable without a DOM and keeps the numbers in one place. Cost if wrong: one more file; the components stay small.
+- **Task 11: Ruling: the canvas culls the elements that are outside of the viewport** — Only the elements whose bounding box intersects the visible part of the world are rendered, and a relationship is kept when one of its anchors is visible. The viewport size is a property of the component. Cost if wrong: an element far outside of the viewport is not rendered until the user scrolls to it; the culling is only used for the rendering, the diagram itself keeps every element.
+- **Task 11: Ruling: the drag is applied with the core commands** — The canvas tracks the movement with `useDrag()` and applies it with `diagramStore.updateTable()`, so a move is recorded in the history store and can be undone. Cost if wrong: every move creates a command, which grows the undo stack.
+- **Task 11: Ruling: the components are tested with the server renderer of Vue** — vitest cannot run in the sandbox, and there is no DOM implementation available, so the specs render the components with `renderToString()` and assert on the generated markup. Cost if wrong: the specs do not cover the browser behaviour, such as the pointer handling, which is covered by the composable specs.
+- **Task 11: Ruling: the `.vue` files are compiled by a Node loader in the tests** — `scripts/sfc-loader.mjs` uses `@vue/compiler-sfc` and the TypeScript compiler to turn a component into a module. The production build uses `@vitejs/plugin-vue`. Cost if wrong: the test loader and the production build could drift; both use the same compiler.
+- **Task 11: Ruling: the properties of the components are declared at runtime** — A generic `defineProps<Props>()` would make the compiler of Vue resolve the imported model types of `@drawdb/core`, which it cannot do for a package that is not built. Cost if wrong: the properties are not checked against the model types by the compiler; the shim of the `*.vue` modules documents the types instead.

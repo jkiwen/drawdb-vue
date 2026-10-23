@@ -13,8 +13,10 @@ import { registerHooks } from "node:module";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { hooks } from "./ts-resolver.mjs";
+import { sfcHooks } from "./sfc-loader.mjs";
 
 registerHooks(hooks);
+registerHooks(sfcHooks);
 
 const ROOT = resolve(import.meta.dirname, "..");
 const SOURCE_ROOTS = [
