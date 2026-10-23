@@ -1,6 +1,11 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 import type { ViewMode } from "../types/sdk-options.ts";
+import type {
+  LinkingState,
+  ResizeState,
+  SelectionBox,
+} from "../components/Canvas/interactions/interaction-state.ts";
 
 export type UiTab =
   | "tables"
@@ -56,6 +61,12 @@ export const useUIStore = defineStore("ui", () => {
   const searchTerm = ref("");
   const viewMode = ref<ViewMode>("physical");
   const contextMenu = ref<ContextMenuState | null>(null);
+
+  // The state of the interactions of the canvas. The composables of the
+  // canvas keep the behaviour, the store holds the state.
+  const linking = ref<LinkingState | null>(null);
+  const resizing = ref<ResizeState | null>(null);
+  const selectionBox = ref<SelectionBox | null>(null);
 
   const hasSelection = computed(
     () =>
@@ -219,6 +230,9 @@ export const useUIStore = defineStore("ui", () => {
     searchTerm,
     viewMode,
     contextMenu,
+    linking,
+    resizing,
+    selectionBox,
     hasSelection,
     clearSelection,
     selectTable,

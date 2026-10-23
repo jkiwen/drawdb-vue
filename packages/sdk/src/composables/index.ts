@@ -47,3 +47,28 @@ export {
   type VirtualizationOptions,
   type VirtualViewport,
 } from "./use-virtualization.ts";
+export {
+  useCanvasInteractions,
+  type CanvasInteractions,
+} from "./use-canvas-interactions.ts";
+export {
+  useCanvasItems,
+  type CanvasItem,
+  type CanvasItems,
+} from "./use-canvas-items.ts";
+export {
+  useEditorCommands,
+  type EditorCommandsApi,
+  type EditorCommandsOptions,
+} from "./use-editor-commands.ts";
+export {
+  useEditorPlugins,
+  type EditorPluginsApi,
+  type EditorPluginsOptions,
+} from "./use-editor-plugins.ts";
+export {
+  useEditorSync,
+  type EditorProps,
+  type EditorSyncApi,
+  type EditorSyncOptions,
+} from "./use-editor-sync.ts";

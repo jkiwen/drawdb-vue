@@ -59,7 +59,7 @@ test("draws a table that the user added in the editor", async () => {
   await wrapper.find('[data-testid="add-table-btn"]').trigger("click");
   await settle();
 
-  const tables = wrapper.find('[data-testid="canvas"]').findAll('[data-testid^="table-"]');
+  const tables = wrapper.find('[data-testid="canvas"]').findAll('[data-testid^="table-"][data-table-id]');
   assert.equal(tables.length, 1);
 });
 
@@ -86,7 +86,7 @@ test("keeps the table when the diagram is saved and loaded again", async () => {
     await storage.save(stored);
   });
 
-  const tables = second.wrapper.find('[data-testid="canvas"]').findAll('[data-testid^="table-"]');
+  const tables = second.wrapper.find('[data-testid="canvas"]').findAll('[data-testid^="table-"][data-table-id]');
   assert.equal(tables.length, 1);
 });
 
@@ -113,10 +113,10 @@ test("undoes the table that the user added", async () => {
 
   await wrapper.find('[data-testid="add-table-btn"]').trigger("click");
   await settle();
-  assert.equal(wrapper.find('[data-testid="canvas"]').findAll('[data-testid^="table-"]').length, 1);
+  assert.equal(wrapper.find('[data-testid="canvas"]').findAll('[data-testid^="table-"][data-table-id]').length, 1);
 
   await wrapper.find('[data-testid="undo-btn"]').trigger("click");
   await settle();
 
-  assert.equal(wrapper.find('[data-testid="canvas"]').findAll('[data-testid^="table-"]').length, 0);
+  assert.equal(wrapper.find('[data-testid="canvas"]').findAll('[data-testid^="table-"][data-table-id]').length, 0);
 });

@@ -2,8 +2,11 @@
 import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Table } from "@drawdb/core";
-import { useUIStore } from "../../stores/ui.ts";
-import { fieldLabel, tableHeight, tableWidth } from "./geometry.ts";
+import { tableHeight, tableWidth } from "./geometry.ts";
+import FieldHandle from "./FieldHandle.vue";
+import ResizeHandles from "./ResizeHandles.vue";
+import TableField from "./TableField.vue";
+import TableHeader from "./TableHeader.vue";
 
 defineOptions({ name: "DrawDBTableNode" });
 
@@ -13,35 +16,44 @@ const props = defineProps({
   showFieldTypes: { type: Boolean, default: true },
 });
 
-const emit = defineEmits(["select", "dragstart", "fieldselect"]);
-
-const ui = useUIStore();
+const emit = defineEmits([
+  "select",
+  "dragstart",
+  "fieldselect",
+  "linkstart",
+  "resizestart",
+]);
 
 const width = computed(() => tableWidth(props.table));
 const height = computed(() => tableHeight(props.table));
-
-/**
- * The types of the fields are a property of the physical view.
- *
- * The logical view only shows the names of the entities and their relations.
- */
-const showsFieldTypes = computed(
-  () => props.showFieldTypes && ui.viewMode !== "logical",
-);
-
-const headerStyle = computed(() => {
-  if (!props.table.color) {
-    return {};
-  }
-  return { borderTopColor: props.table.color };
-});
 
 function onPointerDown(event: PointerEvent): void {
   emit("dragstart", { id: props.table.id, event });
 }
 
-function onFieldPointerDown(fieldId: string | number, event: PointerEvent): void {
-  emit("fieldselect", { tableId: props.table.id, fieldId, event });
+function onFieldSelect(payload: {
+  tableId: string | number;
+  fieldId: string | number;
+  event: PointerEvent;
+}): void {
+  emit("fieldselect", payload);
+}
+
+function onLinkStart(payload: {
+  tableId: string | number;
+  fieldId: string | number;
+  event: PointerEvent;
+}): void {
+  emit("linkstart", payload);
+}
+
+function onResizeStart(payload: {
+  tableId: string | number;
+  width: number;
+  height: number;
+  event: PointerEvent;
+}): void {
+  emit("resizestart", payload);
 }
 </script>
 
@@ -50,6 +62,7 @@ function onFieldPointerDown(fieldId: string | number, event: PointerEvent): void
     class="ddb-table"
     :class="{ 'is-selected': selected, 'is-locked': table.locked }"
     :transform="`translate(${table.x} ${table.y})`"
+    :data-table-id="table.id"
     :data-testid="`table-${table.id}`"
     @pointerdown.stop="onPointerDown"
   >
@@ -59,29 +72,30 @@ function onFieldPointerDown(fieldId: string | number, event: PointerEvent): void
         class="ddb-table__body"
         :class="{ 'is-selected': selected }"
       >
-        <div class="ddb-table__header" :style="headerStyle">
-          <span class="ddb-table__name">{{ table.name }}</span>
-          <span v-if="table.comment" class="ddb-table__comment">
-            {{ table.comment }}
-          </span>
-        </div>
+        <TableHeader :table="table" :selected="selected" />
         <div
           v-for="field in table.fields"
           :key="field.id"
-          class="ddb-table__field"
-          :data-testid="`field-${table.id}-${field.id}`"
-          @pointerdown.stop="onFieldPointerDown(field.id, $event)"
+          class="ddb-table__row"
         >
-          <span class="ddb-table__field-name">{{ field.name }}</span>
-          <span
-            v-if="showsFieldTypes"
-            class="ddb-table__field-type"
-            data-testid="field-type"
-            :data-field-id="field.id"
-          >
-            {{ fieldLabel(field) }}
-          </span>
+          <TableField
+            :table="table"
+            :field="field"
+            :show-field-types="showFieldTypes"
+            @fieldselect="onFieldSelect"
+          />
+          <FieldHandle
+            :table-id="table.id"
+            :field-id="field.id"
+            @linkstart="onLinkStart"
+          />
         </div>
+        <ResizeHandles
+          :table-id="table.id"
+          :width="width"
+          :height="height"
+          @resizestart="onResizeStart"
+        />
       </div>
     </foreignObject>
   </g>

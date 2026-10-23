@@ -1,46 +1,29 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
-import { useUIStore } from "../../stores/ui.ts";
 import { useCanvasEvents } from "../../composables/use-canvas-events.ts";
-import { useDrag } from "../../composables/use-drag.ts";
-import { useSelection } from "../../composables/use-selection.ts";
-import { useViewport } from "../../composables/use-viewport.ts";
-import {
-  useVirtualization,
-  type VirtualizableElement,
-} from "../../composables/use-virtualization.ts";
+import { useCanvasItems } from "../../composables/use-canvas-items.ts";
 import Area from "./Area.vue";
+import ContextMenu from "./ContextMenu.vue";
 import LogicalRelationship from "./LogicalRelationship.vue";
 import LogicalTable from "./LogicalTable.vue";
 import Note from "./Note.vue";
 import Relationship from "./Relationship.vue";
 import Table from "./Table.vue";
 import View from "./View.vue";
+import { useCanvasHandlers } from "./interactions/use-canvas-handlers.ts";
 import {
   DEFAULT_GRID_SIZE,
   DEFAULT_VIEWPORT_HEIGHT,
   DEFAULT_VIEWPORT_WIDTH,
-  areaBounds,
-  logicalRelationshipBounds,
-  logicalTableBounds,
-  noteBounds,
-  relationshipBounds,
-  tableBounds,
-  viewBounds,
-  visibleWorldBounds,
-  type Bounds,
 } from "./geometry.ts";
 
 defineOptions({ name: "DrawDBCanvas" });
 
 const props = withDefaults(
   defineProps<{
-    /** Width of the viewport, used to cull the elements that are off screen. */
     width?: number;
-    /** Height of the viewport, used to cull the elements that are off screen. */
     height?: number;
-    /** Size of the grid the elements snap to while they are dragged. */
     gridSize?: number;
   }>(),
   {
@@ -51,235 +34,27 @@ const props = withDefaults(
 );
 
 const diagram = useDiagramStore();
-const ui = useUIStore();
-const selection = useSelection();
-const drag = useDrag();
-const viewport = useViewport();
-
 const svgRef = ref<SVGSVGElement | null>(null);
 
-let panOrigin: { x: number; y: number } | null = null;
-let panScroll: { x: number; y: number } | null = null;
+const items = useCanvasItems({
+  width: () => props.width,
+  height: () => props.height,
+});
 
-/** The part of the diagram that is currently visible. */
-const world = computed(() =>
-  visibleWorldBounds(
-    ui.scrollX,
-    ui.scrollY,
-    ui.zoom,
-    props.width,
-    props.height,
-  ),
-);
-
-/** The logical view draws the entities instead of the tables. */
-const isLogical = computed(() => ui.viewMode === "logical");
-
-/** The visible area, in the coordinates of the canvas. */
-const viewportRect = computed(() => ({
-  x: world.value.minX,
-  y: world.value.minY,
-  width: world.value.maxX - world.value.minX,
-  height: world.value.maxY - world.value.minY,
-}));
-
-/** An element of the canvas together with the object it draws. */
-interface CanvasItem<T> extends VirtualizableElement {
-  item: T;
-}
-
-/** Turn the bounds of an element into an item of the virtualization. */
-function toItem<T>(item: T, bounds: Bounds): CanvasItem<T> {
-  return {
-    id: String((item as { id: string | number }).id),
-    x: bounds.minX,
-    y: bounds.minY,
-    width: bounds.maxX - bounds.minX,
-    height: bounds.maxY - bounds.minY,
-    item,
-  };
-}
-
-const areaItems = computed<CanvasItem<typeof diagram.areas[number]>[]>(() =>
-  diagram.areas.map((area) => toItem(area, areaBounds(area))),
-);
-
-const noteItems = computed<CanvasItem<typeof diagram.notes[number]>[]>(() =>
-  diagram.notes.map((note) => toItem(note, noteBounds(note))),
-);
-
-const viewItems = computed<CanvasItem<typeof diagram.views[number]>[]>(() =>
-  diagram.views.map((view) => toItem(view, viewBounds(view))),
-);
-
-const tableItems = computed<CanvasItem<typeof diagram.tables[number]>[]>(() =>
-  diagram.tables
-    .filter((table) => !table.hidden)
-    .map((table) =>
-      isLogical.value
-        ? toItem(table, logicalTableBounds(table))
-        : toItem(table, tableBounds(table)),
-    ),
-);
-
-const { visibleElements: visibleAreaItems } = useVirtualization(
-  areaItems,
-  viewportRect,
-);
-const { visibleElements: visibleNoteItems } = useVirtualization(
-  noteItems,
-  viewportRect,
-);
-const { visibleElements: visibleViewItems } = useVirtualization(
-  viewItems,
-  viewportRect,
-);
-const { visibleElements: visibleTableItems } = useVirtualization(
-  tableItems,
-  viewportRect,
-);
-
-const visibleAreas = computed(() =>
-  visibleAreaItems.value.map((entry) => entry.item),
-);
-
-const visibleNotes = computed(() =>
-  visibleNoteItems.value.map((entry) => entry.item),
-);
-
-const visibleViews = computed(() =>
-  visibleViewItems.value.map((entry) => entry.item),
-);
-
-const visibleTables = computed(() =>
-  visibleTableItems.value.map((entry) => entry.item),
-);
-
-const transform = computed(
-  () =>
-    `translate(${-ui.scrollX * ui.zoom} ${-ui.scrollY * ui.zoom}) scale(${ui.zoom})`,
-);
-
-const visibleRelationships = computed(() =>
-  diagram.relationships.filter((relationship) => {
-    const startTable = diagram.tableById(relationship.startTableId);
-    const endTable = diagram.tableById(relationship.endTableId);
-
-    if (!startTable || !endTable) {
-      return false;
-    }
-
-    const bounds = isLogical.value
-      ? logicalRelationshipBounds(startTable, endTable)
-      : relationshipBounds(relationship, startTable, endTable);
-    return (
-      bounds.minX <= world.value.maxX &&
-      bounds.maxX >= world.value.minX &&
-      bounds.minY <= world.value.maxY &&
-      bounds.maxY >= world.value.minY
-    );
-  }),
-);
-
-function canvasRect(): { left: number; top: number; width: number; height: number } {
-  const rect = svgRef.value?.getBoundingClientRect();
-  return {
-    left: rect?.left ?? 0,
-    top: rect?.top ?? 0,
-    width: rect?.width ?? props.width,
-    height: rect?.height ?? props.height,
-  };
-}
-
-function onTableDragStart(payload: { id: string; event: PointerEvent }): void {
-  const { id, event } = payload;
-  const additive = event.shiftKey;
-
-  if (!selection.isSelected(id)) {
-    selection.select(id, { additive, kind: "table" });
-  }
-
-  const ids = selection.selectedTables.value;
-  const table = diagram.tableById(id);
-
-  if (!table) {
-    return;
-  }
-
-  const point = viewport.toCanvasPoint(
-    event.clientX,
-    event.clientY,
-    canvasRect(),
-  );
-
-  drag.beginDrag(point, ids, {
-    snapToGrid: ui.snapToGrid,
-    gridSize: props.gridSize,
-  });
-}
-
-function onFieldSelect(payload: {
-  tableId: string;
-  fieldId: string;
-  event: PointerEvent;
-}): void {
-  ui.selectField(payload.tableId, payload.fieldId, payload.event.shiftKey);
-}
-
-function commitDrag(): void {
-  const result = drag.endDrag();
-
-  if (!result) {
-    return;
-  }
-
-  for (const id of result.ids) {
-    const table = diagram.tableById(id);
-    if (!table) {
-      continue;
-    }
-    diagram.updateTable(id, {
-      x: table.x + result.delta.x,
-      y: table.y + result.delta.y,
-    });
-  }
-}
-
-const canvasEvents = useCanvasEvents({
-  onPointerDown(event: PointerEvent) {
-    if (event.button !== 0) {
-      return;
-    }
-    selection.clear();
-    panOrigin = { x: event.clientX, y: event.clientY };
-    panScroll = { x: ui.scrollX, y: ui.scrollY };
-  },
-  onPointerMove(event: PointerEvent) {
-    if (drag.dragState.active) {
-      drag.updateDrag(
-        viewport.toCanvasPoint(event.clientX, event.clientY, canvasRect()),
-      );
-      return;
-    }
-
-    if (panOrigin && panScroll) {
-      const dx = (event.clientX - panOrigin.x) / viewport.zoom.value;
-      const dy = (event.clientY - panOrigin.y) / viewport.zoom.value;
-      ui.scrollX = panScroll.x - dx;
-      ui.scrollY = panScroll.y - dy;
-    }
-  },
-  onPointerUp() {
-    if (drag.dragState.active) {
-      commitDrag();
-    }
-    panOrigin = null;
-    panScroll = null;
-  },
-  onWheel(event: WheelEvent) {
-    ui.setZoom(ui.zoom - event.deltaY * 0.001);
+const canvas = useCanvasHandlers({
+  gridSize: () => props.gridSize,
+  rect: () => {
+    const rect = svgRef.value?.getBoundingClientRect();
+    return {
+      left: rect?.left ?? 0,
+      top: rect?.top ?? 0,
+      width: rect?.width ?? props.width,
+      height: rect?.height ?? props.height,
+    };
   },
 });
+
+const canvasEvents = useCanvasEvents(canvas.handlers);
 
 onMounted(() => {
   if (svgRef.value) {
@@ -301,60 +76,88 @@ onBeforeUnmount(() => {
     data-testid="canvas"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <g class="ddb-canvas__content" :transform="transform" data-testid="canvas-content">
+    <g
+      class="ddb-canvas__content"
+      :transform="items.transform.value"
+      data-testid="canvas-content"
+    >
       <Area
-        v-for="area in visibleAreas"
+        v-for="area in items.visibleAreas.value"
         :key="`area-${area.id}`"
         :area="area"
-        :selected="selection.isSelected(String(area.id))"
+        :selected="canvas.selection.isSelected(String(area.id))"
       />
       <template
-        v-for="relationship in visibleRelationships"
+        v-for="relationship in items.visibleRelationships.value"
         :key="`relationship-${relationship.id}`"
       >
         <LogicalRelationship
-          v-if="isLogical"
+          v-if="items.isLogical.value"
           :relationship="relationship"
           :start-table="diagram.tableById(relationship.startTableId)!"
           :end-table="diagram.tableById(relationship.endTableId)!"
-          :selected="selection.isSelected(String(relationship.id))"
+          :selected="canvas.selection.isSelected(String(relationship.id))"
         />
         <Relationship
           v-else
           :relationship="relationship"
           :start-table="diagram.tableById(relationship.startTableId)!"
           :end-table="diagram.tableById(relationship.endTableId)!"
-          :selected="selection.isSelected(String(relationship.id))"
+          :selected="canvas.selection.isSelected(String(relationship.id))"
         />
       </template>
-      <template v-for="table in visibleTables" :key="`table-${table.id}`">
+      <template
+        v-for="table in items.visibleTables.value"
+        :key="`table-${table.id}`"
+      >
         <LogicalTable
-          v-if="isLogical"
+          v-if="items.isLogical.value"
           :table="table"
-          :selected="selection.isSelected(String(table.id))"
-          @dragstart="onTableDragStart"
+          :selected="canvas.selection.isSelected(String(table.id))"
+          @dragstart="canvas.onTableDragStart"
         />
         <Table
           v-else
           :table="table"
-          :selected="selection.isSelected(String(table.id))"
-          @dragstart="onTableDragStart"
-          @fieldselect="onFieldSelect"
+          :selected="canvas.selection.isSelected(String(table.id))"
+          @dragstart="canvas.onTableDragStart"
+          @fieldselect="canvas.onFieldSelect"
+          @linkstart="canvas.onLinkStart"
+          @resizestart="canvas.onResizeStart"
         />
       </template>
       <Note
-        v-for="note in visibleNotes"
+        v-for="note in items.visibleNotes.value"
         :key="`note-${note.id}`"
         :note="note"
-        :selected="selection.isSelected(String(note.id))"
+        :selected="canvas.selection.isSelected(String(note.id))"
       />
       <View
-        v-for="view in visibleViews"
+        v-for="view in items.visibleViews.value"
         :key="`view-${view.id}`"
         :view="view"
         :base-table-name="view.baseTableId ? diagram.tableById(view.baseTableId)?.name ?? '' : ''"
-        :selected="selection.isSelected(String(view.id))"
+        :selected="canvas.selection.isSelected(String(view.id))"
+      />
+      <path
+        v-if="canvas.linkPath.value"
+        class="ddb-canvas__link-preview"
+        :d="canvas.linkPath.value"
+        data-testid="link-preview"
+      />
+      <rect
+        v-if="canvas.selectionRect.value"
+        class="ddb-canvas__selection-box"
+        :x="canvas.selectionRect.value.x"
+        :y="canvas.selectionRect.value.y"
+        :width="canvas.selectionRect.value.width"
+        :height="canvas.selectionRect.value.height"
+        data-testid="selection-box"
       />
     </g>
   </svg>
+  <ContextMenu
+    :state="canvas.menu.value"
+    @command="canvas.runMenuCommand"
+  />
 </template>
