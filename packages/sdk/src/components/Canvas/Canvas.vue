@@ -7,6 +7,8 @@ import { useDrag } from "../../composables/use-drag.ts";
 import { useSelection } from "../../composables/use-selection.ts";
 import { useViewport } from "../../composables/use-viewport.ts";
 import Area from "./Area.vue";
+import LogicalRelationship from "./LogicalRelationship.vue";
+import LogicalTable from "./LogicalTable.vue";
 import Note from "./Note.vue";
 import Relationship from "./Relationship.vue";
 import Table from "./Table.vue";
@@ -17,6 +19,8 @@ import {
   DEFAULT_VIEWPORT_WIDTH,
   areaBounds,
   filterVisible,
+  logicalRelationshipBounds,
+  logicalTableBounds,
   noteBounds,
   relationshipBounds,
   tableBounds,
@@ -64,6 +68,9 @@ const world = computed(() =>
   ),
 );
 
+/** The logical view draws the entities instead of the tables. */
+const isLogical = computed(() => ui.viewMode === "logical");
+
 const transform = computed(
   () =>
     `translate(${-ui.scrollX * ui.zoom} ${-ui.scrollY * ui.zoom}) scale(${ui.zoom})`,
@@ -84,7 +91,7 @@ const visibleViews = computed(() =>
 const visibleTables = computed(() =>
   filterVisible(
     diagram.tables.filter((table) => !table.hidden),
-    tableBounds,
+    isLogical.value ? logicalTableBounds : tableBounds,
     world.value,
   ),
 );
@@ -98,7 +105,9 @@ const visibleRelationships = computed(() =>
       return false;
     }
 
-    const bounds = relationshipBounds(relationship, startTable, endTable);
+    const bounds = isLogical.value
+      ? logicalRelationshipBounds(startTable, endTable)
+      : relationshipBounds(relationship, startTable, endTable);
     return (
       bounds.minX <= world.value.maxX &&
       bounds.maxX >= world.value.minX &&
@@ -235,22 +244,40 @@ onBeforeUnmount(() => {
         :area="area"
         :selected="selection.isSelected(String(area.id))"
       />
-      <Relationship
+      <template
         v-for="relationship in visibleRelationships"
         :key="`relationship-${relationship.id}`"
-        :relationship="relationship"
-        :start-table="diagram.tableById(relationship.startTableId)!"
-        :end-table="diagram.tableById(relationship.endTableId)!"
-        :selected="selection.isSelected(String(relationship.id))"
-      />
-      <Table
-        v-for="table in visibleTables"
-        :key="`table-${table.id}`"
-        :table="table"
-        :selected="selection.isSelected(String(table.id))"
-        @dragstart="onTableDragStart"
-        @fieldselect="onFieldSelect"
-      />
+      >
+        <LogicalRelationship
+          v-if="isLogical"
+          :relationship="relationship"
+          :start-table="diagram.tableById(relationship.startTableId)!"
+          :end-table="diagram.tableById(relationship.endTableId)!"
+          :selected="selection.isSelected(String(relationship.id))"
+        />
+        <Relationship
+          v-else
+          :relationship="relationship"
+          :start-table="diagram.tableById(relationship.startTableId)!"
+          :end-table="diagram.tableById(relationship.endTableId)!"
+          :selected="selection.isSelected(String(relationship.id))"
+        />
+      </template>
+      <template v-for="table in visibleTables" :key="`table-${table.id}`">
+        <LogicalTable
+          v-if="isLogical"
+          :table="table"
+          :selected="selection.isSelected(String(table.id))"
+          @dragstart="onTableDragStart"
+        />
+        <Table
+          v-else
+          :table="table"
+          :selected="selection.isSelected(String(table.id))"
+          @dragstart="onTableDragStart"
+          @fieldselect="onFieldSelect"
+        />
+      </template>
       <Note
         v-for="note in visibleNotes"
         :key="`note-${note.id}`"

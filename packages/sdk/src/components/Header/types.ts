@@ -49,6 +49,7 @@ export const DEFAULT_MENU_GROUPS: MenuBarGroup[] = [
       { key: "reset-view", label: "Reset view" },
       { key: "toggle-grid", label: "Toggle grid" },
       { key: "toggle-sidebar", label: "Toggle side panel" },
+      { key: "toggle-view-mode", label: "Toggle view mode" },
     ],
   },
   {

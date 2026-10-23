@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Table } from "@drawdb/core";
+import { useUIStore } from "../../stores/ui.ts";
 import { fieldLabel, tableHeight, tableWidth } from "./geometry.ts";
 
 defineOptions({ name: "DrawDBTableNode" });
@@ -14,8 +15,19 @@ const props = defineProps({
 
 const emit = defineEmits(["select", "dragstart", "fieldselect"]);
 
+const ui = useUIStore();
+
 const width = computed(() => tableWidth(props.table));
 const height = computed(() => tableHeight(props.table));
+
+/**
+ * The types of the fields are a property of the physical view.
+ *
+ * The logical view only shows the names of the entities and their relations.
+ */
+const showsFieldTypes = computed(
+  () => props.showFieldTypes && ui.viewMode !== "logical",
+);
 
 const headerStyle = computed(() => {
   if (!props.table.color) {
@@ -62,9 +74,10 @@ function onFieldPointerDown(fieldId: string | number, event: PointerEvent): void
         >
           <span class="ddb-table__field-name">{{ field.name }}</span>
           <span
-            v-if="showFieldTypes"
+            v-if="showsFieldTypes"
             class="ddb-table__field-type"
-            :data-testid="`field-type-${table.id}-${field.id}`"
+            data-testid="field-type"
+            :data-field-id="field.id"
           >
             {{ fieldLabel(field) }}
           </span>

@@ -272,6 +272,9 @@ function onMenu(key: string): void {
     case "view:toggle-sidebar":
       uiStore.toggleSidebar();
       break;
+    case "view:toggle-view-mode":
+      uiStore.toggleViewMode();
+      break;
     case "view:toggle-grid":
       uiStore.toggleGrid();
       break;
@@ -322,6 +325,8 @@ if (props.storage) {
   saveStore.configure(props.storage);
 }
 
+uiStore.setViewMode(props.viewMode);
+
 if (props.metadataSchema) {
   metadataRegistry.register(props.metadataSchema);
 }
@@ -368,6 +373,17 @@ watch(
       return;
     }
     diagramStore.updateDiagram({ database: value });
+  },
+);
+
+// The view mode of the canvas follows the prop.
+watch(
+  () => props.viewMode,
+  (value) => {
+    if (!value || value === uiStore.viewMode) {
+      return;
+    }
+    uiStore.setViewMode(value);
   },
 );
 

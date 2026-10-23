@@ -1,5 +1,7 @@
 export { default as Area } from "./Area.vue";
 export { default as Canvas } from "./Canvas.vue";
+export { default as LogicalRelationship } from "./LogicalRelationship.vue";
+export { default as LogicalTable } from "./LogicalTable.vue";
 export { default as Note } from "./Note.vue";
 export { default as Relationship } from "./Relationship.vue";
 export { default as Table } from "./Table.vue";

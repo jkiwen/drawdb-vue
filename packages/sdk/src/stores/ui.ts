@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
+import type { ViewMode } from "../types/sdk-options.ts";
 
 export type UiTab =
   | "tables"
@@ -53,6 +54,7 @@ export const useUIStore = defineStore("ui", () => {
   const snapToGrid = ref(true);
   const showMinimap = ref(false);
   const searchTerm = ref("");
+  const viewMode = ref<ViewMode>("physical");
   const contextMenu = ref<ContextMenuState | null>(null);
 
   const hasSelection = computed(
@@ -182,6 +184,16 @@ export const useUIStore = defineStore("ui", () => {
     searchTerm.value = value;
   }
 
+  /** Switches between the physical and the logical view. */
+  function setViewMode(mode: ViewMode): void {
+    viewMode.value = mode;
+  }
+
+  /** Switches to the other view mode. */
+  function toggleViewMode(): void {
+    viewMode.value = viewMode.value === "physical" ? "logical" : "physical";
+  }
+
   function openContextMenu(state: ContextMenuState): void {
     contextMenu.value = state;
   }
@@ -205,6 +217,7 @@ export const useUIStore = defineStore("ui", () => {
     snapToGrid,
     showMinimap,
     searchTerm,
+    viewMode,
     contextMenu,
     hasSelection,
     clearSelection,
@@ -223,6 +236,8 @@ export const useUIStore = defineStore("ui", () => {
     toggleSnapToGrid,
     toggleMinimap,
     setSearchTerm,
+    setViewMode,
+    toggleViewMode,
     openContextMenu,
     closeContextMenu,
   };

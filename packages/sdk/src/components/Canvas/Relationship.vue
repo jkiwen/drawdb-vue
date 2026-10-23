@@ -2,9 +2,11 @@
 import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Relationship, Table } from "@drawdb/core";
+import { useUIStore } from "../../stores/ui.ts";
 import {
   cardinalityMarker,
   cardinalitySides,
+  logicalRelationshipAnchors,
   relationshipAnchors,
   relationshipPath,
 } from "./geometry.ts";
@@ -18,8 +20,18 @@ const props = defineProps({
   selected: { type: Boolean, default: false },
 });
 
+const ui = useUIStore();
+
+/**
+ * The anchors of the relationship.
+ *
+ * The physical view attaches the relationship to the fields it points at, the
+ * logical view attaches it to the entities.
+ */
 const anchors = computed(() =>
-  relationshipAnchors(props.relationship, props.startTable, props.endTable),
+  ui.viewMode === "logical"
+    ? logicalRelationshipAnchors(props.startTable, props.endTable)
+    : relationshipAnchors(props.relationship, props.startTable, props.endTable),
 );
 
 const path = computed(() =>
