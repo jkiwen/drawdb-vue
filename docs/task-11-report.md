@@ -45,10 +45,15 @@ movement with `useDrag()`; when the pointer is released, every dragged table
 is moved with `diagramStore.updateTable()`, which records an `UpdateTableCommand`
 in the history store. A move is therefore undoable like every other change.
 
+> The drag of a table changed after this task: the table follows the pointer with
+> a preview that the history does not record, and the release writes one command
+> of the whole gesture. See `docs/drag-follow-report.md`.
+
 **Pointer events are bound to the SVG element.** `useCanvasEvents()` is
 attached on mount and detached on unmount. A pointer down on the background
 clears the selection and starts a pan, a pointer down on a table selects it
-and starts a drag, and the wheel zooms.
+and starts a drag, and the wheel zooms. The release is heard on the window as
+well, so that a gesture that ends over a panel of the editor still ends.
 
 ## Tests
 

@@ -20,6 +20,12 @@ The pointer that landed on an area cleared the selection and panned the canvas,
 so an area could not be selected; its corner had no handle; and a diagram that
 kept its areas in `subjectAreas` hid them as soon as a new area was added.
 
+The drag had the third: a table was picked with the left button and stayed where
+it was until the button came up, because its position was written once, at the
+release, and nothing read the movement of the pointer in between. A release
+outside of the canvas never ended the gesture, and a click recorded a move of
+zero.
+
 ### @drawdb/vue-sdk
 
 - The first stylesheet of the SDK (`packages/sdk/src/components/Canvas/canvas.css`):
@@ -43,6 +49,14 @@ kept its areas in `subjectAreas` hid them as soon as a new area was added.
   `previewAreaPositions`, `moveElements`) go through the element actions of the
   store and land in the collection the diagram reads (`areas` or
   `subjectAreas`), so an imported diagram keeps the areas of its file.
+- A table and an area follow the pointer while they are dragged: every frame
+  moves them with a preview (`previewTablePositions`, `previewAreaPositions`)
+  that the history does not record and that the autosave does not see, and the
+  release writes the whole gesture once. One undo returns the drag — an area
+  with the tables inside it — to where it started, a release above a panel of
+  the editor still ends the gesture, and a press without movement records
+  nothing.
+
 
 ### @drawdb/core
 
