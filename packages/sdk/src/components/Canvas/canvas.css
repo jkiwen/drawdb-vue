@@ -120,6 +120,18 @@
   color: #6b7280;
 }
 
+/*
+ * A comment on a table makes the header taller, and the anchors of the
+ * relationships have to follow: the geometry measures the height of the
+ * comment with the same rules as the reference application.
+ */
+.ddb-table__comment--multiline {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
 .ddb-table__lock-toggle,
 .ddb-table__details-toggle {
   position: absolute;
@@ -223,16 +235,57 @@
   min-width: 0;
 }
 
-.ddb-table__field-mark {
+.ddb-table__field-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.ddb-table__field-marks {
   flex: 0 0 auto;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
   color: #a1a1aa;
 }
 
-.ddb-table__field-mark.is-on {
+.ddb-table__field-marks-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+/*
+ * The primary key is drawn as a key, like in the reference application, and
+ * not as the letters "PK".
+ */
+.ddb-table__field-key {
+  display: inline-flex;
+  align-items: center;
+  color: #a1a1aa;
+  cursor: pointer;
+}
+
+.ddb-table__field-key-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.ddb-table__field-key:hover {
   color: #d97706;
+}
+
+/*
+ * A question mark means that the field accepts the null value.
+ */
+.ddb-table__field-nullable {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1;
+  color: #a1a1aa;
 }
 
 .ddb-table__field-type {
@@ -248,7 +301,7 @@
 }
 
 .ddb-table__field-remove {
-  display: none;
+  display: flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
@@ -259,14 +312,13 @@
   border-radius: 3px;
   background-color: rgb(212 32 32 / 70%);
   color: #ffffff;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1;
   cursor: pointer;
 }
 
-.ddb-table__row:hover .ddb-table__field-remove,
-.ddb-table__field-remove:focus-visible {
-  display: flex;
+.ddb-table__field-remove:hover {
+  background-color: rgb(212 32 32 / 90%);
 }
 
 /* ------------------------------------------------------------------ handle */
@@ -578,7 +630,9 @@
 }
 
 .ddb-canvas--dark .ddb-table__field-type,
-.ddb-canvas--dark .ddb-table__field-mark {
+.ddb-canvas--dark .ddb-table__field-key,
+.ddb-canvas--dark .ddb-table__field-nullable,
+.ddb-canvas--dark .ddb-table__field-marks {
   color: #a1a1aa;
 }
 

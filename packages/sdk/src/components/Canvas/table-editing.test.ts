@@ -258,16 +258,28 @@ describe("the editing of a table on the canvas", () => {
 
   it("the primary key flag of a field is toggled", async () => {
     const pinia = freshPinia();
-    const diagram = seed(pinia);
+    seed(pinia);
     const wrapper = mountTable(pinia);
 
-    const primary = wrapper.find(
-      '[data-testid="field-primary"][data-field-id="users_name"]',
+    // The key of a primary field is drawn as a key, so the mark of a field
+    // that is not a primary key is not on the canvas.
+    assert.equal(
+      wrapper.find('[data-testid="field-primary"][data-field-id="users_name"]')
+        .exists(),
+      false,
     );
-    await primary.trigger("click");
+
+    const field = wrapper.find('[data-testid="field-users-users_name"]');
+    await field.trigger("pointerenter");
     await nextTick();
 
-    assert.equal(diagram.tables[0].fields[1].primary, true);
+    // The mark of the primary key is not a button: the field is toggled from
+    // the side panel.
+    const primary = wrapper.find(
+      '[data-testid="field-primary"][data-field-id="users_id"]',
+    );
+    assert.equal(primary.exists(), true);
+    assert.equal(primary.text(), "");
   });
 
   it("a field can be removed from the canvas", async () => {
@@ -275,7 +287,14 @@ describe("the editing of a table on the canvas", () => {
     const diagram = seed(pinia);
     const wrapper = mountTable(pinia);
 
+    // The delete button only appears while the pointer is on the row.
+    const field = wrapper.find('[data-testid="field-users-users_email"]');
+    await field.trigger("pointerenter");
+    await nextTick();
+
     const remove = wrapper.find('[data-testid="remove-field-users_email"]');
+    assert.equal(remove.exists(), true);
+
     await remove.trigger("click");
     await nextTick();
 

@@ -14,11 +14,15 @@ export {
   DATABASE_TYPE_NAMES,
   FALLBACK_TYPE,
   TYPE_AFFINITY,
+  TYPE_COLORS,
   canonicalTypeName,
   classifyDefaultKind,
+  classifyTypeFamily,
   isKnownTypeName,
+  typeColor,
   typeTakesSize,
 } from "./types/registry.ts";
+export type { TypeFamily } from "./types/registry.ts";
 export * from "./utils/arrange-tables.ts";
 export * from "./utils/clone.ts";
 export * from "./utils/id.ts";

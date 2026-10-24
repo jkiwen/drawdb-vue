@@ -7,6 +7,10 @@ import type {
   Table,
   View,
 } from "@drawdb/core";
+import {
+  tableCommentLines as commentTableLines,
+  tableCommentHeight as commentHeight,
+} from "./table-comment.ts";
 
 /**
  * Layout helpers of the canvas.
@@ -51,11 +55,37 @@ export function tableWidth(table: Table): number {
   return table.width && table.width > 0 ? table.width : DEFAULT_TABLE_WIDTH;
 }
 
+/**
+ * The number of lines the comment of a table takes.
+ *
+ * The comment is wrapped at the width of the table, so the number of lines
+ * depends on the width of the table.
+ */
+export function tableCommentLines(table: Table): number {
+  return commentTableLines(table);
+}
+
+/**
+ * The height the comment of a table adds to its header.
+ */
+export function tableCommentHeight(table: Table): number {
+  return commentHeight(table);
+}
+
+/**
+ * The height of the header of a table.
+ *
+ * The header holds the colour strip, the name and the comment of the table.
+ */
+export function tableHeaderHeight(table: Table): number {
+  return TABLE_HEADER_HEIGHT + commentHeight(table);
+}
+
 export function tableHeight(table: Table): number {
   if (table.collapsed) {
-    return TABLE_HEADER_HEIGHT;
+    return tableHeaderHeight(table);
   }
-  return TABLE_HEADER_HEIGHT + table.fields.length * TABLE_FIELD_HEIGHT;
+  return tableHeaderHeight(table) + table.fields.length * TABLE_FIELD_HEIGHT;
 }
 
 export function tableBounds(table: Table): Bounds {
@@ -131,7 +161,7 @@ export function fieldAnchor(
   const x = side === "right" ? table.x + tableWidth(table) : table.x;
   const y =
     table.y +
-    TABLE_HEADER_HEIGHT +
+    tableHeaderHeight(table) +
     row * TABLE_FIELD_HEIGHT +
     TABLE_FIELD_HEIGHT / 2;
 
@@ -212,37 +242,7 @@ export function cardinalitySides(
  *
  * "one" is drawn as a perpendicular tick, "many" as a crow's foot.
  */
-export function cardinalityMarker(
-  side: CardinalitySide,
-  at: GeometryPoint,
-  direction: "left" | "right",
-): string {
-  const dir = direction === "right" ? 1 : -1;
-
-  if (side === "many") {
-    return [
-      `M ${at.x} ${at.y} l ${8 * dir} -7`,
-      `M ${at.x} ${at.y} l ${8 * dir} 0`,
-      `M ${at.x} ${at.y} l ${8 * dir} 7`,
-    ].join(" ");
-  }
-
-  return [
-    `M ${at.x} ${at.y} l ${8 * dir} -6`,
-    `M ${at.x} ${at.y} l ${8 * dir} 6`,
-  ].join(" ");
-}
-
-/**
- * The text of a cardinality side.
- *
- * The reference application draws the cardinality as a label ("1" or "n") on a
- * rounded background, and not as a tick or a crow's foot: the label says
- * exactly what the relation means.
- */
-export function cardinalityText(side: CardinalitySide): string {
-  return side === "many" ? "n" : "1";
-}
+export { cardinalityMarker, cardinalityText } from "./cardinality.ts";
 
 /** The part of the world that is currently visible. */
 export function visibleWorldBounds(

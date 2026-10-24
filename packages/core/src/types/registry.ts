@@ -652,3 +652,112 @@ export function classifyDefaultKind(
   if (DATE_TYPE_NAMES.has(upper)) return "date";
   return "text";
 }
+
+/**
+ * The family a type belongs to.
+ *
+ * The family drives the colour of a type on the canvas: the reference
+ * application paints the integers in yellow, the decimals in green, the
+ * booleans in violet, the dates in cyan and the strings in orange.
+ */
+export type TypeFamily =
+  | "integer"
+  | "decimal"
+  | "boolean"
+  | "date"
+  | "string"
+  | "binary"
+  | "enum"
+  | "other";
+
+const INTEGER_TYPE_NAMES = new Set([
+  "INT",
+  "INT2",
+  "INT4",
+  "INT8",
+  "INTEGER",
+  "SMALLINT",
+  "TINYINT",
+  "MEDIUMINT",
+  "BIGINT",
+  "SERIAL",
+  "SMALLSERIAL",
+  "BIGSERIAL",
+  "YEAR",
+  "BIT",
+  "UNSIGNED BIG INT",
+]);
+
+const DECIMAL_TYPE_NAMES = new Set([
+  "DECIMAL",
+  "NUMERIC",
+  "NUMBER",
+  "FLOAT",
+  "REAL",
+  "DOUBLE",
+  "DOUBLE PRECISION",
+  "MONEY",
+]);
+
+const BINARY_TYPE_NAMES = new Set([
+  "BINARY",
+  "VARBINARY",
+  "BLOB",
+  "BYTEA",
+  "BYTE",
+  "LONGBLOB",
+  "MEDIUMBLOB",
+  "TINYBLOB",
+  "IMAGE",
+  "RAW",
+  "LONG RAW",
+]);
+
+/**
+ * The family of a type, derived from its name.
+ *
+ * The names of the dialect tables win over the heuristics: a type that the
+ * registry knows is classified with its own metadata.
+ */
+export function classifyTypeFamily(
+  type: string,
+  metadata?: TypeMetadata,
+): TypeFamily {
+  const upper = String(type ?? "").toUpperCase();
+
+  if (upper === "ENUM" || upper === "SET") return "enum";
+  if (metadata?.hasQuotes) return "string";
+  if (INTEGER_TYPE_NAMES.has(upper)) return "integer";
+  if (DECIMAL_TYPE_NAMES.has(upper)) return "decimal";
+  if (BOOLEAN_TYPE_NAMES.has(upper)) return "boolean";
+  if (DATE_TYPE_NAMES.has(upper)) return "date";
+  if (BINARY_TYPE_NAMES.has(upper)) return "binary";
+
+  return "other";
+}
+
+/**
+ * The colour of a type on the canvas.
+ *
+ * The colours are the ones of the reference application.
+ */
+export const TYPE_COLORS: Record<TypeFamily, string> = {
+  integer: "#eab308",
+  decimal: "#84cc16",
+  boolean: "#8b5cf6",
+  date: "#06b6d4",
+  string: "#f97316",
+  binary: "#10b981",
+  enum: "#0ea5e9",
+  other: "#71717a",
+};
+
+/**
+ * The colour of a type on the canvas.
+ */
+export function typeColor(
+  type: string,
+  metadata?: TypeMetadata,
+): string {
+  return TYPE_COLORS[classifyTypeFamily(type, metadata)];
+}

@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import type { PropType } from "vue";
 import type { Field, Table } from "@drawdb/core";
+import { getTypeMetadata, typeColor } from "@drawdb/core";
 import { NInput } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import { useInlineEdit } from "../../composables/use-inline-edit.ts";
+import { t } from "../../i18n/index.ts";
 import { fieldLabel } from "./geometry.ts";
 
 defineOptions({ name: "DrawDBTableField" });
@@ -44,6 +46,35 @@ const {
 const showsFieldTypes = computed(
   () => props.showFieldTypes && ui.viewMode !== "logical",
 );
+
+/**
+ * The row of the field is hovered.
+ *
+ * The reference application replaces the marks of the row with a delete
+ * button while the pointer is on it.
+ */
+const hovered = ref(false);
+
+function onPointerEnter(): void {
+  hovered.value = true;
+}
+
+function onPointerLeave(): void {
+  hovered.value = false;
+}
+
+/**
+ * The colour of the type of the field.
+ *
+ * The colours are the ones of the reference application: the integers are
+ * yellow, the decimals green, the booleans violet, the dates cyan and the
+ * strings orange.
+ */
+const typeColorOfField = computed(() => {
+  const database = diagram.diagram.database;
+  const metadata = getTypeMetadata(database, props.field.type);
+  return typeColor(props.field.type, metadata);
+});
 
 function onPointerDown(event: PointerEvent): void {
   emit("fieldselect", {
@@ -106,76 +137,100 @@ function onRemove(event: Event): void {
     :data-field-id="field.id"
     :data-testid="`field-${table.id}-${field.id}`"
     @pointerdown.stop="onPointerDown"
+    @pointerenter="onPointerEnter"
+    @pointerleave="onPointerLeave"
   >
-    <span
-      class="ddb-table__field-handle field-drag-handle"
-      data-drag-handle="true"
-      :data-testid="`field-drag-handle-${field.id}`"
-      @pointerdown.stop
-      @dblclick.stop
-    />
-    <NInput
-      v-if="editingName"
-      class="ddb-table__field-input"
-      size="tiny"
-      :value="nameDraft"
-      :data-testid="`field-name-input-${field.id}`"
-      @update:value="onNameInput"
-      @blur="onCommitName"
-      @keyup.enter="onCommitName"
-    />
-    <span
-      v-else
-      class="ddb-table__field-name"
-      :data-testid="`field-name-${field.id}`"
-      @dblclick="onStartName"
-    >
-      {{ field.name }}
+    <span class="ddb-table__field-main">
+      <span
+        class="ddb-table__field-handle field-drag-handle"
+        data-drag-handle="true"
+        :data-testid="`field-drag-handle-${field.id}`"
+        @pointerdown.stop
+        @dblclick.stop
+      />
+      <NInput
+        v-if="editingName"
+        class="ddb-table__field-input"
+        size="tiny"
+        :value="nameDraft"
+        :data-testid="`field-name-input-${field.id}`"
+        @update:value="onNameInput"
+        @blur="onCommitName"
+        @keyup.enter="onCommitName"
+      />
+      <span
+        v-else
+        class="ddb-table__field-name"
+        :data-testid="`field-name-${field.id}`"
+        @dblclick="onStartName"
+      >
+        {{ field.name }}
+      </span>
     </span>
-    <span
-      class="ddb-table__field-mark"
-      :class="{ 'is-on': field.primary }"
-      data-testid="field-primary"
-      :data-field-id="field.id"
-      @click="onTogglePrimary"
-    >
-      PK
+    <span class="ddb-table__field-marks">
+      <button
+        v-if="hovered"
+        type="button"
+        class="ddb-table__field-remove"
+        :data-testid="`remove-field-${field.id}`"
+        @pointerdown.stop
+        @click="onRemove"
+      >
+        −
+      </button>
+      <span v-else-if="showsFieldTypes" class="ddb-table__field-marks-row">
+        <span
+          v-if="field.primary"
+          class="ddb-table__field-key"
+          data-testid="field-primary"
+          :data-field-id="field.id"
+          :title="t('primary_key')"
+          @click="onTogglePrimary"
+        >
+          <svg
+            class="ddb-table__field-key-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="7.5" cy="15.5" r="3.5" />
+            <path d="M10.5 12.5 20 3" />
+            <path d="M16 3h4v4" />
+          </svg>
+        </span>
+        <span
+          v-if="!field.notNull"
+          class="ddb-table__field-nullable"
+          data-testid="field-not-null"
+          :data-field-id="field.id"
+          :title="t('nullable')"
+        >
+          ?
+        </span>
+        <NInput
+          v-if="editingType"
+          class="ddb-table__field-input"
+          size="tiny"
+          :value="typeDraft"
+          :data-testid="`field-type-input-${field.id}`"
+          @update:value="onTypeInput"
+          @blur="onCommitType"
+          @keyup.enter="onCommitType"
+        />
+        <span
+          v-else
+          class="ddb-table__field-type"
+          data-testid="field-type"
+          :data-field-id="field.id"
+          :style="{ color: typeColorOfField }"
+          @dblclick="onStartType"
+        >
+          {{ fieldLabel(field) }}
+        </span>
+      </span>
     </span>
-    <span
-      v-if="field.notNull"
-      class="ddb-table__field-mark"
-      data-testid="field-not-null"
-      :data-field-id="field.id"
-    >
-      NN
-    </span>
-    <NInput
-      v-if="editingType"
-      class="ddb-table__field-input"
-      size="tiny"
-      :value="typeDraft"
-      :data-testid="`field-type-input-${field.id}`"
-      @update:value="onTypeInput"
-      @blur="onCommitType"
-      @keyup.enter="onCommitType"
-    />
-    <span
-      v-else-if="showsFieldTypes"
-      class="ddb-table__field-type"
-      data-testid="field-type"
-      :data-field-id="field.id"
-      @dblclick="onStartType"
-    >
-      {{ fieldLabel(field) }}
-    </span>
-    <button
-      type="button"
-      class="ddb-table__field-remove"
-      :data-testid="`remove-field-${field.id}`"
-      @pointerdown.stop
-      @click="onRemove"
-    >
-      ×
-    </button>
   </div>
 </template>
