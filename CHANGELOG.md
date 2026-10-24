@@ -15,6 +15,11 @@ of the fields and of the relationships existed in the templates only, so the
 browser drew unstyled elements. The work below aligns the canvas with the
 React application of drawDB.
 
+The areas had the second half of the defect: they were drawn, and nothing else.
+The pointer that landed on an area cleared the selection and panned the canvas,
+so an area could not be selected; its corner had no handle; and a diagram that
+kept its areas in `subjectAreas` hid them as soon as a new area was added.
+
 ### @drawdb/vue-sdk
 
 - The first stylesheet of the SDK (`packages/sdk/src/components/Canvas/canvas.css`):
@@ -30,12 +35,23 @@ React application of drawDB.
   button appears only while the pointer is on the row.
 - The height of the header of a table follows the height of its comment, so
   that the anchors of the relationships stay on the fields.
+- The areas of the canvas are selected, resized and moved like the tables: a
+  click selects one and outlines it in blue, the handle in its corner changes
+  its size while the pointer moves (80×60 at the smallest), and the tables that
+  sit inside an area follow it, in one change of the history.
+- The writes of the areas (`addArea`, `updateArea`, `removeArea`,
+  `previewAreaPositions`, `moveElements`) go through the element actions of the
+  store and land in the collection the diagram reads (`areas` or
+  `subjectAreas`), so an imported diagram keeps the areas of its file.
 
 ### @drawdb/core
 
 - The classification of the types and their colours (`classifyTypeFamily`,
   `typeColor`, `TYPE_COLORS`), so that the canvas paints the type of a field
   with the colour of its family.
+- `CompositeCommand` wraps the changes of one gesture, so that the drag of a
+  group of elements — an area and the tables inside it — is one entry of the
+  history and one undo puts them all back.
 
 ## 0.2.0
 

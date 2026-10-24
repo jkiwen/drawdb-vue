@@ -72,7 +72,8 @@ The second version closes the gap with the React application of drawDB:
   the legacy `.ddb` shape of the React application and the diagnostics of a rejected
   file; the application imports and exports a file from its own toolbar
 - **the canvas edited in place** — the relationships are drawn between two field
-  handles, the fields are reordered by dragging, the tables are locked, the viewport
+  handles, the fields are reordered by dragging, the tables are locked, the areas
+  are selected, resized and dragged with the tables that sit in them, the viewport
   is zoomed and the minimap jumps the canvas around
 - **the full side panel** — every editor of the React application: the views, the
   types, the enums, the custom types, the SQL header and the issues
