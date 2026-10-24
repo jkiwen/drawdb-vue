@@ -4,7 +4,7 @@ import { createPinia, setActivePinia, type Pinia } from "pinia";
 import { useDiagramStore } from "../../../stores/diagram.ts";
 import { useContextMenu } from "./use-context-menu.ts";
 import { useLinking } from "./use-linking.ts";
-import { useResize } from "./use-resize.ts";
+import { MIN_AREA_HEIGHT, MIN_AREA_WIDTH, useResize } from "./use-resize.ts";
 import { useSelectionBox } from "./use-selection-box.ts";
 
 /**
@@ -178,7 +178,7 @@ describe("the interaction layer of the canvas", () => {
   it("useResize keeps the minimum size", () => {
     const resize = useResize();
 
-    resize.begin("users", 200, 100);
+    resize.begin({ kind: "table", id: "users", width: 200, height: 100 });
     resize.move(-500, -500);
 
     assert.ok(resize.resizing.value);
@@ -189,12 +189,25 @@ describe("the interaction layer of the canvas", () => {
   it("useResize reports the new width and height", () => {
     const resize = useResize();
 
-    resize.begin("users", 200, 100);
+    resize.begin({ kind: "table", id: "users", width: 200, height: 100 });
     resize.move(50, 20);
 
     assert.ok(resize.resizing.value);
     assert.equal(resize.resizing.value.width, 250);
     assert.equal(resize.resizing.value.height, 120);
+  });
+
+  it("useResize keeps the smallest size of an area", () => {
+    const resize = useResize();
+
+    resize.begin({ kind: "area", id: "area-1", width: 240, height: 160 });
+    resize.move(-500, -500);
+
+    assert.ok(resize.resizing.value);
+    assert.equal(resize.resizing.value.kind, "area");
+    assert.equal(resize.resizing.value.id, "area-1");
+    assert.equal(resize.resizing.value.width, MIN_AREA_WIDTH);
+    assert.equal(resize.resizing.value.height, MIN_AREA_HEIGHT);
   });
 
   it("useContextMenu opens at a point with a target", () => {

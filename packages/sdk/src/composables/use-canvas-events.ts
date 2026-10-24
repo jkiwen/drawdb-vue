@@ -2,6 +2,7 @@ export interface CanvasEventHandlers {
   onPointerDown?: (event: PointerEvent) => void;
   onPointerMove?: (event: PointerEvent) => void;
   onPointerUp?: (event: PointerEvent) => void;
+  onPointerCancel?: (event: PointerEvent) => void;
   onWheel?: (event: WheelEvent) => void;
   onContextMenu?: (event: MouseEvent) => void;
   onDoubleClick?: (event: MouseEvent) => void;
@@ -94,11 +95,56 @@ export function useCanvasEvents(
   const listeners: Array<[string, EventListener]> = [
     ["pointerdown", (event) => options.onPointerDown?.(event as PointerEvent)],
     ["pointermove", handlePointerMove as EventListener],
-    ["pointerup", (event) => options.onPointerUp?.(event as PointerEvent)],
+    [
+      "pointerup",
+      (event) => {
+        // The move that waits for the next frame is the move the user
+        // released the pointer on, so it is delivered before the release.
+        flush();
+        options.onPointerUp?.(event as PointerEvent);
+      },
+    ],
+    [
+      "pointercancel",
+      (event) => options.onPointerCancel?.(event as PointerEvent),
+    ],
     ["wheel", (event) => options.onWheel?.(event as WheelEvent)],
     ["contextmenu", (event) => options.onContextMenu?.(event as MouseEvent)],
     ["dblclick", (event) => options.onDoubleClick?.(event as MouseEvent)],
     ["keydown", (event) => options.onKeyDown?.(event as KeyboardEvent)],
+  ];
+
+  /**
+   * The end of a gesture that the user finishes outside of the canvas.
+   *
+   * The events of the element only reach the canvas while the pointer is over
+   * it, so a table that is dragged and released over a panel of the editor
+   * would keep a gesture that never ends. The window sees that release; the
+   * element delivers its own events first, so the ones the canvas has already
+   * handled are skipped here.
+   */
+  function handleRelease(event: Event): void {
+    const released = event as PointerEvent;
+    const inside =
+      target instanceof Node &&
+      released.target instanceof Node &&
+      target.contains(released.target);
+    if (inside) {
+      return;
+    }
+    if (released.type === "pointercancel") {
+      options.onPointerCancel?.(released);
+      return;
+    }
+    // The release of a drag that ends outside of the canvas ends the gesture
+    // where the pointer left the canvas.
+    flush();
+    options.onPointerUp?.(released);
+  }
+
+  const windowListeners: Array<[string, EventListener]> = [
+    ["pointerup", handleRelease],
+    ["pointercancel", handleRelease],
   ];
 
   function attach(next: EventTarget): () => void {
@@ -107,17 +153,26 @@ export function useCanvasEvents(
     for (const [name, listener] of listeners) {
       target.addEventListener(name, listener);
     }
+    if (typeof window !== "undefined") {
+      for (const [name, listener] of windowListeners) {
+        window.addEventListener(name, listener);
+      }
+    }
     return detach;
   }
 
   function detach(): void {
-    if (!target) {
-      return;
+    if (target) {
+      for (const [name, listener] of listeners) {
+        target.removeEventListener(name, listener);
+      }
+      target = null;
     }
-    for (const [name, listener] of listeners) {
-      target.removeEventListener(name, listener);
+    if (typeof window !== "undefined") {
+      for (const [name, listener] of windowListeners) {
+        window.removeEventListener(name, listener);
+      }
     }
-    target = null;
     if (frameHandle !== null) {
       cancel(frameHandle);
       frameHandle = null;

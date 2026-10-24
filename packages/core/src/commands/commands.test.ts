@@ -9,6 +9,7 @@ import type { Relationship } from "../models/relationship.ts";
 import type { Table } from "../models/table.ts";
 import { deepClone } from "../utils/clone.ts";
 import { AutoArrangeCommand } from "./auto-arrange-command.ts";
+import { CompositeCommand } from "./composite-command.ts";
 import {
   AddEntityCommand,
   RemoveEntityCommand,
@@ -320,6 +321,22 @@ test("commands: AutoArrangeCommand moves the tables and undo restores the previo
   );
   command.execute();
   assert.equal(diagram.tables[0].x, 100);
+  assert.equal(diagram.tables[1].y, 400);
+
+  command.undo();
+  assert.deepEqual(diagram, before);
+});
+
+test("commands: CompositeCommand takes the changes it wraps back at once", () => {
+  const diagram = sample();
+  const before = deepClone(diagram);
+
+  const command = new CompositeCommand("Move the tables", [
+    new UpdateTableCommand(diagram, diagram.tables[0].id, { x: 300 }),
+    new UpdateTableCommand(diagram, diagram.tables[1].id, { y: 400 }),
+  ]);
+  command.execute();
+  assert.equal(diagram.tables[0].x, 300);
   assert.equal(diagram.tables[1].y, 400);
 
   command.undo();

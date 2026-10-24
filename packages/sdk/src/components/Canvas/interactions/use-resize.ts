@@ -1,46 +1,68 @@
 import { ref, type Ref } from "vue";
 import type { RelationshipId } from "@drawdb/core";
-import type { ResizeState } from "./interaction-state.ts";
+import type { ResizeKind, ResizeState } from "./interaction-state.ts";
 
-export type { ResizeState };
+export type { ResizeKind, ResizeState };
 
 /** The smallest size of a table. */
 export const MIN_TABLE_WIDTH = 120;
 export const MIN_TABLE_HEIGHT = 60;
 
+/** The smallest size of an area. */
+export const MIN_AREA_WIDTH = 80;
+export const MIN_AREA_HEIGHT = 60;
+
+/** The corner of a table or of an area that the user grabs. */
+export interface ResizeRequest {
+  kind: ResizeKind;
+  /** The id of the table or of the area. */
+  id: RelationshipId;
+  width: number;
+  height: number;
+}
+
 export interface ResizeApi {
-  /** The table that is being resized, or `null`. */
+  /** The table or the area that is being resized, or `null`. */
   resizing: Ref<ResizeState | null>;
   /** Starts a resize. */
-  begin(tableId: RelationshipId, width: number, height: number): void;
-  /** Moves the corner of the table by a delta. */
+  begin(request: ResizeRequest): void;
+  /** Moves the corner of the element by a delta. */
   move(dw: number, dh: number): void;
   /** Ends the resize. */
   end(): void;
 }
 
+/** The smallest size of every element the canvas resizes. */
+const SMALLEST: Record<ResizeKind, { width: number; height: number }> = {
+  table: { width: MIN_TABLE_WIDTH, height: MIN_TABLE_HEIGHT },
+  area: { width: MIN_AREA_WIDTH, height: MIN_AREA_HEIGHT },
+};
+
 /**
- * The resize of a table. The composable keeps the smallest size, so that a
- * table never disappears.
+ * The resize of a table or of an area. The composable keeps the smallest size,
+ * so that the element the user holds never disappears from the canvas.
  */
 export function useResize(): ResizeApi {
   const resizing = ref<ResizeState | null>(null);
 
-  function begin(
-    tableId: RelationshipId,
-    width: number,
-    height: number,
-  ): void {
-    resizing.value = { tableId, width, height };
+  function begin(request: ResizeRequest): void {
+    resizing.value = {
+      kind: request.kind,
+      id: request.id,
+      width: request.width,
+      height: request.height,
+    };
   }
 
   function move(dw: number, dh: number): void {
-    if (!resizing.value) return;
+    const state = resizing.value;
+    if (!state) return;
 
+    const smallest = SMALLEST[state.kind];
     resizing.value = {
-      ...resizing.value,
-      width: Math.max(MIN_TABLE_WIDTH, resizing.value.width + dw),
-      height: Math.max(MIN_TABLE_HEIGHT, resizing.value.height + dh),
+      ...state,
+      width: Math.max(smallest.width, state.width + dw),
+      height: Math.max(smallest.height, state.height + dh),
     };
   }
 

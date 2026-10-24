@@ -10,7 +10,9 @@ import { useSelection } from "../../../composables/use-selection.ts";
 import { useViewport } from "../../../composables/use-viewport.ts";
 import { useCanvasActions } from "./use-canvas-actions.ts";
 import { useCanvasCommands } from "./use-canvas-commands.ts";
+import { useCanvasDrag } from "./use-canvas-drag.ts";
 import { rectBetween, type SelectionRect } from "./use-selection-box.ts";
+import type { ResizeApi } from "./use-resize.ts";
 import type { CanvasContextMenuState } from "./use-context-menu.ts";
 import {
   fieldAnchor,
@@ -32,13 +34,39 @@ export interface CanvasHandlersOptions {
   rect: () => CanvasRect;
 }
 
+/**
+ * The corner of a table or of an area that the user grabbed.
+ *
+ * The components of the canvas emit the id of the element they hold, so the
+ * handler tells the two apart by the field that carries it.
+ */
+export interface ResizeStartPayload {
+  /** The table of the handle, when the corner belongs to a table. */
+  tableId?: string;
+  /** The area of the handle, when the corner belongs to an area. */
+  areaId?: string | number;
+  width: number;
+  height: number;
+  event: PointerEvent;
+}
+
 export interface CanvasHandlersApi {
   selection: ReturnType<typeof useSelection>;
+  /**
+   * The resize that runs while the user drags a corner, so that the component
+   * of the element that is resized can draw the size of the drag before the
+   * release stores it.
+   */
+  resize: ResizeApi;
   handlers: CanvasEventHandlers;
   linkPath: ComputedRef<string>;
   selectionRect: ComputedRef<SelectionRect | null>;
   menu: Ref<CanvasContextMenuState | null>;
   onTableDragStart(payload: { id: string; event: PointerEvent }): void;
+  onAreaDragStart(payload: {
+    areaId: string | number;
+    event: PointerEvent;
+  }): void;
   onFieldSelect(payload: {
     tableId: string;
     fieldId: string;
@@ -49,12 +77,7 @@ export interface CanvasHandlersApi {
     fieldId: string;
     event: PointerEvent;
   }): void;
-  onResizeStart(payload: {
-    tableId: string;
-    width: number;
-    height: number;
-    event: PointerEvent;
-  }): void;
+  onResizeStart(payload: ResizeStartPayload): void;
   runMenuCommand(key: string): boolean;
 }
 
@@ -63,8 +86,8 @@ export interface CanvasHandlersApi {
  *
  * The composable owns the interactions of the canvas — the drag of a table, the
  * link that the user draws, the rectangle that selects several tables, the
- * resize of a table and the menu of the right button — so that the component
- * of the canvas only has to draw the result.
+ * selection and the resize of an area and the menu of the right button — so
+ * that the component of the canvas only has to draw the result.
  */
 export function useCanvasHandlers(
   options: CanvasHandlersOptions,
@@ -86,6 +109,16 @@ export function useCanvasHandlers(
     linking,
     contextMenu,
     commands,
+  });
+
+  const elementDrag = useCanvasDrag({
+    diagram,
+    selection,
+    drag,
+    actions,
+    point: canvasPoint,
+    gridSize: options.gridSize,
+    snapToGrid: () => ui.snapToGrid,
   });
 
   let panOrigin: GeometryPoint | null = null;
@@ -122,21 +155,6 @@ export function useCanvasHandlers(
     return rectBetween(box.origin, box.current);
   });
 
-  function onTableDragStart(payload: { id: string; event: PointerEvent }): void {
-    const { id, event } = payload;
-    if (!selection.isSelected(id)) {
-      selection.select(id, { additive: event.shiftKey, kind: "table" });
-    }
-    const table = diagram.tableById(id);
-    if (!table) {
-      return;
-    }
-    drag.beginDrag(canvasPoint(event), selection.selectedTables.value, {
-      snapToGrid: ui.snapToGrid,
-      gridSize: options.gridSize(),
-    });
-  }
-
   function onFieldSelect(payload: {
     tableId: string;
     fieldId: string;
@@ -153,13 +171,17 @@ export function useCanvasHandlers(
     linking.start(payload.tableId, payload.fieldId, canvasPoint(payload.event));
   }
 
-  function onResizeStart(payload: {
-    tableId: string;
-    width: number;
-    height: number;
-    event: PointerEvent;
-  }): void {
-    resize.begin(payload.tableId, payload.width, payload.height);
+  function onResizeStart(payload: ResizeStartPayload): void {
+    const id = payload.areaId ?? payload.tableId;
+    if (id === undefined) {
+      return;
+    }
+    resize.begin({
+      kind: payload.areaId === undefined ? "table" : "area",
+      id,
+      width: payload.width,
+      height: payload.height,
+    });
     lastPointer = { x: payload.event.clientX, y: payload.event.clientY };
   }
 
@@ -193,6 +215,7 @@ export function useCanvasHandlers(
       }
       if (drag.dragState.active) {
         drag.updateDrag(point);
+        elementDrag.preview();
         return;
       }
       if (panOrigin && panScroll) {
@@ -209,8 +232,17 @@ export function useCanvasHandlers(
       } else if (resize.resizing.value) {
         actions.commitResize();
       } else if (drag.dragState.active) {
-        actions.commitDrag();
+        elementDrag.commit();
       }
+      panOrigin = null;
+      panScroll = null;
+      lastPointer = null;
+    },
+    onPointerCancel() {
+      elementDrag.cancel();
+      // A cancelled resize keeps the size it had before the pointer was
+      // pressed; it is not committed.
+      resize.end();
       panOrigin = null;
       panScroll = null;
       lastPointer = null;
@@ -230,11 +262,13 @@ export function useCanvasHandlers(
 
   return {
     selection,
+    resize,
     handlers,
     linkPath,
     selectionRect,
     menu: contextMenu.menu,
-    onTableDragStart,
+    onTableDragStart: elementDrag.onTableDragStart,
+    onAreaDragStart: elementDrag.onAreaDragStart,
     onFieldSelect,
     onLinkStart,
     onResizeStart,

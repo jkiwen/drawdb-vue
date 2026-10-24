@@ -13,9 +13,14 @@ export interface LinkingTarget {
   fieldId?: RelationshipId;
 }
 
-/** The table that the user resizes. */
+/** The kind of the element whose corner the user grabs. */
+export type ResizeKind = "table" | "area";
+
+/** The element that the user resizes. */
 export interface ResizeState {
-  tableId: RelationshipId;
+  kind: ResizeKind;
+  /** The id of the table or of the area. */
+  id: RelationshipId;
   width: number;
   height: number;
 }

@@ -44,10 +44,14 @@ export {
   type LinkingTarget,
 } from "./interactions/use-linking.ts";
 export {
+  MIN_AREA_HEIGHT,
+  MIN_AREA_WIDTH,
   MIN_TABLE_HEIGHT,
   MIN_TABLE_WIDTH,
   useResize,
   type ResizeApi,
+  type ResizeKind,
+  type ResizeRequest,
   type ResizeState,
 } from "./interactions/use-resize.ts";
 export {

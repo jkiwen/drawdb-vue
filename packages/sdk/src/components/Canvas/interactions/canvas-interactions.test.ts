@@ -4,9 +4,11 @@ import { createPinia, setActivePinia, type Pinia } from "pinia";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { useDiagramStore } from "../../../stores/diagram.ts";
+import { useHistoryStore } from "../../../stores/history.ts";
 import { useUIStore } from "../../../stores/ui.ts";
 import Canvas from "../Canvas.vue";
 import Minimap from "../Minimap.vue";
+import { DEFAULT_TABLE_WIDTH } from "../geometry.ts";
 
 /**
  * The canvas of the interaction layer.
@@ -119,6 +121,41 @@ describe("the canvas of the interactions", () => {
     assert.equal(handles.length, 3);
   });
 
+  it("writes the width of a table the handle resized", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const handle = wrapper.find('[data-testid="resize-handle-users"]').element;
+    const canvas = wrapper.find('[data-testid="canvas"]').element;
+
+    fire(handle, "pointerdown", { clientX: 500, clientY: 400 });
+    fire(canvas, "pointermove", { clientX: 560, clientY: 440 });
+    await settle();
+    fire(canvas, "pointerup", { clientX: 560, clientY: 440 });
+    await nextTick();
+
+    assert.equal(diagram.tableById("users")?.width, DEFAULT_TABLE_WIDTH + 60);
+  });
+
+  it("records no resize when the handle of a table is not dragged", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const history = useHistoryStore(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const handle = wrapper.find('[data-testid="resize-handle-users"]').element;
+    const canvas = wrapper.find('[data-testid="canvas"]').element;
+    const depth = history.depth;
+
+    fire(handle, "pointerdown", { clientX: 500, clientY: 400 });
+    fire(canvas, "pointerup", { clientX: 500, clientY: 400 });
+    await nextTick();
+
+    assert.equal(diagram.tableById("users")?.width, undefined);
+    assert.equal(history.depth, depth);
+  });
+
   it("dragging a field handle links the two tables", async () => {
     const pinia = freshPinia();
     const diagram = seed(pinia);
@@ -201,6 +238,102 @@ describe("the canvas of the interactions", () => {
     await nextTick();
 
     assert.deepEqual([...ui.selectedTableIds], ["users"]);
+  });
+
+  it("moves the table while the pointer drags it", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const table = wrapper.find('[data-testid="table-users"]').element;
+    const canvas = wrapper.find('[data-testid="canvas"]').element;
+
+    fire(table, "pointerdown", { clientX: 100, clientY: 100 });
+    await nextTick();
+    fire(canvas, "pointermove", { clientX: 160, clientY: 130 });
+    await settle();
+    await nextTick();
+
+    // The table follows the pointer, before the button is released.
+    assert.equal(diagram.tableById("users")?.x, 100);
+    assert.equal(diagram.tableById("users")?.y, 90);
+    assert.equal(
+      wrapper.find('[data-testid="table-users"]').attributes("transform"),
+      "translate(100 90)",
+    );
+
+    fire(canvas, "pointerup", { clientX: 160, clientY: 130 });
+    await nextTick();
+
+    assert.equal(diagram.tableById("users")?.x, 100);
+    assert.equal(diagram.tableById("users")?.y, 90);
+  });
+
+  it("undoes a drag back to the position it started at", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const history = useHistoryStore(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const table = wrapper.find('[data-testid="table-users"]').element;
+    const canvas = wrapper.find('[data-testid="canvas"]').element;
+
+    fire(table, "pointerdown", { clientX: 100, clientY: 100 });
+    await nextTick();
+    fire(canvas, "pointermove", { clientX: 160, clientY: 130 });
+    await settle();
+    fire(canvas, "pointerup", { clientX: 160, clientY: 130 });
+    await nextTick();
+
+    history.undo();
+    await nextTick();
+
+    assert.equal(diagram.tableById("users")?.x, 40);
+    assert.equal(diagram.tableById("users")?.y, 60);
+  });
+
+  it("commits the drag when the pointer is released outside the canvas", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const history = useHistoryStore(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const table = wrapper.find('[data-testid="table-users"]').element;
+    const canvas = wrapper.find('[data-testid="canvas"]').element;
+
+    fire(table, "pointerdown", { clientX: 100, clientY: 100 });
+    await nextTick();
+    fire(canvas, "pointermove", { clientX: 160, clientY: 130 });
+    await settle();
+    await nextTick();
+    fire(document.body, "pointerup", { clientX: 160, clientY: 130 });
+    await nextTick();
+
+    // Released outside of the canvas, the move still becomes an undoable change
+    // instead of a preview that the diagram keeps forever.
+    assert.equal(diagram.tableById("users")?.x, 100);
+    history.undo();
+    await nextTick();
+    assert.equal(diagram.tableById("users")?.x, 40);
+  });
+
+  it("records no move when the pointer does not drag the table", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const history = useHistoryStore(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const table = wrapper.find('[data-testid="table-users"]').element;
+    const canvas = wrapper.find('[data-testid="canvas"]').element;
+    const depth = history.depth;
+
+    fire(table, "pointerdown", { clientX: 100, clientY: 100 });
+    await nextTick();
+    fire(canvas, "pointerup", { clientX: 100, clientY: 100 });
+    await nextTick();
+
+    assert.equal(diagram.tableById("users")?.x, 40);
+    assert.equal(history.depth, depth);
   });
 
   it("renders the tables on the minimap", () => {

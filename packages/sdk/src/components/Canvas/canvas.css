@@ -523,10 +523,60 @@
 
 /* -------------------------------------------------------------- area/note */
 
+/*
+ * The area is grabbed and moved the way a table is, so it carries the same
+ * cursor as the body of a table, and its label is not a text the drag could
+ * select instead of moving the area.
+ */
+.ddb-area {
+  cursor: move;
+  user-select: none;
+}
+
 .ddb-area__rect {
   stroke-width: 2;
   rx: 8;
   ry: 8;
+}
+
+/*
+ * The area that is selected is drawn the way the table that is selected is:
+ * with a blue outline. The outline is what tells the user that the click on
+ * the area landed.
+ */
+.ddb-area.is-selected .ddb-area__rect {
+  stroke: #3b82f6;
+  stroke-width: 3;
+}
+
+.ddb-area.is-selected .ddb-area__label {
+  fill: #1d4ed8;
+}
+
+/*
+ * The handle is a small square in the corner of the area. The group carries
+ * the cursor and the hit area, so that the whole square resizes the area and
+ * not only the diagonal the rule below draws.
+ */
+.ddb-area__resize {
+  cursor: nwse-resize;
+}
+
+.ddb-area__resize-box {
+  fill: #ffffff;
+  stroke: #a1a1aa;
+  stroke-width: 1;
+}
+
+.ddb-area__resize-lines {
+  fill: none;
+  stroke: #a1a1aa;
+  stroke-width: 1;
+}
+
+.ddb-area.is-selected .ddb-area__resize-box,
+.ddb-area.is-selected .ddb-area__resize-lines {
+  stroke: #3b82f6;
 }
 
 .ddb-area__label {

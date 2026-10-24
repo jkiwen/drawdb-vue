@@ -1,6 +1,8 @@
 import type { DiagramStore } from "../../../stores/diagram.ts";
+import type { MoveRequest } from "../../../stores/element-actions.ts";
 import type { SelectionApi } from "../../../composables/use-selection.ts";
 import type { DragApi } from "../../../composables/use-drag.ts";
+import { tableWidth } from "../geometry.ts";
 import type { LinkingApi } from "./use-linking.ts";
 import type { ResizeApi } from "./use-resize.ts";
 import type { SelectionBoxApi, SelectionRect } from "./use-selection-box.ts";
@@ -21,10 +23,10 @@ export interface CanvasActionsOptions {
 
 export interface CanvasActions {
   /** Writes the result of a drag into the diagram. */
-  commitDrag(): void;
+  commitDrag(origins: ReadonlyArray<MoveRequest>): void;
   /** Selects the tables the rectangle touches. */
   commitSelection(rect: SelectionRect | null): void;
-  /** Writes the size of a table into the diagram. */
+  /** Writes the size of a table or of an area into the diagram. */
   commitResize(): void;
   /** Creates the relationship the user drew. */
   commitLink(event: PointerEvent): void;
@@ -44,20 +46,47 @@ export function useCanvasActions(options: CanvasActionsOptions): CanvasActions {
   const { diagram, selection, drag, selectionBox, resize, linking, commands } =
     options;
 
-  function commitDrag(): void {
+  /**
+   * Turns the drag that the canvas previewed into one undoable change.
+   *
+   * The elements already sit at their final position, because the preview moved
+   * them on every frame; they are put back where the drag started and moved
+   * again through one command, so that the history records the positions to
+   * return to and takes the drag of an area with the tables in it back at once.
+   */
+  function commitDrag(origins: ReadonlyArray<MoveRequest>): void {
     const result = drag.endDrag();
     if (!result) {
       return;
     }
-    for (const id of result.ids) {
-      const table = diagram.tableById(id);
-      if (table) {
-        diagram.updateTable(id, {
-          x: table.x + result.delta.x,
-          y: table.y + result.delta.y,
-        });
-      }
+    const { delta } = result;
+    if (delta.x === 0 && delta.y === 0) {
+      // A click on the element is not a move, so it leaves no entry to undo.
+      return;
     }
+    const moves: MoveRequest[] = [];
+    for (const origin of origins) {
+      const move: MoveRequest = {
+        kind: origin.kind,
+        id: origin.id,
+        x: origin.x + delta.x,
+        y: origin.y + delta.y,
+      };
+      if (origin.kind === "area") {
+        if (!diagram.areas.some((item) => String(item.id) === origin.id)) {
+          continue;
+        }
+        diagram.previewAreaPositions([origin]);
+        moves.push(move);
+        continue;
+      }
+      if (!diagram.tableById(origin.id)) {
+        continue;
+      }
+      diagram.previewTablePositions([origin]);
+      moves.push(move);
+    }
+    diagram.moveElements(moves);
   }
 
   function commitSelection(rect: SelectionRect | null): void {
@@ -71,12 +100,37 @@ export function useCanvasActions(options: CanvasActionsOptions): CanvasActions {
     }
   }
 
+  /**
+   * Writes the size the user dragged into the diagram.
+   *
+   * The height of a table follows its fields, so only the width of a table is
+   * stored; the height of an area is its own, so both sides are stored. A
+   * handle that was pressed without being dragged writes nothing: an entry of
+   * the history that changes no size would make the user undo twice to get the
+   * size of before the drag back.
+   */
   function commitResize(): void {
     const state = resize.resizing.value;
     resize.end();
-    if (state) {
-      diagram.updateTable(state.tableId, { width: state.width });
+    if (!state) {
+      return;
     }
+    if (state.kind === "area") {
+      const area = diagram.areas.find((item) => String(item.id) === String(state.id));
+      if (!area || (area.width === state.width && area.height === state.height)) {
+        return;
+      }
+      diagram.updateArea(state.id, {
+        width: state.width,
+        height: state.height,
+      });
+      return;
+    }
+    const table = diagram.tableById(state.id);
+    if (!table || tableWidth(table) === state.width) {
+      return;
+    }
+    diagram.updateTable(state.id, { width: state.width });
   }
 
   function commitLink(event: PointerEvent): void {

@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { beforeEach, describe, it } from "node:test";
 import { createPinia, setActivePinia } from "pinia";
-import type { Diagram, Field, Relationship, Table } from "@drawdb/core";
+import { createEmptyDiagram } from "@drawdb/core";
+import type { Area, Diagram, Field, Relationship, Table } from "@drawdb/core";
 import { useDiagramStore } from "./diagram.ts";
 import { useHistoryStore } from "./history.ts";
 
@@ -196,5 +197,62 @@ describe("diagram store", () => {
 
     store.updateTable("t1", { name: "people" });
     assert.equal(store.revision, start + 2);
+  });
+
+  it("adds an area to the collection the diagram reads", () => {
+    const store = useDiagramStore();
+    const kept: Area = {
+      id: "a1",
+      name: "kept",
+      x: 0,
+      y: 0,
+      width: 300,
+      height: 200,
+    };
+
+    // An imported diagram keeps its areas in `subjectAreas`, the collection the
+    // empty diagram of the core has. The store reads `areas ?? subjectAreas`, so
+    // the write has to land in the collection the read finds the areas in.
+    store.setDiagram({ ...createEmptyDiagram(), subjectAreas: [kept] });
+    assert.equal(store.areas.length, 1);
+
+    store.addArea({
+      id: "a2",
+      name: "fresh",
+      x: 10,
+      y: 10,
+      width: 240,
+      height: 160,
+    });
+
+    assert.deepEqual(
+      store.areas.map((area) => String(area.id)),
+      ["a1", "a2"],
+    );
+    assert.equal(store.diagram.subjectAreas.length, 2);
+  });
+
+  it("updates and removes an area", () => {
+    const store = useDiagramStore();
+    const history = useHistoryStore();
+
+    store.addArea({
+      id: "a1",
+      name: "kept",
+      x: 0,
+      y: 0,
+      width: 300,
+      height: 200,
+    });
+
+    store.updateArea("a1", { width: 420, height: 260 });
+    assert.equal(store.areas[0].width, 420);
+    assert.equal(store.areas[0].height, 260);
+
+    history.undo();
+    assert.equal(store.areas[0].width, 300);
+
+    store.removeArea("a1");
+    assert.equal(store.areas.length, 0);
   });
 });

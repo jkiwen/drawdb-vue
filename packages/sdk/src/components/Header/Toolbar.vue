@@ -43,7 +43,7 @@ function addArea(): void {
     uniqueTableName(diagram.areas, "area"),
     nextPosition(diagram.areas.length),
   );
-  diagram.addEntity("areas", area);
+  diagram.addArea(area);
   ui.selectArea(String(area.id));
 }
 </script>

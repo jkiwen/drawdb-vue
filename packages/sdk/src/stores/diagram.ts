@@ -34,6 +34,7 @@ import type {
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
 import { useHistoryStore } from "./history.ts";
+import { elementActions } from "./element-actions.ts";
 
 /**
  * The diagram store owns the edited ER diagram.
@@ -108,6 +109,23 @@ export const useDiagramStore = defineStore("diagram", () => {
   function updateTable(id: TableId, updates: Partial<Omit<Table, "id">>): void {
     history.execute(new UpdateTableCommand(diagram, id, updates));
     bump();
+  }
+
+  /**
+   * Moves tables without recording the change, the live preview of a drag.
+   *
+   * The caller keeps the position of the start and commits the final one with
+   * `updateTable`, so the preview is never the last word on the diagram.
+   */
+  function previewTablePositions(
+    moves: ReadonlyArray<{ id: TableId; x: number; y: number }>,
+  ): void {
+    for (const move of moves) {
+      const table = tableById(move.id);
+      if (!table) continue;
+      table.x = move.x;
+      table.y = move.y;
+    }
   }
 
   function removeTable(id: TableId): void {
@@ -222,18 +240,20 @@ export const useDiagramStore = defineStore("diagram", () => {
   }
 
   const sidePanel = sidePanelActions(diagram, history, bump);
+  const elements = elementActions(diagram, history, bump);
 
   return {
     diagram, revision, tables, relationships, notes, areas, enums, views, types,
     tableById, relationshipById, fieldById,
     setDiagram, reset, updateDiagram,
     addTable, updateTable, removeTable,
+    previewTablePositions,
     addRelationship, updateRelationship, removeRelationship,
     addField, updateField, removeField, moveField,
     resizeTable, toggleTableLock, updateSqlHeader,
     applyRelationships, autoArrange: autoArrangeTables, setImportedDiagram,
     addEntity, removeEntity,
-    ...sidePanel,
+    ...sidePanel, ...elements,
   };
 });
 

@@ -1,5 +1,6 @@
 export * from "./command.ts";
 export * from "./command-manager.ts";
+export * from "./composite-command.ts";
 export * from "./table-commands.ts";
 export * from "./field-commands.ts";
 export * from "./relationship-commands.ts";

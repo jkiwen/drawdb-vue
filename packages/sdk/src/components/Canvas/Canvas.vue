@@ -97,6 +97,9 @@ onBeforeUnmount(() => {
         :key="`area-${area.id}`"
         :area="area"
         :selected="canvas.selection.isSelected(String(area.id))"
+        :resizing="canvas.resize.resizing.value"
+        @dragstart="canvas.onAreaDragStart"
+        @resizestart="canvas.onResizeStart"
       />
       <template
         v-for="relationship in items.visibleRelationships.value"
