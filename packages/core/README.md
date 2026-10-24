@@ -228,6 +228,24 @@ plugins.register({
 await plugins.activateAll(context);
 ```
 
+## The colours of the types
+
+The registry of the types knows the family of a type, and the family has a
+colour. The canvas paints the type of a field with it.
+
+```ts
+import { classifyTypeFamily, typeColor } from "@drawdb/core";
+
+classifyTypeFamily("INTEGER"); // "integer"
+classifyTypeFamily("VARCHAR"); // "string"
+typeColor("INTEGER"); // "#eab308"
+typeColor("VARCHAR"); // "#f97316"
+```
+
+A type that the registry knows is classified with its own metadata: a type with
+quotes is a string, a type that can be incremented is an integer, and a type
+with a precision is a decimal.
+
 ## Building
 
 ```bash

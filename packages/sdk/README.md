@@ -141,6 +141,37 @@ diagram.setImportedDiagram(importDiagramJson(file)); // not part of the history
 | `useFullscreen()` | the fullscreen mode of the editor |
 | `useImageExport()` | the PNG export of an element (`exportPng`, `ImageExportError`) |
 
+## The canvas
+
+The canvas is an SVG that draws the tables, the relationships, the areas, the
+notes and the views. Its look is described in
+[the visual parity report](../../docs/visual-parity-report.md); the rules live
+in `packages/sdk/src/components/Canvas/canvas.css`, which the canvas imports
+(the stylesheet is not scoped, so that the nodes that a compiled template
+renders are styled too).
+
+What the user can do on the canvas:
+
+- drag a table, a note, an area or a view
+- drag the handle of a field onto another field to draw a relationship
+- rename a table, edit its comment, its colour, its indices and its unique
+  constraints
+- rename a field, edit its type, toggle its primary key and its nullability
+- drag the fields of a table to reorder them
+- resize a table, lock it, open the details of a table
+- delete a field, a table or a relationship
+
+The marks of a field follow the original drawDB: the primary key is a key icon,
+a field that accepts the null value shows a question mark, and the type is
+painted with the colour of its family.
+
+```ts
+import { typeColor } from "@drawdb/core";
+
+typeColor("INTEGER"); // "#eab308" — the colour of the integers
+typeColor("VARCHAR"); // "#f97316" — the colour of the strings
+```
+
 ## The plugins
 
 A plugin extends the editor. It receives the stores of the editor and can register a
@@ -193,3 +224,7 @@ pnpm --filter @drawdb/vue-sdk build
 The build runs `vue-tsc` for the type declarations and compiles the single file
 components with `@vue/compiler-sfc` into ESM modules. The result is in
 `packages/sdk/dist`.
+
+The stylesheet of the canvas is copied into `dist` as well, so that a host
+application that imports the package gets the look of the editor without
+writing a rule of its own.

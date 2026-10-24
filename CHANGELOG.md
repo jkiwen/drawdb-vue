@@ -8,6 +8,35 @@ packages follow [semantic versioning](https://semver.org/).
 > of the development; the distribution is built and verified locally with
 > `pnpm run pack:packages` (see the readme).
 
+## Unreleased
+
+The canvas of the SDK had no stylesheet at all: the class names of the tables,
+of the fields and of the relationships existed in the templates only, so the
+browser drew unstyled elements. The work below aligns the canvas with the
+React application of drawDB.
+
+### @drawdb/vue-sdk
+
+- The first stylesheet of the SDK (`packages/sdk/src/components/Canvas/canvas.css`):
+  the dotted background of the canvas, the table with its border, its shadow and
+  its colour strip, the header, the rows of the fields, the grip, the handles,
+  the relationship with its hover animation, the areas, the notes, the views,
+  the minimap and the dark theme.
+- The relationships no longer cross the tables: the control points of the curve
+  follow the position of the two anchors and not the order of the relationship.
+- The cardinality is drawn as a label (`1` or `n`), like the reference.
+- The marks of the fields follow the reference: the primary key is a key icon,
+  a field that accepts the null value shows a question mark, and the delete
+  button appears only while the pointer is on the row.
+- The height of the header of a table follows the height of its comment, so
+  that the anchors of the relationships stay on the fields.
+
+### @drawdb/core
+
+- The classification of the types and their colours (`classifyTypeFamily`,
+  `typeColor`, `TYPE_COLORS`), so that the canvas paints the type of a field
+  with the colour of its family.
+
 ## 0.2.0
 
 The second version closes the gap with the React application of drawDB. Every
