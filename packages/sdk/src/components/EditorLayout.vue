@@ -73,6 +73,7 @@ defineExpose({ openDialog, closeDialog });
       v-model:import-format="dialogs.importFormat"
       v-model:auto-relationships-open="dialogs.autoRelationshipsOpen"
       v-model:image-export-open="dialogs.imageExportOpen"
+      v-model:relationship-open="dialogs.relationshipOpen"
       :database="database"
     />
   </div>

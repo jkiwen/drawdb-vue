@@ -22,6 +22,7 @@ function recorder(): {
     addArea: record("addArea"),
     autoLayout: record("autoLayout"),
     autoRelationships: record("autoRelationships"),
+    addRelationship: record("addRelationship"),
     deleteSelection: record("deleteSelection"),
     toggleFullscreen: record("toggleFullscreen"),
     toggleSidebar: record("toggleSidebar"),
@@ -148,7 +149,6 @@ describe("the menu of the editor", () => {
     for (const key of [
       "file:new",
       "file:open",
-      "edit:add-relationship",
       "help:documentation",
       "help:about",
     ]) {
@@ -156,6 +156,13 @@ describe("the menu of the editor", () => {
       assert.equal(isHostOwnedMenuKey(key), true, key);
     }
     assert.deepEqual(calls, []);
+  });
+
+  it("opens the relationship editor on its own", () => {
+    const { actions, calls } = recorder();
+    assert.equal(runEditorMenu("edit:add-relationship", actions), true);
+    assert.equal(isHostOwnedMenuKey("edit:add-relationship"), false);
+    assert.deepEqual(calls, ["addRelationship"]);
   });
 
   it("leaves an unknown entry to the host application", () => {

@@ -9,6 +9,7 @@ import type { SelectionBoxApi, SelectionRect } from "./use-selection-box.ts";
 import type { ContextMenuApi } from "./use-context-menu.ts";
 import type { ContextMenuTarget } from "./interaction-state.ts";
 import type { CanvasCommands } from "./use-canvas-commands.ts";
+import { resolveLinkTarget } from "./link-target.ts";
 
 export interface CanvasActionsOptions {
   diagram: DiagramStore;
@@ -135,16 +136,9 @@ export function useCanvasActions(options: CanvasActionsOptions): CanvasActions {
 
   function commitLink(event: PointerEvent): void {
     const target = event.target as Element | null;
-    const handle =
-      target && typeof target.closest === "function"
-        ? target.closest("[data-field-handle]")
-        : null;
-    const link = handle
-      ? {
-          tableId: handle.getAttribute("data-table-id") ?? "",
-          fieldId: handle.getAttribute("data-field-id") ?? undefined,
-        }
-      : undefined;
+    // The link can end on a field or on a table. A link that ends on a table
+    // is linked to the primary key of that table.
+    const link = resolveLinkTarget(target);
     const relationship = linking.finish(link);
     if (relationship) {
       diagram.addRelationship(relationship);

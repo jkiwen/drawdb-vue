@@ -3,6 +3,7 @@ import type { DatabaseType } from "@drawdb/core";
 import AutoRelationshipsDialog from "./Dialogs/AutoRelationshipsDialog.vue";
 import ImageExportDialog from "./Dialogs/ImageExportDialog.vue";
 import ImportDialog from "./Dialogs/ImportDialog.vue";
+import RelationshipDialog from "./Dialogs/RelationshipDialog.vue";
 import SqlPreviewDialog from "./Dialogs/SqlPreviewDialog.vue";
 
 /**
@@ -21,6 +22,7 @@ withDefaults(
     importOpen?: boolean;
     autoRelationshipsOpen?: boolean;
     imageExportOpen?: boolean;
+    relationshipOpen?: boolean;
     /** The SVG markup of the canvas, handed to the image export. */
     svg?: string;
     /** The format the import dialog reads its source as. */
@@ -35,6 +37,7 @@ withDefaults(
     importOpen: false,
     autoRelationshipsOpen: false,
     imageExportOpen: false,
+    relationshipOpen: false,
     svg: "",
     importFormat: "sql",
     database: "generic",
@@ -46,6 +49,7 @@ const emit = defineEmits<{
   "update:importOpen": [value: boolean];
   "update:autoRelationshipsOpen": [value: boolean];
   "update:imageExportOpen": [value: boolean];
+  "update:relationshipOpen": [value: boolean];
   "update:sqlPreviewFormat": [value: "sql" | "dbml"];
 }>();
 </script>
@@ -72,6 +76,10 @@ const emit = defineEmits<{
       :open="imageExportOpen"
       :svg="svg"
       @update:open="emit('update:imageExportOpen', $event)"
+    />
+    <RelationshipDialog
+      :open="relationshipOpen"
+      @update:open="emit('update:relationshipOpen', $event)"
     />
   </div>
 </template>

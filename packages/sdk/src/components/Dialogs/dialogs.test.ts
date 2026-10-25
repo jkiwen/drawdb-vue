@@ -12,6 +12,7 @@ import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import { useSaveStore } from "../../stores/save.ts";
 import { useHistoryStore } from "../../stores/history.ts";
+import { useDialogStore } from "../../stores/dialogs.ts";
 import { useEditorCommands } from "../../composables/use-editor-commands.ts";
 import { DEFAULT_MENU_GROUPS } from "../Header/types.ts";
 import { inferRelationships } from "@drawdb/core";
@@ -468,5 +469,61 @@ describe("EditorDialogs", () => {
       wrapper.find('[data-testid="import-database"]').text().trim(),
       "postgres",
     );
+  });
+});
+
+describe("the entry of the menu that adds a relationship", () => {
+  it("the editor answers the key itself instead of the host", () => {
+    setup(seedWithChild());
+    const diagram = useDiagramStore();
+    const ui = useUIStore();
+    const save = useSaveStore();
+    const opened: string[] = [];
+    const commands = useEditorCommands({
+      diagramStore: diagram,
+      uiStore: ui,
+      saveStore: save,
+      onSave: () => undefined,
+      onExportSql: () => undefined,
+      onExportDbml: () => undefined,
+      onImportSql: () => undefined,
+      onError: () => undefined,
+      onOpenDialog: (key) => {
+        opened.push(key);
+      },
+    });
+
+    // The key is the one the menu bar sends for the entry of the header.
+    assert.equal(commands.onMenu("edit:add-relationship"), true);
+    assert.deepEqual(opened, ["relationship"]);
+  });
+
+  it("the dialog of the relationship opens and creates the relationship", async () => {
+    const diagram = setup(seedWithChild());
+    const dialogs = useDialogStore();
+    const wrapper = mount(EditorDialogs, {
+      props: {
+        relationshipOpen: dialogs.relationshipOpen,
+      },
+      global: { plugins: [naive] },
+    });
+    await nextTick();
+
+    // The dialog is closed at first.
+    assert.equal(wrapper.find('[data-testid="relationship-dialog"]').exists(), false);
+
+    // The store opens it, the way the menu entry does.
+    dialogs.open("relationship");
+    await wrapper.setProps({ relationshipOpen: dialogs.relationshipOpen });
+    await nextTick();
+    assert.ok(wrapper.find('[data-testid="relationship-dialog"]').exists());
+
+    // The dialog starts with the two tables of the diagram, and creates the
+    // relationship between them.
+    await wrapper
+      .find('[data-testid="relationship-create"]')
+      .trigger("click");
+    await nextTick();
+    assert.equal(diagram.relationships.length, 1);
   });
 });

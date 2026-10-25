@@ -20,6 +20,7 @@ export interface EditorMenuActions {
   addArea(): void;
   autoLayout(): void;
   autoRelationships(): void;
+  addRelationship(): void;
   deleteSelection(): void;
   toggleFullscreen(): void;
   toggleSidebar(): void;
@@ -33,13 +34,11 @@ export interface EditorMenuActions {
 
 /**
  * The menu keys the editor answers on its own. Every other key belongs to the
- * host application: it owns the file browser, the documentation and the
- * relationship editor.
+ * host application: it owns the file browser and the documentation.
  */
 const HOST_OWNED_KEYS = new Set([
   "file:new",
   "file:open",
-  "edit:add-relationship",
   "help:documentation",
   "help:about",
 ]);
@@ -95,6 +94,9 @@ export function runEditorMenu(
       return true;
     case "edit:auto-relationships":
       actions.autoRelationships();
+      return true;
+    case "edit:add-relationship":
+      actions.addRelationship();
       return true;
     case "edit:delete":
       actions.deleteSelection();

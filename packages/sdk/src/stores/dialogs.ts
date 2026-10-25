@@ -6,7 +6,8 @@ export type EditorDialogName =
   | "sqlPreview"
   | "import"
   | "imageExport"
-  | "autoRelationships";
+  | "autoRelationships"
+  | "relationship";
 
 /** The formats the import dialog understands. */
 export type ImportFormat = "sql" | "dbml" | "json";
@@ -33,6 +34,7 @@ export const useDialogStore = defineStore("dialogs", () => {
   const importFormat = ref<ImportFormat>("sql");
   const autoRelationshipsOpen = ref(false);
   const imageExportOpen = ref(false);
+  const relationshipOpen = ref(false);
 
   function open(name: EditorDialogName, options?: EditorDialogOptions): void {
     if (name === "import") {
@@ -55,6 +57,11 @@ export const useDialogStore = defineStore("dialogs", () => {
       return;
     }
 
+    if (name === "relationship") {
+      relationshipOpen.value = true;
+      return;
+    }
+
     autoRelationshipsOpen.value = true;
   }
 
@@ -74,6 +81,11 @@ export const useDialogStore = defineStore("dialogs", () => {
       return;
     }
 
+    if (name === "relationship") {
+      relationshipOpen.value = false;
+      return;
+    }
+
     autoRelationshipsOpen.value = false;
   }
 
@@ -82,6 +94,7 @@ export const useDialogStore = defineStore("dialogs", () => {
     importOpen.value = false;
     autoRelationshipsOpen.value = false;
     imageExportOpen.value = false;
+    relationshipOpen.value = false;
   }
 
   return {
@@ -91,6 +104,7 @@ export const useDialogStore = defineStore("dialogs", () => {
     importFormat,
     autoRelationshipsOpen,
     imageExportOpen,
+    relationshipOpen,
     open,
     close,
     closeAll,

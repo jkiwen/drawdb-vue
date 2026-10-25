@@ -217,6 +217,7 @@ export function useEditorCommands(
       addArea,
       autoLayout: () => diagramStore.autoArrange(),
       autoRelationships: () => options.onOpenDialog?.("autoRelationships"),
+      addRelationship: () => options.onOpenDialog?.("relationship"),
       deleteSelection,
       toggleFullscreen: () => uiStore.setFullscreen(!uiStore.isFullscreen),
       toggleSidebar: () => uiStore.toggleSidebar(),
