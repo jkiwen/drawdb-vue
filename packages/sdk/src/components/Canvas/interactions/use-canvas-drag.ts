@@ -29,6 +29,11 @@ export interface CanvasDrag {
     areaId: string | number;
     event: PointerEvent;
   }): void;
+  /** Starts the drag of the notes when the user grabs a note. */
+  onNoteDragStart(payload: {
+    noteId: string | number;
+    event: PointerEvent;
+  }): void;
   /** Moves the dragged elements on the diagram, under the pointer. */
   preview(): void;
   /** Records the drag as a single undoable change. */
@@ -74,7 +79,11 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
         return [{ kind: "table", id, x: table.x, y: table.y }];
       }
       const area = diagram.areas.find((item) => String(item.id) === id);
-      return area ? [{ kind: "area", id, x: area.x, y: area.y }] : [];
+      if (area) {
+        return [{ kind: "area", id, x: area.x, y: area.y }];
+      }
+      const note = diagram.notes.find((item) => String(item.id) === id);
+      return note ? [{ kind: "note", id, x: note.x, y: note.y }] : [];
     });
   }
 
@@ -164,6 +173,7 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
     const { delta } = drag.dragState;
     diagram.previewTablePositions(movedBy(origins, "table", delta));
     diagram.previewAreaPositions(movedBy(origins, "area", delta));
+    diagram.previewNotePositions(movedBy(origins, "note", delta));
   }
 
   function commit(): void {
@@ -181,14 +191,35 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
     const still = { x: 0, y: 0 };
     diagram.previewTablePositions(movedBy(origins, "table", still));
     diagram.previewAreaPositions(movedBy(origins, "area", still));
+    diagram.previewNotePositions(movedBy(origins, "note", still));
     drag.cancelDrag();
     origins = [];
+  }
+
+  /**
+   * The notes follow the pointer, and a note that was not selected is selected
+   * first. A note that the user locked does not move.
+   */
+  function onNoteDragStart(payload: {
+    noteId: string | number;
+    event: PointerEvent;
+  }): void {
+    const id = String(payload.noteId);
+    const note = diagram.notes.find((item) => String(item.id) === id);
+    if (!note || note.locked) {
+      return;
+    }
+    if (!selection.isSelected(id)) {
+      selection.select(id, { additive: payload.event.shiftKey, kind: "note" });
+    }
+    beginDragOf(options.point(payload.event), selection.selectedNotes.value);
   }
 
   return {
     track,
     onTableDragStart,
     onAreaDragStart,
+    onNoteDragStart,
     preview,
     commit,
     cancel,

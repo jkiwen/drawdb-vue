@@ -10,6 +10,7 @@ import type {
   Command,
   Diagram,
   DiagramEntityCollection,
+  Note,
 } from "@drawdb/core";
 
 /** The collections of a diagram that can hold its areas. */
@@ -18,11 +19,11 @@ export type AreaCollection = Extract<DiagramEntityCollection, "areas" | "subject
 /**
  * An element that the canvas drags, and the place the drag puts it at.
  *
- * A table and an area are moved the same way but not through the same command,
- * so the kind of the element travels with the position.
+ * A table, an area and a note are moved the same way but not through the same
+ * command, so the kind of the element travels with the position.
  */
 export interface MoveRequest {
-  kind: "table" | "area";
+  kind: "table" | "area" | "note";
   id: string;
   x: number;
   y: number;
@@ -45,7 +46,17 @@ export interface ElementActions {
   /** Removes an area. */
   removeArea(id: string | number | undefined): void;
   /**
-   * Moves tables and areas as one entry of the history.
+   * Changes the properties of a note, the size it was resized to included.
+   */
+  updateNote(id: string | number, updates: Partial<Omit<Note, "id">>): void;
+  /**
+   * Moves notes without recording the change, the live preview of a drag.
+   */
+  previewNotePositions(
+    moves: ReadonlyArray<{ id: string | number; x: number; y: number }>,
+  ): void;
+  /**
+   * Moves tables, areas and notes as one entry of the history.
    *
    * The undo takes the drag of an area and the tables it carries inside it back
    * at once, which is what makes the drag look like a single gesture.
@@ -119,12 +130,45 @@ export function elementActions(
     bump();
   }
 
+  function updateNote(
+    id: string | number,
+    updates: Partial<Omit<Note, "id">>,
+  ): void {
+    history.execute(
+      new UpdateEntityCommand(diagram, "notes", id, updates as Record<string, unknown>),
+    );
+    bump();
+  }
+
+  function previewNotePositions(
+    moves: ReadonlyArray<{ id: string | number; x: number; y: number }>,
+  ): void {
+    for (const move of moves) {
+      const note = diagram.notes.find((item) => String(item.id) === String(move.id));
+      if (!note) continue;
+      if (note.locked) continue;
+      note.x = move.x;
+      note.y = move.y;
+    }
+  }
+
   function commandOf(move: MoveRequest): Command | undefined {
     if (move.kind === "table") {
-      if (!diagram.tables.some((table) => String(table.id) === move.id)) {
+      const table = diagram.tables.find((item) => String(item.id) === move.id);
+      if (!table || table.locked) {
         return undefined;
       }
       return new UpdateTableCommand(diagram, move.id, { x: move.x, y: move.y });
+    }
+    if (move.kind === "note") {
+      const note = diagram.notes.find((item) => String(item.id) === move.id);
+      if (!note || note.locked) {
+        return undefined;
+      }
+      return new UpdateEntityCommand(diagram, "notes", move.id, {
+        x: move.x,
+        y: move.y,
+      });
     }
     if (!areasOf(diagram).some((area) => String(area.id) === move.id)) {
       return undefined;
@@ -156,6 +200,8 @@ export function elementActions(
     updateArea,
     previewAreaPositions,
     removeArea,
+    updateNote,
+    previewNotePositions,
     moveElements,
   };
 }

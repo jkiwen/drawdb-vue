@@ -13,6 +13,7 @@ defineOptions({ name: "DrawDBTableHeader" });
 const props = defineProps({
   table: { type: Object as PropType<Table>, required: true },
   selected: { type: Boolean, default: false },
+  locked: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["togglelock"]);
@@ -43,6 +44,9 @@ const headerStyle = computed(() => {
 
 function onStartName(event: Event): void {
   event.stopPropagation();
+  if (props.locked) {
+    return;
+  }
   startName(props.table.name);
 }
 
@@ -59,6 +63,9 @@ function onCommitName(): void {
 
 function onStartComment(event: Event): void {
   event.stopPropagation();
+  if (props.locked) {
+    return;
+  }
   startComment(props.table.comment ?? "");
 }
 
@@ -111,6 +118,7 @@ function onToggleLock(event: Event): void {
       <span
         v-else
         class="ddb-table__name"
+        :class="{ 'is-locked': locked }"
         :data-testid="`table-name-${table.id}`"
         @dblclick="onStartName"
       >
@@ -130,6 +138,7 @@ function onToggleLock(event: Event): void {
       <span
         v-else-if="table.comment"
         class="ddb-table__comment"
+        :class="{ 'is-locked': locked }"
         :data-testid="`table-comment-${table.id}`"
         @dblclick="onStartComment"
       >

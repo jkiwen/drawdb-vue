@@ -39,7 +39,20 @@ const height = computed(() => tableHeight(props.table));
 // object and never on a stale copy.
 const liveTable = computed(() => diagram.tableById(props.table.id) ?? props.table);
 
+/**
+ * Whether the table is locked.
+ *
+ * A locked table is a table the user does not want to touch any more, so the
+ * canvas refuses to move it, to resize it and to change its fields. The store
+ * refuses the changes as well, because the side panel writes to the same
+ * table.
+ */
+const locked = computed(() => liveTable.value.locked === true);
+
 function onPointerDown(event: PointerEvent): void {
+  if (locked.value) {
+    return;
+  }
   emit("dragstart", { id: props.table.id, event });
 }
 
@@ -48,6 +61,9 @@ function onFieldSelect(payload: {
   fieldId: string | number;
   event: PointerEvent;
 }): void {
+  if (locked.value) {
+    return;
+  }
   emit("fieldselect", payload);
 }
 
@@ -68,6 +84,9 @@ function onResizeStart(payload: {
   height: number;
   event: PointerEvent;
 }): void {
+  if (locked.value) {
+    return;
+  }
   resizing.value = true;
   emit("resizestart", payload);
 }
@@ -78,6 +97,9 @@ function onToggleLock(): void {
 
 function onDragEnd(event: { oldIndex?: number; newIndex?: number }): void {
   if (event.oldIndex === undefined || event.newIndex === undefined) {
+    return;
+  }
+  if (locked.value) {
     return;
   }
   onSort(props.table.id, event.oldIndex, event.newIndex);
@@ -104,6 +126,7 @@ defineExpose({ resizing });
         <TableHeader
           :table="liveTable"
           :selected="selected"
+          :locked="locked"
           @togglelock="onToggleLock"
         />
         <VueDraggable
@@ -121,6 +144,7 @@ defineExpose({ resizing });
             <TableField
               :table="liveTable"
               :field="field"
+              :locked="locked"
               :show-field-types="showFieldTypes"
               @fieldselect="onFieldSelect"
             />

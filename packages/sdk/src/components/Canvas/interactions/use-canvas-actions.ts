@@ -81,6 +81,14 @@ export function useCanvasActions(options: CanvasActionsOptions): CanvasActions {
         moves.push(move);
         continue;
       }
+      if (origin.kind === "note") {
+        if (!diagram.notes.some((item) => String(item.id) === origin.id)) {
+          continue;
+        }
+        diagram.previewNotePositions([origin]);
+        moves.push(move);
+        continue;
+      }
       if (!diagram.tableById(origin.id)) {
         continue;
       }
@@ -122,6 +130,17 @@ export function useCanvasActions(options: CanvasActionsOptions): CanvasActions {
         return;
       }
       diagram.updateArea(state.id, {
+        width: state.width,
+        height: state.height,
+      });
+      return;
+    }
+    if (state.kind === "note") {
+      const note = diagram.notes.find((item) => String(item.id) === String(state.id));
+      if (!note || (note.width === state.width && note.height === state.height)) {
+        return;
+      }
+      diagram.updateNote(state.id, {
         width: state.width,
         height: state.height,
       });

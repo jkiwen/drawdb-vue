@@ -145,6 +145,9 @@ onBeforeUnmount(() => {
         :key="`note-${note.id}`"
         :note="note"
         :selected="canvas.selection.isSelected(String(note.id))"
+        :resizing="canvas.resize.resizing.value"
+        @dragstart="canvas.onNoteDragStart"
+        @resizestart="canvas.onResizeStart"
       />
       <View
         v-for="view in items.visibleViews.value"

@@ -12,7 +12,6 @@ import {
   RemoveTableCommand,
   ResizeTableCommand,
   ToggleTableLockCommand,
-  UpdateEntityCommand,
   UpdateFieldCommand,
   UpdateRelationshipCommand,
   UpdateTableCommand,
@@ -22,6 +21,7 @@ import {
 } from "@drawdb/core";
 import type {
   Diagram,
+  DiagramEntityInput,
   DiagramEntityCollection,
   DiagramProperties,
   Field,
@@ -35,6 +35,7 @@ import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
 import { useHistoryStore } from "./history.ts";
 import { elementActions } from "./element-actions.ts";
+import { sidePanelActions } from "./side-panel-actions.ts";
 
 /**
  * The diagram store owns the edited ER diagram.
@@ -106,7 +107,22 @@ export const useDiagramStore = defineStore("diagram", () => {
     bump();
   }
 
+  /**
+   * Whether a table can be changed.
+   *
+   * A table that the user locked is a table the user does not want to touch
+   * any more, so every change of it is refused. The refusal lives here and
+   * not in the components, because the side panel changes a table as well and
+   * the user expects the lock to hold there too.
+   */
+  function isLocked(tableId: TableId): boolean {
+    return tableById(tableId)?.locked === true;
+  }
+
   function updateTable(id: TableId, updates: Partial<Omit<Table, "id">>): void {
+    if (isLocked(id)) {
+      return;
+    }
     history.execute(new UpdateTableCommand(diagram, id, updates));
     bump();
   }
@@ -123,6 +139,7 @@ export const useDiagramStore = defineStore("diagram", () => {
     for (const move of moves) {
       const table = tableById(move.id);
       if (!table) continue;
+      if (table.locked) continue;
       table.x = move.x;
       table.y = move.y;
     }
@@ -152,6 +169,9 @@ export const useDiagramStore = defineStore("diagram", () => {
   }
 
   function addField(tableId: TableId, field: Field, index?: number): void {
+    if (isLocked(tableId)) {
+      return;
+    }
     history.execute(new AddFieldCommand(diagram, tableId, field, index));
     bump();
   }
@@ -161,23 +181,35 @@ export const useDiagramStore = defineStore("diagram", () => {
     fieldId: FieldId,
     updates: Partial<Omit<Field, "id">>,
   ): void {
+    if (isLocked(tableId)) {
+      return;
+    }
     history.execute(new UpdateFieldCommand(diagram, tableId, fieldId, updates));
     bump();
   }
 
   function removeField(tableId: TableId, fieldId: FieldId): void {
+    if (isLocked(tableId)) {
+      return;
+    }
     history.execute(new RemoveFieldCommand(diagram, tableId, fieldId));
     bump();
   }
 
   /** Moves a field of a table to another place. */
   function moveField(tableId: TableId, fromIndex: number, toIndex: number): void {
+    if (isLocked(tableId)) {
+      return;
+    }
     history.execute(new MoveFieldCommand(diagram, tableId, fromIndex, toIndex));
     bump();
   }
 
   /** Changes the width of a table. */
   function resizeTable(tableId: TableId, width: number): void {
+    if (isLocked(tableId)) {
+      return;
+    }
     history.execute(new ResizeTableCommand(diagram, tableId, width));
     bump();
   }
@@ -225,7 +257,7 @@ export const useDiagramStore = defineStore("diagram", () => {
 
   function addEntity(
     collection: DiagramEntityCollection,
-    entity: { id?: string | number; name?: string },
+    entity: DiagramEntityInput,
   ): void {
     history.execute(new AddEntityCommand(diagram, collection, entity));
     bump();
@@ -244,7 +276,7 @@ export const useDiagramStore = defineStore("diagram", () => {
 
   return {
     diagram, revision, tables, relationships, notes, areas, enums, views, types,
-    tableById, relationshipById, fieldById,
+    tableById, relationshipById, fieldById, isLocked,
     setDiagram, reset, updateDiagram,
     addTable, updateTable, removeTable,
     previewTablePositions,
@@ -257,44 +289,5 @@ export const useDiagramStore = defineStore("diagram", () => {
   };
 });
 
-/**
- * The actions the side panel writes the views, the types and the enums with.
- *
- * The three collections share one shape, so one action per verb and
- * collection covers all nine of them. Every action runs one command of the
- * history and bumps the revision, which is what makes the renderers of the
- * store see the new state.
- */
-function sidePanelActions(
-  diagram: Diagram,
-  history: { execute(command: unknown): void },
-  bump: () => void,
-) {
-  const action = (
-    collection: DiagramEntityCollection,
-    verb: "add" | "update" | "remove",
-  ) => (target: unknown, updates?: unknown) => {
-    history.execute(
-      verb === "add"
-        ? new AddEntityCommand(diagram, collection, target as { id?: string | number; name?: string })
-        : verb === "update"
-          ? new UpdateEntityCommand(diagram, collection, target as string | number, updates as Record<string, unknown>)
-          : new RemoveEntityCommand(diagram, collection, target as string | number | undefined),
-    );
-    bump();
-  };
-
-  return {
-    addView: action("views", "add"),
-    updateView: action("views", "update"),
-    removeView: action("views", "remove"),
-    addType: action("types", "add"),
-    updateType: action("types", "update"),
-    removeType: action("types", "remove"),
-    addEnum: action("enums", "add"),
-    updateEnum: action("enums", "update"),
-    removeEnum: action("enums", "remove"),
-  };
-}
 
 export type DiagramStore = ReturnType<typeof useDiagramStore>;

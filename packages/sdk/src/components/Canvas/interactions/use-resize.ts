@@ -12,17 +12,21 @@ export const MIN_TABLE_HEIGHT = 60;
 export const MIN_AREA_WIDTH = 80;
 export const MIN_AREA_HEIGHT = 60;
 
-/** The corner of a table or of an area that the user grabs. */
+/** The smallest size of a note. */
+export const MIN_NOTE_WIDTH = 120;
+export const MIN_NOTE_HEIGHT = 80;
+
+/** The corner of a table, of an area or of a note that the user grabs. */
 export interface ResizeRequest {
   kind: ResizeKind;
-  /** The id of the table or of the area. */
+  /** The id of the table, of the area or of the note. */
   id: RelationshipId;
   width: number;
   height: number;
 }
 
 export interface ResizeApi {
-  /** The table or the area that is being resized, or `null`. */
+  /** The table, the area or the note that is being resized, or `null`. */
   resizing: Ref<ResizeState | null>;
   /** Starts a resize. */
   begin(request: ResizeRequest): void;
@@ -36,6 +40,7 @@ export interface ResizeApi {
 const SMALLEST: Record<ResizeKind, { width: number; height: number }> = {
   table: { width: MIN_TABLE_WIDTH, height: MIN_TABLE_HEIGHT },
   area: { width: MIN_AREA_WIDTH, height: MIN_AREA_HEIGHT },
+  note: { width: MIN_NOTE_WIDTH, height: MIN_NOTE_HEIGHT },
 };
 
 /**

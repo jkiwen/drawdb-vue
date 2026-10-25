@@ -35,16 +35,18 @@ export interface CanvasHandlersOptions {
 }
 
 /**
- * The corner of a table or of an area that the user grabbed.
+ * The corner of a table, of an area or of a note that the user grabbed.
  *
  * The components of the canvas emit the id of the element they hold, so the
- * handler tells the two apart by the field that carries it.
+ * handler tells them apart by the field that carries it.
  */
 export interface ResizeStartPayload {
   /** The table of the handle, when the corner belongs to a table. */
   tableId?: string;
   /** The area of the handle, when the corner belongs to an area. */
   areaId?: string | number;
+  /** The note of the handle, when the corner belongs to a note. */
+  noteId?: string | number;
   width: number;
   height: number;
   event: PointerEvent;
@@ -65,6 +67,10 @@ export interface CanvasHandlersApi {
   onTableDragStart(payload: { id: string; event: PointerEvent }): void;
   onAreaDragStart(payload: {
     areaId: string | number;
+    event: PointerEvent;
+  }): void;
+  onNoteDragStart(payload: {
+    noteId: string | number;
     event: PointerEvent;
   }): void;
   onFieldSelect(payload: {
@@ -172,12 +178,18 @@ export function useCanvasHandlers(
   }
 
   function onResizeStart(payload: ResizeStartPayload): void {
-    const id = payload.areaId ?? payload.tableId;
+    const id = payload.noteId ?? payload.areaId ?? payload.tableId;
     if (id === undefined) {
       return;
     }
+    const kind =
+      payload.noteId !== undefined
+        ? "note"
+        : payload.areaId !== undefined
+          ? "area"
+          : "table";
     resize.begin({
-      kind: payload.areaId === undefined ? "table" : "area",
+      kind,
       id,
       width: payload.width,
       height: payload.height,
@@ -269,6 +281,7 @@ export function useCanvasHandlers(
     menu: contextMenu.menu,
     onTableDragStart: elementDrag.onTableDragStart,
     onAreaDragStart: elementDrag.onAreaDragStart,
+    onNoteDragStart: elementDrag.onNoteDragStart,
     onFieldSelect,
     onLinkStart,
     onResizeStart,

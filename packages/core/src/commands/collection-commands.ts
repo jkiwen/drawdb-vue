@@ -16,6 +16,23 @@ export interface DiagramEntity {
   name?: string;
 }
 
+/**
+ * The rest of an entity.
+ *
+ * The collections hold entities of different shapes: a note has a title and a
+ * content, a view has a query, an enum has values. The command only needs the
+ * id and the name to find an entity, so the rest travels along.
+ */
+export type DiagramEntityFields = { [key: string]: unknown };
+
+/**
+ * An entity of one of the flat diagram collections.
+ *
+ * The shape of the entity is not known here: a note, a view and an enum have
+ * fields of their own, and the command carries them as they are.
+ */
+export type DiagramEntityInput = DiagramEntity & object;
+
 /** The identity of an entity: its id, or its name when it has no id. */
 function identity(entity: DiagramEntity): string | number | undefined {
   return entity.id ?? entity.name;
@@ -36,12 +53,12 @@ function matches(entity: DiagramEntity, target: string | number | undefined): bo
 export class AddEntityCommand implements Command {
   private readonly diagram: Diagram;
   private readonly collection: DiagramEntityCollection;
-  private readonly entity: DiagramEntity;
+  private readonly entity: DiagramEntityInput;
 
   constructor(
     diagram: Diagram,
     collection: DiagramEntityCollection,
-    entity: DiagramEntity,
+    entity: DiagramEntityInput,
   ) {
     this.diagram = diagram;
     this.collection = collection;

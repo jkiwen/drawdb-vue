@@ -69,8 +69,12 @@ export const NInput = {
   setup(props, { emit, attrs }) {
     return () =>
       h(props.type === "textarea" ? "textarea" : "input", {
-        class: "naive-ninput",
         ...attrs,
+        // The class of the caller comes first, so that the class of the mock
+        // does not hide it: a spec looks for the class of the component it
+        // drives, not for the class of the mock. The class is a declared prop
+        // of the mock, so it does not arrive in the attrs.
+        class: [props.class, "naive-ninput"],
         value: props.value,
         placeholder: props.placeholder,
         readonly: props.readonly,

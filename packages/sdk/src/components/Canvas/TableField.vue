@@ -16,6 +16,7 @@ const props = defineProps({
   table: { type: Object as PropType<Table>, required: true },
   field: { type: Object as PropType<Field>, required: true },
   selected: { type: Boolean, default: false },
+  locked: { type: Boolean, default: false },
   showFieldTypes: { type: Boolean, default: true },
 });
 
@@ -94,11 +95,17 @@ function onTypeInput(value: string): void {
 
 function onStartName(event: Event): void {
   event.stopPropagation();
+  if (props.locked) {
+    return;
+  }
   startName(props.field.name);
 }
 
 function onStartType(event: Event): void {
   event.stopPropagation();
+  if (props.locked) {
+    return;
+  }
   startType(props.field.type);
 }
 
@@ -118,6 +125,9 @@ function onCommitType(): void {
 
 function onTogglePrimary(event: Event): void {
   event.stopPropagation();
+  if (props.locked) {
+    return;
+  }
   diagram.updateField(props.table.id, props.field.id, {
     primary: !props.field.primary,
   });
@@ -125,6 +135,9 @@ function onTogglePrimary(event: Event): void {
 
 function onRemove(event: Event): void {
   event.stopPropagation();
+  if (props.locked) {
+    return;
+  }
   diagram.removeField(props.table.id, props.field.id);
 }
 </script>
@@ -150,7 +163,7 @@ function onRemove(event: Event): void {
       />
       <NInput
         v-if="editingName"
-        class="ddb-table__field-input"
+        class="ddb-table__field-name-input"
         size="tiny"
         :value="nameDraft"
         :data-testid="`field-name-input-${field.id}`"
@@ -161,6 +174,7 @@ function onRemove(event: Event): void {
       <span
         v-else
         class="ddb-table__field-name"
+        :class="{ 'is-locked': locked }"
         :data-testid="`field-name-${field.id}`"
         @dblclick="onStartName"
       >
@@ -169,7 +183,7 @@ function onRemove(event: Event): void {
     </span>
     <span class="ddb-table__field-marks">
       <button
-        v-if="hovered"
+        v-if="hovered && !locked"
         type="button"
         class="ddb-table__field-remove"
         :data-testid="`remove-field-${field.id}`"
@@ -212,7 +226,7 @@ function onRemove(event: Event): void {
         </span>
         <NInput
           v-if="editingType"
-          class="ddb-table__field-input"
+          class="ddb-table__field-type-input"
           size="tiny"
           :value="typeDraft"
           :data-testid="`field-type-input-${field.id}`"
@@ -223,6 +237,7 @@ function onRemove(event: Event): void {
         <span
           v-else
           class="ddb-table__field-type"
+          :class="{ 'is-locked': locked }"
           data-testid="field-type"
           :data-field-id="field.id"
           :style="{ color: typeColorOfField }"

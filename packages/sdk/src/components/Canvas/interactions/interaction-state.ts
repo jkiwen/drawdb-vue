@@ -14,12 +14,12 @@ export interface LinkingTarget {
 }
 
 /** The kind of the element whose corner the user grabs. */
-export type ResizeKind = "table" | "area";
+export type ResizeKind = "table" | "area" | "note";
 
 /** The element that the user resizes. */
 export interface ResizeState {
   kind: ResizeKind;
-  /** The id of the table or of the area. */
+  /** The id of the table, of the area or of the note. */
   id: RelationshipId;
   width: number;
   height: number;
