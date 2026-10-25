@@ -65,7 +65,7 @@ const label = computed(() => {
     <g
       v-for="marker in [startLabel, endLabel]"
       :key="marker.text"
-      class="ddb-relationship__cardinality"
+      class="ddb-canvas-relationship__cardinality"
       :transform="`translate(${marker.x} ${marker.y})`"
     >
       <rect x="-9" y="-9" width="18" height="18" rx="9" ry="9" />

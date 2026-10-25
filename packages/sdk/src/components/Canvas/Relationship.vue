@@ -69,15 +69,15 @@ const label = computed(() => {
 
 <template>
   <g
-    class="ddb-relationship"
+    class="ddb-canvas-relationship"
     :class="{ 'is-selected': selected }"
     :data-testid="`relationship-${relationship.id}`"
   >
-    <path class="ddb-relationship__line" :d="path" fill="none" />
+    <path class="ddb-canvas-relationship__line" :d="path" fill="none" />
     <g
       v-for="marker in [startLabel, endLabel]"
       :key="marker.text"
-      class="ddb-relationship__cardinality"
+      class="ddb-canvas-relationship__cardinality"
       :transform="`translate(${marker.x} ${marker.y})`"
     >
       <rect x="-9" y="-9" width="18" height="18" rx="9" ry="9" />
@@ -87,7 +87,7 @@ const label = computed(() => {
     </g>
     <text
       v-if="relationship.name"
-      class="ddb-relationship__label"
+      class="ddb-canvas-relationship__label"
       :x="label.x"
       :y="label.y"
     >

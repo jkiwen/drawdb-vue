@@ -72,6 +72,24 @@ export function useLinking(options: LinkingOptions = {}): LinkingApi {
     return table?.fields.find((field) => field.primary)?.id;
   }
 
+  /**
+   * The field of a table that a link without a field ends on.
+   *
+   * The primary key of the table is the first choice. A table without a primary
+   * key has none, and the link would end nowhere: the user drags a link and
+   * nothing happens. The first field of the table is used then, so that the
+   * link always ends somewhere the user can see.
+   */
+  function endFieldOf(
+    table: Table | undefined,
+    fieldId: RelationshipId | undefined,
+  ): RelationshipId | undefined {
+    if (fieldId !== undefined) {
+      return fieldId;
+    }
+    return primaryKeyOf(table) ?? table?.fields[0]?.id;
+  }
+
   function start(
     tableId: RelationshipId,
     fieldId: RelationshipId,
@@ -118,7 +136,7 @@ export function useLinking(options: LinkingOptions = {}): LinkingApi {
       return null;
     }
 
-    const endFieldId = target.fieldId ?? primaryKeyOf(targetTable);
+    const endFieldId = endFieldOf(targetTable, target.fieldId);
     if (endFieldId === undefined) {
       cancel();
       return null;

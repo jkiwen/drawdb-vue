@@ -38,7 +38,10 @@
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  /* The body does not clip: the handle of a field sits on the right edge of
+     the table and would be cut in half. The rows keep the rounded corners of
+     the table, the fields block below does the clipping. */
+  overflow: visible;
   border: 2px solid #d4d4d8;
   border-radius: 8px;
   background-color: #f4f4f5;
@@ -64,6 +67,10 @@
 .ddb-table__fields {
   display: flex;
   flex-direction: column;
+  /* The rows are clipped here, so that they keep the rounded corners of the
+     table. */
+  overflow: hidden;
+  border-radius: 0 0 6px 6px;
 }
 
 /* ------------------------------------------------------------------ header */
@@ -323,19 +330,35 @@
 
 /* ------------------------------------------------------------------ handle */
 
+/*
+ * The handle of a field is the dot the user grabs to draw a relationship. It
+ * sits on the right edge of the row of the field. The rows are clipped by
+ * their block, so the dot stays inside the edge and the target of the pointer
+ * is a comfortable size.
+ */
 .ddb-field-handle {
   position: absolute;
   top: 50%;
-  right: -5px;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  cursor: crosshair;
+}
+
+.ddb-field-handle::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 4px;
   width: 10px;
   height: 10px;
   margin-top: -5px;
   border-radius: 9999px;
   background-color: rgb(47 104 173 / 80%);
-  cursor: crosshair;
 }
 
-.ddb-field-handle:hover {
+.ddb-field-handle:hover::before {
   background-color: rgb(47 104 173 / 100%);
 }
 
@@ -403,7 +426,7 @@
 
 /* -------------------------------------------------------------- relation */
 
-.ddb-relationship__line,
+.ddb-canvas-relationship__line,
 .ddb-logical-relationship__line {
   fill: none;
   stroke: #808080;
@@ -415,7 +438,7 @@
   pointer-events: stroke;
 }
 
-.ddb-relationship:hover .ddb-relationship__line,
+.ddb-canvas-relationship:hover .ddb-canvas-relationship__line,
 .ddb-logical-relationship:hover .ddb-logical-relationship__line {
   stroke: #0084d1;
   stroke-width: 6;
@@ -423,7 +446,7 @@
   animation: ddb-dash-right 1s linear infinite;
 }
 
-.ddb-relationship__marker,
+.ddb-canvas-relationship__marker,
 .ddb-logical-relationship__marker {
   fill: none;
   stroke: #808080;
@@ -435,27 +458,27 @@
  * The cardinality is a label on a rounded background, like in the reference
  * application: "1" for one and "n" for many.
  */
-.ddb-relationship__cardinality rect {
+.ddb-canvas-relationship__cardinality rect {
   fill: #808080;
   stroke: none;
 }
 
-.ddb-relationship__cardinality text {
+.ddb-canvas-relationship__cardinality text {
   fill: #ffffff;
   font-size: 11px;
   font-weight: 600;
 }
 
-.ddb-relationship:hover .ddb-relationship__cardinality rect {
+.ddb-canvas-relationship:hover .ddb-canvas-relationship__cardinality rect {
   fill: #0084d1;
 }
 
-.ddb-relationship:hover .ddb-relationship__marker,
+.ddb-canvas-relationship:hover .ddb-canvas-relationship__marker,
 .ddb-logical-relationship:hover .ddb-logical-relationship__marker {
   stroke: #0084d1;
 }
 
-.ddb-relationship__label,
+.ddb-canvas-relationship__label,
 .ddb-logical-relationship__label {
   fill: #52525b;
   font-size: 11px;
@@ -686,7 +709,7 @@
   color: #a1a1aa;
 }
 
-.ddb-canvas--dark .ddb-relationship__label,
+.ddb-canvas--dark .ddb-canvas-relationship__label,
 .ddb-canvas--dark .ddb-logical-relationship__label {
   fill: #a1a1aa;
   stroke: #18181b;

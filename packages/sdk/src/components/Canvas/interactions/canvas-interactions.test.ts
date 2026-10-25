@@ -195,6 +195,96 @@ describe("the canvas of the interactions", () => {
     assert.equal(diagram.relationships.length, 0);
   });
 
+  it("releasing the link on a table links it to the primary key", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const source = wrapper.find(
+      '[data-testid="field-handle-posts-posts_user_id"]',
+    ).element;
+    // The body of the target table, not one of its handles.
+    const target = wrapper.find('[data-testid="table-users"]').element;
+
+    fire(source, "pointerdown", { clientX: 100, clientY: 100 });
+    fire(target, "pointerup", { clientX: 200, clientY: 120 });
+    await nextTick();
+
+    assert.equal(diagram.relationships.length, 1);
+    assert.equal(diagram.relationships[0].startTableId, "posts");
+    assert.equal(diagram.relationships[0].startFieldId, "posts_user_id");
+    assert.equal(diagram.relationships[0].endTableId, "users");
+    // A link that ends on a table ends on its primary key.
+    assert.equal(diagram.relationships[0].endFieldId, "users_id");
+  });
+
+  it("releasing the link on a row of a table links it to that field", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const source = wrapper.find(
+      '[data-testid="field-handle-posts-posts_user_id"]',
+    ).element;
+    const target = wrapper.find('[data-testid="field-users-users_name"]').element;
+
+    fire(source, "pointerdown", { clientX: 100, clientY: 100 });
+    fire(target, "pointerup", { clientX: 200, clientY: 120 });
+    await nextTick();
+
+    assert.equal(diagram.relationships.length, 1);
+    assert.equal(diagram.relationships[0].endFieldId, "users_name");
+  });
+
+  it("releasing the link on a table without a primary key links it to the first field", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    // A table without a primary key has no key to link to, but the link the
+    // user drew must not disappear: the first field of the table is the end.
+    diagram.addTable({
+      id: "logs",
+      name: "logs",
+      x: 200,
+      y: 420,
+      fields: [{ id: "logs_message", name: "message", type: "VARCHAR" }],
+    });
+    const wrapper = mountCanvas(pinia);
+
+    const source = wrapper.find(
+      '[data-testid="field-handle-posts-posts_user_id"]',
+    ).element;
+    const target = wrapper.find('[data-testid="table-logs"]').element;
+
+    fire(source, "pointerdown", { clientX: 100, clientY: 100 });
+    fire(target, "pointerup", { clientX: 200, clientY: 120 });
+    await nextTick();
+
+    assert.equal(diagram.relationships.length, 1);
+    assert.equal(diagram.relationships[0].endTableId, "logs");
+    assert.equal(diagram.relationships[0].endFieldId, "logs_message");
+  });
+
+  it("undoes a relationship that a link created", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const history = useHistoryStore(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    const source = wrapper.find(
+      '[data-testid="field-handle-posts-posts_user_id"]',
+    ).element;
+    const target = wrapper.find('[data-testid="table-users"]').element;
+
+    fire(source, "pointerdown", { clientX: 100, clientY: 100 });
+    fire(target, "pointerup", { clientX: 200, clientY: 120 });
+    await nextTick();
+
+    assert.equal(diagram.relationships.length, 1);
+    history.undo();
+    await nextTick();
+    assert.equal(diagram.relationships.length, 0);
+  });
+
   it("draws the preview of a link that is being drawn", async () => {
     const pinia = freshPinia();
     seed(pinia);

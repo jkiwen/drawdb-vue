@@ -104,7 +104,7 @@ describe("the view mode of the canvas", () => {
     // The cardinality is drawn as a label on both ends of the relationship.
     // The relationship of the seed is one to many: "1" on the start, "n" on
     // the end.
-    const cardinalities = wrapper.findAll(".ddb-relationship__cardinality");
+    const cardinalities = wrapper.findAll(".ddb-canvas-relationship__cardinality");
     assert.equal(cardinalities.length, 2);
     assert.equal(cardinalities[0].text(), "1");
     assert.equal(cardinalities[1].text(), "n");

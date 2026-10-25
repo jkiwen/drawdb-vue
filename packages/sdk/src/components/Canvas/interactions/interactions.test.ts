@@ -107,6 +107,33 @@ describe("the interaction layer of the canvas", () => {
     assert.equal(relationship.endFieldId, "users_id");
   });
 
+  it("useLinking links a table without a primary key to its first field", () => {
+    const pinia = freshPinia();
+    seed(pinia);
+    const diagram = useDiagramStore(pinia);
+    diagram.addTable({
+      id: "logs",
+      name: "logs",
+      x: 800,
+      y: 300,
+      fields: [
+        { id: "logs_message", name: "message", type: "TEXT" },
+        { id: "logs_at", name: "at", type: "TIMESTAMP" },
+      ],
+    });
+    const linking = useLinking();
+
+    linking.start("posts", "posts_user_id", { x: 0, y: 0 });
+    const relationship = linking.finish({ tableId: "logs" });
+
+    assert.ok(
+      relationship,
+      "a link that ends on a table without a primary key still creates a relationship",
+    );
+    assert.equal(relationship.endTableId, "logs");
+    assert.equal(relationship.endFieldId, "logs_message");
+  });
+
   it("useLinking cancels the linking when the pointer is released on the canvas", () => {
     const pinia = freshPinia();
     const diagram = seed(pinia);
