@@ -55,6 +55,23 @@ describe("useDrag", () => {
     assert.deepEqual(dragState.origin, { x: 10, y: 30 });
   });
 
+  it("snaps the place the drag ends at to the grid", () => {
+    const { dragState, beginDrag, updateDrag } = useDrag();
+
+    beginDrag({ x: 140, y: 140 }, ["t1"], { snapToGrid: true, gridSize: 10 });
+    // The pointer is between two lines of the grid.
+    updateDrag({ x: 198.5, y: 178.5 });
+    assert.deepEqual(dragState.delta, { x: 60, y: 40 });
+  });
+
+  it("keeps the place the drag ends at untouched when the grid is disabled", () => {
+    const { dragState, beginDrag, updateDrag } = useDrag();
+
+    beginDrag({ x: 140, y: 140 }, ["t1"], { snapToGrid: false, gridSize: 10 });
+    updateDrag({ x: 198.5, y: 178.5 });
+    assert.deepEqual(dragState.delta, { x: 58.5, y: 38.5 });
+  });
+
   it("keeps the origin untouched when the grid is disabled", () => {
     const { dragState, beginDrag } = useDrag();
 

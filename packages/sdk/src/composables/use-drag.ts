@@ -15,7 +15,7 @@ export interface DragState {
 }
 
 export interface DragOptions {
-  /** Snaps the origin to the grid. */
+  /** Snaps the origin and the result of the drag to the grid. */
   snapToGrid?: boolean;
   /** The size of the grid in canvas units. */
   gridSize?: number;
@@ -57,6 +57,10 @@ export function useDrag(): DragApi {
     ids: [],
   });
 
+  /** The grid of the drag that is running, and whether it snaps. */
+  let gridSize = 10;
+  let snapToGrid = false;
+
   function reset(): void {
     dragState.active = false;
     dragState.origin = null;
@@ -66,8 +70,9 @@ export function useDrag(): DragApi {
   }
 
   function beginDrag(point: Point, ids: string[], options: DragOptions = {}): void {
-    const gridSize = options.gridSize ?? 10;
-    const origin = options.snapToGrid
+    gridSize = options.gridSize ?? 10;
+    snapToGrid = options.snapToGrid ?? false;
+    const origin = snapToGrid
       ? { x: snap(point.x, gridSize), y: snap(point.y, gridSize) }
       : { x: point.x, y: point.y };
 
@@ -78,14 +83,37 @@ export function useDrag(): DragApi {
     dragState.ids = [...ids];
   }
 
+  /**
+   * The place the dragged elements would take if the button were released now.
+   *
+   * The place of the grabbed element is rounded to the grid when the grid is
+   * enabled, and the elements that travel with it keep their distance to it.
+   * The reference application does the same: the pointer may be between two
+   * lines of the grid, and the element lands on the line next to it.
+   */
+  function targetOf(point: Point): Point {
+    const origin = dragState.origin;
+    if (!origin) {
+      return point;
+    }
+    if (!snapToGrid) {
+      return point;
+    }
+    return {
+      x: snap(point.x - origin.x, gridSize) + origin.x,
+      y: snap(point.y - origin.y, gridSize) + origin.y,
+    };
+  }
+
   function updateDrag(point: Point): void {
     if (!dragState.active || !dragState.origin) {
       return;
     }
-    dragState.current = { x: point.x, y: point.y };
+    const target = targetOf(point);
+    dragState.current = point;
     dragState.delta = {
-      x: point.x - dragState.origin.x,
-      y: point.y - dragState.origin.y,
+      x: target.x - dragState.origin.x,
+      y: target.y - dragState.origin.y,
     };
   }
 
