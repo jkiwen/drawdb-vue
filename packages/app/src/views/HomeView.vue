@@ -57,10 +57,10 @@ onMounted(refresh);
         <RouterLink class="button" :to="`/editor/${createId()}`" data-testid="new-diagram">
           New diagram
         </RouterLink>
-        <RouterLink class="button" to="/templates" data-testid="link-templates">
+        <RouterLink class="button ghost" to="/templates" data-testid="link-templates">
           Templates
         </RouterLink>
-        <button class="button" type="button" data-testid="import-json" @click="pickDiagram">
+        <button class="button ghost" type="button" data-testid="import-json" @click="pickDiagram">
           Import JSON
         </button>
         <input

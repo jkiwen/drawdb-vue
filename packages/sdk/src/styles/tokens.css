@@ -1,0 +1,83 @@
+/**
+ * The design tokens of the editor chrome.
+ *
+ * The top operation area and the left operation area share this sheet, so
+ * both speak the same visual language: one spacing rhythm, one set of radii,
+ * one type scale, one set of surfaces and one motion curve.
+ *
+ * The colours are mapped onto the variables of Naive UI, so the editor keeps
+ * following the theme of the host application and the dark theme for free.
+ */
+
+:root {
+  /* The spacing rhythm: every gap and padding is a multiple of four. */
+  --ddb-space-1: 4px;
+  --ddb-space-2: 8px;
+  --ddb-space-3: 12px;
+  --ddb-space-4: 16px;
+
+  /* The radii: small for controls, medium for panels, large for surfaces. */
+  --ddb-radius-sm: 4px;
+  --ddb-radius-md: 6px;
+  --ddb-radius-lg: 8px;
+
+  /* One font family for the whole editor. */
+  --ddb-font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+
+  /* The type scale: title, body, meta and micro. */
+  --ddb-text-title: 13px;
+  --ddb-text-body: 13px;
+  --ddb-text-meta: 12px;
+  --ddb-text-micro: 11px;
+
+  /* The motion: short enough to never block the next click. */
+  --ddb-duration-fast: 120ms;
+  --ddb-duration-base: 180ms;
+  --ddb-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* The surfaces and the lines, mapped onto Naive UI. */
+  --ddb-surface: var(--n-color, #fff);
+  --ddb-surface-muted: var(--n-color-modal, rgba(0, 0, 0, 0.04));
+  --ddb-surface-hover: var(--n-color-hover, rgba(0, 0, 0, 0.06));
+  --ddb-border: var(--n-border-color, rgba(0, 0, 0, 0.08));
+  --ddb-border-strong: var(--n-border-strong, rgba(0, 0, 0, 0.16));
+
+  /* The text and the accent. */
+  --ddb-text: var(--n-text-color, #1c1e21);
+  --ddb-text-muted: var(--n-text-color-3, #6b7280);
+  --ddb-accent: var(--n-color-target, #175e7a);
+
+  /* The smallest target a pointer may aim at, and the layers of the editor. */
+  --ddb-hit-target: 24px;
+  --ddb-z-header: 10;
+  --ddb-z-panel: 10;
+  --ddb-z-dropdown: 20;
+}
+
+/* Naive UI brings its own font stack for the controls. The editor wants one
+   family everywhere, so the controls inherit the family of the editor. */
+.ddb-editor,
+.ddb-editor .n-button,
+.ddb-editor .n-input,
+.ddb-editor .n-base-selection,
+.ddb-editor .n-tag {
+  font-family: var(--ddb-font-family);
+}
+
+/* Every control of the editor shows where the keyboard is. */
+.ddb-editor :focus-visible {
+  outline: 2px solid var(--ddb-accent);
+  outline-offset: 1px;
+  border-radius: var(--ddb-radius-sm);
+}
+
+/* The motion of the editor is a confirmation, never a show. */
+@media (prefers-reduced-motion: reduce) {
+  .ddb-editor *,
+  .ddb-editor *::before,
+  .ddb-editor *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}

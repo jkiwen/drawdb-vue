@@ -13,7 +13,7 @@
  * The script runs in-process (no child process is spawned) so that it also works in a
  * sandbox that blocks the process spawning of the esbuild service.
  */
-import { readdir, readFile, writeFile, stat } from "node:fs/promises";
+import { readdir, readFile, writeFile, stat, mkdir } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -103,8 +103,9 @@ function compileComponent(file) {
   return transpiled.outputText;
 }
 
-/** Copies a file into the distribution. */
+/** Copies a file into the distribution, creating the directory it needs. */
 async function copy(file, target) {
+  await mkdir(path.dirname(target), { recursive: true });
   await writeFile(target, await readFile(file));
 }
 

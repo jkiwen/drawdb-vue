@@ -36,7 +36,7 @@ function update(id: string | number, updates: Record<string, unknown>): void {
 <style scoped>
 .entity-tab__empty {
   margin: 0;
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 12px;
+  color: var(--ddb-text-muted);
+  font-size: var(--ddb-text-meta);
 }
 </style>

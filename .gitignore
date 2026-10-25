@@ -8,3 +8,6 @@ dist
 pnpm-store
 .pnpm-store
 .release
+.turbo
+test-results
+.tmp

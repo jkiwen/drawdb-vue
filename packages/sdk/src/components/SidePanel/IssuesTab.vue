@@ -78,41 +78,50 @@ function anchor(issue: LocalizedIssue): string {
 .issues-tab {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--ddb-space-3);
 }
 
+/* The severity is carried by the title of the group, so the reader knows what
+   the list below is about before reading it. */
 .issues-group__title {
-  margin: 0 0 4px;
-  font-size: 12px;
+  margin: 0 0 var(--ddb-space-1);
+  font-size: var(--ddb-text-meta);
   font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  color: var(--ddb-text-muted);
 }
 
 .issues-list {
   margin: 0;
   padding: 0;
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ddb-space-1);
 }
 
 .issue-item {
   width: 100%;
-  padding: 4px;
+  padding: var(--ddb-space-1) var(--ddb-space-2);
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--ddb-radius-md);
   background: transparent;
   color: inherit;
   font: inherit;
+  font-size: var(--ddb-text-body);
   text-align: left;
   cursor: pointer;
+  transition: background-color var(--ddb-duration-fast) var(--ddb-easing);
 }
 
 .issue-item:hover {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--ddb-surface-hover);
 }
 
 .issues-empty {
   margin: 0;
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 12px;
+  color: var(--ddb-text-muted);
+  font-size: var(--ddb-text-meta);
 }
 </style>

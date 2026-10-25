@@ -51,10 +51,25 @@ function onSelect(groupKey: string, itemKey: string): void {
 .menu-bar {
   display: flex;
   align-items: center;
-  gap: 2px;
+  /* Eight pixels between the entries, so that the pointer never has to hit
+     two targets at once. */
+  gap: var(--ddb-space-2);
+  flex: none;
 }
 
 .menu-bar__entry {
   font-weight: 500;
+  font-size: var(--ddb-text-body);
+  height: var(--ddb-hit-target);
+  padding: 0 var(--ddb-space-2);
+  border-radius: var(--ddb-radius-md);
+  color: var(--ddb-text);
+  transition:
+    background-color var(--ddb-duration-fast) var(--ddb-easing),
+    color var(--ddb-duration-fast) var(--ddb-easing);
+}
+
+.menu-bar__entry:hover {
+  background: var(--ddb-surface-hover);
 }
 </style>

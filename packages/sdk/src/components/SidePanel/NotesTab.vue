@@ -48,12 +48,19 @@ const notes = computed(() => diagram.notes);
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--ddb-space-1);
 }
 
 .entity-tab__list li {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--ddb-space-2);
+  padding: var(--ddb-space-1) var(--ddb-space-2);
+  border-radius: var(--ddb-radius-md);
+  transition: background-color var(--ddb-duration-fast) var(--ddb-easing);
+}
+
+.entity-tab__list li:hover {
+  background: var(--ddb-surface-hover);
 }
 </style>

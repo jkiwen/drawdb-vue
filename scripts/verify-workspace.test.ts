@@ -33,11 +33,12 @@ describe('workspace bootstrap', () => {
     assert.ok(workspace.includes('packages/*'));
   });
 
-  it('turbo config exists and has pipeline', () => {
+  it('turbo config exists and has tasks', () => {
+    // Turbo 2 calls the task graph "tasks"; the old name was "pipeline".
     const turbo = JSON.parse(readFileSync('turbo.json', 'utf-8'));
-    assert.ok(turbo.pipeline);
-    assert.ok(turbo.pipeline.build);
-    assert.ok(turbo.pipeline.test);
+    assert.ok(turbo.tasks);
+    assert.ok(turbo.tasks.build);
+    assert.ok(turbo.tasks.test);
   });
 
   it('shared typescript base config exists', () => {

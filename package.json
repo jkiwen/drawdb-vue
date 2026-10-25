@@ -18,7 +18,7 @@
     "pack:packages": "pnpm --filter @drawdb/core pack --pack-destination .release && pnpm --filter @drawdb/vue-sdk pack --pack-destination .release"
   },
   "devDependencies": {
-    "@playwright/test": "1.49.0",
+    "@playwright/test": "1.63.0",
     "@types/node": "^22.0.0",
     "@vitest/utils": "^2.1.0",
     "jsdom": "^30.1.3",

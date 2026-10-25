@@ -7,6 +7,13 @@ export default defineConfig({
   // index.html and its sources, whatever the folder the command runs in.
   root: fileURLToPath(new URL(".", import.meta.url)),
   plugins: [vue()],
+  server: {
+    // The example mounts the application of packages/app, so that Vite has
+    // to be allowed to read the files of the workspace.
+    fs: {
+      allow: [fileURLToPath(new URL('../..', import.meta.url))],
+    },
+  },
   resolve: {
     alias: {
       // The example runs against the sources of the workspace, so that a change

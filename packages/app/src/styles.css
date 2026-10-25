@@ -1,10 +1,52 @@
+/*
+ * App level design tokens and global styles.
+ *
+ * The tokens mirror the ones the SDK uses inside the editor
+ * (`packages/sdk/src/styles/tokens.css`), so the app shell and the editor
+ * chrome speak the same visual language: one spacing rhythm, one radius
+ * scale, one type scale and one motion duration set.
+ */
+
 :root {
   --surface: #ffffff;
   --surface-muted: #f4f5f7;
+  --surface-raised: #ffffff;
+  --surface-hover: #eceef1;
   --border: #d9dce1;
+  --border-strong: #c3c8cf;
   --text: #1c1e21;
   --muted: #6b7280;
   --accent: #175e7a;
+  --accent-hover: #12485f;
+  --danger: #b91c1c;
+
+  /* Spacing rhythm: 4 / 8 / 12 / 16 / 24 / 32 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* Radius scale */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Type scale */
+  --text-title: 18px;
+  --text-body: 14px;
+  --text-meta: 12px;
+  --text-micro: 11px;
+
+  /* Motion: press feedback is quick, everything else stays calm */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Minimum comfortable hit target on the web */
+  --hit-target: 24px;
+
   color-scheme: light;
 }
 
@@ -14,11 +56,35 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  font-size: var(--text-body);
+  line-height: 1.5;
   color: var(--text);
   background: var(--surface-muted);
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Every interactive element shows where the keyboard is. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: var(--radius-sm);
+}
+
+/* The file input of the browser is only a hook for the button, so it stays
+   out of sight but keeps working for the keyboard and for the tests. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .app {
   display: flex;
   flex-direction: column;
@@ -28,30 +94,46 @@ body {
 .app-header {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 12px 24px;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-5);
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 
 .brand {
   font-weight: 700;
-  font-size: 18px;
+  font-size: var(--text-title);
+  line-height: 1.2;
   color: var(--accent);
   text-decoration: none;
+  letter-spacing: -0.01em;
 }
 
 .app-nav {
   display: flex;
-  gap: 16px;
+  gap: var(--space-2);
 }
 
 .app-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--hit-target);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
   color: var(--muted);
+  font-weight: 500;
   text-decoration: none;
+  transition: background-color var(--duration-fast) var(--easing),
+    color var(--duration-fast) var(--easing);
+}
+
+.app-nav a:hover {
+  background: var(--surface-hover);
+  color: var(--text);
 }
 
 .app-nav a.router-link-active {
+  background: var(--surface-hover);
   color: var(--accent);
 }
 
@@ -63,7 +145,7 @@ body {
 .view {
   max-width: 960px;
   margin: 0 auto;
-  padding: 24px;
+  padding: var(--space-5);
 }
 
 .view.editor {
@@ -76,25 +158,70 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.view-header h1 {
+  margin: 0;
+  font-size: var(--text-title);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
 .view-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* The toolbar above the editor: a small, quiet group of secondary actions. */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Names the group of the actions, so the toolbar says what it acts on. */
+.editor-toolbar__label {
+  margin-right: var(--space-1);
+  color: var(--muted);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .button {
-  display: inline-block;
-  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: var(--hit-target);
+  padding: var(--space-1) var(--space-3);
   border: 1px solid var(--accent);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: var(--accent);
   color: #ffffff;
   font: inherit;
+  font-weight: 500;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color var(--duration-fast) var(--easing),
+    border-color var(--duration-fast) var(--easing),
+    transform var(--duration-fast) var(--easing);
+}
+
+.button:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.button:active {
+  transform: translateY(1px);
 }
 
 .button.ghost {
@@ -103,23 +230,36 @@ body {
   border-color: var(--border);
 }
 
+.button.ghost:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
 .list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .list-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: var(--space-3);
+  padding: var(--space-3);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
+  transition: border-color var(--duration-fast) var(--easing),
+    box-shadow var(--duration-fast) var(--easing);
+}
+
+.list-item:hover {
+  border-color: var(--border-strong);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .list-item a {
@@ -128,11 +268,25 @@ body {
   font-weight: 600;
 }
 
+.list-item a:hover {
+  text-decoration: underline;
+}
+
 .muted {
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--text-meta);
 }
 
 .error {
-  color: #b91c1c;
+  color: var(--danger);
+  font-size: var(--text-meta);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
 }

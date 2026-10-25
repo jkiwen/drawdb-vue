@@ -140,9 +140,10 @@ are ready for the registry. The changes of every version are written in
 | [docs/plan.md](docs/plan.md) | the plan with the 20 tasks of the implementation |
 | [docs/task-N-report.md](docs) | the report of every task |
 | [docs/visual-parity-report.md](docs/visual-parity-report.md) | the alignment of the canvas with the React reference (the styles, the marks of the fields, the colours of the types) |
+| [docs/ui-ux-optimization-report.md](docs/ui-ux-optimization-report.md) | the design system of the operation areas (the header, the toolbar, the side panel) and the comparison with the state before it |
 | [progress.md](progress.md) | the ledger with the state of the work and the decisions |
 | [CHANGELOG.md](CHANGELOG.md) | the changes of every version |
-| [examples/vue-embed](examples/vue-embed) | an application that embeds the editor |
+| [examples/vue-embed](examples/vue-embed) | the harness that embeds the editor and the application, with the three regions of a test labelled |
 
 ## The license
 

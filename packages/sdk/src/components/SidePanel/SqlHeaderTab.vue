@@ -46,6 +46,6 @@ function commit(): void {
 
 <style scoped>
 .sql-header-tab__save {
-  margin-top: 8px;
+  margin-top: var(--ddb-space-3);
 }
 </style>

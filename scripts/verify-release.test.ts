@@ -69,7 +69,12 @@ test("the packages can be packed locally", () => {
 
 test("the example embeds the editor", () => {
   assert.ok(existsSync(resolve(ROOT, "examples/vue-embed/src/App.vue")));
-  const example = read("examples/vue-embed/src/App.vue");
+  // The editor may sit in the entry component of the example or in the
+  // harness it mounts, so both are looked at.
+  const example = [
+    read("examples/vue-embed/src/App.vue"),
+    read("examples/vue-embed/src/AppHarness.vue"),
+  ].join("\n");
   assert.match(example, /DrawDBEditor/);
   assert.ok(existsSync(resolve(ROOT, "examples/vue-embed/README.md")));
 });

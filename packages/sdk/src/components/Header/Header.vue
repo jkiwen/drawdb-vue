@@ -80,46 +80,61 @@ function changeDatabase(value: string): void {
 }
 
 function saveDiagram(): void {
+  // The editor owns the saving. The header only reports the wish, so that the
+  // diagram is written once and not twice.
   emit("save");
-  if (save.adapter) {
-    void save.save();
-  }
 }
 </script>
 
 <template>
   <header data-testid="header" class="header">
-    <div class="header__row">
+    <div class="header__row header__row--primary">
       <MenuBar @select="emit('menu', $event)" />
 
-      <NInput
-        v-model:value="titleDraft"
-        class="header__title"
-        size="small"
-        data-testid="diagram-title-input"
-        placeholder="Untitled diagram"
-        @blur="commitTitle"
-        @keyup.enter="commitTitle"
-      />
+      <div class="header__identity">
+        <NInput
+          v-model:value="titleDraft"
+          class="header__title"
+          size="small"
+          data-testid="diagram-title-input"
+          placeholder="Untitled diagram"
+          aria-label="Diagram title"
+          @blur="commitTitle"
+          @keyup.enter="commitTitle"
+        />
 
-      <NSelect
-        class="header__database"
-        size="small"
-        data-testid="database-select"
-        :value="database"
-        :options="DATABASE_OPTIONS"
-        @update:value="changeDatabase"
-      />
+        <NSelect
+          class="header__database"
+          size="small"
+          data-testid="database-select"
+          :value="database"
+          :options="DATABASE_OPTIONS"
+          @update:value="changeDatabase"
+        />
+      </div>
     </div>
 
     <div class="header__row header__row--tools">
       <Toolbar />
 
-      <NSpace :size="8" align="center">
-        <NTag size="small" :type="saveTagType" data-testid="save-state">
+      <NSpace :size="8" align="center" class="header__actions">
+        <NTag
+          size="small"
+          :type="saveTagType"
+          :bordered="false"
+          class="header__save-state"
+          data-testid="save-state"
+        >
+          <span class="header__save-dot" aria-hidden="true" />
           {{ saveLabel }}
         </NTag>
-        <NButton size="small" data-testid="save-btn" @click="saveDiagram">
+        <NButton
+          size="small"
+          type="primary"
+          class="header__save"
+          data-testid="save-btn"
+          @click="saveDiagram"
+        >
           Save
         </NButton>
         <UndoRedoButtons />
@@ -132,26 +147,71 @@ function saveDiagram(): void {
 .header {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--n-border-color, #e0e0e6);
+  gap: var(--ddb-space-2);
+  padding: var(--ddb-space-2) var(--ddb-space-3);
+  background: var(--ddb-surface);
+  border-bottom: 1px solid var(--ddb-border);
+  position: relative;
+  z-index: var(--ddb-z-header);
 }
 
 .header__row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--ddb-space-3);
+  min-width: 0;
+}
+
+.header__row--primary {
+  flex-wrap: nowrap;
 }
 
 .header__row--tools {
   justify-content: space-between;
 }
 
+/* The title and the database belong together: they describe the document the
+   canvas is showing, not the tools. */
+.header__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--ddb-space-2);
+  min-width: 0;
+  margin-left: auto;
+  flex-wrap: nowrap;
+}
+
 .header__title {
   max-width: 320px;
+  min-width: 140px;
 }
 
 .header__database {
   width: 190px;
+  flex: none;
+}
+
+.header__actions {
+  flex: none;
+}
+
+/* The save state carries a dot next to the label, so that the state is never
+   communicated by the colour alone. */
+.header__save-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ddb-space-1);
+}
+
+.header__save-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.header__save {
+  font-weight: 500;
 }
 </style>

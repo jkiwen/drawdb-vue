@@ -1,0 +1,66 @@
+.tables-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ddb-space-3);
+}
+
+/* The list is the primary object of the tab, so it reads as a list of rows
+   with a hover and a selected state instead of a stack of buttons. */
+.tables-tab__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ddb-space-1);
+}
+
+.tables-tab__list li {
+  display: flex;
+  align-items: center;
+  gap: var(--ddb-space-2);
+  padding: var(--ddb-space-1) var(--ddb-space-2);
+  border-radius: var(--ddb-radius-md);
+  transition: background-color var(--ddb-duration-fast) var(--ddb-easing);
+}
+
+.tables-tab__list li:hover {
+  background: var(--ddb-surface-hover);
+}
+
+.tables-tab__item {
+  flex: 1;
+  text-align: left;
+  font-size: var(--ddb-text-body);
+  min-height: var(--ddb-hit-target);
+  padding: 0 var(--ddb-space-1);
+}
+
+.tables-tab__editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ddb-space-2);
+  border-top: 1px solid var(--ddb-border);
+  padding-top: var(--ddb-space-3);
+}
+
+.tables-tab__editor-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ddb-space-2);
+}
+
+.tables-tab__fields {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ddb-space-1);
+}
+
+.tables-tab__fields li {
+  display: flex;
+  align-items: center;
+  gap: var(--ddb-space-1);
+}

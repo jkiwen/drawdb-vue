@@ -63,6 +63,7 @@ function update(index: number, updates: Record<string, unknown>): void {
 
 <style scoped>
 .entity-tab__add {
-  margin-top: 8px;
+  margin-top: var(--ddb-space-3);
+  width: 100%;
 }
 </style>

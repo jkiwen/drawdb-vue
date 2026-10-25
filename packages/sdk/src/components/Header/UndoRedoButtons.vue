@@ -17,6 +17,7 @@ const history = useHistoryStore();
       data-testid="undo-btn"
       size="small"
       quaternary
+      class="undo-redo__button"
       :disabled="!history.canUndo"
       :title="history.undoDescription ?? 'Undo'"
       @click="history.undo()"
@@ -27,6 +28,7 @@ const history = useHistoryStore();
       data-testid="redo-btn"
       size="small"
       quaternary
+      class="undo-redo__button"
       :disabled="!history.canRedo"
       :title="history.redoDescription ?? 'Redo'"
       @click="history.redo()"
@@ -35,3 +37,14 @@ const history = useHistoryStore();
     </NButton>
   </NSpace>
 </template>
+
+<style scoped>
+.undo-redo__button {
+  font-size: var(--ddb-text-body);
+  font-weight: 500;
+  border-radius: var(--ddb-radius-md);
+  transition:
+    background-color var(--ddb-duration-fast) var(--ddb-easing),
+    color var(--ddb-duration-fast) var(--ddb-easing);
+}
+</style>

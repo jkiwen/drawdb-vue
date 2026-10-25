@@ -15,6 +15,15 @@ of the fields and of the relationships existed in the templates only, so the
 browser drew unstyled elements. The work below aligns the canvas with the
 React application of drawDB.
 
+The chrome around the canvas had no system either. The top operation area and
+the left operation area each carried their own spacing, their own colours and
+their own idea of what a control looks like: the four menu groups ran into
+each other as `FileEditViewHelp`, the seven buttons of the toolbar stood in a
+single undifferentiated row, the ten tabs of the side panel wrapped flat over
+three lines without grouping or a heading, and the sizes and the gaps were
+hard-coded per component. The work below gives both areas one design system,
+and the application shell the same one.
+
 The areas had the second half of the defect: they were drawn, and nothing else.
 The pointer that landed on an area cleared the selection and panned the canvas,
 so an area could not be selected; its corner had no handle; and a diagram that
@@ -57,6 +66,25 @@ zero.
   the editor still ends the gesture, and a press without movement records
   nothing.
 
+- One design system for the chrome of the editor: a new sheet of tokens
+  (`packages/sdk/src/styles/tokens.css`) declares the spacing rhythm (4, 8, 12
+  and 16 pixels), the radii, the font family, the type scale (title, body,
+  meta, micro), the surfaces, the lines and the motion (120ms and 180ms). Every
+  colour is mapped onto a variable of the UI library, so the editor keeps
+  following the theme of the host and the dark theme for free.
+- The top operation area: the menu groups are eight pixels apart and hover as
+  pills; the title and the database moved to the right of the menu, so the two
+  rows of the header no longer collide; the seven buttons of the toolbar are
+  split into three labelled groups — create, viewport, show — with hairline
+  dividers, and the pair of the zoom carries the label "ZOOM" instead of
+  relying on the symbols alone.
+- The left operation area: the tab strip became a tinted band, the tabs carry
+  the type scale and a rounded hover, the rows of the lists share one
+  treatment, and the empty states use the muted colour of the tokens instead
+  of a hard-coded grey.
+- Every control of the editor shows a two pixel focus ring, and every
+  transition of the editor is dropped to one millisecond when the system asks
+  for a reduced motion.
 
 ### @drawdb/core
 
@@ -66,6 +94,33 @@ zero.
 - `CompositeCommand` wraps the changes of one gesture, so that the drag of a
   group of elements — an area and the tables inside it — is one entry of the
   history and one undo puts them all back.
+
+### drawdb-vue-app
+
+- The shell of the application follows the same tokens as the editor: one
+  spacing rhythm, one type scale, a visible focus ring on every control, a
+  24 pixel minimum for the targets, and a press feedback on the buttons.
+- The actions of the header have a hierarchy: "New diagram" is the primary
+  action, the other two are ghost buttons, so the accent is not used three
+  times for three different actions.
+- The native file picker of the browser no longer shows on the page: the
+  `.visually-hidden` rule the import button relies on was referenced but never
+  declared, so the raw control of the browser was drawn next to the button.
+
+### The example
+
+- The example is now a harness with two pages: the page of the SDK and the
+  page of the application, which mounts the real `drawdb-vue-app`. Each page
+  labels the three regions the documentation talks about — the test panel and
+  its buttons, the component area of the SDK and the core area the test
+  asserts on — so it is clear who owns what.
+
+### The workspace
+
+- The build of the distribution of the SDK creates the directory of a new
+  stylesheet instead of failing with `ENOENT`.
+- The task graph of turbo is named `tasks`, which is the name turbo 2 expects;
+  the old name `pipeline` was rejected by the installed version.
 
 ## 0.2.0
 

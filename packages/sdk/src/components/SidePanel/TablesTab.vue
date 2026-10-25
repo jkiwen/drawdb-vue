@@ -4,6 +4,7 @@ import { NButton, NCheckbox, NEmpty, NInput, NTag } from "naive-ui";
 import { createId } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
+import "./tables-tab.css";
 
 /**
  * The tables tab of the side panel.
@@ -237,60 +238,3 @@ function removeTable(): void {
     <NEmpty v-else description="Select a table" />
   </div>
 </template>
-
-<style scoped>
-.tables-tab {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tables-tab__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.tables-tab__list li {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tables-tab__item {
-  flex: 1;
-  text-align: left;
-}
-
-.tables-tab__editor {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  padding-top: 8px;
-}
-
-.tables-tab__editor-header {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tables-tab__fields {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tables-tab__fields li {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-</style>

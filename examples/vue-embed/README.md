@@ -1,8 +1,29 @@
 # Embedding the drawDB editor in a Vue application
 
-The smallest application that embeds the editor of `@drawdb/vue-sdk`.
+The harness of the workspace. It embeds the editor of `@drawdb/vue-sdk` and the
+standalone application `drawdb-vue-app`, and it labels the three regions that
+a test of an editor is made of.
 
-## What it shows
+## The three regions
+
+Both pages of the harness are divided the same way, and every region says who
+owns it:
+
+| Region | Owner | What it holds |
+| --- | --- | --- |
+| **TEST PANEL & BUTTON AREA** | the host application | the buttons that drive the editor, the state of the diagram and the log of the test |
+| **SDK COMPONENT AREA** | `@drawdb/vue-sdk` (or `drawdb-vue-app` on top of it) | the editor itself: the header, the toolbar, the side panel and the canvas |
+| **TEST CORE AREA** | the test | what the test asserts on: the tables, the relationships, the database and the last save |
+
+## The two pages
+
+- **SDK test page** — the editor of the SDK is mounted directly with `v-model`.
+- **drawdb-vue-app test page** — the real application is mounted: `AppHost.vue`
+  creates a child Vue application with the router and the pinia of
+  `packages/app` and mounts its `App.vue`, so the page shows the product as it
+  is shipped, not a copy of it.
+
+## The editor of the SDK
 
 - the editor takes over the whole height of the page,
 - the diagram is handed to the editor with `v-model` (the controlled mode), so
