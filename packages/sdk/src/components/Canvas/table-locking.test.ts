@@ -213,6 +213,32 @@ describe("the lock of a table on the canvas", () => {
 });
 
 describe("the editing of a field on the canvas", () => {
+  it("the type of a field stays reachable while the row is hovered", async () => {
+    const pinia = freshPinia();
+    seed(pinia);
+    const wrapper = mountTable(pinia);
+    await nextTick();
+
+    const field = wrapper.find('[data-testid="field-users-users_name"]');
+    await field.trigger("pointerenter");
+    await nextTick();
+
+    // The button that removes the field must not take the place of the type.
+    // When it did, the type vanished while the pointer was on the row, the
+    // name took the whole place of the row and the type could never be
+    // reached: the user could not edit the type at all.
+    assert.equal(
+      wrapper.find('[data-testid="field-type"][data-field-id="users_name"]').exists(),
+      true,
+      "the type of the field must stay there while the row is hovered",
+    );
+    assert.equal(
+      wrapper.find('[data-testid="remove-field-users_name"]').exists(),
+      true,
+      "the button that removes the field appears while the row is hovered",
+    );
+  });
+
   it("the type of a field is edited in place", async () => {
     const pinia = freshPinia();
     seed(pinia);

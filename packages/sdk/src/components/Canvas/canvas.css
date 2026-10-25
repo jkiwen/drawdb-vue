@@ -327,14 +327,23 @@
   flex: 0 0 auto;
   display: flex;
   align-items: center;
+  gap: 4px;
   color: #a1a1aa;
 }
 
+/*
+ * The name of the field and its marks share the row.
+ *
+ * The name gives its place to the marks when it is long, so the marks must
+ * keep their own place and must not be covered by the name. Without this the
+ * name would stretch over the type and the type could not be reached.
+ */
 .ddb-table__field-marks-row {
   display: flex;
   align-items: center;
   gap: 4px;
   min-width: 0;
+  flex: 0 1 auto;
 }
 
 /*

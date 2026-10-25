@@ -34,6 +34,16 @@ const filteredTables = computed(() => {
   );
 });
 
+/**
+ * Whether the selected table is locked.
+ *
+ * A locked table cannot be changed, so the panel says so as well: the inputs
+ * are disabled and the buttons that change the table are gone. The store
+ * refuses the changes in any case, but a panel that looks editable while
+ * nothing happens is worse than a panel that says the table is locked.
+ */
+const locked = computed(() => selectedTable.value?.locked === true);
+
 function resetDrafts(): void {
   for (const key of Object.keys(fieldDrafts)) delete fieldDrafts[key];
   const table = selectedTable.value;
@@ -156,9 +166,11 @@ function removeTable(): void {
           size="small"
           placeholder="Table name"
           data-testid="table-name-input"
+          :disabled="locked"
           @change="commitTableName"
         />
         <NButton
+          v-if="!locked"
           size="small"
           type="error"
           quaternary
@@ -167,6 +179,9 @@ function removeTable(): void {
         >
           Delete
         </NButton>
+        <NTag v-else size="small" :bordered="false" data-testid="locked-table-tag">
+          Locked
+        </NTag>
       </header>
 
       <ul class="tables-tab__fields" data-testid="field-list">
@@ -180,6 +195,7 @@ function removeTable(): void {
             size="small"
             placeholder="name"
             :data-testid="`field-name-${field.id}`"
+            :disabled="locked"
             @update:value="updateDraft(field.id, 'name', $event)"
             @change="commitFieldName(field.id, $event)"
           />
@@ -188,12 +204,14 @@ function removeTable(): void {
             size="small"
             placeholder="type"
             :data-testid="`field-type-${field.id}`"
+            :disabled="locked"
             @update:value="updateDraft(field.id, 'type', $event)"
             @change="commitFieldType(field.id, $event)"
           />
           <NCheckbox
             :checked="!!field.primary"
             :data-testid="`field-primary-${field.id}`"
+            :disabled="locked"
             @update:checked="setFieldFlag(field.id, 'primary', $event)"
           >
             PK
@@ -201,6 +219,7 @@ function removeTable(): void {
           <NCheckbox
             :checked="!!field.unique"
             :data-testid="`field-unique-${field.id}`"
+            :disabled="locked"
             @update:checked="setFieldFlag(field.id, 'unique', $event)"
           >
             UQ
@@ -208,11 +227,13 @@ function removeTable(): void {
           <NCheckbox
             :checked="!!field.notNull"
             :data-testid="`field-notnull-${field.id}`"
+            :disabled="locked"
             @update:checked="setFieldFlag(field.id, 'notNull', $event)"
           >
             NN
           </NCheckbox>
           <NButton
+            v-if="!locked"
             size="tiny"
             quaternary
             type="error"
@@ -225,6 +246,7 @@ function removeTable(): void {
       </ul>
 
       <NButton
+        v-if="!locked"
         size="small"
         dashed
         block

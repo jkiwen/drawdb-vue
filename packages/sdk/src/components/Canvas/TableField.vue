@@ -182,17 +182,7 @@ function onRemove(event: Event): void {
       </span>
     </span>
     <span class="ddb-table__field-marks">
-      <button
-        v-if="hovered && !locked"
-        type="button"
-        class="ddb-table__field-remove"
-        :data-testid="`remove-field-${field.id}`"
-        @pointerdown.stop
-        @click="onRemove"
-      >
-        −
-      </button>
-      <span v-else-if="showsFieldTypes" class="ddb-table__field-marks-row">
+      <span v-if="showsFieldTypes" class="ddb-table__field-marks-row">
         <span
           v-if="field.primary"
           class="ddb-table__field-key"
@@ -246,6 +236,16 @@ function onRemove(event: Event): void {
           {{ fieldLabel(field) }}
         </span>
       </span>
+      <button
+        v-if="hovered && !locked"
+        type="button"
+        class="ddb-table__field-remove"
+        :data-testid="`remove-field-${field.id}`"
+        @pointerdown.stop
+        @click="onRemove"
+      >
+        −
+      </button>
     </span>
   </div>
 </template>

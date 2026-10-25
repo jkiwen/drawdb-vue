@@ -39,6 +39,17 @@ The browser confirms it: the button appears when the pointer is over the header
 of the table, the click locks the table (`the table is locked: { locked: true,
 button: '🔒' }`), and the edit of the name of a field does not open any more.
 
+The panel of the sidebar says it as well. A locked table is drawn as a table
+that cannot be changed: the inputs are disabled, the button that deletes the
+table is gone and a tag says that the table is locked. A panel that looks
+editable while nothing happens is worse than a panel that says the table is
+locked.
+
+```
+before the lock: { theNameDisabled: false, theFieldDisabled: false, theDelete: true, theAddField: true, theLockedTag: null }
+after  the lock: { theNameDisabled: true,  theFieldDisabled: true,  theDelete: false, theAddField: false, theLockedTag: "Locked" }
+```
+
 ## The second cause: the type of a field was the name of a field
 
 The input of the type carried the same class as the input of the name,
@@ -52,14 +63,51 @@ after  the edit   the type box { x: 401,   w: 149 }    the marks box { x: 385,  
 ```
 
 The name of the field was pushed out of the row, and the key and the question
-mark of the field were covered. The type was never really broken: a double click
-opens the input. It was unusable, and it opened on a locked table as well.
+mark of the field were covered.
 
 The name and the type now carry a class of their own —
 `ddb-table__field-name-input` and `ddb-table__field-type-input` — and the type
 holds its place in the row: `flex: 0 1 auto; width: 72px; max-width: 72px`.
 
-## The third cause: the edit of a field was a text box
+## The third cause: the hover of the row took the type away
+
+The fix above was not enough, and the browser said so: a double click on the
+type of a field still opened the input of the **name**. The unit test did not
+see it, because it drives the component and not the pointer.
+
+The measurement shows a cycle that no one had seen:
+
+```
+the row is not hovered   the type is there      the type is at x 527
+the pointer comes        the row is hovered     the type is GONE
+                         the name grows from 95 to 162 pixels
+                         the marks shrink to the 16 pixels of the remove button
+```
+
+`TableField.vue` drew the button that removes the field as `v-if="hovered"` and
+the marks of the field — the key, the question mark and the type — as
+`v-else-if="showsFieldTypes"`. So the hover of the row **replaced** the marks
+with the button, the name took the whole place of the row, and the pointer that
+came for the type was over the name.
+
+The proof that the paint order was innocent: the hit test of the browser at the
+place of the type returns the type itself (`document.elementFromPoint` →
+`SPAN.ddb-table__field-type`), while the pointerdown of the same place arrives
+at the name. The type was not covered, it was not in the document any more.
+
+The button that removes the field now sits **next to** the marks instead of
+taking their place, and the marks keep their own place in the row
+(`flex: 0 1 auto`). The browser confirms it:
+
+```
+the type input: 1   the name input: 0
+while the row is hovered: the name { x: 408, right: 483 }   the type { x: 497, right: 570 }   the remove { x: 574, right: 590 }
+```
+
+The test "the type of a field stays reachable while the row is hovered" was
+written for this cause and fails without the fix.
+
+## The fourth cause: the edit of a field was a text box
 
 The inputs of the canvas were `NInput size="tiny"`, which draws the box of the
 input library: a border, a shadow, a different type. The row of a field is
@@ -70,7 +118,7 @@ transparent, the type is inherited from the row, and the field that is edited
 gets a soft blue background (`rgb(59 130 246 / 12%)`, 20% while the focus is on
 it) with a radius of 4 pixels and a transition of 120 milliseconds.
 
-## The fourth cause: a note was a picture
+## The fifth cause: a note was a picture
 
 `Canvas/Note.vue` was 48 lines of static text: no pointer, no editable element,
 no handle. A note could not be moved, could not be resized and could not be
@@ -104,13 +152,17 @@ the note is locked:     { locked: true, editable: false }
 
 Two new files, written before the fix, that failed before it:
 
-- `packages/sdk/src/components/Canvas/table-locking.test.ts` — 12 tests: a locked
+- `packages/sdk/src/components/Canvas/table-locking.test.ts` — 13 tests: a locked
   table cannot be renamed, cannot be renamed through the sidebar either, cannot
   rename its fields, cannot change the type of its fields, cannot remove its
   fields, cannot be dragged, cannot be resized, does not let the user draw a
-  relationship from it, its fields cannot be reordered; the type of a field is
-  edited in place; the input of the type does not fill the row of the field; the
-  input of the name has a class of its own.
+  relationship from it, its fields cannot be reordered; the type of a field
+  stays reachable while the row is hovered; the type of a field is edited in
+  place; the input of the type does not fill the row of the field; the input of
+  the name has a class of its own.
+
+The test of the third cause was checked against the code without the fix: it
+fails there (`pass 12, fail 1`) and passes with it (`pass 13, fail 0`).
 - `packages/sdk/src/components/Canvas/note-editing.test.ts` — 7 tests: the note
   is drawn with its content, it can be dragged, the drag of a note can be
   undone, it can be resized with its handle, the content of a note can be
@@ -132,7 +184,7 @@ Two new files, written before the fix, that failed before it:
 
 | What | Result |
 | --- | --- |
-| `node --experimental-strip-types scripts/run-tests.mjs` | 653 tests, 653 pass, 0 fail |
+| `node --experimental-strip-types scripts/run-tests.mjs` | 654 tests, 654 pass, 0 fail |
 | `pnpm typecheck` | clean |
 | `pnpm e2e` | 51 passed, 0 failed |
 | `pnpm build` | 4 tasks, 4 successful |
