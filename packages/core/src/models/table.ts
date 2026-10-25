@@ -27,6 +27,8 @@ export interface Table {
   locked?: boolean;
   hidden?: boolean;
   collapsed?: boolean;
+  /** Whether the details of the table are shown on the canvas. */
+  details?: boolean;
   indices?: Index[];
   uniqueConstraints?: UniqueConstraint[];
   color?: string;

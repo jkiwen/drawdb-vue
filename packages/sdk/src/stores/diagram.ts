@@ -11,7 +11,6 @@ import {
   RemoveRelationshipCommand,
   RemoveTableCommand,
   ResizeTableCommand,
-  ToggleTableLockCommand,
   UpdateFieldCommand,
   UpdateRelationshipCommand,
   UpdateTableCommand,
@@ -36,6 +35,7 @@ import { computed, reactive, ref } from "vue";
 import { useHistoryStore } from "./history.ts";
 import { elementActions } from "./element-actions.ts";
 import { sidePanelActions } from "./side-panel-actions.ts";
+import { tableToggles } from "./table-toggles.ts";
 
 /**
  * The diagram store owns the edited ER diagram.
@@ -214,12 +214,6 @@ export const useDiagramStore = defineStore("diagram", () => {
     bump();
   }
 
-  /** Locks a table, so that it cannot be moved any more. */
-  function toggleTableLock(tableId: TableId): void {
-    history.execute(new ToggleTableLockCommand(diagram, tableId));
-    bump();
-  }
-
   /** Changes the header of the SQL that the diagram is exported to. */
   function updateSqlHeader(sqlHeader: string): void {
     history.execute(new UpdateDiagramCommand(diagram, { sqlHeader }));
@@ -272,6 +266,7 @@ export const useDiagramStore = defineStore("diagram", () => {
   }
 
   const sidePanel = sidePanelActions(diagram, history, bump);
+  const toggles = tableToggles(diagram, history, bump);
   const elements = elementActions(diagram, history, bump);
 
   return {
@@ -282,7 +277,7 @@ export const useDiagramStore = defineStore("diagram", () => {
     previewTablePositions,
     addRelationship, updateRelationship, removeRelationship,
     addField, updateField, removeField, moveField,
-    resizeTable, toggleTableLock, updateSqlHeader,
+    resizeTable, ...toggles, updateSqlHeader,
     applyRelationships, autoArrange: autoArrangeTables, setImportedDiagram,
     addEntity, removeEntity,
     ...sidePanel, ...elements,

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Table } from "@drawdb/core";
 import { NInput } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useInlineEdit } from "../../composables/use-inline-edit.ts";
 import { TABLE_COLOR_STRIP_HEIGHT } from "./geometry.ts";
-import TableDetails from "./TableDetails.vue";
 
 defineOptions({ name: "DrawDBTableHeader" });
 
@@ -16,10 +15,9 @@ const props = defineProps({
   locked: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["togglelock"]);
+const emit = defineEmits(["togglelock", "toggledetails"]);
 
 const diagram = useDiagramStore();
-const detailsOpen = ref(false);
 
 const {
   editing: editingName,
@@ -80,9 +78,9 @@ function onCommitComment(): void {
   }
 }
 
-function toggleDetails(event: Event): void {
+function onToggleDetails(event: Event): void {
   event.stopPropagation();
-  detailsOpen.value = !detailsOpen.value;
+  emit("toggledetails", { tableId: props.table.id });
 }
 
 function onToggleLock(event: Event): void {
@@ -162,19 +160,12 @@ function onToggleLock(event: Event): void {
         :data-testid="`table-details-toggle-${table.id}`"
         title="The details of the table"
         @pointerdown.stop
-        @click="toggleDetails"
+        @click="onToggleDetails"
       >
         ⋯
       </button>
     </div>
 
-    <TableDetails
-      v-if="detailsOpen"
-      class="ddb-table__details"
-      :data-testid="`table-details-${table.id}`"
-      :table="table"
-      @pointerdown.stop
-    />
   </div>
 </template>
 

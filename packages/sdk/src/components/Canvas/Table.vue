@@ -10,6 +10,7 @@ import FieldHandle from "./FieldHandle.vue";
 import ResizeHandles from "./ResizeHandles.vue";
 import TableField from "./TableField.vue";
 import TableHeader from "./TableHeader.vue";
+import TableDetails from "./TableDetails.vue";
 
 defineOptions({ name: "DrawDBTableNode" });
 
@@ -32,12 +33,15 @@ const resizing = ref(false);
 const { sortableOptions, onSort } = useSortable();
 
 const width = computed(() => tableWidth(props.table));
-const height = computed(() => tableHeight(props.table));
 
 // The table that is stored in the store, so that the edits on the canvas (the
 // inline editing, the indices, the unique constraints) always work on the live
 // object and never on a stale copy.
 const liveTable = computed(() => diagram.tableById(props.table.id) ?? props.table);
+
+// The height comes from the live table as well: opening the details of the
+// table replaces the table in the store, and the table must grow with it.
+const height = computed(() => tableHeight(liveTable.value));
 
 /**
  * Whether the table is locked.
@@ -95,6 +99,10 @@ function onToggleLock(): void {
   diagram.toggleTableLock(props.table.id);
 }
 
+function onToggleDetails(): void {
+  diagram.toggleTableDetails(props.table.id);
+}
+
 function onDragEnd(event: { oldIndex?: number; newIndex?: number }): void {
   if (event.oldIndex === undefined || event.newIndex === undefined) {
     return;
@@ -128,6 +136,15 @@ defineExpose({ resizing });
           :selected="selected"
           :locked="locked"
           @togglelock="onToggleLock"
+          @toggledetails="onToggleDetails"
+        />
+        <TableDetails
+          v-if="liveTable.details === true && liveTable.collapsed !== true"
+          class="ddb-table__details"
+          :data-testid="`table-details-${table.id}`"
+          :table="liveTable"
+          :locked="locked"
+          @pointerdown.stop
         />
         <VueDraggable
           :model-value="liveTable.fields"

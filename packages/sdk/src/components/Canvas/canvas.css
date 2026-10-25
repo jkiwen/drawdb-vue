@@ -267,7 +267,9 @@
 .ddb-table__name-input .n-input__border,
 .ddb-table__name-input .n-input__state-border,
 .ddb-table__comment-input .n-input__border,
-.ddb-table__comment-input .n-input__state-border {
+.ddb-table__comment-input .n-input__state-border,
+.ddb-table__details-input .n-input__border,
+.ddb-table__details-input .n-input__state-border {
   border-color: transparent !important;
   box-shadow: none !important;
 }
@@ -275,7 +277,8 @@
 .ddb-table__field-name-input .n-input__input-el,
 .ddb-table__field-type-input .n-input__input-el,
 .ddb-table__name-input .n-input__input-el,
-.ddb-table__comment-input .n-input__input-el {
+.ddb-table__comment-input .n-input__input-el,
+.ddb-table__details-input .n-input__input-el {
   font-family: inherit !important;
   font-size: inherit !important;
   color: inherit !important;
@@ -285,7 +288,8 @@
 .ddb-table__field-name-input.n-input,
 .ddb-table__field-type-input.n-input,
 .ddb-table__name-input.n-input,
-.ddb-table__comment-input.n-input {
+.ddb-table__comment-input.n-input,
+.ddb-table__details-input.n-input {
   background-color: rgb(59 130 246 / 12%) !important;
   border-radius: 4px !important;
   transition: background-color 120ms ease;
@@ -294,7 +298,8 @@
 .ddb-table__field-name-input.n-input:focus-within,
 .ddb-table__field-type-input.n-input:focus-within,
 .ddb-table__name-input.n-input:focus-within,
-.ddb-table__comment-input.n-input:focus-within {
+.ddb-table__comment-input.n-input:focus-within,
+.ddb-table__details-input.n-input:focus-within {
   background-color: rgb(59 130 246 / 20%) !important;
 }
 
@@ -475,36 +480,93 @@
   );
 }
 
-/* ---------------------------------------------------------------- details */
-
+/*
+ * The details of a table sit inside the body of the table, between the
+ * header and the fields, and the table grows to fit them. Every row has a
+ * fixed height so that the geometry of the table stays exact: the colour
+ * row and the action rows are 28px, the section titles 24px, and every
+ * index or unique constraint takes one 28px row. tableDetailsHeight in
+ * geometry.ts computes the same number.
+ */
 .ddb-table__details {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 10;
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
-  width: 100%;
-  margin: 4px 0 0;
-  padding: 8px 12px 12px;
-  border: 1px solid #d4d4d8;
-  border-radius: 6px;
-  background-color: #ffffff;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%);
+  padding: 8px;
+  border-top: 1px solid #e4e4e7;
+  background-color: #fafafa;
   font-size: 12px;
+  color: #3f3f46;
+}
+
+.ddb-table__details:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+.ddb-table__details-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 4px;
 }
 
 .ddb-table__details-color {
+  width: 24px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid #d4d4d8;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ddb-table__details-color:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.ddb-table__details-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.ddb-table__details-section-title {
   display: flex;
   align-items: center;
-  gap: 6px;
+  box-sizing: border-box;
+  height: 24px;
+  margin: 0;
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #71717a;
 }
 
-.ddb-table__details-list {
-  margin: 6px 0 0;
-  padding: 0;
-  list-style: none;
+.ddb-table__details-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 4px;
 }
 
+.ddb-table__details-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ddb-table__details-actions {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 4px;
+}
 /* -------------------------------------------------------------- relation */
 
 .ddb-canvas-relationship__line,
@@ -708,6 +770,14 @@
 
 .ddb-note__body.is-locked {
   cursor: default;
+}
+
+/*
+ * A locked note keeps the button that unlocks it, so the cursor of the button
+ * is the one of a button and not the one of a note that cannot be touched.
+ */
+.ddb-note__body.is-locked .ddb-note__lock {
+  cursor: pointer;
 }
 
 .ddb-note__head {

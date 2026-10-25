@@ -11,6 +11,7 @@ import {
   tableCommentLines as commentTableLines,
   tableCommentHeight as commentHeight,
 } from "./table-comment.ts";
+import { tableDetailsHeight } from "./table-details-geometry.ts";
 
 /**
  * Layout helpers of the canvas.
@@ -31,6 +32,13 @@ export const DEFAULT_VIEW_HEIGHT = 80;
 export const DEFAULT_VIEWPORT_WIDTH = 1200;
 export const DEFAULT_VIEWPORT_HEIGHT = 800;
 export const DEFAULT_GRID_SIZE = 10;
+
+export {
+  TABLE_DETAILS_PADDING_Y,
+  TABLE_DETAILS_ROW_HEIGHT,
+  TABLE_DETAILS_SECTION_HEIGHT,
+  tableDetailsHeight,
+} from "./table-details-geometry.ts";
 
 export interface GeometryPoint {
   x: number;
@@ -85,7 +93,11 @@ export function tableHeight(table: Table): number {
   if (table.collapsed) {
     return tableHeaderHeight(table);
   }
-  return tableHeaderHeight(table) + table.fields.length * TABLE_FIELD_HEIGHT;
+  return (
+    tableHeaderHeight(table) +
+    table.fields.length * TABLE_FIELD_HEIGHT +
+    tableDetailsHeight(table)
+  );
 }
 
 export function tableBounds(table: Table): Bounds {
