@@ -1,6 +1,7 @@
 import type { Diagram } from "../models/diagram.ts";
 import {
   assertDiagramId,
+  cloneDiagram,
   StorageError,
   type StorageAdapter,
 } from "./storage-adapter.ts";
@@ -63,8 +64,11 @@ export class IndexedDBStorageAdapter implements StorageAdapter {
 
   async save(diagram: Diagram): Promise<void> {
     assertDiagramId(diagram);
+    // The structured clone of IndexedDB refuses proxies, so the record has to
+    // be a plain copy of the diagram and not the reactive object the caller
+    // handed over.
     const record = {
-      ...diagram,
+      ...cloneDiagram(diagram),
       lastModified: new Date().toISOString(),
     };
     await this.request("readwrite", (store) => store.put(record));

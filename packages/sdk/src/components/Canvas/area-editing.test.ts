@@ -8,6 +8,7 @@ import { useDiagramStore, type DiagramStore } from "../../stores/diagram.ts";
 import { useHistoryStore } from "../../stores/history.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import Canvas from "./Canvas.vue";
+import { naive } from "../../../../../scripts/naive-ui-mock.mjs";
 
 /**
  * The area of the canvas.
@@ -36,7 +37,7 @@ function freshPinia(): Pinia {
 function mountCanvas(pinia: Pinia) {
   return mount(Canvas, {
     props: { width: 1200, height: 800 },
-    global: { plugins: [pinia] },
+    global: { plugins: [pinia, naive] },
   });
 }
 

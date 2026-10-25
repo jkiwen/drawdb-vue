@@ -11,6 +11,7 @@ import { useSaveStore } from "../stores/save.ts";
 import { MemoryStorageAdapter } from "@drawdb/core";
 import type { Diagram } from "@drawdb/core";
 import { getLocale } from "../i18n/index.ts";
+import { naive } from "../../../../scripts/naive-ui-mock.mjs";
 
 // The editor owns timers and plugins, so every wrapper is unmounted again.
 enableAutoUnmount(afterEach);
@@ -70,7 +71,7 @@ describe("DrawDBEditor", () => {
   function mountEditor(props: Record<string, unknown> = {}) {
     return mount(DrawDBEditor, {
       props,
-      global: { plugins: [pinia] },
+      global: { plugins: [pinia, naive] },
     });
   }
 

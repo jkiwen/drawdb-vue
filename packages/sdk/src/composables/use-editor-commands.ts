@@ -1,8 +1,17 @@
-import { exportDBML, exportSQL, importSQL, deepClone } from "@drawdb/core";
+import {
+  exportDBML,
+  exportSQL,
+  exportDiagramJson,
+  importSQL,
+  deepClone,
+  validateDiagram,
+} from "@drawdb/core";
 import type { DatabaseType, Diagram } from "@drawdb/core";
 import type { DiagramStore } from "../stores/diagram.ts";
 import type { SaveStore } from "../stores/save.ts";
 import type { UIStore } from "../stores/ui.ts";
+import type { EditorDialogName, ImportFormat } from "../stores/dialogs.ts";
+import { runEditorMenu } from "./editor-menu.ts";
 import {
   createArea,
   createNote,
@@ -29,10 +38,15 @@ export interface EditorCommandsOptions {
   /**
    * Reports the dialog a menu entry asks for.
    *
-   * The dialogs themselves are rendered by the host application, which owns
-   * the open state of each one.
+   * The editor renders the dialogs itself, so the callback only carries the
+   * name of the dialog and the options it was opened with.
    */
-  onOpenDialog?: (dialog: "sqlPreview" | "import" | "imageExport" | "autoRelationships") => void;
+  onOpenDialog?: (
+    dialog: EditorDialogName,
+    options?: { format?: ImportFormat },
+  ) => void;
+  /** Reports the JSON of the diagram, so that the host can save it. */
+  onExportJson?: (json: string) => void;
 }
 
 export interface EditorCommandsApi {
@@ -50,8 +64,17 @@ export interface EditorCommandsApi {
   addNote(): void;
   /** Adds an area to the diagram. */
   addArea(): void;
-  /** Handles an entry of the menu of the header. */
-  onMenu(key: string): void;
+  /** Deletes the tables, fields and relations that are selected. */
+  deleteSelection(): void;
+  /** Returns the JSON of the diagram. */
+  exportJson(): string;
+  /**
+   * Handles an entry of the menu of the header.
+   *
+   * Returns `true` when the editor answered the entry and `false` when the
+   * host application has to handle it.
+   */
+  onMenu(key: string): boolean;
   /** Starts or stops the automatic saving. */
   configureAutoSave(enabled: boolean, interval: number): void;
   /** Stops the automatic saving. */
@@ -126,66 +149,87 @@ export function useEditorCommands(
       uniqueTableName(diagramStore.areas, "area"),
       { x: 100 + diagramStore.areas.length * 260, y: 100 },
     );
-    diagramStore.addEntity("areas", area);
+    diagramStore.addArea(area);
     uiStore.selectArea(String(area.id));
   }
 
-  function onMenu(key: string): void {
-    switch (key) {
-      case "file:save":
-        void runSave();
-        break;
-      case "file:export-sql":
-        options.onExportSql(exportSql());
-        break;
-      case "file:export-dbml":
-        options.onExportDbml(exportDbml());
-        break;
-      case "file:import-json":
-        options.onOpenDialog?.("import");
-        break;
-      case "file:export-png":
-        options.onOpenDialog?.("imageExport");
-        break;
-      case "file:auto-relationships":
-        options.onOpenDialog?.("autoRelationships");
-        break;
-      case "edit:auto-layout":
-        diagramStore.autoArrange();
-        break;
-      case "file:toggle-fullscreen":
-        uiStore.setFullscreen(!uiStore.isFullscreen);
-        break;
-      case "edit:add-table":
-        addTable();
-        break;
-      case "edit:add-note":
-        addNote();
-        break;
-      case "edit:add-area":
-        addArea();
-        break;
-      case "view:toggle-sidebar":
-        uiStore.toggleSidebar();
-        break;
-      case "view:toggle-view-mode":
-        uiStore.toggleViewMode();
-        break;
-      case "view:toggle-grid":
-        uiStore.toggleGrid();
-        break;
-      case "view:zoom-in":
-        uiStore.zoomIn();
-        break;
-      case "view:zoom-out":
-        uiStore.zoomOut();
-        break;
-      case "view:reset-zoom":
-        uiStore.resetView();
-        break;
-      default:
-        break;
+  function exportJson(): string {
+    return exportDiagramJson(diagramStore.diagram, { pretty: true });
+  }
+
+  /**
+   * Deletes the current selection.
+   *
+   * The fields come first, because a selected field belongs to a selected
+   * table and removing the table would take the field with it.
+   */
+  function deleteSelection(): void {
+    if (uiStore.selectedFields.length > 0) {
+      for (const field of [...uiStore.selectedFields]) {
+        diagramStore.removeField(field.tableId, field.fieldId);
+      }
+      uiStore.clearSelection();
+      return;
     }
+
+    if (uiStore.selectedTableIds.length > 0) {
+      for (const tableId of [...uiStore.selectedTableIds]) {
+        diagramStore.removeTable(tableId);
+      }
+      uiStore.clearSelection();
+      return;
+    }
+
+    if (uiStore.selectedRelationshipIds.length > 0) {
+      for (const relationshipId of [...uiStore.selectedRelationshipIds]) {
+        diagramStore.removeRelationship(relationshipId);
+      }
+      uiStore.clearSelection();
+      return;
+    }
+
+    if (uiStore.selectedNoteIds.length > 0) {
+      for (const noteId of [...uiStore.selectedNoteIds]) {
+        diagramStore.removeEntity("notes", noteId);
+      }
+      uiStore.clearSelection();
+      return;
+    }
+
+    if (uiStore.selectedAreaIds.length > 0) {
+      for (const areaId of [...uiStore.selectedAreaIds]) {
+        diagramStore.removeArea(areaId);
+      }
+      uiStore.clearSelection();
+    }
+  }
+
+  function onMenu(key: string): boolean {
+    return runEditorMenu(key, {
+      save: () => void runSave(),
+      exportSql: () => options.onExportSql(exportSql()),
+      exportDbml: () => options.onExportDbml(exportDbml()),
+      exportJson: () => options.onExportJson?.(exportJson()),
+      openDialog: (dialog, dialogOptions) =>
+        options.onOpenDialog?.(dialog, dialogOptions),
+      addTable,
+      addNote,
+      addArea,
+      autoLayout: () => diagramStore.autoArrange(),
+      autoRelationships: () => options.onOpenDialog?.("autoRelationships"),
+      deleteSelection,
+      toggleFullscreen: () => uiStore.setFullscreen(!uiStore.isFullscreen),
+      toggleSidebar: () => uiStore.toggleSidebar(),
+      toggleViewMode: () => uiStore.toggleViewMode(),
+      toggleGrid: () => uiStore.toggleGrid(),
+      zoomIn: () => uiStore.zoomIn(),
+      zoomOut: () => uiStore.zoomOut(),
+      resetView: () => uiStore.resetView(),
+      validate: () => {
+        validateDiagram(diagramStore.diagram);
+        uiStore.setActiveTab("issues");
+      },
+    });
   }
 
   function stopAutoSave(): void {
@@ -213,10 +257,12 @@ export function useEditorCommands(
     runSave,
     exportSql,
     exportDbml,
+    exportJson,
     importSql,
     addTable,
     addNote,
     addArea,
+    deleteSelection,
     onMenu,
     configureAutoSave,
     stopAutoSave,

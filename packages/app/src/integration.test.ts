@@ -5,6 +5,7 @@ import { mount } from "@vue/test-utils";
 import { createMemoryHistory } from "vue-router";
 import { MemoryStorageAdapter, createEmptyDiagram } from "@drawdb/core";
 import { DrawDBEditor } from "@drawdb/vue-sdk";
+import { naive } from "../../../scripts/naive-ui-mock.mjs";
 import App from "./App.vue";
 import { createAppRouter } from "./router/index.ts";
 import { setStorage } from "./services/storage.ts";
@@ -38,7 +39,7 @@ async function mountApp(
 
   const pinia = createPinia();
   const wrapper = mount(App, {
-    global: { plugins: [pinia, router], components: { DrawDBEditor } },
+    global: { plugins: [pinia, router, naive], components: { DrawDBEditor } },
   });
   await wrapper.vm.$nextTick();
   await settle();

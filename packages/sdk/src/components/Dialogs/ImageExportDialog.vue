@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { exportDiagramJson } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { exportPng } from "../../composables/use-image-export.ts";
@@ -32,6 +32,39 @@ const scale = ref("1");
 const background = ref("#ffffff");
 const done = ref(false);
 const error = ref("");
+/** The markup of the canvas, shown as the preview of the image. */
+const preview = ref("");
+
+/** The live canvas of the editor, the element the image is made of. */
+function canvasElement(): HTMLElement | null {
+  return document.querySelector('[data-testid="canvas"]') as HTMLElement | null;
+}
+
+/** Reads the canvas of the editor, so that the dialog shows what it holds. */
+function readCanvas(): void {
+  const element = canvasElement();
+  if (!element) {
+    preview.value = props.svg;
+    return;
+  }
+  // The copy of the canvas is only a preview: it drops the testid of the
+  // canvas, so that the editor keeps a single element that answers to it.
+  preview.value = element.outerHTML.replace(
+    /\s+data-testid="canvas"/g,
+    "",
+  );
+}
+
+// The dialog shows the canvas of the editor, so it reads it when it opens.
+watch(
+  () => props.open,
+  (open) => {
+    if (open) {
+      readCanvas();
+    }
+  },
+  { immediate: true },
+);
 
 /** The JSON of the diagram, so that the image can carry its source. */
 function exportJson(): string {
@@ -43,13 +76,11 @@ async function copyJson(): Promise<void> {
   copied.value = true;
 }
 
-/** Renders the element of the preview as a PNG. */
+/** Renders the canvas of the editor as a PNG. */
 async function download(): Promise<void> {
   done.value = false;
   error.value = "";
-  const element = document.querySelector(
-    '[data-testid="image-export-preview"]',
-  ) as HTMLElement | null;
+  const element = canvasElement();
   if (!element) {
     error.value = "The canvas of the editor is not on the page";
     return;
@@ -76,7 +107,7 @@ function close(): void {
     <div
       class="ddb-image-export__preview"
       data-testid="image-export-preview"
-      v-html="props.svg"
+      v-html="preview"
     ></div>
     <label class="ddb-image-export__option">
       Scale

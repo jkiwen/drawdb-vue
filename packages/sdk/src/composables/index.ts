@@ -62,6 +62,12 @@ export {
   type EditorCommandsOptions,
 } from "./use-editor-commands.ts";
 export {
+  runEditorMenu,
+  isHostOwnedMenuKey,
+  type EditorMenuActions,
+  type EditorMenuDialog,
+} from "./editor-menu.ts";
+export {
   useEditorPlugins,
   type EditorPluginsApi,
   type EditorPluginsOptions,

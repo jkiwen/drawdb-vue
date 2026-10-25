@@ -1,7 +1,11 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { createEmptyDiagram } from "@drawdb/core";
-import { downloadDiagramJson, readDiagramJsonFile } from "./diagram-io.ts";
+import {
+  downloadDiagramJson,
+  downloadJsonText,
+  readDiagramJsonFile,
+} from "./diagram-io.ts";
 
 /** A download the test can look at instead of the browser. */
 interface Download {
@@ -52,6 +56,26 @@ describe("diagram-io", () => {
     assert.equal(downloaded.name, "billing.json");
     assert.equal(downloaded.clicked, true);
     assert.match(downloaded.text, /"title": "Billing"/);
+  });
+
+  it("downloadJsonText creates a json download of the text", async () => {
+    const json = JSON.stringify(createEmptyDiagram({ id: "d1", title: "Billing" }));
+    const downloaded = withDownload(() => {
+      downloadJsonText(json);
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(downloaded.name, "billing.json");
+    assert.equal(downloaded.clicked, true);
+    assert.match(downloaded.text, /"title"\s*:\s*"Billing"/);
+  });
+
+  it("downloadJsonText falls back to a plain name", async () => {
+    const downloaded = withDownload(() => {
+      downloadJsonText("{}");
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    assert.equal(downloaded.name, "diagram.json");
+    assert.equal(downloaded.clicked, true);
   });
 
   it("readDiagramJsonFile parses the file", async () => {

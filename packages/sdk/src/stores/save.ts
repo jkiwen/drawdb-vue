@@ -1,4 +1,4 @@
-import { createId } from "@drawdb/core";
+import { createId, deepClone } from "@drawdb/core";
 import type { Diagram, StorageAdapter } from "@drawdb/core";
 import { defineStore } from "pinia";
 import { ref, shallowRef, watch } from "vue";
@@ -62,7 +62,9 @@ export const useSaveStore = defineStore("save", () => {
     error.value = undefined;
 
     try {
-      await storage.save(diagram);
+      // The diagram of the store is a reactive proxy. The adapters get a
+      // plain copy, because a proxy cannot be serialised.
+      await storage.save(deepClone(diagram));
       dirty.value = false;
       state.value = "saved";
       lastSavedAt.value = new Date().toISOString();

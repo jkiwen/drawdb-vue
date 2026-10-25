@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { canvasLogicalTables, canvasTables } from "./helpers.ts";
 
 /**
  * The smoke tests of the standalone application.
@@ -33,19 +34,17 @@ test.describe("smoke", () => {
 
     await page.getByTestId("add-table-btn").click();
 
-    const tables = page.locator('[data-testid="canvas"] [data-testid^="table-"]');
-    await expect(tables).toHaveCount(1);
+    await expect(canvasTables(page)).toHaveCount(1);
   });
 
   test("undoes the addition of a table", async ({ page }) => {
     await page.goto("/editor/smoke-3");
 
     await page.getByTestId("add-table-btn").click();
-    const tables = page.locator('[data-testid="canvas"] [data-testid^="table-"]');
-    await expect(tables).toHaveCount(1);
+    await expect(canvasTables(page)).toHaveCount(1);
 
     await page.getByTestId("undo-btn").click();
-    await expect(tables).toHaveCount(0);
+    await expect(canvasTables(page)).toHaveCount(0);
   });
 
   test("keeps the diagram when the page is reloaded", async ({ page }) => {
@@ -53,27 +52,23 @@ test.describe("smoke", () => {
 
     await page.getByTestId("add-table-btn").click();
     await page.getByTestId("save-btn").click();
-    await expect(page.getByTestId("save-state")).toBeVisible();
+    await expect(page.getByTestId("save-state")).toHaveText("Saved");
 
     await page.reload();
 
-    const tables = page.locator('[data-testid="canvas"] [data-testid^="table-"]');
-    await expect(tables).toHaveCount(1);
+    await expect(canvasTables(page)).toHaveCount(1);
   });
 
   test("switches between the physical and the logical view", async ({ page }) => {
     await page.goto("/editor/smoke-5");
 
     await page.getByTestId("add-table-btn").click();
-    await expect(
-      page.locator('[data-testid="canvas"] [data-testid^="table-"]'),
-    ).toHaveCount(1);
+    await expect(canvasTables(page)).toHaveCount(1);
 
     await page.getByTestId("menu-view").click();
     await page.getByText("Toggle view mode").click();
 
-    await expect(
-      page.locator('[data-testid="canvas"] [data-testid^="logical-table-"]'),
-    ).toHaveCount(1);
+    await expect(canvasLogicalTables(page)).toHaveCount(1);
+    await expect(canvasTables(page)).toHaveCount(0);
   });
 });

@@ -12,6 +12,7 @@ import Relationship from "./Relationship.vue";
 import Table from "./Table.vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
+import { naive } from "../../../../../scripts/naive-ui-mock.mjs";
 
 function seed(): Diagram {
   return {
@@ -68,7 +69,7 @@ describe("the view mode of the canvas", () => {
    * of the tree find it through the injection.
    */
   function mountComponent(component: Component, props: Record<string, unknown>) {
-    return mount(component, { props, global: { plugins: [pinia] } });
+    return mount(component, { props, global: { plugins: [pinia, naive] } });
   }
 
   it("shows the field types in the physical view", () => {

@@ -9,6 +9,7 @@ import { useUIStore } from "../../../stores/ui.ts";
 import Canvas from "../Canvas.vue";
 import Minimap from "../Minimap.vue";
 import { DEFAULT_TABLE_WIDTH } from "../geometry.ts";
+import { naive } from "../../../../../../scripts/naive-ui-mock.mjs";
 
 /**
  * The canvas of the interaction layer.
@@ -98,7 +99,7 @@ function settle(): Promise<void> {
 function mountCanvas(pinia: Pinia) {
   return mount(Canvas, {
     props: { width: 1200, height: 800 },
-    global: { plugins: [pinia] },
+    global: { plugins: [pinia, naive] },
   });
 }
 
@@ -341,7 +342,7 @@ describe("the canvas of the interactions", () => {
     const diagram = seed(pinia);
     const wrapper = mount(Minimap, {
       props: { tables: diagram.tables },
-      global: { plugins: [pinia] },
+      global: { plugins: [pinia, naive] },
     });
 
     assert.equal(wrapper.findAll('[data-testid^="minimap-table-"]').length, 3);

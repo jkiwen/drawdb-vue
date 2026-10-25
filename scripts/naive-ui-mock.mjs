@@ -227,6 +227,13 @@ export const NWatermark = createContainerComponent("NWatermark");
 // a mock button would swallow their click.
 export const NButtonGroup = createContainerComponent("NButtonGroup");
 
+// NConfigProvider and NGlobalStyle mount the theme and the styles of the
+// library. The editor renders them, so a spec that mounts the editor without
+// the plugin of the library would warn about two components it cannot
+// resolve. The provider renders its slot and the style renders nothing.
+export const NConfigProvider = createContainerComponent("NConfigProvider");
+export const NGlobalStyle = createMockComponent("NGlobalStyle");
+
 // VueDraggable mock: renders a div with the default slot, emits "end" on demand.
 export const VueDraggable = {
   name: "VueDraggable",
@@ -256,7 +263,7 @@ const REGISTRY = {
   NLayoutHeader, NLayoutSider, NList, NListItem, NLog, NNumberAnimation,
   NQuotationMark, NResult, NRow, NCol, NSegmented, NDescriptions,
   NDescriptionsItem, NStatistic, NTime, NTimeline, NTimelineItem, NWatermark,
-  NButtonGroup,
+  NButtonGroup, NConfigProvider, NGlobalStyle,
 };
 
 // Naive UI plugin mock

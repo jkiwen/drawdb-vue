@@ -105,13 +105,41 @@ describe("ImageExportDialog", () => {
       attachTo: document.body,
       global: { plugins: [naive] },
     });
-    await withCapture(
-      () => Promise.resolve("data:image/png;base64,CCCC"),
-      async () => {
-        await wrapper.find('[data-testid="image-export-png"]').trigger("click");
-        await nextTick();
-      },
+    // The dialog exports the live canvas of the editor, so the page needs one.
+    const canvas = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "svg",
+    ) as SVGElement;
+    canvas.setAttribute("data-testid", "canvas");
+    document.body.appendChild(canvas);
+    try {
+      await withCapture(
+        () => Promise.resolve("data:image/png;base64,CCCC"),
+        async () => {
+          await wrapper.find('[data-testid="image-export-png"]').trigger("click");
+          await nextTick();
+        },
+      );
+      assert.ok(wrapper.find('[data-testid="image-export-done"]').exists());
+    } finally {
+      canvas.remove();
+    }
+  });
+
+  it("the image export dialog reports the canvas that is not on the page", async () => {
+    setActivePinia(createPinia());
+    const wrapper = mount(ImageExportDialog, {
+      props: { open: true },
+      attachTo: document.body,
+      global: { plugins: [naive] },
+    });
+    await wrapper.find('[data-testid="image-export-png"]').trigger("click");
+    await nextTick();
+    const error = wrapper.find('[data-testid="image-export-error"]');
+    assert.ok(error.exists(), "the error is shown");
+    assert.equal(
+      error.text().trim(),
+      "The canvas of the editor is not on the page",
     );
-    assert.ok(wrapper.find('[data-testid="image-export-done"]').exists());
   });
 });

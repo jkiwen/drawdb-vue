@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { exportDBML, exportSQL } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
 
@@ -15,17 +15,34 @@ const props = withDefaults(
   defineProps<{
     open?: boolean;
     title?: string;
+    /** The format the dialog opens in, when the host does not pick one. */
+    initialFormat?: "sql" | "dbml";
+    /** The format the host drives the dialog with. */
+    format?: "sql" | "dbml";
   }>(),
-  { open: false, title: "" },
+  { open: false, title: "", initialFormat: "sql" },
 );
 
 const emit = defineEmits<{
   "update:open": [value: boolean];
+  "update:format": [value: "sql" | "dbml"];
 }>();
 
 const diagram = useDiagramStore();
-const format = ref<"sql" | "dbml">("sql");
 const copied = ref(false);
+
+/** The format the dialog shows: the one of the host, or the chosen one. */
+const format = ref<"sql" | "dbml">(props.format ?? props.initialFormat);
+
+/** The host may open the dialog in another format, so the view follows it. */
+watch(
+  () => props.format,
+  (value) => {
+    if (value !== undefined) {
+      format.value = value;
+    }
+  },
+);
 
 const content = computed(() =>
   format.value === "sql"
@@ -35,6 +52,7 @@ const content = computed(() =>
 
 function switchFormat(next: "sql" | "dbml"): void {
   format.value = next;
+  emit("update:format", next);
 }
 
 async function copy(): Promise<void> {

@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test";
+import { canvasTables, sidePanelTables, waitForEditor } from "./helpers.ts";
 
 /**
  * The performance tests of the canvas.
  *
  * The canvas only draws the tables that lie inside of the viewport, so that a
- * diagram with a hundred tables stays fluent.
+ * diagram with a hundred tables stays fluent. The side panel lists every table
+ * of the diagram, the canvas only the ones the user can see.
  */
 
 /** The number of the tables of the performance tests. */
@@ -13,40 +15,48 @@ const TABLE_COUNT = 100;
 /** The time, in milliseconds, that a drag of the canvas may take. */
 const DRAG_BUDGET_MS = 500;
 
+/** Adds a number of tables to the diagram of the editor. */
+async function addTables(page: import("@playwright/test").Page, count: number) {
+  for (let index = 0; index < count; index += 1) {
+    await page.getByTestId("add-table-btn").click();
+  }
+}
+
 test.describe("performance", () => {
   test("draws a hundred tables", async ({ page }) => {
     await page.goto("/editor/perf-1");
+    await waitForEditor(page);
 
-    for (let index = 0; index < TABLE_COUNT; index += 1) {
-      await page.getByTestId("add-table-btn").click();
-    }
+    await addTables(page, TABLE_COUNT);
 
-    const tables = page.locator('[data-testid="canvas"] [data-testid^="table-"]');
-    await expect(tables).toHaveCount(TABLE_COUNT);
+    // The side panel lists every table of the diagram.
+    await expect(sidePanelTables(page)).toHaveCount(TABLE_COUNT);
+
+    // The canvas draws the tables that lie inside of the viewport, so it shows
+    // a part of them. The tables of the list that are outside are not drawn.
+    const drawn = await canvasTables(page).count();
+    expect(drawn).toBeGreaterThan(0);
+    expect(drawn).toBeLessThan(TABLE_COUNT);
   });
 
   test("only draws the tables that lie inside of the viewport", async ({ page }) => {
     await page.goto("/editor/perf-2");
+    await waitForEditor(page);
 
-    for (let index = 0; index < TABLE_COUNT; index += 1) {
-      await page.getByTestId("add-table-btn").click();
-    }
+    await addTables(page, TABLE_COUNT);
 
     // The canvas is small, so most of the tables lie outside of it.
-    const drawn = await page
-      .locator('[data-testid="canvas"] [data-testid^="table-"]')
-      .count();
+    const drawn = await canvasTables(page).count();
 
     expect(drawn).toBeLessThan(TABLE_COUNT);
   });
 
   test("drags a table without a delay", async ({ page }) => {
     await page.goto("/editor/perf-3");
+    await waitForEditor(page);
 
     await page.getByTestId("add-table-btn").click();
-    const table = page
-      .locator('[data-testid="canvas"] [data-testid^="table-"]')
-      .first();
+    const table = canvasTables(page).first();
     await expect(table).toBeVisible();
 
     const box = await table.boundingBox();

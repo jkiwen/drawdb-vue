@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DatabaseType } from "@drawdb/core";
 import AutoRelationshipsDialog from "./Dialogs/AutoRelationshipsDialog.vue";
 import ImageExportDialog from "./Dialogs/ImageExportDialog.vue";
 import ImportDialog from "./Dialogs/ImportDialog.vue";
@@ -22,6 +23,12 @@ withDefaults(
     imageExportOpen?: boolean;
     /** The SVG markup of the canvas, handed to the image export. */
     svg?: string;
+    /** The format the import dialog reads its source as. */
+    importFormat?: "sql" | "dbml" | "json";
+    /** The dialect the import dialog parses the source with. */
+    database?: DatabaseType;
+    /** The format the preview of the SQL opens in, when the host picks one. */
+    sqlPreviewFormat?: "sql" | "dbml";
   }>(),
   {
     sqlPreviewOpen: false,
@@ -29,6 +36,8 @@ withDefaults(
     autoRelationshipsOpen: false,
     imageExportOpen: false,
     svg: "",
+    importFormat: "sql",
+    database: "generic",
   },
 );
 
@@ -37,6 +46,7 @@ const emit = defineEmits<{
   "update:importOpen": [value: boolean];
   "update:autoRelationshipsOpen": [value: boolean];
   "update:imageExportOpen": [value: boolean];
+  "update:sqlPreviewFormat": [value: "sql" | "dbml"];
 }>();
 </script>
 
@@ -44,10 +54,14 @@ const emit = defineEmits<{
   <div class="ddb-editor__dialogs" data-testid="editor-dialogs">
     <SqlPreviewDialog
       :open="sqlPreviewOpen"
+      :format="sqlPreviewFormat"
       @update:open="emit('update:sqlPreviewOpen', $event)"
+      @update:format="emit('update:sqlPreviewFormat', $event)"
     />
     <ImportDialog
       :open="importOpen"
+      :format="importFormat"
+      :database="database"
       @update:open="emit('update:importOpen', $event)"
     />
     <AutoRelationshipsDialog

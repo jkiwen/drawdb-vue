@@ -139,6 +139,7 @@ are ready for the registry. The changes of every version are written in
 | [docs/spec.md](docs/spec.md) | the specification of the SDK |
 | [docs/plan.md](docs/plan.md) | the plan with the 20 tasks of the implementation |
 | [docs/task-N-report.md](docs) | the report of every task |
+| [docs/task-33-report.md](docs/task-33-report.md) | the menu of the editor, the dialogs it opens and the end to end tests that drive it |
 | [docs/visual-parity-report.md](docs/visual-parity-report.md) | the alignment of the canvas with the React reference (the styles, the marks of the fields, the colours of the types) |
 | [docs/ui-ux-optimization-report.md](docs/ui-ux-optimization-report.md) | the design system of the operation areas (the header, the toolbar, the side panel) and the comparison with the state before it |
 | [progress.md](progress.md) | the ledger with the state of the work and the decisions |

@@ -117,6 +117,32 @@ describe("SqlPreviewDialog", () => {
     assert.match(wrapper.find('[data-testid="sql-preview-content"]').text(), /Table /);
   });
 
+  it("the sql preview opens in the format the host asks for", async () => {
+    setup(seed());
+    const wrapper = mountDialog(SqlPreviewDialog, { open: true, format: "dbml" });
+    await nextTick();
+    assert.match(
+      wrapper.find('[data-testid="sql-preview-content"]').text(),
+      /Table /,
+    );
+  });
+
+  it("the sql preview follows the format of the host", async () => {
+    setup(seed());
+    const wrapper = mountDialog(SqlPreviewDialog, { open: true });
+    await nextTick();
+    assert.match(
+      wrapper.find('[data-testid="sql-preview-content"]').text(),
+      /CREATE TABLE/,
+    );
+    await wrapper.setProps({ format: "dbml" } as never);
+    await nextTick();
+    assert.match(
+      wrapper.find('[data-testid="sql-preview-content"]').text(),
+      /Table /,
+    );
+  });
+
   it("the sql preview copies the sql to the clipboard", async () => {
     setup(seed());
     const written: string[] = [];
@@ -224,6 +250,24 @@ describe("ImportDialog", () => {
     assert.equal(diagram.tables[0].name, "articles");
   });
 
+  it("the import dialog shows the format and the database it reads", async () => {
+    setup(seed());
+    const wrapper = mountDialog(ImportDialog, {
+      open: true,
+      format: "dbml",
+      database: "postgres",
+    });
+    await nextTick();
+    assert.equal(
+      wrapper.find('[data-testid="import-format"]').text().trim(),
+      "dbml",
+    );
+    assert.equal(
+      wrapper.find('[data-testid="import-database"]').text().trim(),
+      "postgres",
+    );
+  });
+
   it("the import dialog warns before it replaces the diagram", async () => {
     const diagram = setup(seed());
     const wrapper = mountDialog(ImportDialog, { open: true, format: "sql" });
@@ -293,6 +337,7 @@ describe("Menu and store wiring", () => {
     const ui = useUIStore();
     const save = useSaveStore();
     const opened: string[] = [];
+    const formats: (string | undefined)[] = [];
     const commands = useEditorCommands({
       diagramStore: diagram,
       uiStore: ui,
@@ -302,10 +347,60 @@ describe("Menu and store wiring", () => {
       onExportDbml: () => undefined,
       onImportSql: () => undefined,
       onError: () => undefined,
-      onOpenDialog: (key) => opened.push(key),
+      onOpenDialog: (key, options) => {
+        opened.push(key);
+        formats.push(options?.format);
+      },
     });
     commands.onMenu("file:import-json");
     assert.deepEqual(opened, ["import"]);
+    assert.deepEqual(formats, ["json"]);
+
+    commands.onMenu("file:import-sql");
+    assert.deepEqual(opened, ["import", "import"]);
+    assert.deepEqual(formats, ["json", "sql"]);
+  });
+
+  it("the commands of the editor leave the entries of the host to it", () => {
+    const diagram = useDiagramStore();
+    const ui = useUIStore();
+    const save = useSaveStore();
+    const commands = useEditorCommands({
+      diagramStore: diagram,
+      uiStore: ui,
+      saveStore: save,
+      onSave: () => undefined,
+      onExportSql: () => undefined,
+      onExportDbml: () => undefined,
+      onImportSql: () => undefined,
+      onError: () => undefined,
+    });
+    assert.equal(commands.onMenu("file:new"), false);
+    assert.equal(commands.onMenu("file:open"), false);
+    assert.equal(commands.onMenu("help:documentation"), false);
+    assert.equal(commands.onMenu("file:save"), true);
+  });
+
+  it("the commands of the editor export the JSON of the diagram", () => {
+    const diagram = useDiagramStore();
+    const ui = useUIStore();
+    const save = useSaveStore();
+    const exported: string[] = [];
+    const commands = useEditorCommands({
+      diagramStore: diagram,
+      uiStore: ui,
+      saveStore: save,
+      onSave: () => undefined,
+      onExportSql: () => undefined,
+      onExportDbml: () => undefined,
+      onImportSql: () => undefined,
+      onError: () => undefined,
+      onExportJson: (json) => exported.push(json),
+    });
+    commands.onMenu("file:export-json");
+    assert.equal(exported.length, 1);
+    const parsed = JSON.parse(exported[0]);
+    assert.equal(typeof parsed, "object");
   });
 
   it("the store imports the inferred relationships and the layout", () => {
@@ -352,5 +447,26 @@ describe("EditorDialogs", () => {
     await nextTick();
     // The import dialog is one of the dialogs the host opens.
     assert.ok(wrapper.find('[data-testid="import-dialog"]').exists());
+  });
+
+  it("the dialogs read the format and the database of the host", async () => {
+    setup(seed());
+    const wrapper = mount(EditorDialogs, {
+      props: {
+        importOpen: true,
+        importFormat: "dbml",
+        database: "postgres",
+      },
+      global: { plugins: [naive] },
+    });
+    await nextTick();
+    assert.equal(
+      wrapper.find('[data-testid="import-format"]').text().trim(),
+      "dbml",
+    );
+    assert.equal(
+      wrapper.find('[data-testid="import-database"]').text().trim(),
+      "postgres",
+    );
   });
 });

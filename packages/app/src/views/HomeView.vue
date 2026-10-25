@@ -10,8 +10,13 @@ const diagrams = ref<Diagram[]>([]);
 const loading = ref(true);
 const error = ref("");
 
-/** Opens the file picker of the browser. */
-let picker: HTMLInputElement | undefined;
+/**
+ * Opens the file picker of the browser.
+ *
+ * The template ref has to be a ref and not a plain variable: a template ref
+ * that is not a ref does not work in the production build.
+ */
+const picker = ref<HTMLInputElement | undefined>();
 
 async function refresh() {
   loading.value = true;
@@ -43,7 +48,7 @@ async function importDiagram(file: File) {
 
 /** Hands the file input of the browser the click of the button. */
 function pickDiagram() {
-  picker?.click();
+  picker.value?.click();
 }
 
 onMounted(refresh);

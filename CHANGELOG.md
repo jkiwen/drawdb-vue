@@ -122,6 +122,13 @@ zero.
 - The task graph of turbo is named `tasks`, which is the name turbo 2 expects;
   the old name `pipeline` was rejected by the installed version.
 
+### The menu, the dialogs and the tests that drive them
+- **@drawdb/vue-sdk**: the menu of the editor answers on its own. `runEditorMenu(key, actions)` runs the action behind a key of the menu and returns whether the editor handled it; `isHostOwnedMenuKey(key)` names the five keys that belong to the host application (a new diagram, an opened file, the relationship editor, the documentation and the page about). The commands of the editor gained `deleteSelection()` and `exportJson()`.
+- **@drawdb/vue-sdk**: the dialogs live in the SDK and share their state through a store (`sqlPreview`, `import`, `imageExport`, `autoRelationships`, with the format of the preview and of the import). The preview names its format, the import names the format and the database, and the export of an image reads the live canvas for its preview.
+- **@drawdb/core**: the IndexedDB adapter writes a plain copy of a diagram. The structured clone of the browser refuses a reactive proxy, so saving a diagram that the editor had touched failed.
+- **drawdb-vue-app**: the application reaches the editor through a bridge (`window.__DRAWDB__`), which the end to end tests use to drive the editor from the browser. The service of the JSON can now download a JSON text that the editor produced.
+- **The end to end tests of the application**: the commands of a plugin and the validation, the SQL of MySQL, PostgreSQL and SQLite, the editing of a table in the side panel, the language of the editor and the persistence in the browser.
+- **The workspace**: the mock of the UI library of the specifications holds the container `NConfigProvider` and the `NGlobalStyle`, so the specifications that mount the editor no longer report unresolved components.
 ## 0.2.0
 
 The second version closes the gap with the React application of drawDB. Every

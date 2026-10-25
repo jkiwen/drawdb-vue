@@ -6,10 +6,12 @@ import { renderToString } from "@vue/server-renderer";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import Canvas from "./Canvas.vue";
+import { naive } from "../../../../../scripts/naive-ui-mock.mjs";
 
 async function render(pinia: ReturnType<typeof createPinia>) {
   const app = createSSRApp(Canvas, { width: 1200, height: 800 });
   app.use(pinia);
+  app.use(naive);
   return renderToString(app);
 }
 

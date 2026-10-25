@@ -72,6 +72,14 @@ function close(): void {
 <template>
   <div v-if="props.open" class="ddb-import" data-testid="import-dialog">
     <h2 class="ddb-import__title">Import a diagram</h2>
+    <p class="ddb-import__hint">
+      <span class="ddb-import__hint-format" data-testid="import-format">{{
+        props.format
+      }}</span>
+      <span class="ddb-import__hint-database" data-testid="import-database">{{
+        props.database
+      }}</span>
+    </p>
     <textarea
       v-model="source"
       class="ddb-import__input"
@@ -131,6 +139,17 @@ function close(): void {
 .ddb-import__title {
   font-size: 16px;
   margin: 0;
+}
+.ddb-import__hint {
+  color: var(--ddb-muted, #666);
+  display: flex;
+  font-size: 12px;
+  gap: 8px;
+  margin: 0;
+}
+.ddb-import__hint-format,
+.ddb-import__hint-database {
+  font-family: var(--ddb-code-font, ui-monospace, monospace);
 }
 .ddb-import__input {
   border: 1px solid var(--ddb-border, #d9d9d9);
