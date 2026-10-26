@@ -11,7 +11,7 @@ note follows now.
 
 | Commit | Content |
 |---|---|
-| _uncommitted_ | The button that unlocks a note, the cursor of the button of a locked note and the tests of the lock |
+| `f56c6f3` | The button that unlocks a note, the cursor of the button of a locked note and the tests of the lock |
 
 ## The cause
 

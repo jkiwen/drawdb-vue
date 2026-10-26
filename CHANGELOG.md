@@ -10,6 +10,21 @@ packages follow [semantic versioning](https://semver.org/).
 
 ## Unreleased
 
+The commits of this section, in the order they landed:
+
+| Commit | Content |
+|---|---|
+| `2fc5574` | The canvas of the SDK gets its first stylesheet, and the areas are selected, resized and moved like the tables |
+| `fd71864` | The design system of the operation areas: the sheet of the tokens of the SDK, the top operation area, the left operation area and the shell of the application |
+| `1e371b5` | The menu of the editor answers on its own, the dialogs live in the SDK, and the end to end tests of the application join the suite |
+| `89352a7` | The relationship of the canvas is drawn where its ends are |
+| `8eaacb7` | A link can end on a table, and the dialog of the relationship asks for its ends |
+| `0c4e472` | The end of a drag lands on the grid |
+| `465903a` | The lock of a table is honoured, the edit of a field keeps the style of the field, and a note is an element of the canvas |
+| `7bfc902` | The type of a field is reachable |
+| `4fcdcbc` | The details of a table open inside the table, and the table grows to fit them |
+| `f56c6f3` | The areas fold, lock and hold what they contain |
+
 The canvas of the SDK had no stylesheet at all: the class names of the tables,
 of the fields and of the relationships existed in the templates only, so the
 browser drew unstyled elements. The work below aligns the canvas with the
@@ -129,6 +144,20 @@ zero.
 - **drawdb-vue-app**: the application reaches the editor through a bridge (`window.__DRAWDB__`), which the end to end tests use to drive the editor from the browser. The service of the JSON can now download a JSON text that the editor produced.
 - **The end to end tests of the application**: the commands of a plugin and the validation, the SQL of MySQL, PostgreSQL and SQLite, the editing of a table in the side panel, the language of the editor and the persistence in the browser.
 - **The workspace**: the mock of the UI library of the specifications holds the container `NConfigProvider` and the `NGlobalStyle`, so the specifications that mount the editor no longer report unresolved components.
+
+### The defects of the canvas and the work that closed them
+- **@drawdb/core**: the area carries an optional `collapsed` flag and an optional `locked` flag next to its `color`, so a folded or a locked area survives the round trip of the diagram JSON and the storage of the browser. The `Area` gained a unit specification of its own.
+- **@drawdb/vue-sdk**: the membership rule of an area is the **overlap of the two rectangles** and not the corner of the element any more (`areaHolds` in `packages/sdk/src/utils/elements.ts`). An element that lies in an area belongs to it, even when it hangs over the edge, so the fold, the lock and the drag answer the same question the same way. The rule still needs no field in the model, so a diagram keeps its arrangement through a round trip of the JSON.
+- **@drawdb/vue-sdk**: a collapsed area hides the tables, the notes and the views it holds, and the relationships that reach out of it are counted on a badge of the title bar (`AreaLinkBadge.vue`) instead of being lost. The fold and the expand are one undoable command each.
+- **@drawdb/vue-sdk**: a locked area refuses every change of the elements it holds, the way it refuses its own. The only write that still goes through is the one that only touches the lock, so a locked area can be unlocked again. A locked note keeps the button that unlocks it, and a locked table says so in the side panel: its inputs are disabled and the buttons that would change it are gone.
+- **@drawdb/vue-sdk**: an area has a panel of its own (`AreaDetails.vue`) for the name, the description, the colour and the opacity of its background. The panel hangs below the area and is drawn outside of its group, so a press inside it neither moves the area nor reaches the canvas.
+- **@drawdb/vue-sdk**: the relationship of the canvas is drawn where its ends are. The stylesheet of the dialog of the relationship and the group of the relationship on the canvas carried the same class name, and the `left: 50%` of the dialog moved the canvas element 652 pixels out of the view. The class of the canvas is its own now, and a specification holds the two apart.
+- **@drawdb/vue-sdk**: a link that ends on a table without a primary key ends on the first field of that table, instead of being cancelled without a word.
+- **@drawdb/vue-sdk**: the details of a table open **inside** the table, share the edit style of the canvas and the table grows to fit them. The height of a table follows the details it shows, so the anchors of the relationships stay on the fields.
+- **@drawdb/vue-sdk**: the type of a field is reachable. The hover of the row took the marks of the field away, so the name of the field stretched over the type and the double click opened the wrong input. The marks keep their own place now.
+- **@drawdb/vue-sdk**: a note is an element of the canvas and not a picture: it is dragged, resized, written in and locked. A drag that ends outside of the canvas lands on the grid, like the reference does.
+- **@drawdb/vue-sdk**: the drag of the pointer is written on the screen while the pointer moves, and the release writes the whole gesture once.
+
 ## 0.2.0
 
 The second version closes the gap with the React application of drawDB. Every

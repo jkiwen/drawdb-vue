@@ -8,6 +8,12 @@ match the canvas, and the table never grew to fit it.
 
 > 表格视图中，detail 按钮点击后，表格内显示的信息样式与总体样式不符，同时表格的大小没有根据detail信息的内容而进行调整
 
+## The commit
+
+| Commit | Content |
+|---|---|
+| `4fcdcbc` | The details of a table open inside the table, share the edit style of the canvas, and the table grows to fit them |
+
 ## The causes, measured
 
 1. **The details opened as an overlay, not as a part of the table.** The
@@ -75,7 +81,7 @@ unique constraint through the panel kept passing.
 
 ## The verification
 
-- The unit suite is green: 663 tests, 0 failures (the rule that keeps
+- The unit suite is green: 727 tests, 0 failures (67 suites; the rule that keeps
   every file under 300 lines included — the details geometry and the
   toggles live in files of their own).
 - The type check is clean.

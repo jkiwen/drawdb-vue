@@ -13,7 +13,7 @@ tables and the decisions that came with it.
 | Commit | Content |
 |---|---|
 | `2fc5574` | The selection, the resize and the drag of the areas, the tables that sit in an area follow it, `CompositeCommand` |
-| _uncommitted_ | The collapse, the lock and the details of an area, the membership rule of the overlap and the five defects of the areas |
+| `f56c6f3` | The collapse, the lock and the details of an area, the membership rule of the overlap and the five defects of the areas |
 
 ## The four causes
 

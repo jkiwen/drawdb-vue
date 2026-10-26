@@ -13,6 +13,13 @@ The five reports, in the words of the report:
 4. "table 视图 字段编辑显示为文本框方式，样式生硬，编辑状态应与正常显示一致，适当使用背景色改变即可" — the edit of a field looked like a text box; it should look like the field it replaces, with at most a background colour.
 5. "note 增加后，无法改变大小，无法拖动，无法输入内容，修改时注意样式" — a note could not be resized, could not be dragged and could not be written in.
 
+## The commits
+
+| Commit | Content |
+|---|---|
+| `465903a` | The lock of a table is read by the store and by the panel of the sidebar, the edit of a field keeps the style of the field, and a note is an element of the canvas |
+| `7bfc902` | The type of a field is reachable: the marks of the field keep their own place in the row, so the hover of the row does not take the type away |
+
 ## The first cause: the lock was only a picture
 
 The lock of a table was drawn, and the button that sets it did reach the store,
@@ -184,7 +191,7 @@ fails there (`pass 12, fail 1`) and passes with it (`pass 13, fail 0`).
 
 | What | Result |
 | --- | --- |
-| `node --experimental-strip-types scripts/run-tests.mjs` | 654 tests, 654 pass, 0 fail |
+| `node --experimental-strip-types scripts/run-tests.mjs` | 727 tests, 727 pass, 0 fail (67 suites) |
 | `pnpm typecheck` | clean |
 | `pnpm e2e` | 51 passed, 0 failed |
 | `pnpm build` | 4 tasks, 4 successful |

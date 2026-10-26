@@ -16,8 +16,8 @@ and the drawing of a relationship follow now.
 
 | Commit | Content |
 |---|---|
-| _uncommitted_ | The link that ends on a table, the dialog of the relationship, the entry of the menu that opens it and the tests of both |
-| _uncommitted_ | The class of the relationship of the canvas, so that the styles of the dialog do not reach it, and the link that ends on a table without a primary key |
+| `8eaacb7` | The link that ends on a table, the dialog of the relationship, the entry of the menu that opens it and the tests of both |
+| `89352a7` | The class of the relationship of the canvas, so that the styles of the dialog do not reach it, and the link that ends on a table without a primary key |
 
 ## The fourth cause: the styles of the dialog reached the canvas
 
@@ -162,7 +162,7 @@ of the relationship defaults to the name of the foreign key
 | Check | Result |
 |---|---|
 | `pnpm typecheck` | The five projects compile without an error |
-| `pnpm test` | 631 tests pass, 0 fail |
+| `pnpm test` | 727 tests pass, 0 fail (67 suites) |
 | `pnpm build` (turbo) | 4 tasks succeed: the core, the SDK, the application and the example |
 | The browser | The relationship is drawn between the two tables of the example, and a link that the user drags from the handle of a field to the other table adds a relationship |
 

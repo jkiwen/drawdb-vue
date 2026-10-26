@@ -15,6 +15,12 @@ rolled back completely (`npm run build` and `npm run lint` green, zero
 
 ---
 
+## The commit
+
+| Commit | Content |
+|---|---|
+| `fd71864` | The design system of the operation areas: the sheet of the tokens of the SDK, the top operation area, the left operation area, the shell of the application and the harness of the example |
+
 ## 1. What was delivered before the optimization
 
 | Area | Problem |

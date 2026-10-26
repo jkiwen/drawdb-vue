@@ -13,11 +13,13 @@ that sit inside it.
 | Commit | Content |
 |---|---|
 | `2fc5574` | The live preview of the drag for the tables and the areas, the release outside of the canvas, the cancel of the pointer, the one command of the release |
+| `0c4e472` | The end of the drag lands on the grid: the origin of the drag and its result are snapped, so a table that is dropped between two lines of the grid lands on one of them |
 
-The fix was written in the working tree while the areas were being finished, and
-the two changes touch the same files (`use-canvas-drag.ts`, `use-canvas-actions.ts`,
-`use-canvas-handlers.ts`, `use-canvas-events.ts`), so they landed in the one
-commit of the areas. The report of the areas does not repeat this one.
+The fix of the end of the drag was written in the working tree while the areas
+were being finished, and the two changes touch the same files
+(`use-canvas-drag.ts`, `use-canvas-actions.ts`, `use-canvas-handlers.ts`,
+`use-canvas-events.ts`), so they landed in the one commit of the drag. The
+report of the areas does not repeat this one.
 
 ## The three causes
 

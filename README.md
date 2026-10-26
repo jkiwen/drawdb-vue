@@ -140,8 +140,15 @@ are ready for the registry. The changes of every version are written in
 | [docs/plan.md](docs/plan.md) | the plan with the 20 tasks of the implementation |
 | [docs/task-N-report.md](docs) | the report of every task |
 | [docs/task-33-report.md](docs/task-33-report.md) | the menu of the editor, the dialogs it opens and the end to end tests that drive it |
+| [docs/task-34-report.md](docs/task-34-report.md) | the areas of the canvas: the fold, the lock, the details panel, the rule of the membership and the five defects of the user |
 | [docs/visual-parity-report.md](docs/visual-parity-report.md) | the alignment of the canvas with the React reference (the styles, the marks of the fields, the colours of the types) |
 | [docs/ui-ux-optimization-report.md](docs/ui-ux-optimization-report.md) | the design system of the operation areas (the header, the toolbar, the side panel) and the comparison with the state before it |
+| [docs/area-interactions-report.md](docs/area-interactions-report.md) | the areas of the canvas: the selection, the resize, the drag, the fold, the lock, the details panel and the rule that says what an area holds |
+| [docs/canvas-bugfix-report.md](docs/canvas-bugfix-report.md) | the defects of the canvas that were fixed: the lock of a table, the type of a field, the edit of a field and the note that was a picture |
+| [docs/canvas-details-report.md](docs/canvas-details-report.md) | the details of a table: the button that opens them, the style they share with the canvas and the size the table grows to fit them |
+| [docs/note-locking-report.md](docs/note-locking-report.md) | the lock of a note: the button on the canvas and the lock that a note keeps until it is unlocked again |
+| [docs/relationship-creation-report.md](docs/relationship-creation-report.md) | the creation of a relationship: the link that is dragged on the canvas, the dialog that asks for its ends and the route it takes on the canvas |
+| [docs/drag-follow-report.md](docs/drag-follow-report.md) | the drag that follows the pointer and the end of the drag that lands on the grid |
 | [progress.md](progress.md) | the ledger with the state of the work and the decisions |
 | [CHANGELOG.md](CHANGELOG.md) | the changes of every version |
 | [examples/vue-embed](examples/vue-embed) | the harness that embeds the editor and the application, with the three regions of a test labelled |
