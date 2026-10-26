@@ -14,6 +14,7 @@ tables and the decisions that came with it.
 |---|---|
 | `2fc5574` | The selection, the resize and the drag of the areas, the tables that sit in an area follow it, `CompositeCommand` |
 | `f56c6f3` | The collapse, the lock and the details of an area, the membership rule of the overlap and the five defects of the areas |
+| `86743d3` | The relationships that cross the border of an area stay drawn: the nearest edge anchors, the title bar of a collapsed area and the detour around an obstacle |
 
 ## The four causes
 
