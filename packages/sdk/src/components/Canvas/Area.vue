@@ -5,6 +5,7 @@ import type { Area } from "@drawdb/core";
 import { DEFAULT_AREA_OPACITY, withOpacity } from "../../utils/elements.ts";
 import AreaDetails from "./AreaDetails.vue";
 import AreaLinkBadge from "./AreaLinkBadge.vue";
+import { COLLAPSED_AREA_HEIGHT } from "./geometry.ts";
 import type { ResizeState } from "./interactions/interaction-state.ts";
 
 defineOptions({ name: "DrawDBAreaNode" });
@@ -21,9 +22,10 @@ const props = defineProps({
   /** Whether the details panel of the area is open. */
   detailsOpen: { type: Boolean, default: false },
   /**
-   * The tables outside of the collapsed area that a hidden relationship
-   * points at, in the coordinates of the canvas. The badge on the title bar
-   * counts them and the hover draws a dashed line to each of them.
+   * The tables outside of the collapsed area that a relationship anchored on
+   * the title bar points at, in the coordinates of the canvas. The badge on
+   * the title bar counts them and the hover draws a dashed line to each of
+   * them.
    */
   linkTargets: {
     type: Array as PropType<Array<{ x: number; y: number }>>,
@@ -41,8 +43,6 @@ const emit = defineEmits([
 /** The side of the square that resizes the area, in canvas units. */
 const RESIZE_HANDLE_SIZE = 12;
 
-/** The height of the title bar a collapsed area is drawn with. */
-const COLLAPSED_HEIGHT = 28;
 /** The side of the square a button of the title bar sits in. */
 const BUTTON_SIZE = 20;
 /** The color of the stroke and, softened, of the fill. */
@@ -79,7 +79,7 @@ const size = computed(() => {
   return {
     width: dragSize?.width ?? props.area.width,
     height: collapsed.value
-      ? COLLAPSED_HEIGHT
+      ? COLLAPSED_AREA_HEIGHT
       : (dragSize?.height ?? props.area.height),
   };
 });
@@ -119,7 +119,7 @@ const shackle = computed(() =>
 const linkLines = computed(() =>
   props.linkTargets.map((target) => ({
     x1: 8,
-    y1: COLLAPSED_HEIGHT / 2,
+    y1: COLLAPSED_AREA_HEIGHT / 2,
     x2: target.x - props.area.x,
     y2: target.y - props.area.y,
   })),

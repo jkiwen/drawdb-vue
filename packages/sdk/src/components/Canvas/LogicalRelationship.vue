@@ -3,10 +3,13 @@ import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Relationship, Table } from "@drawdb/core";
 import {
+  boundsCenter,
   cardinalitySides,
   cardinalityText,
-  logicalRelationshipAnchors,
+  logicalEdgeAnchor,
+  logicalTableBounds,
   relationshipPath,
+  type EdgeAnchor,
 } from "./geometry.ts";
 
 defineOptions({ name: "DrawDBLogicalRelationshipNode" });
@@ -16,20 +19,32 @@ const props = defineProps({
   startTable: { type: Object as PropType<Table>, required: true },
   endTable: { type: Object as PropType<Table>, required: true },
   selected: { type: Boolean, default: false },
+  /** The anchor of an end that folds with a collapsed area: the edge of its title bar. */
+  startPoint: { type: Object as PropType<EdgeAnchor | null>, default: null },
+  endPoint: { type: Object as PropType<EdgeAnchor | null>, default: null },
 });
 
 /**
  * The logical relationship.
  *
  * It connects the two entities and keeps the cardinality, but it does not
- * point at the fields the physical view attaches it to.
+ * point at the fields the physical view attaches it to. An end a collapsed
+ * area holds anchors on the title bar of the area.
  */
-const anchors = computed(() =>
-  logicalRelationshipAnchors(props.startTable, props.endTable),
-);
+const anchors = computed<{ start: EdgeAnchor; end: EdgeAnchor }>(() => {
+  const startToward = props.endPoint ?? boundsCenter(logicalTableBounds(props.endTable));
+  const endToward = props.startPoint ?? boundsCenter(logicalTableBounds(props.startTable));
+  return {
+    start: props.startPoint ?? logicalEdgeAnchor(props.startTable, startToward),
+    end: props.endPoint ?? logicalEdgeAnchor(props.endTable, endToward),
+  };
+});
 
 const path = computed(() =>
-  relationshipPath(anchors.value.start, anchors.value.end),
+  relationshipPath(anchors.value.start, anchors.value.end, {
+    startSide: anchors.value.start.side,
+    endSide: anchors.value.end.side,
+  }),
 );
 
 const sides = computed(() => cardinalitySides(props.relationship.cardinality));

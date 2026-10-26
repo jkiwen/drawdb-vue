@@ -19,12 +19,14 @@ import {
   viewBounds,
   visibleWorldBounds,
   type Bounds,
+  type EdgeAnchor,
 } from "../components/Canvas/geometry.ts";
 import {
   areaHoldsElement,
   elementBounds,
   heldByCollapsedArea,
 } from "../utils/elements.ts";
+import { useRelationshipEndpoints } from "./use-relationship-endpoints.ts";
 import {
   useVirtualization,
   type VirtualizableElement,
@@ -48,9 +50,18 @@ export interface CanvasItems {
   visibleTables: ComputedRef<Table[]>;
   visibleRelationships: ComputedRef<Relationship[]>;
   /**
-   * The tables outside of each collapsed area that a hidden relationship
-   * points at, by the id of the area. The badge on the title bar of the area
-   * counts them and the hover on the badge draws a dashed line to each.
+   * The anchor of a relationship end that folds with a collapsed area: the
+   * edge of the title bar of the area, facing the other end. Keyed by the id
+   * of the relationship.
+   */
+  relationshipEndpoints: ComputedRef<
+    Map<string, { start?: EdgeAnchor; end?: EdgeAnchor }>
+  >;
+  /**
+   * The tables outside of each collapsed area that a relationship anchored
+   * on the title bar points at, by the id of the area. The badge on the
+   * title bar of the area counts them and the hover on the badge draws a
+   * dashed line to each.
    */
   collapsedAreaLinks: ComputedRef<Map<string, Array<{ x: number; y: number }>>>;
 }
@@ -181,6 +192,12 @@ export function useCanvasItems(options: {
       `translate(${-ui.scrollX * ui.zoom} ${-ui.scrollY * ui.zoom}) scale(${ui.zoom})`,
   );
 
+  /**
+   * The anchors of the relationships with exactly one end in a collapsed
+   * area: the end the area holds anchors on the title bar of the area.
+   */
+  const relationshipEndpoints = useRelationshipEndpoints(diagram, collapsedAreas);
+
   const visibleRelationships = computed(() =>
     diagram.relationships.filter((relationship) => {
       const startTable = diagram.tableById(relationship.startTableId);
@@ -190,22 +207,37 @@ export function useCanvasItems(options: {
         return false;
       }
 
-      // A relationship to a table a collapsed area holds is hidden with it.
-      if (
-        heldByCollapsedArea(collapsedAreas.value, elementBounds(startTable)) ||
-        heldByCollapsedArea(collapsedAreas.value, elementBounds(endTable))
-      ) {
+      // A relationship whose both ends fold with the same collapsed area is
+      // hidden with it; a relationship that reaches out of a collapsed area,
+      // or that connects two different collapsed areas, stays drawn and
+      // anchors on the title bar of the area.
+      const startArea = collapsedAreas.value.find((area) =>
+        areaHoldsElement(area, startTable),
+      );
+      const endArea = collapsedAreas.value.find((area) =>
+        areaHoldsElement(area, endTable),
+      );
+      if (startArea && endArea && String(startArea.id) === String(endArea.id)) {
         return false;
       }
 
       const bounds = isLogical.value
         ? logicalRelationshipBounds(startTable, endTable)
         : relationshipBounds(relationship, startTable, endTable);
+      // The margin keeps a relationship drawn while its detour around an
+      // obstacle is near the edge of the viewport.
+      const MARGIN = 64;
+      const override = relationshipEndpoints.value.get(String(relationship.id));
+      const ends = [override?.start, override?.end].filter(
+        (anchor): anchor is EdgeAnchor => Boolean(anchor),
+      );
+      const xs = [bounds.minX, bounds.maxX, ...ends.map((anchor) => anchor.x)];
+      const ys = [bounds.minY, bounds.maxY, ...ends.map((anchor) => anchor.y)];
       return (
-        bounds.minX <= world.value.maxX &&
-        bounds.maxX >= world.value.minX &&
-        bounds.minY <= world.value.maxY &&
-        bounds.maxY >= world.value.minY
+        Math.min(...xs) - MARGIN <= world.value.maxX &&
+        Math.max(...xs) + MARGIN >= world.value.minX &&
+        Math.min(...ys) - MARGIN <= world.value.maxY &&
+        Math.max(...ys) + MARGIN >= world.value.minY
       );
     }),
   );
@@ -215,9 +247,10 @@ export function useCanvasItems(options: {
    * connects to it.
    *
    * A relationship with one end inside a collapsed area and one end outside
-   * of it is hidden with the area; the badge on the title bar counts these
-   * relationships and the hover on the badge draws a dashed line to the
-   * table outside, so the connections of a collapsed area stay discoverable.
+   * of it anchors on the title bar of the area; the badge on the title bar
+   * counts these relationships and the hover on the badge draws a dashed
+   * line to the table outside, so the connections of a collapsed area stay
+   * discoverable.
    */
   const collapsedAreaLinks = computed(() => {
     const links = new Map<string, Array<{ x: number; y: number }>>();
@@ -257,6 +290,7 @@ export function useCanvasItems(options: {
     visibleViews,
     visibleTables,
     visibleRelationships,
+    relationshipEndpoints,
     collapsedAreaLinks,
   };
 }

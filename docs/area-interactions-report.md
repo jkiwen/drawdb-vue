@@ -89,11 +89,19 @@ cannot be clicked while the area is folded; an expand draws them again, at the
 places they never left.
 
 A relationship that connects a table inside the collapsed area to a table
-outside of it folds with the area, but it is not lost to the user: a badge on
-the title bar (`data-testid="area-link-badge-<id>"`) counts these
-relationships, and the hover on the badge draws each of them as a dashed line
-to the table outside. `collapsedAreaLinks` in `use-canvas-items.ts` collects
-the targets, `AreaLinkBadge.vue` draws the badge and the lines.
+outside of it no longer folds with the area: it stays drawn, and the end the
+area holds anchors on the edge of the title bar that faces the other end
+(`collapsedAreaAnchor` in `relationship-geometry.ts`, computed by
+`useRelationshipEndpoints` and passed to the relationship as its `startPoint`
+or `endPoint`). Only a relationship whose both ends fold with the same
+collapsed area is hidden with it; a relationship between two different
+collapsed areas is drawn between their title bars. The badge on the title bar
+(`data-testid="area-link-badge-<id>"`) still counts these relationships, and
+the hover on the badge still draws each of them as a dashed line to the table
+outside, so the connections of a collapsed area stay discoverable even where
+several of them share one title bar. `collapsedAreaLinks` in
+`use-canvas-items.ts` collects the targets, `AreaLinkBadge.vue` draws the badge
+and the lines.
 
 ## The lock of an area
 
@@ -202,8 +210,10 @@ covered by a specification that failed before it.
 4. **A relationship that reached out of a collapsed area was lost.** The
    relationship was hidden with the area that held one of its ends, and nothing
    told the user that it was still there. The badge on the title bar counts
-   these relationships now, and the hover on the badge draws a dashed line to
-   the table outside.
+   these relationships, and the hover on the badge draws a dashed line to the
+   table outside. The relationship itself stays drawn now: the end the area
+   holds anchors on the edge of the title bar that faces the other end, so the
+   line crosses the border of the collapsed area and lands on it.
 5. **The details panel of an area was drawn over the canvas and the area could
    not be grabbed any more.** The panel hung over the area and caught the
    presses that should have moved it.
@@ -222,17 +232,50 @@ tables and of the notes, the tables and the notes that travel with the area, the
 relationship that reaches out and the badge that counts it, the panel that
 hangs below the area and the press that does not drag the area).
 
+## The anchors and the paths of the relationships (the twenty sixth of October 2026)
+
+A relationship used to attach to the left and the right edges of its tables
+only, chosen by the order of the tables on the x axis, so a relationship
+between two stacked tables left them sideways. The anchors now sit on the edge
+of each table nearest to the other end (`nearestEdgeSide` in
+`relationship-geometry.ts`): the left and the right edges anchor on the row of
+the field the relationship points at, the top and the bottom edges anchor
+across from the other end. The logical view follows the same rule on the boxes
+of the entities (`logicalEdgeAnchor`).
+
+The path leaves each anchor straight out of the edge it sits on
+(`relationshipPath` with the sides of the anchors), and when the bezier would
+cross a table or an area that holds neither end, the path detours around the
+obstacle as an orthogonal polyline (`relationship-detour.ts`): two anchors
+that face each other sideways detour above or below the obstacle, whichever is
+shorter, and a mixed pair turns once, at the corner that crosses less. The
+obstacles of a relationship are the tables it does not touch and the areas
+that hold neither of its ends, so a line is never routed around the area its
+own end sits in. A path without options keeps the legacy horizontal S curve,
+which is what the link preview of the drag still draws.
+
+The specifications are in `geometry.test.ts` (the nearest edge, the anchors
+of the stacked tables, the anchor on the title bar of a collapsed area, the
+path that bends out of its edge and the detour around an obstacle) and in
+`cross-area-relationship.test.ts` (the relationship that crosses the border of
+an expanded and of a collapsed area, the relationship between the title bars
+of two collapsed areas, the regression of the relationships inside and outside
+of the areas, and the detour around a table and around an unrelated area).
+
 ## The verification
 
-- The suite passes: 727 specifications, including the new cases of
+- The suite passes: 744 specifications, including the new cases of
   `area-editing.test.ts` (the lock and its extension to the tables, the
   refusal of the updates and of the delete, the details panel, the badge of a
   collapsed area), the new units of `elements.test.ts`
-  (`heldByLockedArea`, `withOpacity`) and the new specification of the
-  defects, `area-defects.test.ts`.
+  (`heldByLockedArea`, `withOpacity`), the specifications of the defects in
+  `area-defects.test.ts` and the new specifications of the anchors and the
+  paths in `geometry.test.ts` and `cross-area-relationship.test.ts`.
 - `pnpm run typecheck` passes for the core, the SDK, the application, the
   example and the e2e specifications.
-- `pnpm run build:packages` passes (45 components).
+- `pnpm run build:packages` passes (45 components). The build of the
+  application fails in the sandbox of the development machine, on the clean
+  tree as well: esbuild cannot remove its temporary file (`Access is denied`).
 - The collapse was measured in a real browser against the example harness: the
   canvas held 12 tables, the collapse of the area hid 5 of them and showed the
   badge of the relationships that reach out of the area, and the expand brought

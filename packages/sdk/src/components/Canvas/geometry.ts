@@ -3,7 +3,6 @@ import type {
   Field,
   FieldId,
   Note,
-  Relationship,
   Table,
   View,
 } from "@drawdb/core";
@@ -32,6 +31,9 @@ export const DEFAULT_VIEW_HEIGHT = 80;
 export const DEFAULT_VIEWPORT_WIDTH = 1200;
 export const DEFAULT_VIEWPORT_HEIGHT = 800;
 export const DEFAULT_GRID_SIZE = 10;
+
+/** The height of the title bar a collapsed area is drawn with. */
+export const COLLAPSED_AREA_HEIGHT = 28;
 
 export {
   TABLE_DETAILS_PADDING_Y,
@@ -113,10 +115,26 @@ export function tableBounds(table: Table): Bounds {
 export {
   LOGICAL_TABLE_HEIGHT,
   logicalAnchor,
+  logicalEdgeAnchor,
   logicalRelationshipAnchors,
   logicalRelationshipBounds,
   logicalTableBounds,
 } from "./logical-geometry.ts";
+
+export {
+  boundsCenter,
+  collapsedAreaAnchor,
+  nearestEdgeSide,
+  relationshipAnchors,
+  relationshipBounds,
+  relationshipPath,
+  tableEdgeAnchor,
+} from "./relationship-geometry.ts";
+export type {
+  EdgeAnchor,
+  EdgeSide,
+  RelationshipPathOptions,
+} from "./relationship-geometry.ts";
 
 export function noteBounds(note: Note): Bounds {
   const width = note.width && note.width > 0 ? note.width : DEFAULT_NOTE_WIDTH;
@@ -178,61 +196,6 @@ export function fieldAnchor(
     TABLE_FIELD_HEIGHT / 2;
 
   return { x, y };
-}
-
-/** The anchors of a relationship, start table first. */
-export function relationshipAnchors(
-  relationship: Relationship,
-  startTable: Table,
-  endTable: Table,
-): { start: GeometryPoint; end: GeometryPoint } {
-  const startSide = startTable.x <= endTable.x ? "right" : "left";
-  const endSide = startSide === "right" ? "left" : "right";
-
-  return {
-    start: fieldAnchor(startTable, relationship.startFieldId, startSide),
-    end: fieldAnchor(endTable, relationship.endFieldId, endSide),
-  };
-}
-
-export function relationshipBounds(
-  relationship: Relationship,
-  startTable: Table,
-  endTable: Table,
-): Bounds {
-  const { start, end } = relationshipAnchors(relationship, startTable, endTable);
-  return {
-    minX: Math.min(start.x, end.x),
-    minY: Math.min(start.y, end.y),
-    maxX: Math.max(start.x, end.x),
-    maxY: Math.max(start.y, end.y),
-  };
-}
-
-/**
- * A cubic bezier between two anchors, drawn as a horizontal S curve.
- *
- * The two anchors do not always come in the order of the axis: the anchor of
- * a table that stands on the right of the other one is on its left border, so
- * the curve has to be drawn backwards. The direction of the curve is chosen
- * from the position of the anchors, not from the order of the relationship.
- */
-export function relationshipPath(start: GeometryPoint, end: GeometryPoint): string {
-  const distance = Math.abs(end.x - start.x);
-  const control = Math.max(40, distance / 2);
-
-  if (end.x >= start.x) {
-    return [
-      `M ${start.x} ${start.y}`,
-      `C ${start.x + control} ${start.y}, ${end.x - control} ${end.y}, ${end.x} ${end.y}`,
-    ].join(" ");
-  }
-
-  // The curve is drawn from right to left: the control points are mirrored.
-  return [
-    `M ${start.x} ${start.y}`,
-    `C ${start.x - control} ${start.y}, ${end.x + control} ${end.y}, ${end.x} ${end.y}`,
-  ].join(" ");
 }
 
 /** The sides of a relationship that carry a "one" or a "many" marker. */

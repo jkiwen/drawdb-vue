@@ -172,6 +172,8 @@ onBeforeUnmount(() => {
           :start-table="tableOf(relationship.startTableId)"
           :end-table="tableOf(relationship.endTableId)"
           :selected="canvas.selection.isSelected(String(relationship.id))"
+          :start-point="items.relationshipEndpoints.value.get(String(relationship.id))?.start ?? null"
+          :end-point="items.relationshipEndpoints.value.get(String(relationship.id))?.end ?? null"
         />
         <Relationship
           v-else
@@ -179,6 +181,8 @@ onBeforeUnmount(() => {
           :start-table="tableOf(relationship.startTableId)"
           :end-table="tableOf(relationship.endTableId)"
           :selected="canvas.selection.isSelected(String(relationship.id))"
+          :start-point="items.relationshipEndpoints.value.get(String(relationship.id))?.start ?? null"
+          :end-point="items.relationshipEndpoints.value.get(String(relationship.id))?.end ?? null"
         />
       </template>
       <template

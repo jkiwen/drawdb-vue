@@ -4,6 +4,11 @@ import {
   type Bounds,
   type GeometryPoint,
 } from "./geometry.ts";
+import {
+  boundsCenter,
+  nearestEdgeSide,
+  type EdgeAnchor,
+} from "./relationship-geometry.ts";
 
 /** The height of an entity box in the logical view. */
 export const LOGICAL_TABLE_HEIGHT = 56;
@@ -34,17 +39,31 @@ export function logicalAnchor(
   };
 }
 
+/**
+ * The point where a relationship attaches to an entity box, on the edge
+ * nearest to the other end.
+ */
+export function logicalEdgeAnchor(table: Table, toward: GeometryPoint): EdgeAnchor {
+  const bounds = logicalTableBounds(table);
+  const side = nearestEdgeSide(bounds, toward);
+  if (side === "top" || side === "bottom") {
+    return {
+      x: Math.min(Math.max(toward.x, bounds.minX), bounds.maxX),
+      y: side === "top" ? bounds.minY : bounds.maxY,
+      side,
+    };
+  }
+  return { ...logicalAnchor(table, side), side };
+}
+
 /** The anchors of a relationship between two entities, start table first. */
 export function logicalRelationshipAnchors(
   startTable: Table,
   endTable: Table,
-): { start: GeometryPoint; end: GeometryPoint } {
-  const startSide = startTable.x <= endTable.x ? "right" : "left";
-  const endSide = startSide === "right" ? "left" : "right";
-
+): { start: EdgeAnchor; end: EdgeAnchor } {
   return {
-    start: logicalAnchor(startTable, startSide),
-    end: logicalAnchor(endTable, endSide),
+    start: logicalEdgeAnchor(startTable, boundsCenter(logicalTableBounds(endTable))),
+    end: logicalEdgeAnchor(endTable, boundsCenter(logicalTableBounds(startTable))),
   };
 }
 
