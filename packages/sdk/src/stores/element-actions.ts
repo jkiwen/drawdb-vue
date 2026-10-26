@@ -12,6 +12,18 @@ import type {
   DiagramEntityCollection,
   Note,
 } from "@drawdb/core";
+import { elementBounds, heldByLockedArea } from "../utils/elements.ts";
+
+/**
+ * Whether an update only flips the lock of an element.
+ *
+ * A locked element refuses every change, but the lock itself has to stay
+ * reachable — otherwise the element could never be unlocked again.
+ */
+function onlyTogglesLock(updates: Record<string, unknown>): boolean {
+  const keys = Object.keys(updates);
+  return keys.length === 1 && keys[0] === "locked";
+}
 
 /** The collections of a diagram that can hold its areas. */
 export type AreaCollection = Extract<DiagramEntityCollection, "areas" | "subjectAreas">;
@@ -102,6 +114,12 @@ export function elementActions(
   }
 
   function updateArea(id: string | number, updates: Partial<Omit<Area, "id">>): void {
+    const area = areasOf(diagram).find((item) => String(item.id) === String(id));
+    if (area?.locked === true && !onlyTogglesLock(updates)) {
+      // A locked area is read-only: the name, the size, the color and the
+      // collapse all stay as they are until the area is unlocked again.
+      return;
+    }
     history.execute(
       new UpdateEntityCommand(
         diagram,
@@ -120,12 +138,17 @@ export function elementActions(
     for (const move of moves) {
       const area = areas.find((item) => String(item.id) === String(move.id));
       if (!area) continue;
+      if (area.locked) continue;
       area.x = move.x;
       area.y = move.y;
     }
   }
 
   function removeArea(id: string | number | undefined): void {
+    const area = areasOf(diagram).find((item) => String(item.id) === String(id));
+    if (area?.locked === true) {
+      return;
+    }
     history.execute(new RemoveEntityCommand(diagram, areaCollection(diagram), id));
     bump();
   }
@@ -134,6 +157,17 @@ export function elementActions(
     id: string | number,
     updates: Partial<Omit<Note, "id">>,
   ): void {
+    const note = diagram.notes.find((item) => String(item.id) === String(id));
+    if (!note) {
+      return;
+    }
+    if (heldByLockedArea(areasOf(diagram), elementBounds(note))) {
+      // A note a locked area holds is read-only with the area.
+      return;
+    }
+    if (note.locked === true && !onlyTogglesLock(updates)) {
+      return;
+    }
     history.execute(
       new UpdateEntityCommand(diagram, "notes", id, updates as Record<string, unknown>),
     );
@@ -143,19 +177,26 @@ export function elementActions(
   function previewNotePositions(
     moves: ReadonlyArray<{ id: string | number; x: number; y: number }>,
   ): void {
+    const lockedAreas = areasOf(diagram).filter((area) => area.locked === true);
     for (const move of moves) {
       const note = diagram.notes.find((item) => String(item.id) === String(move.id));
       if (!note) continue;
       if (note.locked) continue;
+      if (heldByLockedArea(lockedAreas, elementBounds(note))) continue;
       note.x = move.x;
       note.y = move.y;
     }
   }
 
   function commandOf(move: MoveRequest): Command | undefined {
+    const areas = areasOf(diagram);
     if (move.kind === "table") {
       const table = diagram.tables.find((item) => String(item.id) === move.id);
       if (!table || table.locked) {
+        return undefined;
+      }
+      // A table a locked area holds does not move with a drag.
+      if (heldByLockedArea(areas, elementBounds(table))) {
         return undefined;
       }
       return new UpdateTableCommand(diagram, move.id, { x: move.x, y: move.y });
@@ -165,12 +206,16 @@ export function elementActions(
       if (!note || note.locked) {
         return undefined;
       }
+      if (heldByLockedArea(areas, elementBounds(note))) {
+        return undefined;
+      }
       return new UpdateEntityCommand(diagram, "notes", move.id, {
         x: move.x,
         y: move.y,
       });
     }
-    if (!areasOf(diagram).some((area) => String(area.id) === move.id)) {
+    const area = areas.find((item) => String(item.id) === move.id);
+    if (!area || area.locked === true) {
       return undefined;
     }
     return new UpdateEntityCommand(diagram, areaCollection(diagram), move.id, {

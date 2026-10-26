@@ -15,11 +15,11 @@ const emit = defineEmits(["select", "dragstart"]);
 
 const width = computed(() => tableWidth(props.table));
 
-const headerStyle = computed(() => {
+const bodyStyle = computed(() => {
   if (!props.table.color) {
     return {};
   }
-  return { borderTopColor: props.table.color };
+  return { borderTop: `4px solid ${props.table.color}` };
 });
 
 function onPointerDown(event: PointerEvent): void {
@@ -40,8 +40,9 @@ function onPointerDown(event: PointerEvent): void {
         xmlns="http://www.w3.org/1999/xhtml"
         class="ddb-logical-table__body"
         :class="{ 'is-selected': selected }"
+        :style="bodyStyle"
       >
-        <div class="ddb-logical-table__header" :style="headerStyle">
+        <div class="ddb-logical-table__header">
           <span class="ddb-logical-table__name">{{ table.name }}</span>
         </div>
         <div v-if="table.comment" class="ddb-logical-table__comment">

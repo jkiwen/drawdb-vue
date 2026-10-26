@@ -123,6 +123,27 @@ test("the inputs of the details share the edit style of the canvas", async () =>
   );
 });
 
+test("choosing a colour in the details paints the colour strip of the table", async () => {
+  const { diagram, wrapper } = setup();
+  await wrapper.find('[data-testid="table-details-toggle-users"]').trigger("click");
+  await nextTick();
+  const color = wrapper.find('[data-testid="table-color-users"]');
+  assert.ok(color.exists(), "the colour input is not rendered");
+  (color.element as HTMLInputElement).value = "#ff0000";
+  await color.trigger("change");
+  await nextTick();
+  const table = diagram.tableById("users");
+  assert.ok(table);
+  assert.equal(table.color, "#ff0000", "the colour never reached the state");
+  const strip = wrapper.find(".ddb-table__color-strip");
+  assert.ok(strip.exists(), "the colour strip is not rendered");
+  const background = (strip.element as HTMLElement).style.background;
+  assert.ok(
+    background.includes("rgb(255, 0, 0)") || background.includes("#ff0000"),
+    `the colour strip does not show the colour of the table (background: "${background}")`,
+  );
+});
+
 test("a locked table can show its details but cannot change them", async () => {
   const { diagram, wrapper } = setup();
   diagram.toggleTableLock("users");

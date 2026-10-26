@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Table } from "@drawdb/core";
 import { NInput } from "naive-ui";
@@ -32,13 +31,6 @@ const {
   start: startComment,
   commit: commitComment,
 } = useInlineEdit();
-
-const headerStyle = computed(() => {
-  if (!props.table.color) {
-    return {};
-  }
-  return { borderTopColor: props.table.color };
-});
 
 function onStartName(event: Event): void {
   event.stopPropagation();
@@ -93,13 +85,12 @@ function onToggleLock(event: Event): void {
   <div
     class="ddb-table__header"
     :class="{ 'is-selected': selected, 'is-locked': table.locked }"
-    :style="headerStyle"
     :data-testid="`table-header-${table.id}`"
   >
     <span
       v-if="table.color"
       class="ddb-table__color-strip"
-      :style="{ height: `${TABLE_COLOR_STRIP_HEIGHT}px` }"
+      :style="{ height: `${TABLE_COLOR_STRIP_HEIGHT}px`, background: table.color }"
     />
 
     <div class="ddb-table__header-main">

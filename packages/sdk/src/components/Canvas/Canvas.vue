@@ -67,6 +67,61 @@ const canvas = useCanvasHandlers({
 
 const canvasEvents = useCanvasEvents(canvas.handlers);
 
+/**
+ * Collapses an area to its title bar, or expands it back.
+ *
+ * The toggle is a property of the area (`Area.collapsed`), so it is written
+ * through the store like every other change of the area: the history records
+ * it, which makes it undoable, and the saved diagram carries it.
+ */
+function onAreaToggleCollapse({ areaId }: { areaId: string | number }): void {
+  const area = diagram.areas.find(
+    (item) => String(item.id) === String(areaId),
+  );
+  if (!area) {
+    return;
+  }
+  diagram.updateArea(area.id, { collapsed: area.collapsed !== true });
+}
+
+/**
+ * Locks an area, or unlocks it.
+ *
+ * The lock is written through the store like every other change of the area:
+ * the history records it, which makes it undoable. A locked area refuses
+ * every other change in the store, so the toggle is the one update that
+ * still goes through.
+ */
+function onAreaToggleLock({ areaId }: { areaId: string | number }): void {
+  const area = diagram.areas.find(
+    (item) => String(item.id) === String(areaId),
+  );
+  if (!area) {
+    return;
+  }
+  diagram.updateArea(area.id, { locked: area.locked !== true });
+}
+
+/**
+ * The area whose details panel is open, or `null`.
+ *
+ * The openness is a state of the canvas and not of the diagram, so it is not
+ * saved: a click on the empty canvas closes the panel again.
+ */
+const areaDetailsId = ref<string | null>(null);
+
+function onAreaToggleDetails({ areaId }: { areaId: string | number }): void {
+  const id = String(areaId);
+  areaDetailsId.value = areaDetailsId.value === id ? null : id;
+}
+
+/** A click on the empty canvas closes the details panel of the area. */
+function onCanvasPointerDown(event: PointerEvent): void {
+  if (event.target === svgRef.value) {
+    areaDetailsId.value = null;
+  }
+}
+
 onMounted(() => {
   if (svgRef.value) {
     canvasEvents.attach(svgRef.value);
@@ -86,6 +141,7 @@ onBeforeUnmount(() => {
     :height="height"
     data-testid="canvas"
     xmlns="http://www.w3.org/2000/svg"
+    @pointerdown="onCanvasPointerDown"
   >
     <g
       class="ddb-canvas__content"
@@ -98,8 +154,13 @@ onBeforeUnmount(() => {
         :area="area"
         :selected="canvas.selection.isSelected(String(area.id))"
         :resizing="canvas.resize.resizing.value"
+        :details-open="areaDetailsId === String(area.id)"
+        :link-targets="items.collapsedAreaLinks.value.get(String(area.id)) ?? []"
         @dragstart="canvas.onAreaDragStart"
         @resizestart="canvas.onResizeStart"
+        @togglecollapse="onAreaToggleCollapse"
+        @togglelock="onAreaToggleLock"
+        @toggledetails="onAreaToggleDetails"
       />
       <template
         v-for="relationship in items.visibleRelationships.value"

@@ -703,6 +703,8 @@
   stroke-width: 2;
   rx: 8;
   ry: 8;
+  /* The collapse animates the height of the rect down to the title bar. */
+  transition: height 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /*
@@ -749,6 +751,197 @@
   fill: #52525b;
   font-size: 13px;
   font-weight: 600;
+}
+
+/*
+ * The buttons of the title bar — the collapse toggle, the details, the
+ * lock — are small squares in the top corner of the area, next to the
+ * label. The group carries the cursor and the hit area, so that the whole
+ * square works and not only the icon the rule below draws. The press on a
+ * button does not move the area: `Area.vue` stops it.
+ */
+.ddb-area__button {
+  cursor: pointer;
+}
+
+.ddb-area__button-box {
+  fill: transparent;
+}
+
+.ddb-area__button-icon {
+  fill: none;
+  stroke: #71717a;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ddb-area__button:hover .ddb-area__button-icon,
+.ddb-area.is-selected .ddb-area__button-icon {
+  stroke: #3b82f6;
+}
+
+.ddb-area__toggle-chevron {
+  fill: none;
+  stroke: #71717a;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  /* The chevron points down on an expanded area and right on a collapsed one. */
+  transition:
+    transform 150ms cubic-bezier(0.4, 0, 0.2, 1),
+    stroke 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.ddb-area.is-collapsed .ddb-area__toggle-chevron {
+  transform: rotate(-90deg);
+}
+
+.ddb-area__toggle:hover .ddb-area__toggle-chevron,
+.ddb-area.is-selected .ddb-area__toggle-chevron {
+  stroke: #3b82f6;
+}
+
+/*
+ * A locked area keeps its color but its border is drawn dashed, the way a
+ * locked table draws its own, so that the lock is visible from the canvas.
+ */
+.ddb-area.is-locked .ddb-area__rect {
+  stroke-dasharray: 6 4;
+}
+
+/*
+ * The lock toggle of a locked area stands out, since it is the one button
+ * that still changes the area.
+ */
+.ddb-area.is-locked .ddb-area__lock-toggle .ddb-area__button-icon {
+  stroke: #b45309;
+}
+
+/*
+ * The badge above the title bar counts the relationships the collapsed area
+ * still takes part in; the hover on the badge draws each of them as a dashed
+ * line to the table outside of the area.
+ */
+.ddb-area__link-badge {
+  cursor: pointer;
+}
+
+.ddb-area__link-badge-box {
+  fill: #ffffff;
+  stroke: #a1a1aa;
+  stroke-width: 1;
+}
+
+.ddb-area__link-badge:hover .ddb-area__link-badge-box {
+  stroke: #3b82f6;
+}
+
+.ddb-area__link-badge-text {
+  fill: #52525b;
+  font-size: 10px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.ddb-area__link-ghost {
+  stroke: #71717a;
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  pointer-events: none;
+}
+
+/*
+ * The details of the area are edited in place, in a panel below the title
+ * bar. The panel is drawn the way the floating card of a table is: white,
+ * rounded, with a light shadow, so that it reads as a layer above the area.
+ */
+.ddb-area-details {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  padding: 8px 10px;
+  border: 1px solid #e7e5e4;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
+  font-family: inherit;
+  font-size: 12px;
+  color: #3f3f46;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ddb-area-details__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ddb-area-details__title {
+  font-weight: 600;
+}
+
+.ddb-area-details__close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #71717a;
+  font-size: 12px;
+  padding: 0 2px;
+}
+
+.ddb-area-details__close:hover {
+  color: #3b82f6;
+}
+
+.ddb-area-details__input,
+.ddb-area-details__textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #e7e5e4;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font: inherit;
+  color: inherit;
+  background: #ffffff;
+}
+
+.ddb-area-details__textarea {
+  resize: none;
+}
+
+.ddb-area-details__input:focus,
+.ddb-area-details__textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.ddb-area-details__error {
+  margin: 0;
+  color: #dc2626;
+  font-size: 11px;
+}
+
+.ddb-area-details__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ddb-area-details__row input[type="range"] {
+  flex: 1;
+}
+
+.ddb-area-details.is-locked .ddb-area-details__input,
+.ddb-area-details.is-locked .ddb-area-details__textarea {
+  background: #f4f4f5;
 }
 
 .ddb-note__body {

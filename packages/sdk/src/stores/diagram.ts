@@ -32,6 +32,7 @@ import type {
 } from "@drawdb/core";
 import { defineStore } from "pinia";
 import { computed, reactive, ref } from "vue";
+import { elementBounds, heldByLockedArea } from "../utils/elements.ts";
 import { useHistoryStore } from "./history.ts";
 import { elementActions } from "./element-actions.ts";
 import { sidePanelActions } from "./side-panel-actions.ts";
@@ -110,13 +111,17 @@ export const useDiagramStore = defineStore("diagram", () => {
   /**
    * Whether a table can be changed.
    *
-   * A table that the user locked is a table the user does not want to touch
-   * any more, so every change of it is refused. The refusal lives here and
-   * not in the components, because the side panel changes a table as well and
-   * the user expects the lock to hold there too.
+   * A table the user locked, or a table a locked area holds, is a table the
+   * user does not want to touch any more, so every change of it is refused.
+   * The refusal lives here and not in the components, because the side panel
+   * changes a table as well and the user expects the lock to hold there too.
    */
   function isLocked(tableId: TableId): boolean {
-    return tableById(tableId)?.locked === true;
+    const table = tableById(tableId);
+    return (
+      table?.locked === true ||
+      (table !== undefined && heldByLockedArea(areas.value ?? [], elementBounds(table)))
+    );
   }
 
   function updateTable(id: TableId, updates: Partial<Omit<Table, "id">>): void {
@@ -136,10 +141,11 @@ export const useDiagramStore = defineStore("diagram", () => {
   function previewTablePositions(
     moves: ReadonlyArray<{ id: TableId; x: number; y: number }>,
   ): void {
+    // A table a locked area holds does not move, not even in the preview.
     for (const move of moves) {
       const table = tableById(move.id);
-      if (!table) continue;
-      if (table.locked) continue;
+      if (!table || table.locked) continue;
+      if (heldByLockedArea(areas.value ?? [], elementBounds(table))) continue;
       table.x = move.x;
       table.y = move.y;
     }
@@ -261,6 +267,13 @@ export const useDiagramStore = defineStore("diagram", () => {
     collection: DiagramEntityCollection,
     target: string | number | undefined,
   ): void {
+    // A locked area cannot be removed: the lock covers its existence too.
+    if (
+      (collection === "areas" || collection === "subjectAreas") &&
+      (areas.value ?? []).some(
+        (area) => area.locked === true && String(area.id) === String(target),
+      )
+    ) return;
     history.execute(new RemoveEntityCommand(diagram, collection, target));
     bump();
   }
@@ -283,6 +296,5 @@ export const useDiagramStore = defineStore("diagram", () => {
     ...sidePanel, ...elements,
   };
 });
-
 
 export type DiagramStore = ReturnType<typeof useDiagramStore>;

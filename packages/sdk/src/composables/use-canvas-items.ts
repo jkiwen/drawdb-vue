@@ -15,10 +15,16 @@ import {
   noteBounds,
   relationshipBounds,
   tableBounds,
+  tableWidth,
   viewBounds,
   visibleWorldBounds,
   type Bounds,
 } from "../components/Canvas/geometry.ts";
+import {
+  areaHoldsElement,
+  elementBounds,
+  heldByCollapsedArea,
+} from "../utils/elements.ts";
 import {
   useVirtualization,
   type VirtualizableElement,
@@ -41,6 +47,12 @@ export interface CanvasItems {
   visibleViews: ComputedRef<View[]>;
   visibleTables: ComputedRef<Table[]>;
   visibleRelationships: ComputedRef<Relationship[]>;
+  /**
+   * The tables outside of each collapsed area that a hidden relationship
+   * points at, by the id of the area. The badge on the title bar of the area
+   * counts them and the hover on the badge draws a dashed line to each.
+   */
+  collapsedAreaLinks: ComputedRef<Map<string, Array<{ x: number; y: number }>>>;
 }
 
 /** Turns the bounds of an element into an item of the virtualization. */
@@ -94,17 +106,36 @@ export function useCanvasItems(options: {
     diagram.areas.map((area) => toItem(area, areaBounds(area))),
   );
 
+  /** The collapsed areas, whose contents are hidden with their title bars. */
+  const collapsedAreas = computed(() =>
+    diagram.areas.filter((area) => area.collapsed === true),
+  );
+
   const noteItems = computed<CanvasItem<Note>[]>(() =>
-    diagram.notes.map((note) => toItem(note, noteBounds(note))),
+    diagram.notes
+      .filter(
+        (note) =>
+          !heldByCollapsedArea(collapsedAreas.value, elementBounds(note)),
+      )
+      .map((note) => toItem(note, noteBounds(note))),
   );
 
   const viewItems = computed<CanvasItem<View>[]>(() =>
-    diagram.views.map((view) => toItem(view, viewBounds(view))),
+    diagram.views
+      .filter(
+        (view) =>
+          !heldByCollapsedArea(collapsedAreas.value, elementBounds(view)),
+      )
+      .map((view) => toItem(view, viewBounds(view))),
   );
 
   const tableItems = computed<CanvasItem<Table>[]>(() =>
     diagram.tables
-      .filter((table) => !table.hidden)
+      .filter(
+        (table) =>
+          !table.hidden &&
+          !heldByCollapsedArea(collapsedAreas.value, elementBounds(table)),
+      )
       .map((table) =>
         isLogical.value
           ? toItem(table, logicalTableBounds(table))
@@ -159,6 +190,14 @@ export function useCanvasItems(options: {
         return false;
       }
 
+      // A relationship to a table a collapsed area holds is hidden with it.
+      if (
+        heldByCollapsedArea(collapsedAreas.value, elementBounds(startTable)) ||
+        heldByCollapsedArea(collapsedAreas.value, elementBounds(endTable))
+      ) {
+        return false;
+      }
+
       const bounds = isLogical.value
         ? logicalRelationshipBounds(startTable, endTable)
         : relationshipBounds(relationship, startTable, endTable);
@@ -171,6 +210,43 @@ export function useCanvasItems(options: {
     }),
   );
 
+  /**
+   * The tables outside of each collapsed area that a relationship still
+   * connects to it.
+   *
+   * A relationship with one end inside a collapsed area and one end outside
+   * of it is hidden with the area; the badge on the title bar counts these
+   * relationships and the hover on the badge draws a dashed line to the
+   * table outside, so the connections of a collapsed area stay discoverable.
+   */
+  const collapsedAreaLinks = computed(() => {
+    const links = new Map<string, Array<{ x: number; y: number }>>();
+    for (const area of collapsedAreas.value) {
+      const targets: Array<{ x: number; y: number }> = [];
+      for (const relationship of diagram.relationships) {
+        const startTable = diagram.tableById(relationship.startTableId);
+        const endTable = diagram.tableById(relationship.endTableId);
+        if (!startTable || !endTable) {
+          continue;
+        }
+        const startHeld = areaHoldsElement(area, startTable);
+        const endHeld = areaHoldsElement(area, endTable);
+        if (startHeld === endHeld) {
+          continue;
+        }
+        const outside = startHeld ? endTable : startTable;
+        targets.push({
+          x: outside.x + tableWidth(outside) / 2,
+          y: outside.y + 16,
+        });
+      }
+      if (targets.length > 0) {
+        links.set(String(area.id), targets);
+      }
+    }
+    return links;
+  });
+
   return {
     isLogical,
     world,
@@ -181,5 +257,6 @@ export function useCanvasItems(options: {
     visibleViews,
     visibleTables,
     visibleRelationships,
+    collapsedAreaLinks,
   };
 }

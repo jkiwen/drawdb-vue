@@ -4,6 +4,7 @@ import { NButton, NCheckbox, NEmpty, NInput, NTag } from "naive-ui";
 import { createId } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
+import { elementBounds, heldByLockedArea } from "../../utils/elements.ts";
 import "./tables-tab.css";
 
 /**
@@ -38,11 +39,21 @@ const filteredTables = computed(() => {
  * Whether the selected table is locked.
  *
  * A locked table cannot be changed, so the panel says so as well: the inputs
- * are disabled and the buttons that change the table are gone. The store
- * refuses the changes in any case, but a panel that looks editable while
- * nothing happens is worse than a panel that says the table is locked.
+ * are disabled and the buttons that change the table are gone. The lock of an
+ * area extends to the tables the area holds, so a table inside a locked area
+ * shows as locked here too. The store refuses the changes in any case, but a
+ * panel that looks editable while nothing happens is worse than a panel that
+ * says the table is locked.
  */
-const locked = computed(() => selectedTable.value?.locked === true);
+const locked = computed(() => {
+  const table = selectedTable.value;
+  if (!table) {
+    return false;
+  }
+  return (
+    table.locked === true || heldByLockedArea(diagram.areas ?? [], elementBounds(table))
+  );
+});
 
 function resetDrafts(): void {
   for (const key of Object.keys(fieldDrafts)) delete fieldDrafts[key];

@@ -4,6 +4,11 @@ import type { Point } from "../../../composables/use-viewport.ts";
 import type { DiagramStore } from "../../../stores/diagram.ts";
 import type { MoveRequest } from "../../../stores/element-actions.ts";
 import type { useSelection } from "../../../composables/use-selection.ts";
+import {
+  areaHoldsElement,
+  elementBounds,
+  heldByLockedArea,
+} from "../../../utils/elements.ts";
 import type { CanvasActions } from "./use-canvas-actions.ts";
 
 export interface CanvasDragOptions {
@@ -113,22 +118,32 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
   /**
    * The elements that the area holds, which travel with it.
    *
-   * A table belongs to an area when its start corner sits in the rectangle of
-   * the area; an area that is drawn inside another area belongs to it the same
-   * way. The relation is read from the places of the elements, so that it needs
-   * no field in the model and stays true to the drawing: a table that is
-   * dragged out of an area stops following it.
+   * A table belongs to an area when the rectangle of the table and the
+   * rectangle of the area overlap; an area that is drawn inside another area
+   * belongs to it the same way. The relation is read from the places of the
+   * elements, so that it needs no field in the model and stays true to the
+   * drawing: a table that is dragged out of an area stops following it.
+   *
+   * The rule of the overlap, and not the rule of the corner, is the one that
+   * answers the question of the user: a table that is drawn in an area travels
+   * with it, although its corner may hang over the edge of the area.
    */
   function contentsOf(area: Area): string[] {
-    const inside = (element: { x: number; y: number }): boolean =>
-      element.x >= area.x &&
-      element.x <= area.x + area.width &&
-      element.y >= area.y &&
-      element.y <= area.y + area.height;
+    const inside = (element: {
+      x: number;
+      y: number;
+      width?: number;
+      height?: number;
+    }): boolean => areaHoldsElement(area, element);
     const ids = diagram.tables.filter(inside).map((table) => String(table.id));
     for (const other of diagram.areas) {
       if (String(other.id) !== String(area.id) && inside(other)) {
         ids.push(String(other.id));
+      }
+    }
+    for (const note of diagram.notes) {
+      if (inside(note)) {
+        ids.push(String(note.id));
       }
     }
     return ids;
@@ -140,10 +155,12 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
     const areas = selectedAreas.value.includes(grabbed)
       ? selectedAreas.value
       : [grabbed];
-    const ids = new Set<string>(areas);
+    const ids = new Set<string>();
     for (const id of areas) {
       const area = diagram.areas.find((item) => String(item.id) === id);
-      if (!area) continue;
+      // A locked area stays where it is, so it does not join the drag.
+      if (!area || area.locked === true) continue;
+      ids.add(id);
       for (const held of contentsOf(area)) {
         ids.add(held);
       }
@@ -153,7 +170,8 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
 
   /**
    * The area and the elements it holds follow the pointer, and an area that
-   * was not selected is selected first.
+   * was not selected is selected first. A locked area is selected by the
+   * click but does not move.
    */
   function onAreaDragStart(payload: {
     areaId: string | number;
@@ -163,7 +181,8 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
     if (!selection.isSelected(id)) {
       selection.select(id, { additive: payload.event.shiftKey, kind: "area" });
     }
-    if (!diagram.areas.some((item) => String(item.id) === id)) {
+    const area = diagram.areas.find((item) => String(item.id) === id);
+    if (!area || area.locked === true) {
       return;
     }
     beginDragOf(options.point(payload.event), idsOfAreaDrag(id));
@@ -206,7 +225,9 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
   }): void {
     const id = String(payload.noteId);
     const note = diagram.notes.find((item) => String(item.id) === id);
-    if (!note || note.locked) {
+    // A locked note does not move, and neither does a note a locked area
+    // holds: the lock of the area extends to the elements inside it.
+    if (!note || note.locked || heldByLockedArea(diagram.areas, elementBounds(note))) {
       return;
     }
     if (!selection.isSelected(id)) {

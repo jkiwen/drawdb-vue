@@ -45,7 +45,15 @@ function sampleDiagram(): Diagram {
   ];
   diagram.notes = [{ id: "n1", x: 0, y: 200, title: "Note", content: "Text" }];
   diagram.subjectAreas = [
-    { id: "a1", name: "Area", x: 0, y: 300, width: 200, height: 100 },
+    {
+      id: "a1",
+      name: "Area",
+      description: "The tables of the area",
+      x: 0,
+      y: 300,
+      width: 200,
+      height: 100,
+    },
   ];
   diagram.types = [
     {
@@ -88,9 +96,22 @@ test("serialize: round trips a diagram", () => {
   assert.equal(restored.relationships[0].endFieldId, "f1");
   assert.equal(restored.notes.length, 1);
   assert.equal(restored.subjectAreas.length, 1);
+  assert.equal(
+    restored.subjectAreas[0].description,
+    "The tables of the area",
+  );
   assert.equal(restored.types.length, 1);
   assert.equal(restored.enums.length, 1);
   assert.equal(restored.views.length, 1);
+});
+
+test("serialize: round trips the collapse of an area", () => {
+  const diagram = sampleDiagram();
+  diagram.subjectAreas[0].collapsed = true;
+
+  const restored = importDiagramJson(exportDiagramJson(diagram));
+
+  assert.equal(restored.subjectAreas[0].collapsed, true);
 });
 
 test("serialize: exports compact json by default", () => {

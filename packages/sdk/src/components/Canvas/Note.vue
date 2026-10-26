@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import type { PropType } from "vue";
 import type { Note } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import { elementBounds, heldByLockedArea } from "../../utils/elements.ts";
 import { DEFAULT_NOTE_HEIGHT, DEFAULT_NOTE_WIDTH } from "./geometry.ts";
 import type { ResizeState } from "./interactions/interaction-state.ts";
 
@@ -40,8 +41,18 @@ const height = computed(() =>
 
 const background = computed(() => props.note.color ?? "#fef3c7");
 
-/** Whether the user locked the note, so that it cannot be changed any more. */
-const locked = computed(() => props.note.locked === true);
+/**
+ * Whether the note can be changed.
+ *
+ * A note the user locked cannot be changed any more, and the lock of an area
+ * extends to the notes the area holds: a note inside a locked area is
+ * read-only the same way.
+ */
+const locked = computed(
+  () =>
+    props.note.locked === true ||
+    heldByLockedArea(diagram.areas ?? [], elementBounds(props.note)),
+);
 
 /** The size of the drag that holds the corner of this note, or `null`. */
 const drag = computed(() => {
@@ -211,7 +222,6 @@ function onToggleLock(): void {
             >{{ note.title }}</span
           >
           <button
-            v-if="!locked"
             class="ddb-note__lock"
             type="button"
             :data-testid="`note-lock-toggle-${note.id}`"

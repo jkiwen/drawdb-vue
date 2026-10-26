@@ -257,4 +257,95 @@ describe("the note on the canvas", () => {
       "a note that is not locked can be written in",
     );
   });
+
+  it("a note can be locked from the canvas", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const wrapper = mountCanvas(pinia);
+    await nextTick();
+
+    const lock = wrapper.find('[data-testid="note-lock-toggle-note1"]');
+    assert.ok(lock.exists(), "the note needs a lock button");
+    await lock.trigger("click");
+    await nextTick();
+
+    assert.equal(diagram.notes[0].locked, true);
+  });
+
+  it("a locked note can be unlocked from the canvas", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const wrapper = mountCanvas(pinia);
+    await nextTick();
+
+    await wrapper
+      .find('[data-testid="note-lock-toggle-note1"]')
+      .trigger("click");
+    await nextTick();
+    assert.equal(diagram.notes[0].locked, true);
+
+    // The button that unlocks the note has to be there: a locked note that
+    // cannot be unlocked is a note the user cannot change any more.
+    const lock = wrapper.find('[data-testid="note-lock-toggle-note1"]');
+    assert.ok(
+      lock.exists(),
+      "a locked note needs the button that unlocks it",
+    );
+    await lock.trigger("click");
+    await nextTick();
+
+    assert.equal(diagram.notes[0].locked, false);
+  });
+
+  it("a note that was unlocked can be written in again", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const wrapper = mountCanvas(pinia);
+    await nextTick();
+
+    await wrapper
+      .find('[data-testid="note-lock-toggle-note1"]')
+      .trigger("click");
+    await nextTick();
+    await wrapper
+      .find('[data-testid="note-lock-toggle-note1"]')
+      .trigger("click");
+    await nextTick();
+
+    assert.equal(diagram.notes[0].locked, false);
+    assert.equal(
+      wrapper
+        .find('[data-testid="note-note1"] [data-testid="note-content-note1"]')
+        .exists(),
+      true,
+      "an unlocked note can be written in again",
+    );
+  });
+
+  it("the lock of a note can be undone", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    const history = useHistoryStore(pinia);
+    const wrapper = mountCanvas(pinia);
+    await nextTick();
+
+    await wrapper
+      .find('[data-testid="note-lock-toggle-note1"]')
+      .trigger("click");
+    await nextTick();
+    assert.equal(diagram.notes[0].locked, true);
+
+    history.undo();
+    await nextTick();
+    // The note was not locked before, so the undo takes the lock away
+    // altogether instead of writing false.
+    assert.notEqual(diagram.notes[0].locked, true);
+    assert.equal(
+      wrapper
+        .find('[data-testid="note-note1"] [data-testid="note-content-note1"]')
+        .exists(),
+      true,
+      "an unlocked note can be written in again",
+    );
+  });
 });

@@ -6,6 +6,7 @@ import { VueDraggable } from "vue-draggable-plus";
 import { tableHeight, tableWidth } from "./geometry.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useSortable } from "../../composables/use-sortable.ts";
+import { elementBounds, heldByLockedArea } from "../../utils/elements.ts";
 import FieldHandle from "./FieldHandle.vue";
 import ResizeHandles from "./ResizeHandles.vue";
 import TableField from "./TableField.vue";
@@ -47,11 +48,16 @@ const height = computed(() => tableHeight(liveTable.value));
  * Whether the table is locked.
  *
  * A locked table is a table the user does not want to touch any more, so the
- * canvas refuses to move it, to resize it and to change its fields. The store
- * refuses the changes as well, because the side panel writes to the same
- * table.
+ * canvas refuses to move it, to resize it and to change its fields. The lock
+ * of an area extends to the tables the area holds, so a table inside a locked
+ * area is read-only the same way. The store refuses the changes as well,
+ * because the side panel writes to the same table.
  */
-const locked = computed(() => liveTable.value.locked === true);
+const locked = computed(
+  () =>
+    liveTable.value.locked === true ||
+    heldByLockedArea(diagram.areas ?? [], elementBounds(liveTable.value)),
+);
 
 function onPointerDown(event: PointerEvent): void {
   if (locked.value) {
@@ -76,7 +82,7 @@ function onLinkStart(payload: {
   fieldId: string | number;
   event: PointerEvent;
 }): void {
-  if (props.table.locked) {
+  if (locked.value) {
     return;
   }
   emit("linkstart", payload);
@@ -119,7 +125,7 @@ defineExpose({ resizing });
 <template>
   <g
     class="ddb-table"
-    :class="{ 'is-selected': selected, 'is-locked': table.locked }"
+    :class="{ 'is-selected': selected, 'is-locked': locked }"
     :transform="`translate(${table.x} ${table.y})`"
     :data-table-id="table.id"
     :data-testid="`table-${table.id}`"
