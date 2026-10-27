@@ -12,7 +12,8 @@ function sections(): { task: number; title: string; status: string | null }[] {
   const found: { task: number; title: string; status: string | null }[] = [];
   let current: { task: number; title: string; status: string | null } | null =
     null;
-  for (const line of PLAN.split("\n")) {
+  // Tolerate CRLF checkouts (Windows with core.autocrlf=true).
+  for (const line of PLAN.split(/\r?\n/)) {
     const heading = /^## Task (\d+):\s*(.*)$/.exec(line);
     if (heading) {
       current = {
@@ -105,4 +106,24 @@ test("the script reads an alternative plan", async () => {
     Array.from({ length: 12 }, (_, index) => index + 21),
     "the tasks of the parity plan are not numbered from 21 to 32",
   );
+});
+
+test("the script tolerates CRLF line endings", async () => {
+  const { readSections } = await import("./plan-status.mjs");
+  const text = [
+    "# Plan",
+    "",
+    "## Task 1: A task",
+    "",
+    "**Status:** complete — commit `abc1234`",
+    "",
+    "- [x] **Step 1: done**",
+    "",
+  ].join("\r\n");
+  const state = readSections(text);
+  assert.equal(state.length, 1, "the CRLF plan has one task");
+  assert.equal(state[0].task, 1);
+  assert.ok(state[0].status, "the CRLF task has a status line");
+  assert.equal(state[0].steps, 1);
+  assert.equal(state[0].open, 0);
 });
