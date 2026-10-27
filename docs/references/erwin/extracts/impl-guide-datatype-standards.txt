@@ -1,0 +1,165 @@
+--- PAGE 101 ---
+Implementation Guide 15.0 101
+Applying Data Type Standards
+A data type is a predefined set of characteristics for an attribute or column that specifies field 
+length, acceptable characters, and optional and required parameters. For example, the data type 
+Char(18) specifies that the column can store up to 18 alpha and numeric characters.
+By default, a data type is applied to every attribute in a logical model and to every column in a phys-
+ical model. In the logical model, you assign the data type or the domain from which the attribute 
+inherits its properties determines it. In the physical model, you assign the data type or the default 
+value that is specified by the target server determines it. 
+Considering the large quantity of attributes or columns a data model usually has, it is tedious to 
+assign and maintain consistency of data types manually. The DSM Option Editor helps you easily 
+assign and maintain data types in a model.
+Create data type standards so that everyone in your organization uses data types consistently.
+When you create a DSM Option object, it is preloaded with default logical data types. Use the DSM 
+Options Editor to create data types and mappings. You can create multiple DSM Option objects 
+but you can apply only one of them to the model.
+You can assign data types in any of the following scenarios:
+Deriving a physical model from a logical model, or switching from a logical model to a phys-
+ical model. A physical data type is automatically assigned to each column based on the data 
+type assigned to the corresponding attribute. 
+Deriving a physical model from a physical model. The corresponding data type for the target 
+database is automatically assigned. 
+Migrating from one version of a database to a newer version, or changing the target data-
+base. You are prompted you to verify if you want to convert data types. When you convert 
+the data types, the corresponding data type for the target database is automatically 
+assigned. 
+Creating a physical model by reverse engineering from a database or script file. Information 
+from the database or script file is extracted, and a physical data type is automatically 
+assigned to each column. 
+You can apply data type standards in three ways, as illustrated in the following diagram:
+Applying Data Type Standards 
+--- PAGE 102 ---
+Implementation Guide 15.0 102
+To apply data type standards, follow these steps:
+Decide a method to apply standards.
+Applying Data Type Standards 
+--- PAGE 103 ---
+Implementation Guide 15.0 103
+To create and apply data type standards, follow these steps:
+ 1. Define data type standards from Model Explorer. 
+ 2. (Optional) Create a mapping. 
+ 3. Apply data type standards to the model. 
+To import data type standards from a previous version, follow these steps:
+ 1. Import data type standards. 
+ 2. Apply data type standards to the model. 
+Apply data type standards by binding a model template:
+ 1. Bind a model template. 
+Back to Top
+Applying Data Type Standards 
+--- PAGE 104 ---
+Implementation Guide 15.0 104
+Decide a Method to Apply Standards
+You can apply data type standards in three ways:
+Create a standard
+Create a data type standard and apply it to your model if you are applying standards for the first 
+time. After you create a DSM object and define your standards, you can use the standard in all 
+your data models.
+Import from a previous release
+Import data type standards from a previous release and apply the standard to your model. Import-
+ing saves your time from creating a standard and maintains the consistency across all data models 
+in your organization. 
+Bind a model template
+Bind an existing model template having data type standards to your model. You can use the same 
+template for multiple models. You can also sync the template with the current model for any 
+changes in the model. After you sync the template, it will inherit the changes that are made in the 
+current model.
+Back to Top
+Decide a Method to Apply Standards 
+--- PAGE 105 ---
+Implementation Guide 15.0 105
+Create and Apply Data Type Standards
+Create data type standards if you are implementing standards for the first time.
+Create and Apply Data Type Standards 
+--- PAGE 106 ---
+Implementation Guide 15.0 106
+Define Data Type Standards from Model Explorer
+Define data type standards to maintain uniform data type standards across all data models.
+Follow these steps:
+ 1. Expand Model Explorer, right-click DSM Options, and click New. 
+A data type standards object is added.
+ 2. Right-click the newly created object and click Properties. 
+The DSM Option Editor opens. 
+ 3. (Optional) Rename the DSM object in the Name field. 
+ 4. Click the Logical Definition tab and edit the Domain, Length, Precision, and Default Length 
+values for the required data type. 
+ 5. (Optional) To create a data type, click New under the Logical Definition tab. 
+A data type is created.
+ 6. (Optional) Rename the new data type and change the properties. 
+A data type standard object is defined and saved.
+To delete a DSM object or a data type, select the DSM object or the data type row and click 
+Delete.
+If you want to create a mapping, you do not have to close the DSM Option Editor window.
+Back to Top
+Define Data Type Standards from Model Explorer 
+--- PAGE 107 ---
+Implementation Guide 15.0 107
+(Optional) Create a Mapping
+Map data types between different databases to maintain uniform data types in all the data models. 
+Mapping lets you eliminate the differences in the data types when you import a model from one 
+database to another. Also, mapping enables you to use new data types in physical models.
+You can create multiple DSM Datatype Mapping objects and DSM Datatype Mapping entries in 
+the DSM Datatype Mapping Editor.
+Follow these steps:
+ 1. In the DSM Option Editor, select the Mapping tab and click New. 
+A DSM Datatype Mapping object is created.
+ 2. Click Edit. 
+The DSM Datatype Mapping Editor opens.
+ 3. (Optional) Edit the name of the DSM Datatype Mapping object. 
+ 4. Select the Mapping tab, and select the source database from the From drop-down list and 
+the target database from the To drop-down list. 
+ 5. (Optional) Edit the To Datatype field. 
+ 6. (Optional) Add a data type for mapping. 
+ 7. Click Close. 
+The DSM Datatype Mapping Editor closes and you return to the DSM Option Editor dialog.
+Back to Top
+(Optional) Create a Mapping 
+--- PAGE 108 ---
+Implementation Guide 15.0 108
+Apply Data Type Standards to the Model
+After you import the data type standards object, apply the standards by attaching the DSM object 
+to the data model.
+To attach a DSM object to a model, open the DSM Option Editor from Model Explorer, and select 
+the Is Active check box.
+Back to Top
+Apply Data Type Standards to the Model
+--- PAGE 109 ---
+Implementation Guide 15.0 109
+Import Data Type Standards from a Previous Version
+If you have created data type standards in a previous version of erwin DM, you can import it to 
+erwin DM version 9. When you import data type standards, mappings are also imported.
+Back to Top
+Import Data Type Standards from a Previous Version 
+--- PAGE 110 ---
+Implementation Guide 15.0 110
+Import Data Type Standards
+If you have upgraded to the latest release of the r9 series, you can import the data type standards 
+from a previous version. Importing the standards maintains consistency across all data models in 
+your organization and saves time from creating standards.
+The file that you are importing must have the .DSM extension.
+Follow these steps:
+ 1. Expand the Model Explorer, right-click DSM Options and select New. 
+A new DSM Option object is added.
+ 2. Right-click the new object (or an existing object) and select Properties. 
+The DSM Option Editor appears.
+ 3. Click Import Other. 
+ 4. Select the .DSM file from the stored location and click Open. 
+The DSM file is displayed as a new DSM Option object.
+Back to Top
+Import Data Type Standards 
+--- PAGE 111 ---
+Implementation Guide 15.0 111
+Apply Data Type Standards to the Model
+After you import the data type standards object, apply the standards by attaching the DSM object 
+to the data model.
+To attach a DSM object to a model, open the DSM Option Editor from Model Explorer, and select 
+the Is Active check box.
+Back to Top
+Apply Data Type Standards to the Model
+--- PAGE 112 ---
+Implementation Guide 15.0 112
+Apply Data Type Standards by Binding a Model Template
+When you bind a model template having data type standards to the current model, data type stand-
+ards are also applied.
+Apply Data Type Standards by Binding a Model Template 

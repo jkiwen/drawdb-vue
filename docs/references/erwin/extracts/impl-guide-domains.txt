@@ -1,0 +1,140 @@
+--- PAGE 64 ---
+Implementation Guide 15.0 64
+Drag a Domain from the Model Explorer to Your 
+Model
+Use drag-and-drop to add a domain from the Model Explorer to an entity or a table in your model.
+Follow these steps:
+ 1. Expand the list of domains in the Model Explorer and click the domain that you want to add 
+to your model. 
+ 2. Drag and drop the domain onto the entity or table in your model.
+The domain is added as an attribute or column. 
+Depending on the Unique Naming rules that apply to the data model, you are prompted to 
+rename each attribute or column. You are prompted because, the same domain name is 
+assigned to each new attribute or column automatically.
+Drag a Domain from the Model Explorer to Your Model
+--- PAGE 65 ---
+Implementation Guide 15.0 65
+Creating Domains
+Use the Domain Editor to create domains in addition to the default domains. You can create a 
+domain while you are in a logical model (logical edit mode) or a physical model (physical edit 
+mode). The options in the editor change depending on the edit mode.
+Creating Domains 
+--- PAGE 66 ---
+Implementation Guide 15.0 66
+Add a Domain in the Logical Edit Mode
+The Domain Editor lets you define properties for attributes and columns. You can create a domain 
+and can attach it to any number of attributes and columns instead of defining properties for each 
+column individually. You can work with features in the Domain Editor to add a domain to the logical 
+model.
+Follow these steps:
+ 1. Click Model, Domains. 
+The Domain Editor opens.
+ 2. Click the New 
+  button on the toolbar. 
+A new domain with a default name is added and is placed in alphabetical order.
+ 3. Work with the following options in the Navigation Grid: 
+Name
+Displays the name of the domain in the logical model.
+Duplicate domain names are not allowed.
+Domain Parent
+Displays the current parent domain. You can change the domain using the drop-down 
+list.
+Logical  Data Type
+Specifies the logical data type for the domain. You can change the data type using 
+the drop-down list. The drop-down list contains the data types related to the current 
+domain.
+Logical  Only
+Specifies whether the domain appears only in the logical model. Select this check 
+box if you want the domain to appear only in the logical model. Clear this check box if 
+you want the domain in the physical model. If you select this check box in a logical-
+only model and you derive a new physical-only model, the domain does not appear in 
+the new model.
+ 4. Work with the other tabs in the editor to define more domain properties. 
+Add a Domain in the Logical Edit Mode
+--- PAGE 67 ---
+Implementation Guide 15.0 67
+ 5. Click Close. 
+The domain is added to the logical model and the Domain Editor closes.
+Back to Top
+Add a Domain in the Logical Edit Mode
+--- PAGE 68 ---
+Implementation Guide 15.0 68
+Add a Domain in the Physical Edit Mode
+You can work with the features in the Domain Editor to add a domain to the physical model.
+Follow these steps:
+ 1. Click Model, Domains. 
+The Domain Editor opens.
+ 2. Click the New 
+  button on the toolbar. 
+A new domain with a default name is added and is placed in alphabetical order.
+ 3. Work with the following options in the Navigation Grid: 
+Physical  Name
+Displays the name of the domain in the physical model. 
+Domain Parent
+Displays the current parent domain. You can change the domain using the drop-down 
+list.
+Physical  Data Type
+Specifies the physical data type for the domain. You can change the data type using 
+the drop-down list. The drop-down list contains the data types related to the current 
+domain.
+Anchored  to Type
+Specifies whether the domain is anchored to a column or a variable. This column is 
+enabled only for a Db2 LUW user-defined data type. 
+Schema
+Specifies the schema that is associated with the domain.
+Distinct  Type
+Specifies whether the domain is of distinct type.
+Physical  Only
+Specifies whether the domain appears only in the physical model. Select this check 
+box if you want the selected domain to appear in the physical model only. Clear this 
+check box if you want the selected domain in the logical model. 
+ 4. Work with the other tabs in the editor to define more domain properties. 
+Add a Domain in the Physical Edit Mode
+--- PAGE 69 ---
+Implementation Guide 15.0 69
+ 5. Click Close. 
+The domain is added to the physical model and the Domain Editor closes.
+Back to Top
+Add a Domain in the Physical Edit Mode
+--- PAGE 70 ---
+Implementation Guide 15.0 70
+Assign a Data Type to a Domain
+A data type is a domain property and defines the physical properties of a column in a database. 
+You can define length (number of characters), type (alpha or numeric), and precision (decimal) 
+properties. You can also define a logical data type, which usually corresponds to a physical data 
+type.
+By default, a new domain is assigned the same data type as its parent domain. You can change it 
+at any time.
+Follow these steps:
+ 1. Click Model, Domains.
+The Domain Editor opens. 
+ 2. Select the domain in the Navigation Grid for which you want to assign a data type. 
+ 3. Select a new data type for the domain using the drop-down list in the Logical Data Type 
+column (logical edit mode) or the Physical Data Type column (physical edit mode). 
+ 4. Click Close.
+The data type is assigned to the domain and the Domain Editor closes. 
+Assign a Data Type to a Domain
+--- PAGE 71 ---
+Implementation Guide 15.0 71
+Assign or Change a Domain Icon
+You can assign any image (.bmp file) as the icon for the non-inheritable property of the domain. 
+You can assign the same image or can select a different image that the attributes or columns of the 
+domain can inherit.
+You can change the domain icon only in the logical model.
+Follow these steps:
+ 1. Click Model, Domains.
+The Domain Editor opens. 
+ 2. Select the domain in the Navigation Grid that you want to work with and click the General 
+tab. 
+ 3. Specify the image to use in the Image drop-down or click New to open the Image Editor and 
+create one. 
+ 4. Click Close.
+The icon is assigned to the selected domain. 
+Assign or Change a Domain Icon
+--- PAGE 72 ---
+Implementation Guide 15.0 72
+Applying Naming and Datatype Standards
+This section contains the following topics
+Applying Naming Standards
+Applying Data Type Standards
+Applying Naming and Datatype Standards 

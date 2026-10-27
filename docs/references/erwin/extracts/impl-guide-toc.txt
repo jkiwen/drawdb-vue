@@ -1,0 +1,84 @@
+--- PAGE 5 ---
+Projects in erwin Data Modeler 34
+Project Explorer Overview 35
+The Theme Editor 38
+Do you want to use an existing theme 41
+Create and Apply a Theme 42
+Create a Theme 43
+Set Display Preferences for Entities and Tables 44
+Set Display Preferences for Owned Attributes or Columns and Foreign Keys 46
+Set Display Preferences for Keys 48
+Set Display Preferences for Views and Materialized Views 49
+Set Display Preferences for Subtype Symbol 51
+Set Display Preferences for Annotations and Shapes 53
+Apply a Theme to a Model 55
+(Optional) Apply a Theme to Individual Objects in a Model 56
+Apply a Theme by Binding a Model Template 57
+Bind a Model Template 58
+Creating and Using Domains 60
+Overview of Domains 61
+The Domain Editor 62
+Drag a Domain from the Model Explorer to Your Model 64
+Creating Domains 65
+Add a Domain in the Logical Edit Mode 66
+Add a Domain in the Physical Edit Mode 68
+Assign a Data Type to a Domain 70
+Assign or Change a Domain Icon 71
+--- PAGE 6 ---
+Applying Naming and Datatype Standards 72
+Applying Naming Standards 73
+Decide the Method 76
+Create and Apply Naming Standards 77
+Open NSM Option Editor from Model Explorer and Define Naming Standards for a 
+Logical Model 78
+Open NSM Option Editor from Model Explorer and Define Naming Standards for a 
+Physical Model 79
+Create Glossary Words and Abbreviations 80
+Import Words and Abbreviations into the Naming Standards Glossary 82
+Import Naming Standards from a Previous Version 83
+Import from a Previous Version 84
+Apply Naming Standards by Binding a Model Template 84
+Apply Naming Standards by Binding a Model Template 85
+Bind a Template to a Model 86
+Verify Naming Standards Compliance 88
+Apply Naming Standards to a Model 89
+Example 90
+Applying Naming Standards from Mart 93
+Name Hardening Wizard 97
+Override Name Inheritance 99
+Unharden Object Names 100
+Applying Data Type Standards 101
+Decide a Method to Apply Standards 104
+Create and Apply Data Type Standards 105
+Define Data Type Standards from Model Explorer 106
+--- PAGE 7 ---
+(Optional) Create a Mapping 107
+Apply Data Type Standards to the Model 108
+Import Data Type Standards from a Previous Version 109
+Import Data Type Standards 110
+Apply Data Type Standards to the Model 111
+Apply Data Type Standards by Binding a Model Template 112
+Bind a Model Template 113
+Create Reports Using Report Designer 114
+Model Validation Reports 121
+Pinned Reports from the Report Designer Menu 122
+The Filter By Option 123
+Report Designer Features 125
+Subject Area Reports 128
+Change the Logo on the HTML Report 129
+Generating TLX Reports 130
+Generate a Default TLX Report 130
+Create a Custom TLX Report 130
+Example--Number of Attributes in an Entity 136
+Dimensional Modeling 138
+Report on Data Sources, Target Columns, and Transformations 139
+Report on Data Lineage with Diagrams 142
+Supported Metadata Integration Bridges 145
+--- PAGE 8 ---
+Implementation Guide 15.0 8
+erwin Product  References
+This document references the following products:
+erwin Data Modeler Standard Edition 
+erwin Data Modeler Workgroup Edition 
+erwin Data Modeler Navigator Edition 
+erwin® Data Modeler Product References - erwin

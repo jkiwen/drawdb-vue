@@ -1,0 +1,367 @@
+--- PAGE 73 ---
+Implementation Guide 15.0 73
+Applying Naming Standards
+You create naming standards so that everyone in your organization uses names correctly and con-
+sistently. Use the Naming Standard Editor to create naming standards and develop a glossary that 
+contains glossary words, their abbreviations, and alternate abbreviations.
+You can create multiple Naming Standard objects and can apply one of them to a model. Each 
+Naming Standard object includes the naming standards for logical and physical model objects, 
+and the glossary. The components of logical and physical model names are prime, modifier, or 
+class. To define naming standards for entities, tables, attributes, columns, and domains specify 
+the components and the order in which to present them.
+If you do not use naming standards, you may have modeling design problems. These design prob-
+lems could produce errors when you run queries to extract data.
+Suppose that you upgrade a model from release r7 through r7.3.12 or from r8 through r8.2.9 to 
+the latest release. If the source model includes NSM files, the naming standards are not 
+included in the upgraded model. To get the naming standards, save the NSM file to your local 
+computer, import it to a template model, and then bind the template to the upgraded model. We 
+recommend that you do not include any other objects in the template model, other than the NSM 
+object.
+You can apply naming standards in three ways, as illustrated in the following diagram:
+Applying Naming Standards 
+--- PAGE 74 ---
+Implementation Guide 15.0 74
+Apart from the three ways of applying naming standards explained in the above diagram, you can 
+also apply naming standards from the Mart.
+Follow these steps apply naming standards:
+ 1. Decide the method
+ 2. Verify naming standards compliance
+Applying Naming Standards 
+--- PAGE 75 ---
+Implementation Guide 15.0 75
+ 3. Apply the naming standards
+Applying Naming Standards 
+--- PAGE 76 ---
+Implementation Guide 15.0 76
+Decide the Method
+You can apply naming standards in the following ways:
+Create and apply: Use this option when you are creating the naming standards for the first 
+time. 
+Import from a previous version: Use this option if you have created naming standards using 
+a previous version of erwin DM. 
+Bind a model template: Use this option if you want to use the naming standards that you 
+have already created and attached to a model or a model template.
+Connect to the Mart and use NSM files available in NSM File Management.
+Decide the Method
+--- PAGE 77 ---
+Implementation Guide 15.0 77
+Create and Apply Naming Standards
+You create naming standards if you are implementing standards for the first time.
+Create and Apply Naming Standards 
+--- PAGE 78 ---
+Implementation Guide 15.0 78
+Open NSM Option Editor from Model Explorer and Define 
+Naming Standards for a Logical Model
+You can specify naming standards for logical names that are different from the naming standards 
+for physical names. Use the Logical tab in NSM Option Editor to apply naming standards to entit-
+ies, attributes, and domains. In addition, use this tab to specify the order in which parts of names 
+appear in the logical name.
+Follow these steps: 
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object and click Properties. 
+The Naming Standard Editor opens.
+ 3. To apply the naming standard to your model: 
+In the list of naming standards, select your naming standard and then select Is Active.
+ 4. To preserve any changes made to the naming standard in the Physical mode and reflect 
+those in the Logical mode: 
+In the list of naming standards, select your naming standard and then select Physical 
+to Logical.
+ l The physical mode to logical mode naming standard implementation caters to 
+cases where the logical definition is absent.
+ l For Hive, when reverse engineering (REC or RES) is done, the Physical to Logical 
+option on the Naming Standard Editor is not set by default. You need to set it manu-
+ally.
+ 5. Go to the Logical tab.  
+ 6. Select the part of the name such as prime, modifier1, modifier2, or class that you want to 
+include first in the logical name. Specify the parts in the Entity, Attribute, and Domain rows. 
+ 7. Click Close. 
+The data is saved.
+Back to Top
+Define Naming Standards for a Logical Model
+--- PAGE 79 ---
+Implementation Guide 15.0 79
+Open NSM Option Editor from Model Explorer and Define 
+Naming Standards for a Physical Model
+You can specify naming standards for physical names that are different from the naming standards 
+for logical names. Use the Physical tab in Naming Standard Editor to apply naming standards to 
+tables, columns, and domains. In addition use the editor and specify the order in which parts of 
+names appear in the physical name.
+Follow these steps: 
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object and click Properties. 
+The Naming Standard Editor opens.
+ 3. To apply the naming standard to your model: 
+In the list of naming standards, select your naming standard and then select Is Active.
+ 4. To preserve any changes made to the naming standard in the Physical mode and reflect 
+those in the Logical mode: 
+In the list of naming standards, select your naming standard and then select Physical 
+to Logical. 
+The physical mode to logical mode naming standard implementation caters 
+to cases where the logical definition is absent.
+For Hive, when reverse engineering (REC or RES) is done, the Physical to 
+Logical option on the Naming Standard Editor is not set by default. You need 
+to set it manually.
+ 5. Go to the Physical tab.  
+ 6. Select the part of the name such as prime, modifier1, modifier2, or class that you want to 
+include first in the physical name. Specify the parts in the the Table, Column, and Domain 
+rows. 
+ 7. Click Close. 
+The data is saved.
+Back to Top
+Define Naming Standards for a Physical Model
+--- PAGE 80 ---
+Implementation Guide 15.0 80
+Create Glossary Words and Abbreviations
+You can enter words and their corresponding abbreviations directly into the glossary. You can 
+enter, display, edit, and specify the word type (prime, modifier1, modifier2, or class).
+Follow these steps: 
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object and click Properties. 
+The Naming Standard Editor appears.
+ 3. Complete the following options in the NSM Option Editor: 
+Name
+Specifies the default NSM name. You can modify the NSM name when required.
+Match whole words only
+Specifies whether to substitute glossary abbreviation on whole words only or to 
+include parts of words or substrings. Select the check box to substitute glossary 
+abbreviation on whole words only. Clear the check box to substitute glossary abbre-
+viation for complete words, as well as on parts of words or substrings.
+Match whole name only
+Specifies whether to substitute glossary abbreviation on whole name only. Select the 
+checkbox to substitute glossary abbreviation on whole name only and to ignore parts 
+of words and substrings.
+For example, a glossary abbreviation, Customer Name is substituted with its abbre-
+viation only when the whole name is found. The parts of words or substrings, Cus-
+tomer and Name are ignored.
+Is Active
+Specifies whether to apply a NSM to a model.
+Physical  to Logical
+Specifies whether the changes made to the Naming Standard in the Physical mode 
+should be preserved and reflected in the Logical mode.
+Create Glossary Words and Abbreviations 
+--- PAGE 81 ---
+Implementation Guide 15.0 81
+ l For Hive, when reverse engineering (REC or RES) is done, the Physical to 
+Logical option on the Naming Standard Editor is not set by default. You need 
+to set it manually.
+ l As a best practice,  do not select the Physical to Logical check box  while 
+deriving a PO model; that has NSM objects  or  NSM template attached to it; 
+to LO model. Earlier an option for Physical to Logical NSM was not available. 
+However, as it is in erwin Data Modeler now, you need not use NSM for deriv-
+ing a new model. For example, PO to LO.
+ 4. Click the Glossary tab and work with the following options: 
+Word Type
+Displays only the selected type of glossary words. 
+Word/Words
+Specifies the glossary word or words that you want to abbreviate.
+Abbreviation
+Specifies the standard abbreviation.
+Alt Abb 
+Specifies an alternate abbreviation.
+P, M1, M2, C
+Specifies whether you want to use the word as a prime, modifier 1, modifier 2, or 
+class.
+ 5. Click 
+  to save the glossary as a .CSV file. You can use this file at a later point, when you 
+perform reverse engineering and want to preserve the naming standards attached to the 
+model. 
+ 6. Click Close. 
+The data is saved.
+In case of duplicates, the glossary word/abbreviation that you created the latest will be applic-
+able.
+Back to Top
+Create Glossary Words and Abbreviations 
+--- PAGE 82 ---
+Implementation Guide 15.0 82
+Import Words and Abbreviations into the Naming Standards Glossary
+You can import words and abbreviations into the glossary from an existing naming standards CSV 
+file. Be sure to examine the data in each row and edit or add as required. 
+Follow these steps::
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object and click Properties. 
+The Naming Standard Editor appears.
+ 3. Click the Glossary tab, then click Import. 
+The Open dialog appears. 
+ 4. Select the path and file name of the CSV file, and click Open. 
+The words and corresponding abbreviations are imported into the Naming Standards gloss-
+ary.
+Back to Top
+You have two tables, Customer and Accounts. The Customer table has First Name and Last Name 
+columns.
+Suppose you want to implement the following standards:
+Prefix the names of the tables with Tbl_. 
+Display First Name as Col_FNAME and Last Name as Col_LNAME. 
+How you do it:
+ 1. Add a Naming Standard Object and make it active. 
+ 2. In the Logical tab, for Entity and Attribute, select Modifier 1 in the Part 1 and Prime in the 
+Part 2 column. 
+ 3. In the Physical tab, for the Table and Column object types, select Modifier 1 in the Part 1 
+and Prime in the Part 2 column. 
+ 4. In the Glossary tab, add First Name and Last Name and the corresponding abbreviations. 
+Select the P check box. 
+ 5. Open the Model Naming Options dialog and click the Name Mapping tab. 
+ 6. Select the Use Glossary check box for Entity to Table and Attribute to Column rows. In the 
+Import Words and Abbreviations to the Naming Standards Glossary 
+--- PAGE 83 ---
+Implementation Guide 15.0 83
+Prefix column, enter Tbl_ in the first row and Col_ in the third row. Click Close. 
+The standards that you have defined are applied to the model.
+Import Naming Standards from a Previous Version
+If you have created naming standards in a previous version of erwin DM, you can import them to 
+the current release. When you import naming standards, the definitions for logical and physical 
+models, and glossary words are imported.
+Import Words and Abbreviations to the Naming Standards Glossary 
+--- PAGE 84 ---
+Implementation Guide 15.0 84
+Import from a Previous Version
+If you have created naming standards for a previous version of erwin DM, you can import them to 
+an NSM Option object. You import a .NSM file.
+Follow these steps: 
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object (or an existing object) and click Properties. 
+The Naming Standard Editor appears.
+ 3. Click Import Other. 
+ 4. Select the .NSM file and then click Open. 
+The NSM file is displayed as a new Naming Standard object. The standards for Logical and 
+Physical models are displayed in the respective tabs. The glossary words and cor-
+responding abbreviations are displayed in the Glossary tab.
+Back to Top
+Apply Naming Standards by Binding a Model Template
+When you bind a model template to the current model, the naming standards are also applied. If 
+you run the wizard to select individual objects to bind, select the Naming_Options, NSM_Option, 
+and NSM_Glossary_Word check boxes.
+Import from a Previous Version 
+--- PAGE 85 ---
+Implementation Guide 15.0 85
+Apply Naming Standards by Binding a Model Template
+When you bind a model template to the current model, the naming standards are also applied. If 
+you run the wizard to select individual objects to bind, select the Naming_Options, NSM_Option, 
+and NSM_Glossary_Word check boxes.
+Apply Naming Standards by Binding a Model Template 
+--- PAGE 86 ---
+Implementation Guide 15.0 86
+Bind a Template to a Model
+Binding a model template to a data model copies the non-built-in objects from the template model 
+to the target model. When you bind a model template, the predefined model objects appear in your 
+model. Binding eliminates the need to enter objects manually or depend on reverse engineering. 
+Changes to the model template are reflected in the models that are bound to it, maintaining con-
+sistency of object names. Whenever you open a model with a bound model template, you can syn-
+chronize any model template changes with the objects used in the model.
+Binding of model templates can occur at any time necessary, including during model creation, or 
+after the model is created.
+Objects that are brought in to a model from a template fully respect modeling rules. If any conflicts 
+occur in the model, the existing data is preserved as much as possible.
+Follow these steps:
+ 1. Click File, Model Templates, Bind Template. 
+The Bind Model Template dialog opens.
+ 2. Select the model template to bind to the current model using the drop-down control. Use the 
+toolbar to browse for the template file locally on your computer or one that is stored in a 
+mart. 
+ 3. Select one of the following options to specify how to bind the template, and click OK.  
+Load the entire contents  of the template
+Specifies to load the entire contents of the template. This option binds all of the model 
+template objects to the current model without the opportunity to review and select indi-
+vidual template objects. The NSM Option object that is active in the model template is 
+made active in the current model as well.  
+Run the Template  Wizard to select objects  for synchronization
+Specifies to open the Model Template Synchronization Wizard so that you can select 
+the objects in the model template to synchronize with the data model. 
+The model opens in the workspace with the template objects copied into it.
+While binding a template using this method, synchronization on loading the model does not work 
+as expected for inherited templates. As a workaround, do either of the following:
+Refresh the template using the File > Model Templates  > Refresh  Template  option.
+Select Preserve  the template  binding  while creating a new model.
+Bind a Template to a Model
+--- PAGE 87 ---
+Implementation Guide 15.0 87
+Back to Top
+Bind a Template to a Model
+--- PAGE 88 ---
+Implementation Guide 15.0 88
+Verify Naming Standards Compliance
+To know if the naming standards that you have created are applied properly, use the Naming 
+Standards Compliance dialog.
+Follow these steps:
+ 1. Click Tools, Standards, Check Naming Standards Compliance. 
+The Check Name Standards Compliance dialog opens.
+ 2. Select the objects to check, select the Check Word Order and Position check boxes, and 
+then click Start.  
+All instances of non-compliance are displayed in the Check Name Standards Compliance 
+dialog. You can replace the name, replace all instances of the name, or ignore the non-con-
+forming name.
+Back to Top
+Verify Naming Standards Compliance 
+--- PAGE 89 ---
+Implementation Guide 15.0 89
+Apply Naming Standards to a Model
+After you define naming standards using the NSM Option Editor, select individual model objects 
+and apply the standards. The glossary words and abbreviations (or alternate abbreviations) that 
+are defined in the active NSM Option object are applied as naming standards to a model.
+Follow these steps:
+ 1. Open a model that includes an active NSM Option object. 
+ 2. Click Tools, Model Naming Options. 
+The Model Naming Options dialog opens.
+ 3. Click the Name Mapping tab. 
+ 4. For each model object type that you want to use the glossary, select the Use Glossary 
+check box and select the type of abbreviation. Click OK. 
+The naming standards are applied when you switch from a logical model to a physical 
+model.
+In a Logical/Physical model, define the naming standards, create the abbreviations, and 
+select the object that uses the glossary in the Logical view. Switch from the Logical view to 
+the Physical view and the standards are applied.
+In a Logical Only (LO) or a Physical Only (PO) model, define the naming standards, create 
+the abbreviations, select the object that uses the glossary, and then derive a PO or an L/P 
+model. In the Derive Model wizard, go to Naming Standards. Select the model that has an 
+active NSM object as the active model template. The naming standards are applied to the 
+derived model.
+The translation from logical to physical through the NSM Option Object works only if the physical 
+name is inherited from the logical name. That is, only if the names have not been manually 
+changed in the physical model. If a physical name is modified in a logical/physical model, the 
+inheritance from the logical side to the physical side is overridden. The naming standards no 
+longer work. However, you can reset the override property to inherit from the logical name to 
+restore this inheritance. 
+NSM File Attached to an Older Version Model
+When you open a model from an older version of the product, it is upgraded to the current release. 
+If an NSM file was attached to the model, the file is not imported and attached to the model auto-
+matically. Import the NSM file to a template and attach the template to the model manually.
+Apply Naming Standards to a Model
+--- PAGE 90 ---
+Implementation Guide 15.0 90
+Back to Top
+Example
+Use this example to create database specific templates and standardize database specific prop-
+erties across all your data models. If you want to include the Naming Standards in each database 
+specific target template, you must change the naming standards glossary list for each template. 
+You must change the glossary for each template, because the Naming Standards information is 
+stored within a model. This section describes how you can manage Naming Standards from a 
+single source.
+Follow this process:
+Create a logical-only model template with general model set up criteria and include the Nam-
+ing Standards information. 
+[Optional] Create a database specific template and use this template as the binding source 
+and select the �Synchronize on Model Load� option. 
+Attach this template as the binding template source for your model and select the Syn-
+chronize on Model Load option. 
+If you have to change something in the glossary, you just change the Naming Standards 
+object in the logical model template and save the template. When you open a model, if the 
+auto-synchronize option is enabled, the database specific template model is opened. Next, 
+the logical model template is opened and the Naming Standards object is synchronized with 
+the database specific template. The remaining template information is also populated in the 
+new model.
+Example
+This section includes two examples with two different databases�Db2 and Oracle. The examples 
+use templates that are stored in a Mart.
+ 1. Create a logical model template that includes the following basic standards desired for all 
+data models: 
+A standard theme. 
+An Annotation that enables the model name to be presented on diagrams (a type of 
+legend). 
+Standard Domains. 
+Standard Entity level User Defined Properties (UDP) that can be shared among all 
+data models. 
+Apply Naming Standards to a Model

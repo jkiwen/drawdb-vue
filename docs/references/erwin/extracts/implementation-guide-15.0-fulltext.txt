@@ -1,0 +1,3126 @@
+
+===== PAGE 1 =====
+ 
+GUIDE
+erwin Data Modeler
+Implementation Guide 15.0
+===== PAGE 2 =====
+Legal Notices
+This  Documentation,  which  includes  embedded  help  systems  and  electronically  distributed  mater -
+ials  (hereinafter  referred  to  as  the  “Documentation”),  is  for  your  informational  purposes  only  and  
+is  subject  to  change  or  withdrawal  by  Quest  Software,  Inc  and/or  its  affiliates  at  any  time.  This  
+Documentation  is  proprietary  information  of  Quest  Software,  Inc  and/or  its  affiliates  and  may  not  
+be  copied,  transferred,  reproduced,  disclosed,  modified  or  duplicated,  in  whole  or  in  part,  without  
+the  prior  written  consent  of  Quest  Software,  Inc  and/or  its  affiliates   
+If  you  are  a licensed  user  of  the  software  product (s)  addressed  in  the  Documentation,  you  may  
+print  or  otherwise  make  available  a reasonable  number  of  copies  of  the  Documentation  for  
+internal  use  by  you  and  your  employees  in  connection  with  that  software,  provided  that  all  Quest  
+Software,  Inc  and/or  its  affiliates  copyright  notices  and  legends  are  affixed  to  each  reproduced  
+copy.  
+The  right  to  print  or  otherwise  make  available  copies  of  the  Documentation  is  limited  to  the  
+period  during  which  the  applicable  license  for  such  software  remains  in  full  force  and  effect.  
+Should  the  license  terminate  for  any  reason,  it  is  your  responsibility  to  certify  in  writing  to  Quest  
+Software,  Inc  and/or  its  affiliates  that  all  copies  and  partial  copies  of  the  Documentation  have  
+been  returned  to  Quest  Software,  Inc  and/or  its  affiliates  or  destroyed.  
+TO  THE  EXTENT  PERMITTED  BY  APPLICABLE  LAW,  QUEST  SOFTWARE,  INC.  PROVIDES  
+THIS  DOCUMENTATION  “AS  IS”  WITHOUT  WARRANTY  OF  ANY  KIND,  INCLUDING  WITHOUT  
+LIMITATION,  ANY  IMPLIED  WARRANTIES  OF  MERCHANTABILITY,  FITNESS  FOR  A 
+PARTICULAR  PURPOSE,  OR  NONINFRINGEMENT.  IN  NO  EVENT  WILL  QUEST  SOFTWARE,  
+INC.  BE  LIABLE  TO  YOU  OR  ANY  THIRD  PARTY  FOR  ANY  LOSS  OR  DAMAGE,  DIRECT  OR  
+INDIRECT,  FROM  THE  USE  OF  THIS  DOCUMENTATION,  INCLUDING  WITHOUT  LIMITATION,  
+LOST  PROFITS,  LOST  INVESTMENT,  BUSINESS  INTERRUPTION,  GOODWILL,  OR  LOST  
+DATA,  EVEN  IF  QUEST  SOFTWARE,  INC.  IS  EXPRESSLY  ADVISED  IN  ADVANCE  OF  THE  
+POSSIBILITY  OF  SUCH  LOSS  OR  DAMAGE.  
+The  use  of  any  software  product  referenced  in  the  Documentation  is  governed  by  the  applicable  
+license  agreement  and  such  license  agreement  is  not  modified  in  any  way  by  the  terms  of  this  
+notice.  
+The  manufacturer  of  this  Documentation  is  Quest  Software,  Inc  and/or  its  affiliates.
+Provided  with  “Restricted  Rights.”  Use,  duplication  or  disclosure  by  the  United  States  Govern -
+ment  is  subject  to  the  restrictions  set  forth  in  FAR  Sections  12.212,  52.227- 14,  and  52.227- 19 (c)
+(1)  - (2)  and  DFARS  Section  252.227- 7014 (b) (3),  as  applicable,  or  their  successors.  
+Copyright  © 2026  Quest  Software,  Inc  and/or  its  affiliates  All  rights  reserved.  All  trademarks,  
+trade  names,  service  marks,  and  logos  referenced  herein  belong  to  their  respective  companies.  
+===== PAGE 3 =====
+Contact erwin
+Understanding your Support         
+Review  support  maintenance  programs  and  offerings .
+Registering for Support         
+Access  the  erwin  support  site  and   register  for  product  support.
+Accessing Technical Support         
+For  your  convenience,  erwin  provides  easy  access  to  "One  Stop"  support  for  all  editions  of  erwin  
+Data  Modeler , and  includes  the  following:
+Online  and  telephone  contact  information  for  technical  assistance  and  customer  services  
+Information  about  user  communities  and  forums  
+Product  and  documentation  downloads   
+erwin  Support  policies  and  guidelines   
+Other  helpful  resources  appropriate  for  your  product   
+For  information  about  other  erwin  products,  visit  erwin  by  Quest  Products  page .
+Provide Feedback         
+If  you  have  comments  or  questions,  or  feedback  about  erwin  product  documentation,  you  can  
+send  a message  to  techpubs@erwin.com .
+News and Events         
+Visit  News  and  Events  to  get  up- to- date  news,  announcements,  and  events.  View  video  demos  
+and  read  up  on  customer  success  stories  and  articles  by  industry  experts.
+===== PAGE 4 =====
+Contents
+Overview 9
+Database Design 9
+About erwin Data Modeler 9
+The Application Development Cycle 11
+Customizing the User Interface 12
+Customize Toolbars 12
+Customize Display Levels 13
+Setting Model-Level Default Values 14
+Set Default Null Options, Data Types, Styles, and Object Owners 15
+Set Default Referential Integrity Rules 17
+Specify History Options for Model Objects and Events 20
+Assign Model UDP Values 21
+Using the Model Explorer 23
+Overview of Model Explorer 24
+Model View 26
+Subject Area View 27
+Create a Subject Area 29
+Rename Objects 30
+Select Unique Name Rules 31
+The Go to Diagram Option 32
+Add a Domain in the Model Explorer 33
+Add a Model Source in the Model Explorer 34
+===== PAGE 5 =====
+Projects in erwin Data Modeler 34
+Project Explorer Overview 35
+The Theme Editor 38
+Do you want to use an existing theme 41
+Create and Apply a Theme 42
+Create a Theme 43
+Set Display Preferences for Entities and Tables 44
+Set Display Preferences for Owned Attributes or Columns and Foreign Keys 46
+Set Display Preferences for Keys 48
+Set Display Preferences for Views and Materialized Views 49
+Set Display Preferences for Subtype Symbol 51
+Set Display Preferences for Annotations and Shapes 53
+Apply a Theme to a Model 55
+(Optional) Apply a Theme to Individual Objects in a Model 56
+Apply a Theme by Binding a Model Template 57
+Bind a Model Template 58
+Creating and Using Domains 60
+Overview of Domains 61
+The Domain Editor 62
+Drag a Domain from the Model Explorer to Your Model 64
+Creating Domains 65
+Add a Domain in the Logical Edit Mode 66
+Add a Domain in the Physical Edit Mode 68
+Assign a Data Type to a Domain 70
+Assign or Change a Domain Icon 71
+===== PAGE 6 =====
+Applying Naming and Datatype Standards 72
+Applying Naming Standards 73
+Decide the Method 76
+Create and Apply Naming Standards 77
+Open NSM Option Editor from Model Explorer and Define Naming Standards for a 
+Logical Model 78
+Open NSM Option Editor from Model Explorer and Define Naming Standards for a 
+Physical Model 79
+Create Glossary Words and Abbreviations 80
+Import Words and Abbreviations into the Naming Standards Glossary 82
+Import Naming Standards from a Previous Version 83
+Import from a Previous Version 84
+Apply Naming Standards by Binding a Model Template 84
+Apply Naming Standards by Binding a Model Template 85
+Bind a Template to a Model 86
+Verify Naming Standards Compliance 88
+Apply Naming Standards to a Model 89
+Example 90
+Applying Naming Standards from Mart 93
+Name Hardening Wizard 97
+Override Name Inheritance 99
+Unharden Object Names 100
+Applying Data Type Standards 101
+Decide a Method to Apply Standards 104
+Create and Apply Data Type Standards 105
+Define Data Type Standards from Model Explorer 106
+===== PAGE 7 =====
+(Optional) Create a Mapping 107
+Apply Data Type Standards to the Model 108
+Import Data Type Standards from a Previous Version 109
+Import Data Type Standards 110
+Apply Data Type Standards to the Model 111
+Apply Data Type Standards by Binding a Model Template 112
+Bind a Model Template 113
+Create Reports Using Report Designer 114
+Model Validation Reports 121
+Pinned Reports from the Report Designer Menu 122
+The Filter By Option 123
+Report Designer Features 125
+Subject Area Reports 128
+Change the Logo on the HTML Report 129
+Generating TLX Reports 130
+Generate a Default TLX Report 130
+Create a Custom TLX Report 130
+Example--Number of Attributes in an Entity 136
+Dimensional Modeling 138
+Report on Data Sources, Target Columns, and Transformations 139
+Report on Data Lineage with Diagrams 142
+Supported Metadata Integration Bridges 145
+===== PAGE 8 =====
+Implementation Guide 15.0 8
+erwin Product  References
+This document references the following products:
+erwin Data Modeler Standard Edition 
+erwin Data Modeler Workgroup Edition 
+erwin Data Modeler Navigator Edition 
+erwin® Data Modeler Product References - erwin
+===== PAGE 9 =====
+Implementation Guide 15.0 9
+Overview
+This section contains the following topics
+Database Design
+About erwin Data Modeler
+The Application Development Cycle
+Database Design
+erwin Data Modeler (erwin DM) provides the tools to design and implement databases for trans-
+actional business, E-commerce, and data warehousing applications. You can create and maintain 
+graphical models that represent databases, data warehouses, and enterprise data models. You 
+can also define, manage, and implement corporate data requirements on several databases.
+erwin DM includes a Windows-based graphical user interface, entity-relationship (ER) dia-
+gramming tools, custom editors, and a Model Explorer. The tools and editors help you define phys-
+ical database objects and the Model Explorer provides a text-based view of model objects.
+You can also use erwin DM to streamline the application development process. Data Architects, 
+Business Analysts, Data Modelers, and so on, can work independently on different parts of a 
+model or different model types. The groups can collaborate and synchronize their work as well.
+About erwin Data Modeler
+erwin DM lets you create and maintain your relational database and the logical and physical mod-
+els that describe it. erwin DM works by providing a design solution that helps you create a visual 
+blueprint (a data model) for your organization.
+erwin DM helps you design a logical data model to capture business rules and requirements. The 
+application also supports designing or deriving a corresponding physical data model for your target 
+server. You can then forward engineer the physical data model and automatically generate the 
+physical database structures to your system catalog.
+erwin DM supports reverse engineering of existing databases and provides both a physical and a 
+logical/physical data model. The forwarding engineering and reverse engineering options help you 
+maintain an existing database, or migrate from your current database to a different one.
+Overview 
+===== PAGE 10 =====
+Implementation Guide 15.0 10
+The Complete Compare feature automates the model and database synchronization by letting you 
+compare the model with the database, displaying, and analyzing the differences. The comparison 
+result enables you to move selected differences into the model or generate them into the data-
+base.
+Overview 
+===== PAGE 11 =====
+Implementation Guide 15.0 11
+The Application Development Cycle
+To create a data model, first the business rules are gathered and the logical constructs are cre-
+ated. Next, the physical design is created, and then a database is implemented. erwin DM sup-
+ports this iterative process by supporting multiple platforms, reuse of objects, and synchronization 
+of changes between data models.
+The Application Development Cycle
+===== PAGE 12 =====
+Implementation Guide 15.0 12
+Customizing the User Interface
+This section contains the following topics
+Customize Toolbars
+Customize Display Levels
+Customize Toolbars
+Configure your work environment to display or hide a toolbar or display or hide the options on a 
+toolbar. You can create a toolbar and can add only the options that you use frequently. You can 
+also modify an existing toolbar to display or hide a subset of icons. For example, if you rarely use 
+the underline and strikeout text formatting options on the Formatting Toolbar, you can hide those 
+options.
+Similarly, you can dock a toolbar in a specific position or keep it floating and move it as you want.
+Follow these steps:
+ 1. To modify an existing toolbar, follow these steps: 
+ a. Click the arrow-down icon on the icon toolbar that you want to customize. 
+ b. Select Add or Remove Buttons, <icon toolbar name> to display the currently selected 
+icons.
+Your changes are reflected immediately in the erwin Data Modeler Workspace. 
+ 2. To create a toolbar, follow these steps: 
+ a. Click Tools, Customize.
+The Customize dialog opens. 
+ b. Go to the Toolbars tab and click New. 
+ c. Enter the name for your new toolbar.
+This text displays in the title bar for the new toolbar, when you select to undock it. 
+ d. Click OK.
+Your new toolbar name appears in the list of toolbars in the Customize dialog. 
+ e. Select the toolbar name, then click the Commands tab. 
+ f. Select a category, and drag the command icon out of the dialog to your new toolbar.
+Your new toolbar is populated with the commands that you choose. 
+Customizing the User Interface 
+===== PAGE 13 =====
+Implementation Guide 15.0 13
+Customize Display Levels
+The Display Toolbar includes the options to change the display levels in your model. The following 
+display levels are available:
+Entity or table 
+Primary key 
+Keys 
+Attribute or column 
+Comments 
+Display level is changed to suit the type of model being created or the audience for whom the 
+model is being presented.
+You can change the display level in two ways:
+Select an object or a group of objects, then click the desired icon to apply the display setting 
+to those objects. 
+Do not select any objects, then click the icon to apply the display setting to the entire dia-
+gram. If you have already set display options for individual objects, you can override those 
+settings for the entire diagram with this option. 
+Customizing the User Interface 
+===== PAGE 14 =====
+Implementation Guide 15.0 14
+Setting Model-Level Default Values
+This section contains the following topics
+Set Default Null Options, Data Types, Styles, and Object Owners
+Set Default Referential Integrity Rules
+Specify History Options for Model Objects and Events
+Assign Model UDP Values
+Setting Model-Level Default Values
+===== PAGE 15 =====
+Implementation Guide 15.0 15
+Set Default Null Options, Data Types, Styles, and 
+Object Owners
+Use the Defaults tab in the Model Editor dialog to choose default values for null options, data 
+types, themes, and object ownership.
+Follow these steps:
+ 1. Click Model, Model Properties. 
+The Model Editor opens. 
+ 2. Click the Defaults tab and work with the following options: 
+Non-Key Null Option
+Specifies whether you can have null as a value for a non-key attribute or column.
+Non-Identifying  Relationship
+Specifies whether you can have null as a value for an attribute or a column that has a 
+non-identifying relationship.
+Logical  Datatype
+Specifies the data type that is used as the default for all attributes. You can change 
+the data type for a specific attribute in the Attributes Editor dialog. You can also select 
+whether the data type is inherited (
+ ) or overridden (
+ ).
+When you choose to inherit a data type, the value is inherited from the default set-
+tings. When you choose to override, the default value can be overridden and a dif-
+ferent value can be added.
+Physical  Datatype
+Specifies the default data type for all columns. You can change the data type for a 
+specific column in the Columns Editor. You can also select whether the data type is 
+inherent or overridden.
+Default  Theme
+Specifies the default theme for the model. Your theme includes all the font, color, and 
+formatting options for model objects. You use the Theme Editor to work with the 
+formatting options.
+Set Default Null Options, Datatypes, Styles, and Object Owners
+===== PAGE 16 =====
+Implementation Guide 15.0 16
+Use Data Type in Unification
+Specifies whether you want to use the data type when you unify three or more entit-
+ies.
+Migrated  Column Options
+Specifies the default settings for highlighting the primary and foreign keys on hov-
+ering over a relationship line. By default, the Display Diagram Highlights and Bold 
+check boxes are selected. Also, the Color is set to the default one.
+Enforce  Relationship  Rules
+Specifies whether a supertype-subtype relationship between two different subtype 
+entities belonging to same or different supertype group should be allowed. By default, 
+the Enforce Relationship Rules check box is selected and such a relationship is not 
+allowed.
+Set Default  Owners
+Opens the Set Default Owner dialog where you can set a global default for all objects, 
+or for individual objects. You enter an owner name, and can optionally reset the own-
+ership for all objects when you click Set Owner For All Objects.
+Important!  Although you can quickly reset the ownership for all objects using this fea-
+ture, you cannot undo this operation.
+ 3. Click Close. 
+The default selections are set for the model and the Model Editor closes.
+Set Default Null Options, Datatypes, Styles, and Object Owners
+===== PAGE 17 =====
+Implementation Guide 15.0 17
+Set Default Referential Integrity Rules
+Use the grid in the RI Defaults tab of the Model Editor to specify default referential integrity rules for 
+relationships in your model.
+Follow these steps:
+ 1. Click Model, Model Properties. 
+The Model Editor opens.
+Set Default Referential Integrity Rules
+===== PAGE 18 =====
+Implementation Guide 15.0 18
+ 2. Click the RI Defaults tab and work with the following options: 
+ Rebind referential  integrity  settings  on all relationships
+Applies the new default settings to any existing relationship in the model. If you 
+change the default settings in an existing model, use this button to implement the new 
+settings in the model for all existing relationships. If the new settings are saved, but 
+not rebound, the defaults affect the new relationships only.
+ Reset all Referential  Integrity  default  settings  to their original  values
+Clears your settings and returns to the system defaults.
+Automatically  Create RI Triggers
+Specifies whether you want to create triggers for the referential integrity defaults auto-
+matically.
+Action
+Lists a SQL action in each of its rows. For each SQL action, select the default RI 
+action for each of the following relationship type columns:
+Identifying  
+Lets you specify the RI setting for each of the SQL actions in the Action column. This 
+setting applies to all identifying relationships in the model. 
+Non-identifying,  Nulls Allowed  
+Lets you specify the RI setting for each of the SQL actions in the Action column. This 
+setting applies to all non-identifying relationships in the model for which nulls are 
+allowed. 
+Non-identifying,  No Nulls 
+Lets you specify the RI setting for each SQL action in the Action column. The setting 
+applies to all non-identifying relationships in the model for which nulls are not 
+allowed.
+Subtype  
+Lets you specify the RI setting for each of the SQL actions in the Action column. This 
+setting applies to all subtype relationships in the model. 
+Some target databases, such as Oracle, use a different terminology for RI trigger actions. 
+Use the RI setting appropriate for your target database. For NONE and NO ACTION, use 
+Set Default Referential Integrity Rules
+===== PAGE 19 =====
+Implementation Guide 15.0 19
+of NONE means no restrictions (no RI trigger is created). NO ACTION is identical to 
+RESTRICT. In other words, the actions are allowed only if the conditions are met.
+ 3. Click Close. 
+Default referential integrity rules are set and the Model Editor closes.
+Set Default Referential Integrity Rules
+===== PAGE 20 =====
+Implementation Guide 15.0 20
+Specify History Options for Model Objects and 
+Events
+Use the History Options tab in the Model Editor to specify history preferences for common model 
+objects and events. Maintaining history information is helpful if you want to review the history of 
+actions that occur in your model.
+Follow these steps:
+ 1. Click Model, Model Properties. 
+The Model Editor opens.
+ 2. Click the History Options tab and work with the following options: 
+History  Objects
+Displays a list of the common model objects. Select the check box for each object for 
+which you want to save history.
+History  Events
+Displays a list of the model events. Select the check box for each event for which you 
+want to save history.
+ 3. Click Close. 
+The history options are specified for the model and the Model Editor closes.
+Specify History Options for Model Objects and Events
+===== PAGE 21 =====
+Implementation Guide 15.0 21
+Assign Model UDP Values
+After you create user-defined properties (UDPs) for a model, you can specify them in the UDP tab 
+of the Model Editor.
+Follow these steps:
+ 1. Click Model, Model Properties. 
+The Model Editor opens. 
+ 2. Click the UDP tab and work with the following options: 
+Opens the User Defined Properties Editor so you can add a UDP or can edit an exist-
+ing one.
+Resets the selected property to restore the inheritance. 
+This option is available only for property names that are inherited. In addition, this 
+option becomes available only when you change the property value.
+Property  
+Displays the name of the user-defined property. When you hover over a property 
+name with your cursor, the UDP description displays as a tooltip.
+Value
+Specifies the current value that is assigned to the UDP. You can perform any of the 
+following actions to change the value:
+Enter the property value in the cell for Integer, Real Number, and Text data 
+types. 
+Enter a date value for a Date data type.  
+Select a value from the Value list for the List data type. For example, you can 
+add a UDP for a table to select a backup frequency such as daily from the 
+Value list. 
+Assign Model UDP Values
+===== PAGE 22 =====
+Implementation Guide 15.0 22
+Enter a system command or click 
+  to browse for a file or executable program 
+for the Command data type. For example, you can enter C:\Myfile.doc or can 
+select it to launch the Microsoft Word document Myfile.doc. 
+ 3. Click Close. 
+Model UDP values are assigned and the Model Editor closes.
+Assign Model UDP Values
+===== PAGE 23 =====
+Implementation Guide 15.0 23
+Using the Model Explorer
+This section contains the following topics
+Overview of Model Explorer
+Model View
+Subject Area View
+Rename Objects
+The Go to Diagram Option
+Add a Domain in the Model Explorer
+Add a Model Source in the Model Explorer
+Using the Model Explorer 
+===== PAGE 24 =====
+Implementation Guide 15.0 24
+Overview of Model Explorer
+The Model Explorer provides an organized, hierarchical, text-based view of your data model and 
+its contents. It provides an easy method for creating objects. The Model Explorer lets you create, 
+display, navigate, and modify your model. 
+The Model Explorer has two panes, Model and Subject Area, as shown in the following illustration:
+All the objects in your model are listed in the Model Explorer, but display differently based on the 
+active pane.
+The Model pane includes every object in your model including subject areas and domains. 
+The Model pane is the default view.  
+The Subject Areas pane displays model objects that are sorted by subject area.  
+When you change an object in the Model Explorer, the graphical view of the model is immediately 
+updated with the same change. For example, if you rename a table in the Model Explorer, the new 
+table name appears in the Diagram Window and the relevant editors. Similarly, if you change an 
+object the diagram or in an editor, you immediately see the change in the Model Explorer.
+Just as you can create an entity, a table, or a relationship using the Toolbox, you can create an 
+object in the Model Explorer. To create an object, right-click on any object and click New. You can 
+drag some objects from the Model Explorer onto the Diagram Window to create an object. For 
+example, you can drag a domain onto an attribute or a column.
+Using the Model Explorer, you can open the property editor for an object in two ways:
+Using the Model Explorer 
+===== PAGE 25 =====
+Implementation Guide 15.0 25
+Right-click the object and click Properties.  
+Select the object and click the Property Editor icon in the Model Explorer toolbar.  
+For bulk editing of object properties, you can use the Bulk Editor.
+The Model Explorer and the data model are always in sync, regardless of the method you choose 
+to add or edit an object.
+You can also move, copy, and delete most objects in the Model Explorer, same as you do in a Dia-
+gram window.
+After you move, copy, or delete an object, all the instances in the model that reference the object 
+are automatically updated.
+Using the Model Explorer 
+===== PAGE 26 =====
+Implementation Guide 15.0 26
+Model View
+The primary purpose of the Model view is model exploration and to function as an alternative 
+launching point for object and property editors. The Model view lists all the object types that appear 
+in the current data model. The object types that are displayed here are based on the model type 
+and the target server.
+For example, if the model type is Logical, the Model Explorer does not include physical objects 
+such as a view. Similarly, if the model type is Physical, the Model Explorer does not include logical 
+objects. If the target server is Oracle, then objects specific to Oracle such as Clusters are dis-
+played.
+The following types of objects are not displayed in the Model Explorer:
+Minor objects that are included in the parent object editor. For example, a Valid Value object 
+is created, deleted, and edited by the Validation Rule Editor. 
+An object that represents configuration information, created for an internal process, and is 
+not actual model data. For example, as a Complete Compare Option Set. 
+Model View
+===== PAGE 27 =====
+Implementation Guide 15.0 27
+Subject Area View
+The Subject Area view provides a filtered view of the model and minimizes unnecessary tree 
+information. This view displays the model objects that are sorted by Subject Area. You can create 
+Subject Areas to divide the model into smaller manageable parts, which is helpful when you work 
+with large models.
+The following illustration shows the Subject Area view:
+Select a Subject Area to view the objects that are included in it. For example, in the previous illus-
+tration you see that the tables are categorized as tables, and views are categorized as views. This 
+view is different from the display of the Subject Area objects in the Model view. Only those rela-
+tionships are included here that are visible on the diagram and have both the endpoints present in 
+the Subject Area. 
+Subject Area View
+===== PAGE 28 =====
+Implementation Guide 15.0 28
+The global objects that do not relate to the selected Subject Area, such as Subject Area objects 
+or model source objects are not displayed.
+Subject Area View
+===== PAGE 29 =====
+Implementation Guide 15.0 29
+Create a Subject Area
+You can create a subject area using the Subject Area Editor.
+Follow these steps:
+ 1. Click Model, Subject Areas.The Subject Area Editor opens. 
+ 2. Click New.A new subject area with the default name is added to the Navigation Grid. 
+ 3. Work with the following options:
+Name
+ Displays the subject area name.
+Auto-populate
+ Specifies to populate the selected subject area with all the model objects automatically. 
+ 4. Click the General tab and specify common properties for the selected subject area. 
+ 5. Click the Members tab and specify the members for the selected subject area. 
+ 6. (Optional) Click the Definition tab to enter the definition text. 
+ 7. (Optional) Click the UDP tab to add subject area user-defined properties. 
+ 8. Click Close.
+A new subject area is created and the Subject Area Editor closes. 
+Create a Subject Area
+===== PAGE 30 =====
+Implementation Guide 15.0 30
+Rename Objects
+Every object in your model is represented in the Model Explorer by its name. Just as you can 
+rename an object using on-diagram editing in the Diagram Window, you can rename an object dir-
+ectly in the Model Explorer.
+Follow these steps:
+ 1. Click the object name, and then press F2.
+An edit box opens around the object name. 
+ 2. Enter the new object name.
+The new name of that object appears throughout the Model Explorer and the model. 
+Any unique name rules that you select for your model are enforced when you rename an object 
+in the Model Explorer.
+Rename Objects 
+===== PAGE 31 =====
+Implementation Guide 15.0 31
+Select Unique Name Rules
+Unique name rules define how you want to respond to a duplicate entity or table name in the data 
+model.
+Follow these steps:
+ 1. Click Tools, Model Naming Options.
+The Model Naming Options dialog opens. 
+ 2. Click the Duplicate Names tab and set preferences for duplicate names. 
+ 3. Click OK.
+Your changes are saved and the Model Naming Options dialog closes. 
+Select Unique Name Rules
+===== PAGE 32 =====
+Implementation Guide 15.0 32
+The Go to Diagram Option
+When you have several hundreds of objects in a model, it might be difficult to locate a specific 
+object. To locate an object in a diagram quickly, right-click the object in the Model Explorer and 
+click Go To Diagram. The object is selected in the Diagram window.
+The Go to Diagram Option
+===== PAGE 33 =====
+Implementation Guide 15.0 33
+Add a Domain in the Model Explorer
+The Model view lists the domains for the current model, which include the default domains and the 
+domains created by you.
+Follow these steps:
+ 1. Right-click a domain type (blob, string, number, and so on) and click New.
+An edit box opens with a default domain name. 
+The selected domain type is assigned as the parent.
+ 2. Enter a name for the domain in the text box and press Enter.The new domain appears 
+according to the sort order that you specify (either alphabetically or hierarchically). To switch 
+the sort order of the Domains, right-click the Domains folder, and select the sort option that 
+you prefer. 
+For more information about domains, see Working with Data Models.
+Add a Domain in the Model Explorer 
+===== PAGE 34 =====
+Implementation Guide 15.0 34
+Add a Model Source in the Model Explorer
+When you work with design layers, you link a model with its model source to identify the historical 
+parent of the model. After you link a data model to its source, you can synchronize the two models 
+to apply changes to one or the other selectively.
+Follow these steps:
+ 1. Right-click Model Sources and click New.
+The Add Model Source wizard opens. 
+ 2. Follow the steps in the Add Model Source wizard to finish adding the model source. 
+ 3. Click Add to complete the process and close the wizard.
+The source objects are added to your target model, and models are linked. As you continue 
+to work with the models, all the changes you apply to the model and the model source are 
+tracked. 
+For more information about adding model sources, see Working with Design Layers.
+Projects in erwin Data Modeler
+Projects in erwin Data Modeler helps you to bring all the database models involved in your applic-
+ation development together. Using projects, you can save and manage these models in a single 
+location in your storage directory. The Project Explorer in erwin DM also enables you to open and 
+load these models directly from a common explorer pane in the application, eliminating the need to 
+load and work on them separately. 
+In projects, models are ordered in a hierarchical basis. You can create multiple child models from 
+existing parent models in the project. You can choose whether these child models inherit the prop-
+erties of their parent or start from a completely new ER diagram. Each model in the project can be 
+worked on individually, with changes introduced exclusively to each other. However, erwin DM 
+also lets you sync the changes in a parent model with all its child models, if needed. This helps to 
+reduce the effort required to manually make the changes in all applicable models.
+You can create new models as you require directly into the project. Projects also enable you to 
+import and work on existing models that are stored in multiple locations. For example, using the 
+Open Models function in the Project Explorer, you can import models from your local storage and 
+erwin Mart Portal. Once they are imported, a copy of each model at the time of import is saved to 
+Add a Model Source in the Model Explorer 
+===== PAGE 35 =====
+Implementation Guide 15.0 35
+your specified project location. When you start working on the project, your changes are applied to 
+these imported copies. 
+In addition to these methods of adding models, you can also use the Reverse Engineering function 
+in projects to reverse engineer an existing script or database and add the resultant model to the 
+project. Projects also enable you to generate forward engineering scripts for all the models in it. 
+Furthermore, you can filter and customize the list of models to forward engineer, as you require.
+Projects can be saved as a single directory to any of your preferred location. You can save them to 
+your local storage any time or upload the project files to a Mart catalog. When you save a project, 
+all the models and their metadata are stored inside the specified project directory. You can launch 
+the project from this storage directory using the project file, or individually open a model file saved 
+in the project folders.  
+Project Explorer Overview
+ The Project Explorer provides an organized, ordered view of your project and the objects within it. 
+You can use the Project Explorer to create new projects or edit existing projects by adding new 
+models and modifying current models in the project. 
+The Project Explorer is divided into two sections: the Project Explorer toolbar and Project Explorer 
+pane.
+In the Project Explorer pane, database models can be organized within or outside folders and sub-
+folders. You can have as many folders and subfolders in a project, but a folder can have only one 
+level of subfolders in it. The project and its contents are saved to erwin Mart Portal or your local 
+machine in the same order and structure as specified in the Project Explorer pane. 
+Add a Model Source in the Model Explorer 
+===== PAGE 36 =====
+Implementation Guide 15.0 36
+ 
+The Project Explorer toolbar and the Project Explorer ribbon provides you with options to work on 
+projects, such as:
+New Project  
+Use this option to create a new project. For more information, refer to the Creating a Project topic.
+Open Project  
+Use this option to open an existing project.
+Save Project  
+Use this option to save the changes in the project.
+Delete 
+Use this option to delete the selected objects in the project.
+Add a Model Source in the Model Explorer 
+===== PAGE 37 =====
+Implementation Guide 15.0 37
+Close Project  
+Use this option to close the project.
+Schema Script 
+Use this option to generate a forward engineering schema script for the objects in the project.
+Alter Script 
+Use this option to generate an alter script for the objects in the project.
+Save to Mart 
+Use this option to save the project folders and models to Mart.
+Report 
+Use this option to generate reports for the project. For more information, refer to the Project 
+Reports topic.
+Properties  
+Use this option to edit the properties of the project or an object in it.
+ 
+When you make changes to a model in the Project Explorer window, the changes are immediately 
+updated in the diagram window. For example, if you rename a model in the Project Explorer, the 
+new name replaces the existing model name in the diagram window.
+The Project Explorer lets you perform the following actions:
+Create a new folder
+Create a new model
+Create a target model
+Rename a model
+Delete a model
+Sync child models with parent models
+Derive a model
+For more information, refer to the  Managing Projects topic.
+Add a Model Source in the Model Explorer 
+===== PAGE 38 =====
+Implementation Guide 15.0 38
+The Theme Editor
+A theme is a collection of font and color settings and is applied to a model, an object, a group of 
+objects, or a subject area. Themes help you achieve the following objectives:
+Maintain the organizational design standard 
+Denote the development lifecycle of a model 
+Customize the designs in a model for various end users, for example, Human Resource or 
+Marketing departments 
+Themes are applied in the following hierarchical order:
+Model - to replace the default theme that a new model uses. 
+Subject Area - to override the theme of the model. 
+Diagram - to override the theme of its owner (Model or Subject Area). 
+Entity, View, Cached View, Annotation, or Attribute - to override the theme of the diagram. 
+Drawing Object - to override all other themes. However, you cannot do an override on an 
+attribute because attributes have no drawing objects. At the drawing object level, individual 
+characteristics of a theme can be overridden once you select a theme. 
+You can open the Theme Editor in any of these ways:
+From the General tab on the Diagram Editor
+When you click Themes on the View menu 
+From the Model Explorer
+The application ships with two themes, Default and Classic. You cannot edit these themes, but you 
+can add new themes. You can also override the settings that are defined in a theme, in the Style 
+tab of the individual editors.
+For example, you are a Business Analyst in a software company. You want to do the following 
+tasks:
+Maintain an organizational design standard in the Employee database. 
+Organize the Employee database according to the departments in the company. 
+You identify all the departments in the company and create a theme for each department. You 
+apply the themes to all of the departments to identify each department and its employees. This 
+example is used consistently to explain all the procedures that are involved in creating and apply-
+ing a theme.
+The_Theme_Editor
+===== PAGE 39 =====
+Implementation Guide 15.0 39
+Perform  the following  tasks to apply a theme:
+Do you want to use an existing theme 
+Create and apply a theme 
+ 1. Create a theme 
+ 2. Apply a theme to a model 
+The_Theme_Editor
+===== PAGE 40 =====
+Implementation Guide 15.0 40
+ 3. (Optional) Apply a theme to individual objects in a model 
+Apply a theme by binding a model template 
+ 1. Bind a Model Template 
+The_Theme_Editor
+===== PAGE 41 =====
+Implementation Guide 15.0 41
+Do you want to use an existing theme
+If you have a standard theme in your organization, you can use that theme in all your models by 
+binding it to a model template. Using a standard theme ensures consistency across all your mod-
+els.
+If you do not have any predefined themes, you can create a theme and can apply it to your models.
+Back to Top
+Do you want to use an existing theme
+===== PAGE 42 =====
+Implementation Guide 15.0 42
+Create and Apply a Theme
+If you do not have a standard theme in your organization, you can create one and can apply it for 
+all your models. You can also create multiple themes and apply them to different objects in your 
+model.
+Create and Apply a Theme
+===== PAGE 43 =====
+Implementation Guide 15.0 43
+Create a Theme
+After you open the Employee data model, identify the company departments and create a theme 
+for each object or model. 
+When you create a theme, you can select and apply the theme to any object or model in the 
+Theme Editor. For example, suppose that your Employee data model has separate objects for 
+part-time and full-time employees working in the same department. You can apply a theme to the 
+part-time employee object to differentiate it from the remaining objects in the Employee data 
+model.
+You use the Defaults tab to set the preferences for font and fill colors for all objects in your model. 
+When you select a theme for your model, all objects in your model inherit these values. 
+Follow these steps:
+ 1. Open erwin� Data Modeler and then open a data model. 
+ 2. Expand Model Explorer, right-click Themes, and click New. 
+A new theme is created with a default name.
+ 3. Right-click the new theme and click Properties. 
+The Theme Editor opens.
+ 4. (Optional) Edit the name of the theme. 
+ 5. Edit the properties in each column for the new theme. 
+ 6. Click the Defaults tab and make your selections for the desired options as appropriate for 
+your organization. 
+ 7. (Optional) Customize your theme by selecting the desired options on the other tabs as 
+appropriate for your organization. 
+ 8. Click Close.  
+A theme is created and the Theme Editor closes.
+Back to Top
+Create a Theme
+===== PAGE 44 =====
+Implementation Guide 15.0 44
+Set Display Preferences for Entities and Tables
+Use the Entity or the Table tab in the Theme Editor to set the preferences for displaying name and 
+other definitions of entities or tables. The Entity tab is displayed when you view a Logical model 
+and the Table tab is displayed when you view a Physical model. 
+Follow these steps: 
+ 1. Click View, Themes. 
+The Theme Editor opens.
+ 2. Select the theme for which you want to set the display preferences, and click the Entity or 
+the Table tab. 
+ 3. Work with the following options: 
+Name Display
+Font Options
+Specifies the default font styles to display the name of an entity. Click 
+  to change 
+the font style details. You can also choose to inherit, override, or harden this setting.
+Fill Options
+Specifies the default fill option for an entity. Click 
+  to change the fill style details. 
+You can also choose to inherit, override, or harden this setting.
+Outline  Options
+Specifies the default outline styles for an entity. Click 
+  to change the outline style 
+details. You can also choose to inherit, override, or harden this setting.
+Definition  Display
+Font Options
+Specifies the default font styles to display the entity definition. Click 
+  to change the 
+font style details. You can also choose to inherit, override, or harden this setting.
+Fill Options
+Specifies the default fill option for the entity definition. Click 
+  to change the fill style 
+details. You can also choose to inherit, override, or harden this setting.
+Outline  Options 
+Set Display Preferences for Entities and Tables
+===== PAGE 45 =====
+Implementation Guide 15.0 45
+Specifies the default outline styles for the entity definition. Click 
+  to change the out-
+line style details. You can also choose to inherit, override, or harden this setting.
+Your selections are displayed in the Sample section.
+ 4. Click Close. 
+Your changes are saved and the Theme Editor closes.
+You cannot select to inherit, override, or harden any display setting for the Default theme.
+Set Display Preferences for Entities and Tables
+===== PAGE 46 =====
+Implementation Guide 15.0 46
+Set Display Preferences for Owned Attributes or 
+Columns and Foreign Keys
+Use the Attribute or the Column tab in the Theme Editor to set the preferences for displaying attrib-
+utes, columns, and foreign keys. The Attribute tab is displayed when you view a Logical model and 
+the Column tab is displayed when you view a Physical model. 
+Follow these steps:
+ 1. Click View, Themes. 
+The Theme Editor opens.
+ 2. Select the theme for which you want to set the display preferences, and click the Attribute 
+tab. 
+ 3. Work with the following options: 
+Owned Attribute  Font
+Font Options
+Specifies the default font for entity attributes. Click 
+  to change the font style details. 
+You can also choose to inherit, override, or harden this setting.
+Foreign  Key Inheritance
+Font Inheritance  Type
+Specifies the type of inheritance for the font of a foreign key. You can choose the 
+inheritance to be based on the primary key, the relationship, or no inheritance.
+Color Inheritance  Type
+Specifies the type of inheritance for the color of a foreign key. You can choose the 
+inheritance to be based on the primary key, the relationship, or no inheritance.
+Foreign  Key Attribute  Font
+Specifies the font of the foreign key attribute. Click 
+  to select the font. You can also 
+choose to inherit, override, or harden this setting.
+Foreign  Key Attribute  Color
+Specifies the color of the foreign key column. Click 
+  to select the color. You can 
+also choose to inherit, override, or harden this setting.
+Set Display Preferences for Owned Attributes and Foreign Keys
+===== PAGE 47 =====
+Implementation Guide 15.0 47
+Your selections are displayed in the respective Sample sections.
+ 4. Click Close. 
+Your changes are saved and the Theme Editor closes.
+You cannot select to inherit, override, or harden any display setting for the Default theme.
+Set Display Preferences for Owned Attributes and Foreign Keys
+===== PAGE 48 =====
+Implementation Guide 15.0 48
+Set Display Preferences for Keys
+Use the Key tab in the Theme Editor to set the preferences for displaying the alternate keys and 
+inversion entities. 
+Follow these steps:
+ 1. Click View, Themes. 
+The Theme Editor opens.
+ 2. Select the theme for which you want to set the display preferences, and click the Key tab. 
+ 3. Work with the following options: 
+Key Display  Preference
+Style Preference
+Specifies whether to show the alternate key (AK) style or the inversion entity (IE) style 
+preference when both apply.
+Alternate  Key (AK) Column Font
+Font Options
+Specifies the default font for the alternate key column. Click 
+  to change the font 
+style details. You can also choose to inherit, override, or harden this setting.
+Inversion  Entity (IE) Column Font
+Font Options
+Specifies the default font for the inversion entity column. Click 
+  to change the font 
+style details. You can also choose to inherit, override, or harden this setting.
+Your selections are displayed in the respective Sample sections.
+ 4. Click Close. 
+Your changes are saved and the Theme Editor closes.
+You cannot select to inherit, override, or harden any display setting for the Default theme.
+Set Display Preferences for Keys
+===== PAGE 49 =====
+Implementation Guide 15.0 49
+Set Display Preferences for Views and Materialized 
+Views
+Use the View or the Materialized View tab in the Theme Editor to set the preferences for displaying 
+the views and materialized views. The Materialized View tab is displayed only for the databases 
+that support materialized views.
+Follow these steps:
+ 1. Click View, Themes. 
+The Theme Editor opens.
+ 2. Select the theme for which you want to set the display preferences, and click the View tab. 
+ 3. Work with the following options: 
+Name Display
+Font Options
+Specifies the default font styles to display the name of a view. Click 
+  to change the 
+font style details. You can also choose to inherit, override, or harden this setting.
+Fill Options
+Specifies the default fill option for a view. Click 
+  to change the fill style details. You 
+can also choose to inherit, override, or harden this setting.
+Outline  Options
+Specifies the default outline styles for a view name. Click 
+  to change the outline 
+style details. You can also choose to inherit, override, or harden this setting.
+Definition  Display
+Font Options
+Specifies the default font styles to display the view definition. Click 
+  to change the 
+font style details. You can also choose to inherit, override, or harden this setting.
+Fill Options
+Specifies the default fill color for the view definition. Click 
+  to change the fill style 
+details. You can also choose to inherit, override, or harden this setting.
+Set Display Preferences for Views and Materialized Views
+===== PAGE 50 =====
+Implementation Guide 15.0 50
+Outline  Options
+Specifies the default outline styles for the view definition. Click 
+  to change the out-
+line style details. You can also choose to inherit, override, or harden this setting.
+Your selections are displayed in the Sample section.
+Column/Attribute  Display  Font
+Owned Column/Attribute
+Specifies the default font style in an owned column or attribute. Click 
+  to change the 
+font style details. You can also choose to inherit, override, or harden this setting.
+Expression
+Specifies the default font style in an expression. Click 
+  to change the font style 
+details. You can also choose to inherit, override, or harden this setting.
+The following fields are displayed only in the Materialized View tab:
+Alternate  Key (AK) Column/Attribute  (for MV only)
+Specifies the default font style in an alternate key column or attribute. Click to change 
+the font style details. You can choose to make the font inherit, override, or harden.
+Inversion  Entity (IE) (for MV only)
+Specifies the default font style in an inversion entry column or attribute. Click to 
+change the font style details. You can choose to make the font inherit, override, or 
+harden.
+ 4. Click Close. 
+Your changes are saved and the Theme Editor closes.
+You cannot select to inherit, override, or harden any display setting for the Default theme.
+Set Display Preferences for Views and Materialized Views
+===== PAGE 51 =====
+Implementation Guide 15.0 51
+Set Display Preferences for Subtype Symbol
+Use the Subtype Symbol tab in the Theme Editor to set the preferences for displaying the subtype 
+symbols. 
+Follow these steps:
+ 1. Click View, Themes. 
+The Theme Editor opens.
+ 2. Select the theme for which you want to set the display preferences, and click the Subtype 
+Symbol tab. 
+ 3. Work with the following options: 
+Style Inheritance
+Inherit  Discriminator  font from Supertype  name font
+Specifies that the font is inherited from the Supertype name font. If you select this 
+check box, you cannot edit the Font Options field in the Subtype Symbol Text Font 
+section. 
+Inherit  text color from line color
+Specifies that the text color is inherited from the line color. If you select this check 
+box, you cannot edit the Color field in the Subtype Symbol Text Color section. 
+Inherit  Discriminator  color from Supertype  outline  color
+Specifies that the line color is inherited from the parent Supertype outline color. If you 
+select this check box, you cannot edit the Color field in the Subtype Symbol Style sec-
+tion. 
+Subtype  Symbol Text Font
+Font Options
+Specifies the font that you use for the subtype symbols in your model. If you have 
+selected the Inherit Discriminator font from Supertype name font check box, you can-
+not edit this field. 
+Subtype  Symbol Text Color
+Color
+Set Display Preferences for Subtype Symbol
+===== PAGE 52 =====
+Implementation Guide 15.0 52
+Specifies the text color that you use for the subtype symbols in your model. If you 
+have selected the Inherit text color from line color check box, you cannot edit this 
+field. 
+Subtype  Symbol Style
+Line Width
+Specifies the default line width for subtype symbols. Use the spin controls to increase 
+or decrease the line width.
+Color
+Specifies the default color for subtype symbol lines. If you have selected the Inherit 
+Discriminator color from Supertype outline color check box, you cannot edit this field. 
+Fill Options
+Specifies the default line fill options for subtype symbols. Click 
+  to change the fill 
+style details.
+You can select to inherit, override, or harden any of these settings except for display set-
+tings for the Default Theme.
+ 4. Click Close.  
+Your changes are saved and the Theme Editor closes.
+Set Display Preferences for Subtype Symbol
+===== PAGE 53 =====
+Implementation Guide 15.0 53
+Set Display Preferences for Annotations and Shapes
+Use the Annotation/Shape tab in the Theme Editor to set the font and color of the annotation text. 
+Use this tab to change the display properties of annotations and shapes. 
+Follow these steps:
+ 1. Click View, Themes. 
+The Theme Editor opens.
+ 2. Select the theme for which you want to set the display preferences, and click the Annota-
+tion/Shape tab. 
+Font Options
+Specifies the default font styles for the selected drawing object. Click 
+  to change 
+the font style details. You can also choose to inherit, override, or harden this setting.
+Vertical  Alignment
+Specifies the vertical alignment position of the text in the annotation. You can also 
+choose to inherit, override, or harden this setting.
+Horizontal  Alignment
+Specifies the horizontal alignment position of the text in the annotation. You can also 
+choose to inherit, override, or harden this setting.
+Text Handling  Style
+Specifies how you want the annotation to adjust itself when you enter text. You can 
+also choose to inherit, override, or harden this setting.
+Fill Options
+Specifies the default fill color for the selected annotation. Click 
+  to change the fill 
+style details. You can also choose to inherit, override, or harden this setting.
+Line Options
+Specifies the default line styles for the selected annotation. Click 
+  to change the out-
+line style details. You can also choose to inherit, override, or harden this setting.
+Outline  Options
+Specifies the default outline styles for the selected annotation. Click 
+  to change the 
+outline style details. You can also choose to inherit, override, or harden this setting.
+Set Display Preferences for Annotations and Shapes
+===== PAGE 54 =====
+Implementation Guide 15.0 54
+Click OK.
+The new style for the annotation is saved.
+Set Display Preferences for Annotations and Shapes
+===== PAGE 55 =====
+Implementation Guide 15.0 55
+Apply a Theme to a Model
+Apply the theme to the Employee data model and maintain the organizational design standard. 
+When you apply a theme to a model, all new objects inherit the customized values that you have 
+defined in the theme.
+Follow these steps:
+ 1. Click Model, Model Properties. 
+The Model Editor opens.
+ 2. Click the Defaults tab. 
+ 3. Click the Default Theme drop-down list and select a theme. 
+Your theme is applied to the model.
+ 4. Click Close. 
+The Model Editor closes.
+You have successfully applied a theme to your model. 
+If you want to apply a different theme to the individual objects in your model, see the next topic. 
+You do not have to close the model to apply a different theme.
+Back to Top
+Apply a Theme to a Model
+===== PAGE 56 =====
+Implementation Guide 15.0 56
+(Optional) Apply a Theme to Individual Objects in a Model
+You can apply a theme to individual objects instead of the entire model. In your Employee data 
+model, you can apply a different theme to each department (object) to organize the model. For 
+example, you can apply one theme to the Human Resources object and another theme to the Mar-
+keting Division object.
+You can also apply a theme by copying it from one object and pasting it to another object using the 
+context menu. You can copy and paste a theme between similar objects and not between different 
+objects. For example, you can copy and paste a theme between entities and not between an entity 
+and a diagram. This option is useful if you want to apply a theme including any overrides that you 
+have applied for a specific entity.
+Follow these steps:
+ 1. Ctrl + click each object that you want to select in your model. 
+ 2. Right-click and click Override Fonts and Colors. 
+The Multiple Shape Object Editor opens.
+ 3. Click the Style tab. 
+ 4. Click the Theme drop-down list under the Theme for Default Font and Color options section, 
+and select your theme. 
+Your theme is applied to the selected objects.
+ 5. Click Close. 
+The Multiple Shape Object Editor closes.
+The theme is applied to the selected objects.
+Back to Top
+(Optional) Apply a Theme to Individual Objects in a Model
+===== PAGE 57 =====
+Implementation Guide 15.0 57
+Apply a Theme by Binding a Model Template
+If you have a standard theme in your company, you can bind a model template having the standard 
+theme to any new data model. When you bind the model template, the current model inherits the 
+theme from the model template.
+Apply a Theme by Binding a Model Template 
+===== PAGE 58 =====
+Implementation Guide 15.0 58
+Bind a Model Template
+Binding a model template to a data model copies the non-built-in objects from the template model 
+to the target model. When you bind a template to a model, the predefined objects populate your 
+model. This process eliminates the need to create objects manually or to use reverse engineering. 
+Changes to the model template are displayed in the models that use it, maintaining consistency of 
+your object names. When you open a model that is bound to a model template, you can choose to 
+synchronize any model template changes with current the model. Whenever you open a model 
+that is bound to a model template, confirm whether to synchronize any model template changes 
+with the objects used in the model.
+You can bind model templates any time, while creating a model or after the model is created.
+Objects that are brought in to a model from a template fully follow the modeling rules. If any con-
+flicts occur in the model, the existing data is preserved as much as possible.
+Follow these steps:
+ 1. Open erwin Data Modeler and then open a data model. 
+ 2. Click File, Model Templates, Bind Template. 
+The Bind Model Template dialog opens.
+ 3. Use the toolbar to browse for the template file locally on your computer or in the Mart.   
+ 4. Select one of the following options and then click OK: 
+Load the entire contents  of the template
+Specifies to load the entire contents of the template. This option binds all of the model 
+template objects to the current model without the opportunity to review and select indi-
+vidual template objects. 
+Run the Template  Wizard to select objects  for synchronization
+Specifies to open the Model Template Synchronization Wizard so that you can select 
+the objects in the model template to synchronize with the data model. 
+The model opens in the workspace with the template objects copied into it. The theme is 
+applied to the data model.
+While binding a template using this method, synchronization on loading the model does not work 
+as expected for inherited templates. As a workaround, do either of the following:         
+Bind a Model Template 
+===== PAGE 59 =====
+Implementation Guide 15.0 59
+Refresh the template using the File > Model Templates  > Refresh  Template  option.
+Select Preserve  the template  binding  while creating a new model.
+Back to Top
+Bind a Model Template 
+===== PAGE 60 =====
+Implementation Guide 15.0 60
+Creating and Using Domains
+This section contains the following topics
+Overview of Domains
+The Domain Editor lists all the domains for the data model.
+Drag a Domain from the Model Explorer to Your Model
+Creating Domains
+Assign a Data Type to a Domain
+Assign or Change a Domain Icon
+Creating and Using Domains 
+===== PAGE 61 =====
+Implementation Guide 15.0 61
+Overview of Domains
+A domain is a model object that you can use to assign properties quickly to an attribute or column. 
+By using domains, you promote consistency because you can reuse a domain as many times as 
+you like in a single or multiple data models.
+Domains also reduce the time that is spent on development and maintenance. If you change the 
+domain, all attributes or columns that are associated with the domain also change.
+Domains have two types of properties:
+Non-inheritable  properties : The non-inheritable properties do not migrate to child domains 
+or attributes and columns that are associated with the domain. This is because they are 
+properties of the domain itself. 
+Inheritable  properties : The inheritable properties migrate to child domains and to the attrib-
+utes and columns that are associated with the domain. 
+The inheritable and non-inheritable domain name properties appear on the General tab. They also 
+appear on the target database tab (for example, SQL Server) in a physical model.
+When you drag-and-drop a domain from the Model Explorer onto an entity or a table, you add an 
+attribute or a column. The new attribute or column inherits all the inheritable properties, including 
+name, from the domain.
+In the Model Explorer and in the Domain Editor, a unique icon represents each domain. A default 
+icon is used for new domains, but you can choose a different icon to represent the domains you cre-
+ate.
+Overview of Domains 
+===== PAGE 62 =====
+Implementation Guide 15.0 62
+The Domain Editor 
+The Domain Editor lists all the domains for the data model. You can arrange them hierarchically or 
+alphabetically. The Model Explorer and the Domain Editor list the same domains and lets you sort 
+the domains in hierarchical or alphabetic order. You can create and modify both physical and 
+logical domains using the Domain Editor.
+The Domain Editor
+===== PAGE 63 =====
+Implementation Guide 15.0 63
+The tabs and options in the editor change depending on whether the model is logical, physical, or 
+logical/physical.
+Domains include the following properties:
+Domain name and column name 
+Column data type, permission, default value, and valid value 
+Domain comment or note and column comment or name 
+User-defined property 
+User notes 
+You cannot change the properties of the standard domains (<default>, Blob, Datetime, Number, 
+and String).
+The Domain Editor
+===== PAGE 64 =====
+Implementation Guide 15.0 64
+Drag a Domain from the Model Explorer to Your 
+Model
+Use drag-and-drop to add a domain from the Model Explorer to an entity or a table in your model.
+Follow these steps:
+ 1. Expand the list of domains in the Model Explorer and click the domain that you want to add 
+to your model. 
+ 2. Drag and drop the domain onto the entity or table in your model.
+The domain is added as an attribute or column. 
+Depending on the Unique Naming rules that apply to the data model, you are prompted to 
+rename each attribute or column. You are prompted because, the same domain name is 
+assigned to each new attribute or column automatically.
+Drag a Domain from the Model Explorer to Your Model
+===== PAGE 65 =====
+Implementation Guide 15.0 65
+Creating Domains
+Use the Domain Editor to create domains in addition to the default domains. You can create a 
+domain while you are in a logical model (logical edit mode) or a physical model (physical edit 
+mode). The options in the editor change depending on the edit mode.
+Creating Domains 
+===== PAGE 66 =====
+Implementation Guide 15.0 66
+Add a Domain in the Logical Edit Mode
+The Domain Editor lets you define properties for attributes and columns. You can create a domain 
+and can attach it to any number of attributes and columns instead of defining properties for each 
+column individually. You can work with features in the Domain Editor to add a domain to the logical 
+model.
+Follow these steps:
+ 1. Click Model, Domains. 
+The Domain Editor opens.
+ 2. Click the New 
+  button on the toolbar. 
+A new domain with a default name is added and is placed in alphabetical order.
+ 3. Work with the following options in the Navigation Grid: 
+Name
+Displays the name of the domain in the logical model.
+Duplicate domain names are not allowed.
+Domain Parent
+Displays the current parent domain. You can change the domain using the drop-down 
+list.
+Logical  Data Type
+Specifies the logical data type for the domain. You can change the data type using 
+the drop-down list. The drop-down list contains the data types related to the current 
+domain.
+Logical  Only
+Specifies whether the domain appears only in the logical model. Select this check 
+box if you want the domain to appear only in the logical model. Clear this check box if 
+you want the domain in the physical model. If you select this check box in a logical-
+only model and you derive a new physical-only model, the domain does not appear in 
+the new model.
+ 4. Work with the other tabs in the editor to define more domain properties. 
+Add a Domain in the Logical Edit Mode
+===== PAGE 67 =====
+Implementation Guide 15.0 67
+ 5. Click Close. 
+The domain is added to the logical model and the Domain Editor closes.
+Back to Top
+Add a Domain in the Logical Edit Mode
+===== PAGE 68 =====
+Implementation Guide 15.0 68
+Add a Domain in the Physical Edit Mode
+You can work with the features in the Domain Editor to add a domain to the physical model.
+Follow these steps:
+ 1. Click Model, Domains. 
+The Domain Editor opens.
+ 2. Click the New 
+  button on the toolbar. 
+A new domain with a default name is added and is placed in alphabetical order.
+ 3. Work with the following options in the Navigation Grid: 
+Physical  Name
+Displays the name of the domain in the physical model. 
+Domain Parent
+Displays the current parent domain. You can change the domain using the drop-down 
+list.
+Physical  Data Type
+Specifies the physical data type for the domain. You can change the data type using 
+the drop-down list. The drop-down list contains the data types related to the current 
+domain.
+Anchored  to Type
+Specifies whether the domain is anchored to a column or a variable. This column is 
+enabled only for a Db2 LUW user-defined data type. 
+Schema
+Specifies the schema that is associated with the domain.
+Distinct  Type
+Specifies whether the domain is of distinct type.
+Physical  Only
+Specifies whether the domain appears only in the physical model. Select this check 
+box if you want the selected domain to appear in the physical model only. Clear this 
+check box if you want the selected domain in the logical model. 
+ 4. Work with the other tabs in the editor to define more domain properties. 
+Add a Domain in the Physical Edit Mode
+===== PAGE 69 =====
+Implementation Guide 15.0 69
+ 5. Click Close. 
+The domain is added to the physical model and the Domain Editor closes.
+Back to Top
+Add a Domain in the Physical Edit Mode
+===== PAGE 70 =====
+Implementation Guide 15.0 70
+Assign a Data Type to a Domain
+A data type is a domain property and defines the physical properties of a column in a database. 
+You can define length (number of characters), type (alpha or numeric), and precision (decimal) 
+properties. You can also define a logical data type, which usually corresponds to a physical data 
+type.
+By default, a new domain is assigned the same data type as its parent domain. You can change it 
+at any time.
+Follow these steps:
+ 1. Click Model, Domains.
+The Domain Editor opens. 
+ 2. Select the domain in the Navigation Grid for which you want to assign a data type. 
+ 3. Select a new data type for the domain using the drop-down list in the Logical Data Type 
+column (logical edit mode) or the Physical Data Type column (physical edit mode). 
+ 4. Click Close.
+The data type is assigned to the domain and the Domain Editor closes. 
+Assign a Data Type to a Domain
+===== PAGE 71 =====
+Implementation Guide 15.0 71
+Assign or Change a Domain Icon
+You can assign any image (.bmp file) as the icon for the non-inheritable property of the domain. 
+You can assign the same image or can select a different image that the attributes or columns of the 
+domain can inherit.
+You can change the domain icon only in the logical model.
+Follow these steps:
+ 1. Click Model, Domains.
+The Domain Editor opens. 
+ 2. Select the domain in the Navigation Grid that you want to work with and click the General 
+tab. 
+ 3. Specify the image to use in the Image drop-down or click New to open the Image Editor and 
+create one. 
+ 4. Click Close.
+The icon is assigned to the selected domain. 
+Assign or Change a Domain Icon
+===== PAGE 72 =====
+Implementation Guide 15.0 72
+Applying Naming and Datatype Standards
+This section contains the following topics
+Applying Naming Standards
+Applying Data Type Standards
+Applying Naming and Datatype Standards 
+===== PAGE 73 =====
+Implementation Guide 15.0 73
+Applying Naming Standards
+You create naming standards so that everyone in your organization uses names correctly and con-
+sistently. Use the Naming Standard Editor to create naming standards and develop a glossary that 
+contains glossary words, their abbreviations, and alternate abbreviations.
+You can create multiple Naming Standard objects and can apply one of them to a model. Each 
+Naming Standard object includes the naming standards for logical and physical model objects, 
+and the glossary. The components of logical and physical model names are prime, modifier, or 
+class. To define naming standards for entities, tables, attributes, columns, and domains specify 
+the components and the order in which to present them.
+If you do not use naming standards, you may have modeling design problems. These design prob-
+lems could produce errors when you run queries to extract data.
+Suppose that you upgrade a model from release r7 through r7.3.12 or from r8 through r8.2.9 to 
+the latest release. If the source model includes NSM files, the naming standards are not 
+included in the upgraded model. To get the naming standards, save the NSM file to your local 
+computer, import it to a template model, and then bind the template to the upgraded model. We 
+recommend that you do not include any other objects in the template model, other than the NSM 
+object.
+You can apply naming standards in three ways, as illustrated in the following diagram:
+Applying Naming Standards 
+===== PAGE 74 =====
+Implementation Guide 15.0 74
+Apart from the three ways of applying naming standards explained in the above diagram, you can 
+also apply naming standards from the Mart.
+Follow these steps apply naming standards:
+ 1. Decide the method
+ 2. Verify naming standards compliance
+Applying Naming Standards 
+===== PAGE 75 =====
+Implementation Guide 15.0 75
+ 3. Apply the naming standards
+Applying Naming Standards 
+===== PAGE 76 =====
+Implementation Guide 15.0 76
+Decide the Method
+You can apply naming standards in the following ways:
+Create and apply: Use this option when you are creating the naming standards for the first 
+time. 
+Import from a previous version: Use this option if you have created naming standards using 
+a previous version of erwin DM. 
+Bind a model template: Use this option if you want to use the naming standards that you 
+have already created and attached to a model or a model template.
+Connect to the Mart and use NSM files available in NSM File Management.
+Decide the Method
+===== PAGE 77 =====
+Implementation Guide 15.0 77
+Create and Apply Naming Standards
+You create naming standards if you are implementing standards for the first time.
+Create and Apply Naming Standards 
+===== PAGE 78 =====
+Implementation Guide 15.0 78
+Open NSM Option Editor from Model Explorer and Define 
+Naming Standards for a Logical Model
+You can specify naming standards for logical names that are different from the naming standards 
+for physical names. Use the Logical tab in NSM Option Editor to apply naming standards to entit-
+ies, attributes, and domains. In addition, use this tab to specify the order in which parts of names 
+appear in the logical name.
+Follow these steps: 
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object and click Properties. 
+The Naming Standard Editor opens.
+ 3. To apply the naming standard to your model: 
+In the list of naming standards, select your naming standard and then select Is Active.
+ 4. To preserve any changes made to the naming standard in the Physical mode and reflect 
+those in the Logical mode: 
+In the list of naming standards, select your naming standard and then select Physical 
+to Logical.
+ l The physical mode to logical mode naming standard implementation caters to 
+cases where the logical definition is absent.
+ l For Hive, when reverse engineering (REC or RES) is done, the Physical to Logical 
+option on the Naming Standard Editor is not set by default. You need to set it manu-
+ally.
+ 5. Go to the Logical tab.  
+ 6. Select the part of the name such as prime, modifier1, modifier2, or class that you want to 
+include first in the logical name. Specify the parts in the Entity, Attribute, and Domain rows. 
+ 7. Click Close. 
+The data is saved.
+Back to Top
+Define Naming Standards for a Logical Model
+===== PAGE 79 =====
+Implementation Guide 15.0 79
+Open NSM Option Editor from Model Explorer and Define 
+Naming Standards for a Physical Model
+You can specify naming standards for physical names that are different from the naming standards 
+for logical names. Use the Physical tab in Naming Standard Editor to apply naming standards to 
+tables, columns, and domains. In addition use the editor and specify the order in which parts of 
+names appear in the physical name.
+Follow these steps: 
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object and click Properties. 
+The Naming Standard Editor opens.
+ 3. To apply the naming standard to your model: 
+In the list of naming standards, select your naming standard and then select Is Active.
+ 4. To preserve any changes made to the naming standard in the Physical mode and reflect 
+those in the Logical mode: 
+In the list of naming standards, select your naming standard and then select Physical 
+to Logical. 
+The physical mode to logical mode naming standard implementation caters 
+to cases where the logical definition is absent.
+For Hive, when reverse engineering (REC or RES) is done, the Physical to 
+Logical option on the Naming Standard Editor is not set by default. You need 
+to set it manually.
+ 5. Go to the Physical tab.  
+ 6. Select the part of the name such as prime, modifier1, modifier2, or class that you want to 
+include first in the physical name. Specify the parts in the the Table, Column, and Domain 
+rows. 
+ 7. Click Close. 
+The data is saved.
+Back to Top
+Define Naming Standards for a Physical Model
+===== PAGE 80 =====
+Implementation Guide 15.0 80
+Create Glossary Words and Abbreviations
+You can enter words and their corresponding abbreviations directly into the glossary. You can 
+enter, display, edit, and specify the word type (prime, modifier1, modifier2, or class).
+Follow these steps: 
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object and click Properties. 
+The Naming Standard Editor appears.
+ 3. Complete the following options in the NSM Option Editor: 
+Name
+Specifies the default NSM name. You can modify the NSM name when required.
+Match whole words only
+Specifies whether to substitute glossary abbreviation on whole words only or to 
+include parts of words or substrings. Select the check box to substitute glossary 
+abbreviation on whole words only. Clear the check box to substitute glossary abbre-
+viation for complete words, as well as on parts of words or substrings.
+Match whole name only
+Specifies whether to substitute glossary abbreviation on whole name only. Select the 
+checkbox to substitute glossary abbreviation on whole name only and to ignore parts 
+of words and substrings.
+For example, a glossary abbreviation, Customer Name is substituted with its abbre-
+viation only when the whole name is found. The parts of words or substrings, Cus-
+tomer and Name are ignored.
+Is Active
+Specifies whether to apply a NSM to a model.
+Physical  to Logical
+Specifies whether the changes made to the Naming Standard in the Physical mode 
+should be preserved and reflected in the Logical mode.
+Create Glossary Words and Abbreviations 
+===== PAGE 81 =====
+Implementation Guide 15.0 81
+ l For Hive, when reverse engineering (REC or RES) is done, the Physical to 
+Logical option on the Naming Standard Editor is not set by default. You need 
+to set it manually.
+ l As a best practice,  do not select the Physical to Logical check box  while 
+deriving a PO model; that has NSM objects  or  NSM template attached to it; 
+to LO model. Earlier an option for Physical to Logical NSM was not available. 
+However, as it is in erwin Data Modeler now, you need not use NSM for deriv-
+ing a new model. For example, PO to LO.
+ 4. Click the Glossary tab and work with the following options: 
+Word Type
+Displays only the selected type of glossary words. 
+Word/Words
+Specifies the glossary word or words that you want to abbreviate.
+Abbreviation
+Specifies the standard abbreviation.
+Alt Abb 
+Specifies an alternate abbreviation.
+P, M1, M2, C
+Specifies whether you want to use the word as a prime, modifier 1, modifier 2, or 
+class.
+ 5. Click 
+  to save the glossary as a .CSV file. You can use this file at a later point, when you 
+perform reverse engineering and want to preserve the naming standards attached to the 
+model. 
+ 6. Click Close. 
+The data is saved.
+In case of duplicates, the glossary word/abbreviation that you created the latest will be applic-
+able.
+Back to Top
+Create Glossary Words and Abbreviations 
+===== PAGE 82 =====
+Implementation Guide 15.0 82
+Import Words and Abbreviations into the Naming Standards Glossary
+You can import words and abbreviations into the glossary from an existing naming standards CSV 
+file. Be sure to examine the data in each row and edit or add as required. 
+Follow these steps::
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object and click Properties. 
+The Naming Standard Editor appears.
+ 3. Click the Glossary tab, then click Import. 
+The Open dialog appears. 
+ 4. Select the path and file name of the CSV file, and click Open. 
+The words and corresponding abbreviations are imported into the Naming Standards gloss-
+ary.
+Back to Top
+You have two tables, Customer and Accounts. The Customer table has First Name and Last Name 
+columns.
+Suppose you want to implement the following standards:
+Prefix the names of the tables with Tbl_. 
+Display First Name as Col_FNAME and Last Name as Col_LNAME. 
+How you do it:
+ 1. Add a Naming Standard Object and make it active. 
+ 2. In the Logical tab, for Entity and Attribute, select Modifier 1 in the Part 1 and Prime in the 
+Part 2 column. 
+ 3. In the Physical tab, for the Table and Column object types, select Modifier 1 in the Part 1 
+and Prime in the Part 2 column. 
+ 4. In the Glossary tab, add First Name and Last Name and the corresponding abbreviations. 
+Select the P check box. 
+ 5. Open the Model Naming Options dialog and click the Name Mapping tab. 
+ 6. Select the Use Glossary check box for Entity to Table and Attribute to Column rows. In the 
+Import Words and Abbreviations to the Naming Standards Glossary 
+===== PAGE 83 =====
+Implementation Guide 15.0 83
+Prefix column, enter Tbl_ in the first row and Col_ in the third row. Click Close. 
+The standards that you have defined are applied to the model.
+Import Naming Standards from a Previous Version
+If you have created naming standards in a previous version of erwin DM, you can import them to 
+the current release. When you import naming standards, the definitions for logical and physical 
+models, and glossary words are imported.
+Import Words and Abbreviations to the Naming Standards Glossary 
+===== PAGE 84 =====
+Implementation Guide 15.0 84
+Import from a Previous Version
+If you have created naming standards for a previous version of erwin DM, you can import them to 
+an NSM Option object. You import a .NSM file.
+Follow these steps: 
+ 1. Expand the Model Explorer, right-click Naming Standard and click New. 
+A new Naming Standard object is added.
+ 2. Right-click the new object (or an existing object) and click Properties. 
+The Naming Standard Editor appears.
+ 3. Click Import Other. 
+ 4. Select the .NSM file and then click Open. 
+The NSM file is displayed as a new Naming Standard object. The standards for Logical and 
+Physical models are displayed in the respective tabs. The glossary words and cor-
+responding abbreviations are displayed in the Glossary tab.
+Back to Top
+Apply Naming Standards by Binding a Model Template
+When you bind a model template to the current model, the naming standards are also applied. If 
+you run the wizard to select individual objects to bind, select the Naming_Options, NSM_Option, 
+and NSM_Glossary_Word check boxes.
+Import from a Previous Version 
+===== PAGE 85 =====
+Implementation Guide 15.0 85
+Apply Naming Standards by Binding a Model Template
+When you bind a model template to the current model, the naming standards are also applied. If 
+you run the wizard to select individual objects to bind, select the Naming_Options, NSM_Option, 
+and NSM_Glossary_Word check boxes.
+Apply Naming Standards by Binding a Model Template 
+===== PAGE 86 =====
+Implementation Guide 15.0 86
+Bind a Template to a Model
+Binding a model template to a data model copies the non-built-in objects from the template model 
+to the target model. When you bind a model template, the predefined model objects appear in your 
+model. Binding eliminates the need to enter objects manually or depend on reverse engineering. 
+Changes to the model template are reflected in the models that are bound to it, maintaining con-
+sistency of object names. Whenever you open a model with a bound model template, you can syn-
+chronize any model template changes with the objects used in the model.
+Binding of model templates can occur at any time necessary, including during model creation, or 
+after the model is created.
+Objects that are brought in to a model from a template fully respect modeling rules. If any conflicts 
+occur in the model, the existing data is preserved as much as possible.
+Follow these steps:
+ 1. Click File, Model Templates, Bind Template. 
+The Bind Model Template dialog opens.
+ 2. Select the model template to bind to the current model using the drop-down control. Use the 
+toolbar to browse for the template file locally on your computer or one that is stored in a 
+mart. 
+ 3. Select one of the following options to specify how to bind the template, and click OK.  
+Load the entire contents  of the template
+Specifies to load the entire contents of the template. This option binds all of the model 
+template objects to the current model without the opportunity to review and select indi-
+vidual template objects. The NSM Option object that is active in the model template is 
+made active in the current model as well.  
+Run the Template  Wizard to select objects  for synchronization
+Specifies to open the Model Template Synchronization Wizard so that you can select 
+the objects in the model template to synchronize with the data model. 
+The model opens in the workspace with the template objects copied into it.
+While binding a template using this method, synchronization on loading the model does not work 
+as expected for inherited templates. As a workaround, do either of the following:
+Refresh the template using the File > Model Templates  > Refresh  Template  option.
+Select Preserve  the template  binding  while creating a new model.
+Bind a Template to a Model
+===== PAGE 87 =====
+Implementation Guide 15.0 87
+Back to Top
+Bind a Template to a Model
+===== PAGE 88 =====
+Implementation Guide 15.0 88
+Verify Naming Standards Compliance
+To know if the naming standards that you have created are applied properly, use the Naming 
+Standards Compliance dialog.
+Follow these steps:
+ 1. Click Tools, Standards, Check Naming Standards Compliance. 
+The Check Name Standards Compliance dialog opens.
+ 2. Select the objects to check, select the Check Word Order and Position check boxes, and 
+then click Start.  
+All instances of non-compliance are displayed in the Check Name Standards Compliance 
+dialog. You can replace the name, replace all instances of the name, or ignore the non-con-
+forming name.
+Back to Top
+Verify Naming Standards Compliance 
+===== PAGE 89 =====
+Implementation Guide 15.0 89
+Apply Naming Standards to a Model
+After you define naming standards using the NSM Option Editor, select individual model objects 
+and apply the standards. The glossary words and abbreviations (or alternate abbreviations) that 
+are defined in the active NSM Option object are applied as naming standards to a model.
+Follow these steps:
+ 1. Open a model that includes an active NSM Option object. 
+ 2. Click Tools, Model Naming Options. 
+The Model Naming Options dialog opens.
+ 3. Click the Name Mapping tab. 
+ 4. For each model object type that you want to use the glossary, select the Use Glossary 
+check box and select the type of abbreviation. Click OK. 
+The naming standards are applied when you switch from a logical model to a physical 
+model.
+In a Logical/Physical model, define the naming standards, create the abbreviations, and 
+select the object that uses the glossary in the Logical view. Switch from the Logical view to 
+the Physical view and the standards are applied.
+In a Logical Only (LO) or a Physical Only (PO) model, define the naming standards, create 
+the abbreviations, select the object that uses the glossary, and then derive a PO or an L/P 
+model. In the Derive Model wizard, go to Naming Standards. Select the model that has an 
+active NSM object as the active model template. The naming standards are applied to the 
+derived model.
+The translation from logical to physical through the NSM Option Object works only if the physical 
+name is inherited from the logical name. That is, only if the names have not been manually 
+changed in the physical model. If a physical name is modified in a logical/physical model, the 
+inheritance from the logical side to the physical side is overridden. The naming standards no 
+longer work. However, you can reset the override property to inherit from the logical name to 
+restore this inheritance. 
+NSM File Attached to an Older Version Model
+When you open a model from an older version of the product, it is upgraded to the current release. 
+If an NSM file was attached to the model, the file is not imported and attached to the model auto-
+matically. Import the NSM file to a template and attach the template to the model manually.
+Apply Naming Standards to a Model
+===== PAGE 90 =====
+Implementation Guide 15.0 90
+Back to Top
+Example
+Use this example to create database specific templates and standardize database specific prop-
+erties across all your data models. If you want to include the Naming Standards in each database 
+specific target template, you must change the naming standards glossary list for each template. 
+You must change the glossary for each template, because the Naming Standards information is 
+stored within a model. This section describes how you can manage Naming Standards from a 
+single source.
+Follow this process:
+Create a logical-only model template with general model set up criteria and include the Nam-
+ing Standards information. 
+[Optional] Create a database specific template and use this template as the binding source 
+and select the �Synchronize on Model Load� option. 
+Attach this template as the binding template source for your model and select the Syn-
+chronize on Model Load option. 
+If you have to change something in the glossary, you just change the Naming Standards 
+object in the logical model template and save the template. When you open a model, if the 
+auto-synchronize option is enabled, the database specific template model is opened. Next, 
+the logical model template is opened and the Naming Standards object is synchronized with 
+the database specific template. The remaining template information is also populated in the 
+new model.
+Example
+This section includes two examples with two different databases�Db2 and Oracle. The examples 
+use templates that are stored in a Mart.
+ 1. Create a logical model template that includes the following basic standards desired for all 
+data models: 
+A standard theme. 
+An Annotation that enables the model name to be presented on diagrams (a type of 
+legend). 
+Standard Domains. 
+Standard Entity level User Defined Properties (UDP) that can be shared among all 
+data models. 
+Apply Naming Standards to a Model
+===== PAGE 91 =====
+Implementation Guide 15.0 91
+A set of start-up diagrams. Each diagram includes a diagram shape to enable the 
+presentation of the diagram name in each diagram. 
+A Naming Standards object. 
+ 2. Open this model and save it to a Mart as a template; provide the name �TmplGeneral�. 
+To create each database specific template in erwin:
+ a. Click File, New. 
+ b. Select Type as Logical/Physical. 
+ c. Select the Target Database as Oracle. 
+ d. Select TmplGeneral for Model template. 
+ e. Select Preserve the template binding. 
+You now have a logical/physical model with all the pre-populated information from the 
+TmplGeneral logical model template. You can add any common Db2 characteristics that 
+you want all your Db2 models to share.
+In addition, make the following changes:
+ 1. Click Model, Model Properties and change the model name to TmplDb2. 
+ 2. Click Model Explorer, Annotations - Change the Annotation to reflect the model name: 
+ 3. Perform the following steps to prevent the over writing of model names during syn-
+chronization: 
+ a. Click File, Model Template, Run the Template Wizard. The Model Template Syn-
+chronization Wizard appears. 
+ b. Go to the Model page and change the action of the Annotation object named 
+�ModelLegend� to Ignore. This setting bypasses synchronizing the model name. 
+ c. In the Settings page, select the Ignore synchronization of the root model object 
+option. This setting prevents over writing of the model level properties from the logical 
+only model. 
+ d.  Click Finish. 
+ 4. Click Tools, Model Naming Options. Verify whether the Use Glossary option in the Name 
+Mapping tab is set for the model objects for which you want to leverage the naming stand-
+ards glossary. 
+ 5. Also, as these diagrams were synchronized from a logical only model, go to the Diagram 
+Properties dialog for the Physical Overview and Relational Key diagrams and change the 
+View Mode to �Physical�. 
+Apply Naming Standards to a Model
+===== PAGE 92 =====
+Implementation Guide 15.0 92
+ 6. Save this model to your mart library as model name �TmplDB2� (with the Mark as Template 
+option) 
+ 7. Repeat these steps for each database specific template (i.e. SQL Server, Oracle, Teradata, 
+etc.). With this, you can add any database specific properties in your templates to use 
+across all application data models. 
+You can now use these database specific templates for your application data models. Either 
+create a new model, or, bind an existing data model to the database specific template model 
+manually. If you are binding an existing model, review the model to verify that no properties 
+in the template model will cause issues with the existing model when synchronized.
+In this example, creating a new application data model using the template is used as a starting 
+point.
+ 1. Select File, New. 
+ 2. Select Match template. 
+ 3. Select the TmplDB2 template model from the Mart. 
+ 4. Select Preserve the template binding option. 
+ 5. Click OK. 
+Now you have a Db2 application data model with all the properties from both the TmplGen-
+eral template and the TmplDB2 template.
+ 6. If you use the Annotation ModelLegend text box, select Ignore in the template. Selecting 
+ignore prevents this object from being updated during synchronization. 
+ 7. Save this model to your Mart library. To follow this example, save it as model �Ap-
+pModelDB2�. 
+ 8. To test the synchronization process, add a few Entities in the �Logical Overview� diagram 
+and drag/drop the domain �Identification� as primary keys to both Entities. (Select the Iden-
+tification domain and drag it to the primary key locations in each Entity). 
+ 9. Select the �Physical Overview� diagram. Notice that the word Identification changed to its 
+abbreviation from the Naming Standards Glossary. 
+ 10. Save and Close the model as AppModelDB2. 
+ 11. Open the original model template TmplGeneral and change the abbreviation for Iden-
+tification from �Id� to �Idnt�. 
+ 12. Save and close this model. 
+Apply Naming Standards to a Model
+===== PAGE 93 =====
+Implementation Guide 15.0 93
+ 13. Open model AppModelDB2. 
+Notice that the abbreviation is automatically applied through the template hierarchy to this 
+application data model for Db2.
+Applying Naming Standards from Mart
+You can store NSM files centrally on erwin Mart and apply them to both, local and Mart models 
+from the Naming Standard Editor.
+To apply naming standards from the Mart, follow these steps:
+ 1. Connect to the mart.
+ 2. Open a model (local or Mart model).
+Apply Naming Standards to a Model
+===== PAGE 94 =====
+Implementation Guide 15.0 94
+ 3. Click Tools > Naming Standards .
+The Naming Standard Editor opens.
+Apply Naming Standards to a Model
+===== PAGE 95 =====
+Implementation Guide 15.0 95
+ 4. On the toolbar, click 
+ .
+The list of NSM files available on the mart opens.
+ 5. Select an NSM file and click Open.
+The selected NSM file is applied to your model.
+You can sync any changes made to the applied NSM file from the Mart to erwin Data Modeler 
+(DM).
+To sync the applied NSM file, follow these steps:
+ 1. On the Naming Standard Editor, click the Glossary  tab.
+ 2. On the toolbar, click 
+ .
+If you import the NSM file to erwin DM and apply it to a model via the Naming Standard Editor; 
+any updates made to the NSM file in the erwin Mart Portal do not sync on the erwin Data 
+Modeler side. NSM sync works when an NSM file is applied to a model via erwin Mart Portal.
+Apply Naming Standards to a Model
+===== PAGE 96 =====
+Implementation Guide 15.0 96
+Apply Naming Standards to a Model
+===== PAGE 97 =====
+Implementation Guide 15.0 97
+Name Hardening Wizard
+The Name Hardening Wizard lets you override inheritance of names and block name changes or 
+resets within a model. Using the wizard, you can select the object types and object instances for 
+which you must harden logical or physical names, or both. The wizard helps you override the name 
+inheritance for all instances of the selected object types, a subset of those instances, or a specific 
+instance. 
+erwin Data Modeler is designed to convert Logical Names to Physical Names using macros. 
+When you convert Physical Name to a Logical Name in a model, Name Hardening cannot be per-
+formed.
+To run the Name Hardening Wizard, go to Tools > Manage Name Hardening .
+You can harden names for the following object types:
+Attribute/Column 
+Default value 
+Domain 
+Key group/Index 
+Relationship 
+Entity/Table 
+Validation rule 
+If you prefer, you can select all the objects directly on the diagram, launch the wizard, and go dir-
+ectly to the Action page. The objects you select on the diagram populate the Type Selection and 
+Object Selection pages.
+The Name Hardening Wizard provides three options: Type Selection, Object Selection, Action. 
+Using the the three options you can perform the following action:
+Override Name Inheritance
+Unharden Object Names
+More information:
+Override Name Inheritance
+Unharden Object Names
+Name Hardening Wizard
+===== PAGE 98 =====
+Implementation Guide 15.0 98
+Name Hardening Wizard
+===== PAGE 99 =====
+Implementation Guide 15.0 99
+Override Name Inheritance
+You can override the inheritance of names and can harden the names. If a name is hardened, the 
+physical model name does not change upon changing the logical name.
+Follow these steps:
+ 1. Go to Tools > Manage Name Hardening . 
+The Name Hardening Wizard opens.
+ 2. Click Type Selection . 
+The options that you select on this page determine the options that are defined on the 
+Object Selection page. 
+While you can select the Entity check box in a logical model, you can harden names only 
+in a physical model. Logical entity names are not inherited names; they are set on the 
+entity object. Therefore, they do not change and there is no need to harden them.
+ 3. Select the object types for which you want to override inheritance, then click Object Selec-
+tion. 
+ 4. Select the model objects for which you want to override inheritance, then click Action. 
+If some of the subordinate objects are selected, then the check box for that collection node 
+is selected and is also shaded. 
+ 5. Select the check box for each item for which you want to override inheritance.
+ 6.  Click Apply, and then Close. 
+The Logical and Physical columns indicate the status of the objects and the Selected 
+Objects column lists their fully qualified names. For example, instead of simply 'a,' an attrib-
+ute name would be 'OwnerName.E/1.a.'. When you unharden an object name, the same 
+name you used in the hardening process remains. However, now you can edit or reset that 
+name (editing or resetting of hardened names is not allowed). 
+Unhardening an object name does not automatically restore inheritance, it only allows the 
+names to be reset or changed. 
+More information:
+Name Hardening Wizard
+Override Name Inheritance 
+===== PAGE 100 =====
+Implementation Guide 15.0 100
+Unharden Object Names
+The Name Hardening wizard can be used to unharden names. When you unharden an object 
+name, the same name you used in the hardening process remains. After the unharden process is 
+complete, you can edit or reset the name (editing or resetting of hardened names is not allowed).
+Unhardening an object name will not automatically restore inheritance, it only allows the names 
+to be reset or changed.
+Follow these steps:
+ 1. Go to Tools > Manage Name Hardening .
+The Name Hardening Wizard opens.
+ 2. Click Type Selection . 
+ 3. Select the object types that you want to unharden, then click Object Selection . 
+ 4. Select the model objects that you want to unharden, then click Action. 
+ 5. Clear the check boxes for objects that you want to unharden.
+ 6. Click Apply,  and then Close.
+The name for each object that you selected is unhardened, and the Name Hardening Wiz-
+ard closes.
+More information:
+Name Hardening Wizard
+Unharden Object Names
+===== PAGE 101 =====
+Implementation Guide 15.0 101
+Applying Data Type Standards
+A data type is a predefined set of characteristics for an attribute or column that specifies field 
+length, acceptable characters, and optional and required parameters. For example, the data type 
+Char(18) specifies that the column can store up to 18 alpha and numeric characters.
+By default, a data type is applied to every attribute in a logical model and to every column in a phys-
+ical model. In the logical model, you assign the data type or the domain from which the attribute 
+inherits its properties determines it. In the physical model, you assign the data type or the default 
+value that is specified by the target server determines it. 
+Considering the large quantity of attributes or columns a data model usually has, it is tedious to 
+assign and maintain consistency of data types manually. The DSM Option Editor helps you easily 
+assign and maintain data types in a model.
+Create data type standards so that everyone in your organization uses data types consistently.
+When you create a DSM Option object, it is preloaded with default logical data types. Use the DSM 
+Options Editor to create data types and mappings. You can create multiple DSM Option objects 
+but you can apply only one of them to the model.
+You can assign data types in any of the following scenarios:
+Deriving a physical model from a logical model, or switching from a logical model to a phys-
+ical model. A physical data type is automatically assigned to each column based on the data 
+type assigned to the corresponding attribute. 
+Deriving a physical model from a physical model. The corresponding data type for the target 
+database is automatically assigned. 
+Migrating from one version of a database to a newer version, or changing the target data-
+base. You are prompted you to verify if you want to convert data types. When you convert 
+the data types, the corresponding data type for the target database is automatically 
+assigned. 
+Creating a physical model by reverse engineering from a database or script file. Information 
+from the database or script file is extracted, and a physical data type is automatically 
+assigned to each column. 
+You can apply data type standards in three ways, as illustrated in the following diagram:
+Applying Data Type Standards 
+===== PAGE 102 =====
+Implementation Guide 15.0 102
+To apply data type standards, follow these steps:
+Decide a method to apply standards.
+Applying Data Type Standards 
+===== PAGE 103 =====
+Implementation Guide 15.0 103
+To create and apply data type standards, follow these steps:
+ 1. Define data type standards from Model Explorer. 
+ 2. (Optional) Create a mapping. 
+ 3. Apply data type standards to the model. 
+To import data type standards from a previous version, follow these steps:
+ 1. Import data type standards. 
+ 2. Apply data type standards to the model. 
+Apply data type standards by binding a model template:
+ 1. Bind a model template. 
+Back to Top
+Applying Data Type Standards 
+===== PAGE 104 =====
+Implementation Guide 15.0 104
+Decide a Method to Apply Standards
+You can apply data type standards in three ways:
+Create a standard
+Create a data type standard and apply it to your model if you are applying standards for the first 
+time. After you create a DSM object and define your standards, you can use the standard in all 
+your data models.
+Import from a previous release
+Import data type standards from a previous release and apply the standard to your model. Import-
+ing saves your time from creating a standard and maintains the consistency across all data models 
+in your organization. 
+Bind a model template
+Bind an existing model template having data type standards to your model. You can use the same 
+template for multiple models. You can also sync the template with the current model for any 
+changes in the model. After you sync the template, it will inherit the changes that are made in the 
+current model.
+Back to Top
+Decide a Method to Apply Standards 
+===== PAGE 105 =====
+Implementation Guide 15.0 105
+Create and Apply Data Type Standards
+Create data type standards if you are implementing standards for the first time.
+Create and Apply Data Type Standards 
+===== PAGE 106 =====
+Implementation Guide 15.0 106
+Define Data Type Standards from Model Explorer
+Define data type standards to maintain uniform data type standards across all data models.
+Follow these steps:
+ 1. Expand Model Explorer, right-click DSM Options, and click New. 
+A data type standards object is added.
+ 2. Right-click the newly created object and click Properties. 
+The DSM Option Editor opens. 
+ 3. (Optional) Rename the DSM object in the Name field. 
+ 4. Click the Logical Definition tab and edit the Domain, Length, Precision, and Default Length 
+values for the required data type. 
+ 5. (Optional) To create a data type, click New under the Logical Definition tab. 
+A data type is created.
+ 6. (Optional) Rename the new data type and change the properties. 
+A data type standard object is defined and saved.
+To delete a DSM object or a data type, select the DSM object or the data type row and click 
+Delete.
+If you want to create a mapping, you do not have to close the DSM Option Editor window.
+Back to Top
+Define Data Type Standards from Model Explorer 
+===== PAGE 107 =====
+Implementation Guide 15.0 107
+(Optional) Create a Mapping
+Map data types between different databases to maintain uniform data types in all the data models. 
+Mapping lets you eliminate the differences in the data types when you import a model from one 
+database to another. Also, mapping enables you to use new data types in physical models.
+You can create multiple DSM Datatype Mapping objects and DSM Datatype Mapping entries in 
+the DSM Datatype Mapping Editor.
+Follow these steps:
+ 1. In the DSM Option Editor, select the Mapping tab and click New. 
+A DSM Datatype Mapping object is created.
+ 2. Click Edit. 
+The DSM Datatype Mapping Editor opens.
+ 3. (Optional) Edit the name of the DSM Datatype Mapping object. 
+ 4. Select the Mapping tab, and select the source database from the From drop-down list and 
+the target database from the To drop-down list. 
+ 5. (Optional) Edit the To Datatype field. 
+ 6. (Optional) Add a data type for mapping. 
+ 7. Click Close. 
+The DSM Datatype Mapping Editor closes and you return to the DSM Option Editor dialog.
+Back to Top
+(Optional) Create a Mapping 
+===== PAGE 108 =====
+Implementation Guide 15.0 108
+Apply Data Type Standards to the Model
+After you import the data type standards object, apply the standards by attaching the DSM object 
+to the data model.
+To attach a DSM object to a model, open the DSM Option Editor from Model Explorer, and select 
+the Is Active check box.
+Back to Top
+Apply Data Type Standards to the Model
+===== PAGE 109 =====
+Implementation Guide 15.0 109
+Import Data Type Standards from a Previous Version
+If you have created data type standards in a previous version of erwin DM, you can import it to 
+erwin DM version 9. When you import data type standards, mappings are also imported.
+Back to Top
+Import Data Type Standards from a Previous Version 
+===== PAGE 110 =====
+Implementation Guide 15.0 110
+Import Data Type Standards
+If you have upgraded to the latest release of the r9 series, you can import the data type standards 
+from a previous version. Importing the standards maintains consistency across all data models in 
+your organization and saves time from creating standards.
+The file that you are importing must have the .DSM extension.
+Follow these steps:
+ 1. Expand the Model Explorer, right-click DSM Options and select New. 
+A new DSM Option object is added.
+ 2. Right-click the new object (or an existing object) and select Properties. 
+The DSM Option Editor appears.
+ 3. Click Import Other. 
+ 4. Select the .DSM file from the stored location and click Open. 
+The DSM file is displayed as a new DSM Option object.
+Back to Top
+Import Data Type Standards 
+===== PAGE 111 =====
+Implementation Guide 15.0 111
+Apply Data Type Standards to the Model
+After you import the data type standards object, apply the standards by attaching the DSM object 
+to the data model.
+To attach a DSM object to a model, open the DSM Option Editor from Model Explorer, and select 
+the Is Active check box.
+Back to Top
+Apply Data Type Standards to the Model
+===== PAGE 112 =====
+Implementation Guide 15.0 112
+Apply Data Type Standards by Binding a Model Template
+When you bind a model template having data type standards to the current model, data type stand-
+ards are also applied.
+Apply Data Type Standards by Binding a Model Template 
+===== PAGE 113 =====
+Implementation Guide 15.0 113
+Bind a Model Template
+Binding a model template to a data model copies the non-built-in objects from the template model 
+to the target model. When you bind a model template, the predefined model objects populate your 
+model. Therefore, binding eliminates the need to enter objects manually or depend on reverse 
+engineering. Changes to the model template are displayed in the models that use it, maintaining 
+consistency of object names. Whenever you open a model with a bound model template, you can 
+synchronize any model template changes with the objects used in the model.
+Binding of model templates can occur at any time necessary, including during model creation or 
+after the model is created.
+The objects that are brought in to a model from a template fully respect modeling rules. If any con-
+flicts occur in the model, the existing data is preserved as much as possible.
+Follow these steps:
+ 1. Click File, Model Templates, Bind Template. 
+The Bind Model Template dialog opens.
+ 2. Use the toolbar to browse for the template file locally on your computer or in Mart. If you 
+have used the bind template feature before, use the drop-down control to select the model 
+template to bind to the current model.  
+ 3. Select one of the following options to specify how to bind the template, and click OK.  
+Load the entire contents  of the template
+Specifies to load the entire contents of the template. This option binds all of the model 
+template objects to the current model without the opportunity to review and select indi-
+vidual template objects. 
+Run the Template  Wizard to select objects  for synchronization
+Specifies to open the Model Template Synchronization Wizard so that you can select 
+the objects in the model template to synchronize with the data model. 
+The model opens in the workspace with the template objects copied into it. The data type 
+standard is applied on the model.
+Back to Top
+Bind a Model Template 
+===== PAGE 114 =====
+Implementation Guide 15.0 114
+Create Reports Using Report Designer 
+Report Designer lets you create a wide variety of reports and on the current data available in your 
+data models. If you are working in the Workgroup Edition, you can create Mart administrative 
+reports and cross-model reports. You can create report templates for frequently used reports and 
+you can export reports to HTML, CSV, and PDF formats. You can create report solutions and 
+include multiple report templates.
+You cannot reuse the .RTB reports that were created using Report Template Builder, because the 
+metamodel objects are changed. You must recreate the reports in Report Designer.
+Several sample (pinned) reports are included with the application and they are available in the fol-
+lowing location:
+ %Installdir%\erwin\Data Modeler r9\BackupFiles\Report Solutions  
+Also at the following location:
+Windows  7
+ C:\Users\<user name>\AppData\Local\erwin\Data Modeler\9.8
+ \Report Solutions 
+The pinned reports are created using a Logical-Physical model. If you use the pinned reports 
+with a Logical-only or a Physical-only model, it may result in inappropriate results.
+Follow these steps:
+ 1. Click Tools, Report Designer. The erwin Report Designer window opens. 
+ 2. To create a report solution, click Create new solution for reports on the toolbar.  
+If the current report solution is not saved already, you are prompted to save it. A new blank 
+workspace appears.
+ 3. To create a report template, follow these steps: 
+ a. Click Create a Report on the toolbar. The Report Editor dialog appears. 
+ b. Enter a name for the report.  
+ c. Select the model type that you want to report on. Select Mart to create a report on the 
+Mart data.  
+Create Reports Using erwin Report Designer 
+===== PAGE 115 =====
+Implementation Guide 15.0 115
+The items in the Select Report Subject pane change according to the Report Type 
+that you select.
+You must have the Reports: View permission to create Mart reports.
+ d. In the Select Report Subject pane, select the item on which you want to generate the 
+report. 
+ e. In the Select Report Fields pane, select the fields that you want to include in the 
+report. 
+ f. To create a report that filters specific objects and includes them in the report, use the 
+Filter by option. This option is available only for entities, tables, attributes, columns, 
+subject areas, and indexes. 
+ g. Click Run Report.  
+If you are creating a report on your Mart and you have selected an option under Filter 
+By, the Mart Report Filter dialog opens. 
+ h. Select the specific models that you want to get the results from. Enter the specific 
+model object name. Use wildcard characters, if necessary. 
+The report is generated and displayed. If you do not specify any model or entity, the 
+generated report includes all the models. If you have used a wildcard, by default, the 
+wildcard is applied to all the names. For example, if you type ID, the report includes 
+Cust_ID and ID_For_Category. If the result is very large for Mart reports, the report is 
+displayed in multiple pages (data grid). Use the navigational icons in the toolbar to 
+view the subsequent pages.
+ i. (Optional) Click the Clear data in data grid icon to clear the results in the grid. 
+ 4. To configure report preferences, follow these steps: 
+ a. Click Edit, Preferences. The Report Designer Preferences dialog appears. 
+ b. Complete the following fields and click OK: 
+Add object type as prefix for the properties  'Name' and 'Physical  Name'
+Prefixes the object type to only the Name and Physical Name columns. For 
+example, you are generating a report on entities and the corresponding attrib-
+ute names and data types. The column names in the report are displayed as 
+Entity Name, Attribute Name, and Attribute Logical Data Type.
+Add object type as prefix for all other properties
+Prefixes the object type to all columns.
+Create Reports Using erwin Report Designer 
+===== PAGE 116 =====
+Implementation Guide 15.0 116
+These options work only when they are selected at the time of creating a report. If 
+these options are selected at the time of modifying an existing report, they do not 
+work. 
+Apply optimization  mode if row count is more than
+Specifies the number of rows at which the computer resources are optimized to 
+display the report. If the row count in your report exceeds the number that you 
+specify here, the report is displayed in optimization mode. In this mode, the 
+group and sort options are not available in the result grid. If no value is entered, 
+the row count for optimization mode is considered as equal to the total row 
+count of a report.
+Number of top rows to display
+Specifies the number of top rows that you want to display. This option displays 
+the first few rows that match a report criteria, when the result contains more 
+rows than the number specified here.
+ 5. To generate a report from an existing report template, select the template, right-click, and 
+click Run. 
+ 6. To modify an existing report template, select the template, right-click and then click Prop-
+erties. After you finish modifying, restart erwin DM. Your changes will take effect when you 
+run the report again.. 
+When you modify an existing report template and select more properties for the existing 
+report subject, the selections are retained. If you select a different report subject, the pre-
+vious report subject and its properties are not included in the report.
+ 7. To customize the appearance of the report at the node-level, follow these steps: 
+ a. Right-click the node and click Properties. Complete the following fields: 
+Name
+Specifies the name of the node. By default the name of the selected object is 
+displayed.
+HTML Style
+These settings apply to both HTML and PDF reports.
+Font Family: Specifies the font for the selected node.
+Create Reports Using erwin Report Designer 
+===== PAGE 117 =====
+Implementation Guide 15.0 117
+Size: Specifies the font size for the selected node.
+PDF Page Breaking: Specifies that you want to display the details of each node on a 
+new page. The node for which this option is selected and the subsequent nodes are 
+displayed on a new page. This option is not effective when the report has only one 
+node. When the report has multiple nodes, do not set this option on the main node. 
+Suppose your report nodes look like the following illustration:
+If you apply the PDF Page Breaking option to the Child Relationship (above CR Physical 
+Name) node, the CR Physical Name and Column Physical Name nodes are displayed on a 
+new page.
+Foreground: Specifies the text color. 
+Background: Specifies the background color.
+Template Color: Specifies that the color that is specified in the template is used.
+Bold/Italic/Underline/Strikeout: Specifies the effect for the text.
+Width: Specifies the width of the selected node (report column). You can specify the width 
+for any node and it is applied when the report is exported to HTML or PDF. However, the 
+width is not applied to the last node (last column in the report) in a PDF report. This is 
+because, the remaining length of the fixed page width is considered as the actual width of 
+the column.
+Alignment: Specifies the alignment of the text.
+ 8. To export a report solution to HTML, follow these steps: 
+Right-click the report solution and click Export All to HTML. The Report Export dialog 
+appears. 
+Click Browse and select the folder to which you want to export the report. 
+Create Reports Using erwin Report Designer 
+===== PAGE 118 =====
+Implementation Guide 15.0 118
+Go to the HTML tab and add the title in the Solution Title in HTML field.  
+Click OK. The report is generated in the specified folder. 
+ 9. To export a report to HTML, follow these steps: 
+ a. Click the Clear data in data grid icon and clear the result grid. 
+This is a best practice and helps the application export the report without consuming 
+much of the computer resources.
+ b. Right-click the report and click Export to HTML. The Report Export dialog appears. 
+ c. Click Browse and select the folder to which you want to export the report. 
+ d. Go to the HTML tab and complete the following fields: 
+Select the template  for exporting  to HTML
+Specifies the templates that you want to use with the HTML report. You can 
+use customized templates, provided the formatting is similar to the default tem-
+plates. However, if you modify HTML templates, you must restart erwin DM for 
+the changes to take effect.
+The default templates are available in the following folder:
+C:\Program Files\erwin\Data Modeler r9\Report\Template\Template-Default
+Solution  Title in HTML
+Specifies the title for the entire report solution.
+Report Header in HTML
+Specifies the text that appears between the report title and the first line of the 
+report.
+Report Footer in HTML
+Specifies the text that appears at the bottom of the report.
+ e. Click OK. The report is generated in the specified folder. If the report data spans mul-
+tiple page grids in the Report Designer, the data is segregated into multiple sections 
+in the HTML. The sections are first divided by model name and then by object name. 
+This means that a section may include objects from different models, which are sor-
+ted by model name and object name.  
+ 10. To view the HTML report on a different computer, include the computer name in the path to 
+the filename. For example, if you have published the report to c:\erwin\reports folder on a 
+computer that is named Comp001, use the following path to access it: 
+Create Reports Using erwin Report Designer 
+===== PAGE 119 =====
+Implementation Guide 15.0 119
+ \\comp001\erwin\reports\index.htm 
+The computer from which you are accessing the report must be in the same domain as 
+the one in which the report is published. In addition, the user who is accessing the report 
+must have at least the read-only privileges on the corresponding folder.
+ 11. To export a report or a report solution to CSV, follow these steps: 
+ a. Right-click the report and click Export to CSV. Or, right-click the report solution and 
+click Export All to CSV. The Report Export dialog appears. 
+ b. Click Browse and select the folder to which you want to export the report. 
+ c. Go to the TEXT tab and select the following options: 
+Format
+Specifies whether you want to include the first-level object names multiple 
+times. For example, you have included entity names and attribute names in 
+your report and you have selected No Duplicates. The entity name appears 
+only once for all the corresponding attribute names. If you have selected Duplic-
+ates, the entity name appears as many times as the corresponding attribute 
+names appear.
+Text Qualifier
+Specifies the symbol that you want to use to indicate the column headers.
+Delimiters
+Specifies how you want to separate two columns in the exported report. The 
+option Comma Delimited creates a .CSV file and the remaining options create 
+.TXT files.
+ d. Click OK. The report is generated in the specified folder. 
+ 12. To export a report to PDF, follow these steps:  
+ a. Click the Clear data in data grid icon and clear the result grid. 
+This is a best practice and helps the application export the report without consuming 
+much of the computer resources.
+ b. Right-click the report and click Export to PDF. The Report Export dialog appears. 
+ c. Click Browse and select the folder to which you want to export the report. 
+Create Reports Using erwin Report Designer 
+===== PAGE 120 =====
+Implementation Guide 15.0 120
+ d. Go to the PDF tab and enter values/set the following fields: 
+Solution  Title in PDF
+Specifies the title for the entire report solution.
+Report Header in PDF
+Specifies the text that appears on the first line of every page of the report.
+Report Footer in PDF
+Specifies the text that appears at the bottom of every page of the report.
+For each of these options, you can specify the font, size, color, and alignment.
+Image Orientation
+Specifies the direction of the images that are generated in the report. Images 
+are generated for the Subject Area and ER Diagram reports, when you select 
+properties under Graphical Members.
+Font & Color
+Specifies the styles to be used with respect to the font and its color.
+Table of Contents
+Indicates whether the report should contain a table of contents.
+Index
+Indicates whether the report should contain an index.
+Comprehensive  Report
+Indicates whether the report should contain comprehensive tabular information 
+based on the items selected for the report. Selecting this option lets you avoid 
+information duplication in the report.
+ e. Go to the Advanced tab and enter values/set the following fields: 
+Report Logo
+Lets you add a logo to the report. Also, lets you link the logo to a URL of your 
+choice.
+Logo Position
+Specifies the position of the logo in the report.
+Create Reports Using erwin Report Designer 
+===== PAGE 121 =====
+Implementation Guide 15.0 121
+Alignment
+Specifies the alignment of the logo at the selected position in the report.
+Custom Report
+Lets you set custom colors to the various sections of the report. Select the Use 
+Custom Colors check box to be able to select colors of your choice.
+Select ER Diagram  Format
+Specifies the format of the ER diagram.
+Page Size
+Specifies the page size that would be used for printing the PDF copy of the 
+report.
+ f. Click OK. The report is generated in the specified folder. If the report data spans mul-
+tiple page grids in the Report Designer, the data is segregated into multiple sections 
+in the PDF. The sections are first divided by model name and then by object name. 
+This means that a section may include objects from different models, which are sor-
+ted by model name and object name.  
+ 13. To add a report from another report solution, follow these steps: 
+In the Report Designer dialog, right-click the template name and click Add Report. 
+Select the report that you want to include (.erpt file) and click OK. 
+Save the report solution. 
+This section contains the following topics
+Model Validation Reports
+Pinned Reports from the Report Designer Menu
+The Filter By Option
+Report Designer Features
+Subject Area Reports
+Change the Logo on the HTML Report
+Generating TLX Reports
+Dimensional Modeling
+Model Validation Reports
+You can now generate model validation reports such as tables that do not have columns and 
+columns that do not have comments. The reports can be generated using filters, and filters are 
+Create Reports Using erwin Report Designer 
+===== PAGE 122 =====
+Implementation Guide 15.0 122
+available for the following objects:
+Entity/Table 
+Attribute/Column 
+Subject Area 
+Relationship 
+Key group/Index 
+Domain 
+Follow these steps:
+ 1. Open erwin Report Designer and create a report. 
+ 2. Select Logical, Physical, or Logical/Physical. For example, select Logical. 
+ 3. Select a subject in the Select Report Subject pane. For example, select Entity. 
+ 4. In the Select Report Fields pane, expand the Filter node for the required object and select 
+the required criterion. For example, expand Entity, Filter, and select No Definition. Expand 
+Properties and select Name. 
+ 5. Click Run Report.The report opens in erwin Report Designer. 
+In this example, the report includes the names of entities that do not have a definition.
+Pinned Reports from the Report Designer Menu
+You can now open the built-in reports from the Open pinned reports from disk toolbar item. The 
+pinned reports are available in the local computer of the user. These reports are segregated into 
+categories and each category of reports is available in a separate folder. You can create a folder of 
+your own add the reports of your choice to it.
+The following folder includes the built-in reports:
+Windows  7
+C:\Users\<user name>\AppData\Local\erwin\Data Modeler\9.8\Report 
+Solutions
+Reports that are copied directly under this folder do not appear in the Pinned Reports dialog. The 
+reports must be in a subfolder under this folder.
+Follow these steps:
+Create Reports Using erwin Report Designer 
+===== PAGE 123 =====
+Implementation Guide 15.0 123
+ 1. Launch erwin Report Designer and click Open pinned reports from disk on the toolbar. 
+The Pinned Reports dialog appears.
+ 2. Select the category of the report that you want to see. 
+ 3. Select one or more reports that you want to run and click OK. 
+The report is included to the current Report Solution and the Pinned Reports dialog closes.
+The Filter By Option
+Report Designer includes the Filter By option that lets you generate drill-down reports. Some of the 
+drill-down reports that you can generate are as follows: 
+Entity/Table level reports
+Entities and tables in the current Subject Area  
+Entities and tables that are selected in the current diagram 
+Attribute/Column level reports
+Migrated attributes and columns 
+Owned attributes and columns 
+Role-named attributes and columns 
+Foreign (FK) Key groups and indexes  
+Generated indexes  
+Nonunique (IE) Key groups and indexes  
+Primary (PK) Key groups and indexes  
+Unique (AK) Key groups and indexes 
+Subject Area reports:
+All entities and tables in the current subject area 
+Members of the current diagram 
+Members of all the diagrams in the current Subject Area 
+Members of all the diagrams in the Main Subject Area, that is, the members of all diagrams 
+at the model level 
+Members of the diagrams that are specified at run time 
+You can use the Graphical Member option for diagrams and can view the images of diagrams.
+Create Reports Using erwin Report Designer 
+===== PAGE 124 =====
+Implementation Guide 15.0 124
+The filters for Entity/Table and Key Group/Index are available when you select the members of a 
+diagram or a Subject Area. 
+Attributes and columns can be displayed the following order:
+Alphabetic 
+Attribute (the order in which attributes appear on the logical model) 
+Column (the order in which columns appear on the physical model) 
+Physical (the order in which columns appear in the DDL after Forward Engineering) 
+Reverse Alphabetic 
+Create Reports Using erwin Report Designer 
+===== PAGE 125 =====
+Implementation Guide 15.0 125
+Report Designer Features
+Report Designer includes the following features:
+Count Objects
+Based on the Report Type selection on the Report Editor, it displays the count (number) of Subject 
+Areas, Entities/Tables, Attributes/Columns, Key groups/Indexes, and Relationsips that are present 
+in the model. You can export this count to CSV format. On the Report Designer, click Export > 
+Export Count to CSV.
+Report Explorer Features
+Move child nodes: To move the child nodes up or down within a parent node, right-click the node 
+and click Move Up or Move Down. This option is to move child nodes within a parent node and not 
+to move parent nodes in a report.
+Result Grid Features
+Drag-and-drop: To change the order of columns, drag-and-drop the report node to the 
+desired position in the Report Explorer pane. Select the report template and click Run cur-
+rent report on the toolbar. 
+Sort: To sort the report results on a specific column, click the column header. The default 
+sort order is the order in which you have created the objects in the model. 
+Hide a column: To hide a column, click the column header and drag it away from the report 
+until you see the cross mark. To display a hidden column, right-click a column header, click 
+Columns, and then select the column that you want to display. 
+Hidden columns are included when you export a report to CSV or HTML.
+Group the report result by a column: To group the report result by a column, click the column 
+header and drag it to the Drag a column header here to group by that column section. The 
+following illustration shows a report that is grouped by two columns: 
+Report Designer Features 
+===== PAGE 126 =====
+Implementation Guide 15.0 126
+Rename a column: To rename a column, right-click the corresponding node in the Report 
+Explorer and click Properties. Enter a new name in the Node Name field and click OK. 
+Select the report template and click Run current report on the toolbar. 
+Configure the look and feel of each column: To configure the look and feel of each column, 
+right-click the corresponding node in the Report Explorer and click Properties. Complete the 
+fields in the Customize report style section. Be aware that the styles applied to a parent 
+node are not applied to child nodes automatically. 
+Clear grid: To clear the data displayed in the result grid, click View, Clear gird. Clearing the 
+result grid is a best practice when exporting a large or a complex report to HTML.  
+Export to HTML, TXT, and PDF: To export a report or a Report Solution, right-click it and 
+click Export to HTML, Export to CSV, or Export to PDF. When you export a report to CSV, 
+select the delimiter as Comma Delimited to view the report in CSV format. 
+Pinned Reports
+Report Designer Features 
+===== PAGE 127 =====
+Implementation Guide 15.0 127
+You can open the built-in reports from the Open pinned reports from disk toolbar item. The pinned 
+reports are available in the local computer of the user. The reports are segregated into categories 
+and each category of reports is available in a separate folder. You can create a folder of your own 
+add the reports of your choice to it. 
+Several sample (pinned) reports are included with the application and they are available in the fol-
+lowing location:
+ %Installdir%\erwin\Data Modeler r9\BackupFiles\Report Solutions  
+Also at the following location:
+Windows  7
+ C:\Users\<user name>\AppData\Local\erwin\Data Model-
+er\9.8\Report Solutions 
+The pinned reports are created using a Logical-Physical model. If you use the pinned reports 
+with a Logical-only or a Physical-only model, it may result in inappropriate results.
+Reports that are copied directly under this folder do not appear in the Pinned Reports dialog. The 
+reports must be in a subfolder under this folder. 
+Report Designer Features 
+===== PAGE 128 =====
+Implementation Guide 15.0 128
+Subject Area Reports
+By design, a model is considered as the main Subject Area. Therefore, when you create a generic 
+report on Subject Area and include its properties such as Name, the model is also displayed in the 
+list of Subject Areas. However, the model name is not included when you generate a report on spe-
+cific Subject Areas. You can generate a report on specific Subject Areas by selecting the Specify 
+Diagrams at Run Time option.
+The following diagram shows a generic report of Subject Area:
+In the previous report, <model> is the model and the remaining entries are Subject Areas.
+If you generate a Subject Area report for a Mart model, <model> is not included as a Subject 
+Area. To generate a Subject Area report, we recommend that you open the Mart model and gen-
+erate the report as a "local" model.
+Subject Area Reports 
+===== PAGE 129 =====
+Implementation Guide 15.0 129
+Change the Logo on the HTML Report
+By default, erwin logo is displayed on HTML reports and the logo is linked to the erwin website. 
+You can change the logo and link it to a website of your choice.
+Follow these steps:
+ 1. Open the folder where erwin� Data Modeler is installed. 
+ 2. Navigate to the \Report\Template\Template-Default\_images folder. 
+ 3. Replace the image in the logo.png file. 
+ 4. Navigate to the \Report\Template\Template-Default folder. 
+ 5. Open the list.htm file in an HTML editor. 
+ 6. Replace http://www.erwin.com with the required URL, as shown in the following image: 
+ 7. Restart the application. 
+The logo and the link to the website are changed when you generate a report the next time.
+Change the Logo on the HTML Report
+===== PAGE 130 =====
+Implementation Guide 15.0 130
+Generating TLX Reports
+A TLX report is a model validation report that uses erwin Template Language (TLX). Report 
+Designer includes some default validation reports and also lets you configure new reports with cus-
+tom properties. You must be familiar with erwin Template Language (TLX) to configure new 
+reports.
+When you configure new reports, you can add two types of custom properties, filters and TLX prop-
+erties. The code for a filter includes a function that returns TRUE or FALSE.
+Generate a Default TLX Report
+Report Designer includes default TLX reports at entity/table, attribute/column, domain, and rela-
+tionship level. Some of the properties that are included in the default TLX reports are no definition 
+or no primary key. This topic describes how you can create an entity/table level report as an 
+example. You can create other TLX reports on the same lines as described in the procedure.
+To create an entity/table  level report,  follow these steps:
+ 1. Click Tools, Report Designer, Create a new report. 
+ 2. Select Logical/Physical for Report Type. 
+ 3. Click Entity/Table in the Select Report Subject pane. 
+ 4. In the Select Report Fields pane, expand Filter By and select the No Definition and No Com-
+ment check boxes. 
+ 5. Expand Properties and select Name, Physical Name check boxes. 
+ 6. Click Run Report. 
+The list of entities and tables that do not have a definition or a comment is displayed.
+Create a Custom TLX Report
+If you are familiar with TLX scripting, you can add your own functions for properties of your choice 
+and configure custom reports. For example, you can create a report that gives the number of attrib-
+utes in each entity. You can add two types of custom properties, filters and TLX properties. The 
+code for a filter includes a function that returns TRUE or FALSE.
+To configure a new report, you must modify the following configuration files:
+Generating TLX Reports 
+===== PAGE 131 =====
+Implementation Guide 15.0 131
+TLXReportAssembly.xml 
+TLXReportTemplate.FET 
+These files are available in the <erwin install folder>\Report\TLX folder.
+Follow these steps to create a custom TLX report:
+ 1. Modify the TLXReportAssembly.xml file and include the TLX property that you want to 
+report on. 
+ 2. Modify the TLXReportTemplate.FET file and include the function for the custom property.  
+ 3. Restart erwin Data Modeler. 
+ 4. Create a report in the Report Designer and select the TLX property that you have added. 
+ 5. Run the report. 
+Modify the TLXReportAssembly File
+To display a property under the Filter By node or the Property node in the Report Designer, you 
+must add an entry for the property in the TLXReportAssembly file.
+The TLXReportAssembly.xml file includes the following parameters:
+Assembly  ID
+Specifies the unique identifier for the property entry in the TLXReportAssembly file. You can 
+enter any number of your choice, as long as it is unique within this file.
+OwnerID
+Specifies the owner ID for the object for which you want to create a custom property. Use 
+the following owner IDs:
+Owner ID Object
+1075838979 Entity/Table 
+1075838981 Attribute/Column 
+1075838983 Domain 
+1075839016 Relationship 
+1075838985 Key Group
+Generating TLX Reports 
+===== PAGE 132 =====
+Implementation Guide 15.0 132
+Owner ID Object
+1075838978 Custom Template
+1075839014 Subject Area
+Name
+Specifies the name of the custom property the way it appears in the Report Designer.
+ExtractType
+Specifies the type of report for which the custom property is available. 1 denotes Logical, 2 
+denotes Physical, and 3 denotes Logical/Physical.
+DBMS Info
+Specifies the database for which the custom property applies. Enter the information in the 
+format, "database brand code, major version number of the database, minor version of the 
+database." 
+A value of "0,0,0" indicates that the custom property applies to all databases. The following 
+table provides the DBMS information for the databases that the current release supports:
+Database DBMS Info in TLXAssembly
+AlloyDB (1075918980, 1, 1)
+ArangoDB (1075859217, 3, 0)
+Apache Avro 1.x (1075859205, 1, 0)
+Amazon Keyspaces (1075859223, 2, 0)
+Azure Synapse SQL Pool (1075859211, 10, 0)
+Azure Synapse Fabric Lakehouse (1075859211, 11, 0)
+Cassandra (1075859199, 3, 0)
+Couchbase 6.x (1075859202, 6, 0)
+Couchbase 7.x (1075859202, 7, 0)
+Generating TLX Reports 
+===== PAGE 133 =====
+Implementation Guide 15.0 133
+Database DBMS Info in TLXAssembly
+Databricks (1075859232, 1, 0)
+Db2 for i 5.x/6.x/7.x (1075859019,4,0)
+Db2 for LUW 9.5   (1075858977,9,5)
+Db2 for LUW 9.7/10.x  (1075858977,9,7)
+Db2 for LUW 11.1/11.5 (1075858977,11,1)
+Db2 for z/OS 8.1   (1075858978,8,1)
+Db2 for z/OS 9.1/10/11 (1075858978,9,1)
+Db2 for z/OS 12 (1075858978,12,0)
+DynamoDB (1075859229,19,0)
+Google BigQuery (1075859226,2,0)
+Hive 2.1.x (1075859187,2,1)
+Informix 10.x/11.x/12.x  (1075859006,9,2)
+JSON 1.x (1075859208,1,0)
+MongoDB 4.x (1075859196,4,0)
+MongoDB 5.x (1075859196,5,0)
+MongoDB 6.x/7.x/8.x (1075859196,6,0)
+MariaDB 10.4.x (1075859190,10,4)
+MySQL 8.x (1075859129,8,0)
+Neo4j 4.2.x (1075859214, 4, 2)
+Neo4j 4.3.x/4.4.x (1075859214, 4, 3)
+Generating TLX Reports 
+===== PAGE 134 =====
+Implementation Guide 15.0 134
+Database DBMS Info in TLXAssembly
+Netezza (1075918978,7,2)
+ODBC/Generic 2.x (1075859009,2,0)
+ODBC/Generic 3.x (1075859009,3,0)
+OpenAPI (1075885345, 3, 0)
+Oracle 12c r2    (1075858979, 12, 0)
+Oracle 18c (1075858979, 18, 0)
+Oracle 19c (1075858979, 19, 0)
+Oracle 21c    (1075858979, 21, 0)
+Parquet 2.x (1075859220, 2, 0)
+PostgreSQL 12.x/13.x/14.x/15.x (1075859235,12,0)
+PostgreSQL 16.x (1075859235,16,0)
+Progress 9.x/10.x/11.x (1075859010,9,0)
+Redshift 1.0 (1075918979,1,0)
+SAS (1075859013,1,0)
+SAP ASE 15.x/16   (1075859017,12,5)
+SAP IQ 15.x/16 (1075859130,15,0)
+SQL Server 2012 (1075859016,11,0)
+SQL Server 2014 (1075859016,12,0)
+SQL Server 2016/2017 (1075859016,13,0)
+SQL Server 2019/2022 (1075859016,15,0)
+Generating TLX Reports 
+===== PAGE 135 =====
+Implementation Guide 15.0 135
+Database DBMS Info in TLXAssembly
+SQL Azure (1075859016,16,0)
+Snowflake (1075859193,4,10)
+Teradata 14.10 (1075859018,14,10)
+Teradata 15.x/16.x (1075859018,15,0)
+Teradata 17.x/20.x (1075859018,17,0)
+TLXFunction
+Specifies the TLX function name for the custom property. The function name can be any 
+name that describes the property.
+Is Filter
+Specifies whether the custom property is a filter or a property. Include a value of 1 for filter 
+and 0 for property. If you include 1, the property is displayed under the Filter by node of the 
+corresponding object. If you include 0, the property is displayed under the Properties node 
+of the object in Report Designer.
+Follow these steps:
+ 1. Open the TLXReportAssembly.xml file in a text editor such as Notepad. 
+ 2. Add a line for the property that you want to include in the report. 
+ 3. Save the file. 
+Modify the TLXReportTemplate.FET File
+The TLXReportTemplate.FET file includes the functions that help the Report Designer generate 
+the report for a TLX property. You must modify the file to include the function for a custom property 
+for which you want to generate a report. 
+Use the same function name in the TLXReportAssembly and TLXReportTemplate files.
+Follow these steps:
+ 1. Open the TLXReportTemplate.FET file in a text editor such as Notepad. 
+ 2. Add the TLX script for the property that you want to include in the report. 
+Generating TLX Reports 
+===== PAGE 136 =====
+Implementation Guide 15.0 136
+ 3. Save the file. 
+Now the custom property appears in the Report Designer under the corresponding node. 
+You can include the property in a report.
+Example--Number of Attributes in an Entity
+This example demonstrates how you can generate a report on the custom property Number of 
+Attributes in an Entity. This property is of type TLX property.
+Follow these steps:
+ 1. Add an entry to the TLXReportAssembly.xml file to create a node for Number of Attributes in 
+Report Designer. 
+ 2. Add the TLX function NumberofAttributes to the TLXReportTemplate.FET file. 
+ 3. Create a report and include the Number of Attributes property. 
+Add an Entry to the TLXReportAssembly.xml File
+Follow these steps:
+ 1. Open the TLXReportAssembly.xml file from the <erwin install folder>\Report\TLX folder. 
+ 2. Add the following entry and save the file: 
+ <Assembly Id="1002"  OwnerId="1075838979" Name="Number of Attributes" 
+ExtractType="1" DBMSInfo="0, 0, 0" TLXFunction="NumberofAttribute" 
+IsFilter="0"/> 
+Add the TLX Function NumberofAttributes to the TLXReportTemplate.FET File
+Follow these steps:
+Add the following code to the TLXReportTemplate.FET file and save the file:
+ SPItemBegin = NumberofAttribute 
+ [ 
+  Set("Count", 0) 
+  ForEachOwnee("Attribute") 
+  { 
+   Increment("Count") 
+Generating TLX Reports 
+===== PAGE 137 =====
+Implementation Guide 15.0 137
+  } 
+  Value("Count") 
+ ] 
+ SPItemEnd 
+Number of Attributes is added to Report Designer under Entity, Properties.
+Create a Report and Include the Number of Attributes Property
+Follow these steps:
+ 1. Open Report Designer. 
+ 2. Select the Report Type as Logical.  
+ 3. In the Select Report Subject pane, select Entity. 
+ 4. In the Select Report Fields pane, expand Entity, Properties, and select Name, Number of 
+Attributes. 
+ 5. Click Run Report. 
+Generating TLX Reports 
+===== PAGE 138 =====
+Implementation Guide 15.0 138
+Dimensional Modeling
+The ability to produce reports on data source mapping is added to Report Designer in erwin� Data 
+Modeler Release 9.5.2. In the data warehouse environment, it is important to track the following 
+information:
+Source of the data. 
+The method by which the source data is extracted and cleansed before it is imported into the 
+data warehouse. 
+The frequency and timing of data warehouse updates. 
+You may have a data warehouse that combines information from several online transaction pro-
+cessing (OLTP) systems and archived data into a single decision support system. Your data may 
+also come from relational and non-relational sources. To support regular updates and data quality 
+checks, you must know the source for each column in your data warehouse. You must also know 
+when and how the data is updated. You can document all of this information using erwin� Data 
+Modeler. This information can also be produced as reports in various formats using Report 
+Designer.
+Dimensional Modeling 
+===== PAGE 139 =====
+Implementation Guide 15.0 139
+Report on Data Sources, Target Columns, and Trans-
+formations
+This report includes the list of data sources, target columns, and the corresponding transformation 
+details.
+To generate this report, you must have a model that documents data movement sources and 
+has the column level mappings defined.
+Follow these steps:
+ 1. Open erwin Data Modeler and open a model in which data movement sources and column 
+level mappings are defined. 
+ 2. Click Tools, Report Designer. 
+ 3. Click Create New Report. The erwin Report Editor dialog opens. 
+ 4. Enter the title of the report as ETL Mapping. 
+ 5. Enter a name for the report and select the Report Type as Logical/Physical.  
+ 6. Select the Report Subject as Entity/Table. 
+ 7. In the Select Report Fields pane, expand Entity, Properties, and select Name, Definition.  
+ 8. Expand Entity/Table, Properties, and select Comment, Dimensional Notation Role Type, 
+and Physical Name. 
+ 9. Expand Attribute/Column, Properties, and select Comment, DS Comment, Name, Null 
+Option, and Physical Data Type. 
+ 10. Expand Data Source Column/Data Movement Column, Properties, and select Name, Phys-
+ical Data Type. 
+ 11. Expand Data Source Table/Data Movement Table, and select Name. 
+ 12. Expand Data Source Object, Properties, and select Name, Data Source System, Data 
+Source Type. 
+ 13. Expand Attribute, Key Type and select Is PK, Is FK. 
+Report on Data Sources, Target Columns, and Transformations 
+===== PAGE 140 =====
+Implementation Guide 15.0 140
+ 14. Cick OK. The report template is added to erwin Report Designer. 
+ 15. In erwin Report Designer, right-click the template and click Export to TEXT. 
+The report is generated and displayed.
+Report on Data Sources, Target Columns, and Transformations 
+===== PAGE 141 =====
+Implementation Guide 15.0 141
+ 16. Verify that the report contains data source mapping information for each target column.
+Report on Data Sources, Target Columns, and Transformations 
+===== PAGE 142 =====
+Implementation Guide 15.0 142
+Report on Data Lineage with Diagrams
+This report includes the data lineage (data source mapping) with diagrams.
+To generate this report, you must have a model that documents data movement sources and 
+has the column level mappings defined.
+Follow these steps:
+ 1. Open erwin Data Modeler and open a model in which data movement sources and column 
+level mappings are defined. 
+ 2. Click Tools, Report Designer. 
+ 3. Click Create New Report. The erwin Report Editor dialog opens. 
+ 4. Enter the title of the report as Browse ETL Mapping. 
+ 5. Enter a name for the report and select the Report Type as Logical/Physical.  
+ 6. Select the Report Subject as Entity/Table. 
+ 7. In the Select Report Fields pane, expand Entity, Properties, and select Name, Definition.  
+ 8. Expand Subject Area, Properties, and select Name. 
+ 9. Expand ER Diagram, Properties, and select Name. 
+ 10. Expand Members, Table/Entity, Properties, and select Table Physical Name. 
+ 11. Expand Attribute/Column, Properties, and select Comment, Physical Name, Null Option, 
+Physical Data Type, DS Comment. 
+ 12. Expand Data Movement Column, Properties, and select Name, Physical Data Type. 
+ 13. Expand Data Source Table/Data Movement Table, and select Name. 
+ 14. Expand Data Source Object, Properties, and select Name, Data Source System, Data 
+Source Type. 
+ 15. Expand Attribute, Key Type and select Is PK, Is FK. 
+Report on Data Lineage with Diagrams 
+===== PAGE 143 =====
+Implementation Guide 15.0 143
+ 16. Cick OK. The report template is added to erwin Report Designer. 
+ 17. In erwin Report Designer, right-click the template and click Export to HTML. 
+The report is generated and displayed.
+Report on Data Lineage with Diagrams 
+===== PAGE 144 =====
+Implementation Guide 15.0 144
+ 18. Open the HTML report and verify the data mappings. Verify that the report contains dia-
+grams and clickable entities through which you can navigate to the data source mapping 
+information. 
+Click here to view a video demonstration of this report.
+Report on Data Lineage with Diagrams 
+===== PAGE 145 =====
+Implementation Guide 15.0 145
+Supported  Metadata  Integration  Bridges
+The following table lists the Meta Integration Technology, Inc. (11.0.0) bridges that are currently 
+available in erwin Data Modeler (as of Release 15.0):
+Read the information displayed in the tip text area on the Source and Destination pages of the 
+Import from External Format and Export to External Format dialogs carefully. Complete any 
+requirements as appropriate before proceeding.
+Application Mode
+Actian Vector (Vectorwise) Database (via JDBC) Import
+Altova XMLSpy Export 
+Alteryx - Unsupported Beta Bridge Import
+Alteryx Repository - Unsupported Beta Bridge Import
+Amazon Web Services (AWS) Athena / Generic Database (via 
+JDBC)
+Import
+Amazon Web Services (AWS) Athena Database (via JDBC) Import
+Amazon Web Services (AWS) Aurora / MySQL Database (via 
+JDBC)
+Import
+Amazon Web Services (AWS) Aurora / PostgreSQL Database 
+(via JDBC)
+Import
+Amazon Web Services (AWS) RedShift Database (via JDBC) Import
+Amazon Web Services (AWS) Simple Storage Service (S3) File 
+System
+Import
+Apache Avro File (JSON) Import
+Apache Cassandra NoSQL Database Import
+Apache CouchDB NoSQL Database Import
+Supported Metadata Integration Bridges 
+===== PAGE 146 =====
+Implementation Guide 15.0 146
+Application Mode
+Apache Druid Database - New Beta Bridge Import
+Apache Hadoop HBase NoSQL Database (Java API) Import
+Apache Hadoop Hive Database (HCatalog and Metastore via 
+JDBC)
+Import
+Apache Hadoop Hive Database SQL DDL Script Import
+Apache Kafka File System (API and Schema Registry) Import
+Apache ORC File Import
+Apache Parquet File Import
+Borland Together (via UML 2.x XMI) Import/Export
+CA Component Modeler 3.52 (ParadigmPlus) Import/Export 
+CA Component Modeler 4.x (via UML 1.x XMI) Import/Export 
+CA COOL:Biz 5.1 Import 
+CA COOL:BusinessTeam (GroundWorks) 2.2.1 Import 
+CA COOL:DBA (Terrain for Db2) 5.3.2 Import 
+CA COOL:Enterprise (ADW) 2.7 Import 
+CA COOL:Xtras Mapper (TerrainMap for Db2) Import 
+CA Gen Import/Export 
+Cloudera Data Platform Hadoop Hive Database (HCatalog and 
+Metastore via JDBC)
+Import 
+Cloudera Data Platform Hadoop Hive Database SQL DDL Script Import 
+Cloudera Hortonworks Data Platform Hadoop Hive Database 
+(HCatalog and Metastore via JDBC)
+Import 
+Supported Metadata Integration Bridges 
+===== PAGE 147 =====
+Implementation Guide 15.0 147
+Application Mode
+Cloudera Hortonworks Data Platform Hadoop Hive Database 
+SQL DDL Script
+Import 
+Cloudera Impala Hadoop Hive Database SQL DDL Script Import 
+Cloudera Impala Hadoop Hive Server Import 
+COBOL Copybook File Import 
+Confluent Kafka File System (API and Schema Registry) Import 
+Database (via JDBC) Import 
+Database SQL DDL Script Import
+Databricks Delta Lake Hadoop Hive Database (HCatalog and 
+Metastore via JDBC)
+Import 
+Databricks Delta Lake Hadoop Hive Database SQL DDL Script Import 
+DataStax Enterprise (Apache Cassandra) NoSQL Database Import 
+Delimited File (CSV) Import 
+Denodo Virtual DataPort Import 
+EMC ProActivity 3.x & 4.0 Import 
+erwin 3.x (ERX) Import 
+erwin 4.x Data Modeler Import 
+erwin Web Portal  - Vendor Internal Bridge Export
+Excel File (XLSX) Import 
+File System (Delimited, Fixed Width, Excel, XML, JSON, Avro, 
+Parquet, ORC, COBOL Copybook)
+Import
+Fixed Width File Import 
+Supported Metadata Integration Bridges 
+===== PAGE 148 =====
+Implementation Guide 15.0 148
+Application Mode
+Gentleware Poseidon (via UML 1.x XMI) Import/Export
+Google Cloud BigQuery Database (via JDBC) Import
+Google Cloud Platform (GCP) Hadoop Hive Database (HCatalog 
+and Metastore via JDBC)
+Import
+Google Cloud Platform (GCP) Hadoop Hive Database SQL DDL 
+Script
+Import
+Google Cloud Spanner Database (via JDBC) Import
+Google Cloud Storage (GCS) File System Import
+Grandite Silverrun-RDM 2.4.4 to 2.8.6 Import 
+HPE Ezmeral Data Fabric (MapR) Hadoop Hive Database 
+(HCatalog and Metastore via JDBC)
+Import
+HPE Ezmeral Data Fabric (MapR) Hadoop Hive Database SQL 
+DDL Script
+Import
+IBM Cognos Content Manager Packages Import
+IBM Cognos Framework Manager (FM) Import/Export
+IBM Cognos Framework Manager (FM) for ReportNet Import/Export
+IBM DB2 Cube Views Import/Export
+IBM DB2 for z/OS (mainframe) Database (via JDBC) Import
+IBM DB2 iSeries (AS/400) Database (via JDBC) Import
+IBM DB2 Universal Database (UDB) (via JDBC) Import
+IBM Informix Database (via JDBC) Import
+IBM InfoSphere Data Architect (IDA) Import/Export
+Supported Metadata Integration Bridges 
+===== PAGE 149 =====
+Implementation Guide 15.0 149
+Application Mode
+IBM InfoSphere DataStage Import/Export 
+IBM InfoSphere Federation Server (via JDBC) Import
+IBM InfoSphere Warehouse - InfoSphere Data Architect Import/Export
+IBM Lotus Notes (via JDBC-ODBC) Import
+IBM Netezza Database (via JDBC) Import
+IBM PureData System for Analytics - Netezza Database (via 
+JDBC)
+Import
+IBM Rational Rose 4.0 Import/Export
+IBM Rational Rose 6.0(98i) to 6.5(2000) Import/Export
+IBM Rational Rose 7.x (2000e and newer) Import/Export
+IBM Rational Rose XDE Developer (via Rose MDL) Export 
+IBM Rational Software Architect (RSA) (via Rose MDL) Export 
+IBM Rational Software Architect (RSA) (via UML 2.x XMI) Import/Export
+IBM Rational Software Modeler (RSM) (via Rose MDL) Export 
+IBM Rational Software Architect (RSA) (via UML 2.x XMI) Import
+IBM Telelogic Tau (via UML 1.x XMI) Import/Export
+IDERA ER/Studio Business Architect (via DM1) Import/Export 
+IDERA ER/Studio Data Architect Import/Export 
+IDERA ER/Studio  Repository Import 
+Informatica Big Data Management (BDM) Developer Import/Export
+Informatica Big Data Management (BDM) Developer Repository Import
+Supported Metadata Integration Bridges 
+===== PAGE 150 =====
+Implementation Guide 15.0 150
+Application Mode
+Informatica Data Engineering Integration (DEI) Developer Import/Export
+Informatica Data Engineering Integration (DEI) Developer Repos-
+itory
+Import
+Informatica PowerCenter Export 
+Informatica PowerCenter (File) Import 
+Informatica PowerCenter (Repository) Import
+IRI CoSORT RowGen Data Definition File Export 
+IRI CoSORT SortCL Data Definition File Export 
+JSON File Import
+MarkLogic NoSQL Database Import
+Metadata Excel Format Import/Export
+Micro Focus (Merant) AppMaster Builder Import 
+Microsoft Azure Analysis Services (SSAS) Import
+Microsoft Azure Blob Storage File System Import
+Microsoft Azure Cosmos DB NoSQL Database Import
+Microsoft Azure Data Lake Storage (ADLS) Gen1 File System Import
+Microsoft Azure Data Lake Storage (ADLS) Gen2 File System Import
+Microsoft Azure Power BI Dataflow (File) - New Beta Bridge Import
+Microsoft Azure SQL Database (via JDBC) Import
+Microsoft Azure Synapse Analytics (SQL Data Warehouse) (via 
+JDBC)
+Import
+Microsoft Office Visio Database Diagram (via ERX) Import 
+Supported Metadata Integration Bridges 
+===== PAGE 151 =====
+Implementation Guide 15.0 151
+Application Mode
+Microsoft Office Visio UML Class Diagram (via UML 1.x XMI) Import 
+Microsoft Power BI Desktop Report (File) Import
+Microsoft SQL Server Analysis Services (SSAS) 7.0 to 2000 
+(Repository)
+Import
+Microsoft SQL Server Analysis Services (SSAS) (Repository) Export 
+Microsoft SQL Server Analysis Services (SSAS) (via DSV File) Import/Export
+Microsoft SQL Server Data Source View (DSV) Import/Export
+Microsoft SQL Server Integration Services (SSIS) (via DSV File) Import/Export
+Microsoft SQL Server XML Data Reduced (XDR) Schema Import 
+Microsoft SQL Server Analysis Services (SSAS) (via DSV File) Import 
+Microsoft SQL Server Analysis Services (SSAS) 2005 to 2017 
+(Repository)
+Import 
+Microsoft SQL Server Analysis Services (SSAS) 2005 to 2019 
+(XMLA File)
+Import 
+Microsoft SQL Server Analysis Services (SSAS) 2016 to 2019 
+(Tabular Model File)
+Import 
+Microsoft SQL Server Database (via JDBC) Import 
+Microsoft SQL Server Database SQL DDL Script Import
+Microsoft Visual Studio / Modeler 2.0 (via MDL) Import/Export
+MicroStrategy 7.0 to 11.x/2021 Import/Export
+MicroStrategy MDX Adapter (via ODBO) - Unsupported EOL 
+Bridge
+Import
+MongoDB NoSQL Database Import
+Supported Metadata Integration Bridges 
+===== PAGE 152 =====
+Implementation Guide 15.0 152
+Application Mode
+NoMagic MagicDraw (via UML 2.x XMI) Import/Export
+OMG CWM 1.x XMI 1.x Import/Export
+OMG CWM Pre-1.0 XMI 1.1 - Unsupported EOL Bridge Import/Export
+OMG UML 1.x XMI 1.x Import/Export
+OMG UML 2.x XMI 2.x Import/Export
+OpenAPI Specification (OAS) Import 
+OpenStack Swift Object Store File System - New Beta Bridge Import 
+Oracle Business Intelligence (OBI) Publisher Data Model (XDMZ 
+file) - New Beta Bridge
+Import
+Oracle Business Intelligence (OBI) Publisher Report (XDOZ file) 
+- New Beta Bridge
+Import
+Oracle Business Intelligence (OBI) Repository (RPD file) Import
+Oracle Database (via JDBC) Import
+Oracle Database SQL DDL Script Import
+Oracle Data Integrator (ODI) Import
+Oracle Data Modeler (ODM) 4.x Import
+Oracle Data Modeler (ODM) 4.x (via erwin 4 XML) Export
+Oracle Designer Import/Export
+Oracle Hyperion Essbase Integration Services (EIS) Import/Export
+Oracle MySQL Database (via JDBC) Import
+Oracle Warehouse Builder (OWB) Import/Export
+PostgreSQL Database (via JDBC) Import
+Supported Metadata Integration Bridges 
+===== PAGE 153 =====
+Implementation Guide 15.0 153
+Application Mode
+Presto Database (via JDBC) Import
+QlikSense Cloud Import
+QlikSense File Import
+QlikView File Import
+SAS OLAP Server (via ODBO) - Unsupported EOL Bridge Import
+SAS Library Import
+SAS Data Integration Import
+SAP BusinessObjects Designer (File) Import/Export
+SAP BusinessObjects Designer (Repository) Import
+SAP BusinessObjects Information Design Tool (IDT) (Repos-
+itory)
+Import
+SAP BusinessObjects Information Design Tool (IDT) (File) Import/Export
+SAP HANA Database (via JDBC) Import 
+Salesforce (SFDC) Database Import 
+SAP BusinessObjects Crystal Reports XI (File) Import 
+SAP BusinessObjects Crystal Reports XI (Repository) Import 
+Select SE Import 
+Snowflake Database (via JDBC) Import 
+Sparx Enterprise Architect (EA) (via UML 2.x XMI) Import/Export
+SAP Data Services (BODI/BODS) Import
+SAP PowerDesigner CDM 6.x Import 
+SAP PowerDesigner CDM 7.5 to 16.x  Import 
+Supported Metadata Integration Bridges 
+===== PAGE 154 =====
+Implementation Guide 15.0 154
+Application Mode
+SAP PowerDesigner CDM 8.0 to 16.x Import/Export 
+SAP PowerDesigner OOM 9.x to 15.x (via UML 2.x XMI) Import
+SAP PowerDesigner OOM 9.x to 15.x Export
+SAP PowerDesigner PDM 6.1.x Import 
+SAP PowerDesigner PDM 7.5 to 16.x Import 
+SAP PowerDesigner PDM 8.x to 16.x Import/Export
+SAP PowerDesigner LDM 15.x to 16.x Import
+SAP PowerDesigner XSM 10.x to 15.x Export
+SAP Sybase ASE Database (via JDBC) Import
+Tableau Data Source and Workbook (File) Import
+Tableau Data Source  (File) Export
+Tableau Server Extract (Hyper) Data Store Import
+Tableau Server (Repository) Import
+Talend Data Integration Import/Export
+Talend Data Preparation Import
+Talend Master Data Management (MDM) Import/Export
+Teradata Database (via JDBC) Import
+Teradata Database SQL DDL Script Import
+Teradata Vantage Database (via JDBC) Import
+ThoughtSpot Import
+TIBCO Spotfire Analyst (DXP Format) (File) Import
+Supported Metadata Integration Bridges 
+===== PAGE 155 =====
+Implementation Guide 15.0 155
+Application Mode
+TIBCO Spotfire Binary Data (SBDF Format)  (File) Import
+TIBCO Spotfire Server (Repository) Import
+TIBCO Spotfire Text Data (STDF Format) (File) Import
+Tigris ArgoUML (via UML 1.x XMI) Import/Export
+Unicom (Popkin) System Architect (SA) 10.4 to 11.4 (Encyc-
+lopedia)
+Import/Export
+Unicom (Popkin) System Architect (SA) 7.1 to 11.4 (File) Import/Export
+Vertica SQL Data Warehouse (via JDBC) Import
+Visible IE:Advantage 6.1 Import 
+VMware Tanzu Greenplum Database (via JDBC) Import 
+W3C Semantic Web Ontology (OWL/RDF) Import 
+W3C Web Service Definition Language (WSDL) - Beta Bridge Import 
+W3C XML Import 
+W3C XML Document Type Definition (DTD) 1.0 Import 
+W3C XML Schema Definition (XSD) 1.0 Import
+ W3C XML Schema Definition (XSD) 1.0 Reverse Engineering Import
+ W3C XML Schema Definition (XSD) 1.0 Forward Engineering Export
+For information about how to use the metadata integration wizards, see the erwin Data 
+Modeler online help. 
+For Oracle Data Integrator 11g, the new Java API based architecture is supported. 
+For Oracle Warehouse Builder 11.2, the new API architecture for 11.2 (different from 
+11.1) is supported. 
+Supported Metadata Integration Bridges 
+===== PAGE 156 =====
+Implementation Guide 15.0 156
+IBM Rational System Architect 7.1 to 11.x (File) and IBM Rational System Architect 10.4 
+to 11.x (Encyclopedia) must be installed on your local computer before you use these 
+import and export bridges. 
+Supported Metadata Integration Bridges 
