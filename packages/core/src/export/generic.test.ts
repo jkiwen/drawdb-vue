@@ -209,4 +209,51 @@ describe("toGeneric", () => {
     assert.match(sql, /"n" INTEGER DEFAULT 42/);
     assert.match(sql, /"s" VARCHAR\(50\) DEFAULT 'hello'/);
   });
+
+  it("emits the logical attribute name as a comment when it differs", () => {
+    const diagram = createEmptyDiagram({ database: "generic" });
+    diagram.tables.push({
+      id: "t1",
+      name: "accounts",
+      x: 0,
+      y: 0,
+      logical: {
+        id: "le-t1",
+        name: "Account",
+        attributes: [
+          {
+            id: "a1",
+            name: "User Name",
+            logicalType: { family: "string" },
+            fieldId: "f1",
+          },
+          {
+            id: "a2",
+            name: "email",
+            logicalType: { family: "string" },
+            fieldId: "f2",
+          },
+        ],
+      },
+      fields: [
+        {
+          id: "f1",
+          name: "user_name",
+          fieldType: { type: "VARCHAR", length: 50 },
+          fieldTypeSource: "explicit",
+        },
+        {
+          id: "f2",
+          name: "email",
+          fieldType: { type: "VARCHAR", length: 255 },
+          fieldTypeSource: "explicit",
+        },
+      ],
+    });
+    const sql = toGeneric(diagram);
+    // Diverging logical name is exported as a comment (spec Q7).
+    assert.match(sql, /-- User Name\n\t"user_name"/);
+    // Identical names produce no redundant comment.
+    assert.doesNotMatch(sql, /-- email\n/);
+  });
 });

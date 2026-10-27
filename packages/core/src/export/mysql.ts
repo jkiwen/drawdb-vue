@@ -3,6 +3,7 @@ import type { Field } from "../models/field.ts";
 import { getTypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
+  exportLogicalNameComment,
   fieldSizeSuffix,
   getFkColumnNames,
   parseDefault,
@@ -36,7 +37,7 @@ function tablesToMySQL(diagram: Diagram): string {
         `CREATE TABLE IF NOT EXISTS ${quoteIdentifier(table.name)} (\n${table.fields
           .map(
             (field) =>
-              `\t${quoteIdentifier(field.name)} ${parseType(field)}${
+              `${exportLogicalNameComment(table, field)}\t${quoteIdentifier(field.name)} ${parseType(field)}${
                 getTypeMetadata("mysql", field.fieldType.type)?.signed && field.unsigned
                   ? " UNSIGNED"
                   : ""

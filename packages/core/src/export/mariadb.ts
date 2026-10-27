@@ -3,6 +3,7 @@ import type { Field } from "../models/field.ts";
 import type { TypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
+  exportLogicalNameComment,
   fieldSizeSuffix,
   getFkColumnNames,
   parseDefault,
@@ -70,7 +71,7 @@ function tablesToMariaDB(diagram: Diagram): string {
         `CREATE OR REPLACE TABLE ${quoteIdentifier(table.name)} (\n${table.fields
           .map(
             (field) =>
-              `\t${quoteIdentifier(field.name)} ${parseType(field)}${
+              `${exportLogicalNameComment(table, field)}\t${quoteIdentifier(field.name)} ${parseType(field)}${
                 field.unsigned ? " UNSIGNED" : ""
               }${field.notNull ? " NOT NULL" : ""}${
                 field.increment ? " AUTO_INCREMENT" : ""

@@ -4,6 +4,7 @@ import type { TypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
   exportFieldComment,
+  exportLogicalNameComment,
   getInlineFK,
   uniqueConstraintClause,
 } from "./shared.ts";
@@ -74,7 +75,7 @@ function tablesToSqlite(diagram: Diagram): string {
       }CREATE TABLE IF NOT EXISTS ${quoteIdentifier(table.name)} (\n${table.fields
         .map(
           (field) =>
-            `${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
+            `${exportLogicalNameComment(table, field)}${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
               field.name,
             )} ${field.fieldType.type}${field.notNull ? " NOT NULL" : ""}${
               field.unique ? " UNIQUE" : ""

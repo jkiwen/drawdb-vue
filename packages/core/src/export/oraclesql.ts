@@ -3,6 +3,7 @@ import type { Field } from "../models/field.ts";
 import {
   escapeQuotes,
   exportFieldComment,
+  exportLogicalNameComment,
   fieldSizeSuffix,
   getFkColumnNames,
   uniqueConstraintClause,
@@ -101,7 +102,7 @@ function tablesToOracleSQL(diagram: Diagram): string {
         }CREATE TABLE ${quoteIdentifier(table.name)} (\n${table.fields
           .map(
             (field) =>
-              `${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
+              `${exportLogicalNameComment(table, field)}${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
                 field.name,
               )} ${field.fieldType.type}${fieldSizeSuffix(field.fieldType)}${field.notNull ? " NOT NULL" : ""}${
                 field.increment ? " GENERATED ALWAYS AS IDENTITY" : ""

@@ -113,6 +113,21 @@ export function exportFieldComment(comment: string): string {
     .join("");
 }
 
+/**
+ * Comment line carrying the logical attribute name when it diverges from the
+ * physical field name (spec Q7). Empty when there is no pairing or the names
+ * are identical, so existing diagrams keep byte-identical output.
+ */
+export function exportLogicalNameComment(table: Table, field: Field): string {
+  const attribute = table.logical?.attributes?.find(
+    (a) => a.fieldId === field.id,
+  );
+  if (!attribute || attribute.name === field.name) {
+    return "";
+  }
+  return `\t-- ${attribute.name}\n`;
+}
+
 export function uniqueConstraintClause(
   table: Table,
   quote: (s: string) => string,

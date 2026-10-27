@@ -3,6 +3,7 @@ import type { Field } from "../models/field.ts";
 import { appendViews } from "./views.ts";
 import {
   escapeQuotes,
+  exportLogicalNameComment,
   fieldSizeSuffix,
   getFkColumnNames,
   uniqueConstraintClause,
@@ -139,7 +140,7 @@ function tablesToMssql(diagram: Diagram): string {
       const fieldsSql = table.fields
         .map((field) => {
           const meta = getTypeMetadata(field.fieldType.type);
-          return `\t${quoteIdentifier(field.name)} ${parseType(field)}${
+          return `${exportLogicalNameComment(table, field)}\t${quoteIdentifier(field.name)} ${parseType(field)}${
             field.notNull ? " NOT NULL" : ""
           }${field.increment ? " IDENTITY" : ""}${
             field.unique ? " UNIQUE" : ""

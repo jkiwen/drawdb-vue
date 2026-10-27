@@ -4,6 +4,7 @@ import type { TypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
   exportFieldComment,
+  exportLogicalNameComment,
   fieldSizeSuffix,
   getFkColumnNames,
   uniqueConstraintClause,
@@ -189,6 +190,9 @@ function tablesToPostgres(diagram: Diagram): string {
     )
     .join("\n");
 
+  // TODO(spec §8): diagram.types materialisation is Postgres-only for now;
+  // inline-vs-materialised custom types with provenance markers are a
+  // follow-up phase.
   const typeStatements = diagram.types
     .map(
       (type) =>
@@ -212,7 +216,7 @@ function tablesToPostgres(diagram: Diagram): string {
       const fieldDefinitions = table.fields
         .map(
           (field) =>
-            `${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
+            `${exportLogicalNameComment(table, field)}${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
               field.name,
             )} ${parseType(field)}${field.notNull ? " NOT NULL" : ""}${
               field.unique ? " UNIQUE" : ""
