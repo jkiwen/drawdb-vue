@@ -24,9 +24,17 @@ function seed(pinia: Pinia) {
     name: "users",
     x: 40,
     y: 60,
+    logical: {
+      id: "l_users",
+      name: "users",
+      attributes: [
+        { id: "a_users_id", name: "id", logicalType: { family: "integer" }, fieldId: "users_id" },
+        { id: "a_users_name", name: "name", logicalType: { family: "string" }, fieldId: "users_name" },
+      ],
+    },
     fields: [
-      { id: "users_id", name: "id", type: "INTEGER", primary: true, notNull: true },
-      { id: "users_name", name: "name", type: "VARCHAR", size: 255 },
+      { id: "users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, notNull: true },
+      { id: "users_name", name: "name", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
     ],
   });
 
@@ -35,9 +43,17 @@ function seed(pinia: Pinia) {
     name: "posts",
     x: 420,
     y: 60,
+    logical: {
+      id: "l_posts",
+      name: "posts",
+      attributes: [
+        { id: "a_posts_id", name: "id", logicalType: { family: "integer" }, fieldId: "posts_id" },
+        { id: "a_posts_user_id", name: "user_id", logicalType: { family: "integer" }, fieldId: "posts_user_id" },
+      ],
+    },
     fields: [
-      { id: "posts_id", name: "id", type: "INTEGER", primary: true },
-      { id: "posts_user_id", name: "user_id", type: "INTEGER" },
+      { id: "posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+      { id: "posts_user_id", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
     ],
   });
 
@@ -46,12 +62,21 @@ function seed(pinia: Pinia) {
     name: "profiles",
     x: 800,
     y: 60,
+    logical: {
+      id: "l_profiles",
+      name: "profiles",
+      attributes: [
+        { id: "a_profiles_id", name: "id", logicalType: { family: "integer" }, fieldId: "profiles_id" },
+        { id: "a_profiles_user_id", name: "user_id", logicalType: { family: "integer" }, fieldId: "profiles_user_id" },
+      ],
+    },
     fields: [
-      { id: "profiles_id", name: "id", type: "INTEGER", primary: true },
+      { id: "profiles_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
       {
         id: "profiles_user_id",
         name: "user_id",
-        type: "INTEGER",
+        fieldType: { type: "INTEGER" },
+        fieldTypeSource: "explicit",
         unique: true,
       },
     ],
@@ -116,9 +141,17 @@ describe("the interaction layer of the canvas", () => {
       name: "logs",
       x: 800,
       y: 300,
+      logical: {
+        id: "l_logs",
+        name: "logs",
+        attributes: [
+          { id: "a_logs_message", name: "message", logicalType: { family: "text" }, fieldId: "logs_message" },
+          { id: "a_logs_at", name: "at", logicalType: { family: "datetime" }, fieldId: "logs_at" },
+        ],
+      },
       fields: [
-        { id: "logs_message", name: "message", type: "TEXT" },
-        { id: "logs_at", name: "at", type: "TIMESTAMP" },
+        { id: "logs_message", name: "message", fieldType: { type: "TEXT" }, fieldTypeSource: "explicit" },
+        { id: "logs_at", name: "at", fieldType: { type: "TIMESTAMP" }, fieldTypeSource: "explicit" },
       ],
     });
     const linking = useLinking();

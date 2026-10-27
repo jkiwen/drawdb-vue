@@ -29,9 +29,10 @@ function makeTable(overrides: Partial<TableModel> = {}): TableModel {
     name: "t1",
     x: 100,
     y: 200,
+    logical: { id: "l_t1", name: "t1", attributes: [] },
     fields: [
-      { id: "f1", name: "id", type: "INTEGER" },
-      { id: "f2", name: "name", type: "VARCHAR" },
+      { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
+      { id: "f2", name: "name", fieldType: { type: "VARCHAR" }, fieldTypeSource: "explicit" },
     ],
     ...overrides,
   } as TableModel;
@@ -47,9 +48,17 @@ function setup() {
     x: 40,
     y: 60,
     width: 220,
+    logical: {
+      id: "l_users",
+      name: "users",
+      attributes: [
+        { id: "a_users_id", name: "id", logicalType: { family: "integer" }, fieldId: "users_id" },
+        { id: "a_users_email", name: "email", logicalType: { family: "string" }, fieldId: "users_email" },
+      ],
+    },
     fields: [
-      { id: "users_id", name: "id", type: "INT", primary: true, notNull: true },
-      { id: "users_email", name: "email", type: "VARCHAR(255)", notNull: true },
+      { id: "users_id", name: "id", fieldType: { type: "INT" }, fieldTypeSource: "explicit", primary: true, notNull: true },
+      { id: "users_email", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit", notNull: true },
     ],
     indices: [{ id: "idx_users_email", name: "idx_users_email", unique: false, fields: ["email"] }],
     uniqueConstraints: [{ id: "uq_users_email", name: "uq_users_email", fields: ["email"] }],

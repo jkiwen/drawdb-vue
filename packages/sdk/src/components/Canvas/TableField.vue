@@ -73,8 +73,8 @@ function onPointerLeave(): void {
  */
 const typeColorOfField = computed(() => {
   const database = diagram.diagram.database;
-  const metadata = getTypeMetadata(database, props.field.type);
-  return typeColor(props.field.type, metadata);
+  const metadata = getTypeMetadata(database, props.field.fieldType.type);
+  return typeColor(props.field.fieldType.type, metadata);
 });
 
 function onPointerDown(event: PointerEvent): void {
@@ -106,7 +106,7 @@ function onStartType(event: Event): void {
   if (props.locked) {
     return;
   }
-  startType(props.field.type);
+  startType(props.field.fieldType.type);
 }
 
 function onCommitName(): void {
@@ -117,9 +117,12 @@ function onCommitName(): void {
 }
 
 function onCommitType(): void {
-  const value = commitType(props.field.type);
+  const value = commitType(props.field.fieldType.type);
   if (value !== undefined) {
-    diagram.updateField(props.table.id, props.field.id, { type: value });
+    diagram.updateField(props.table.id, props.field.id, {
+      fieldType: { ...props.field.fieldType, type: value },
+      fieldTypeSource: "explicit",
+    });
   }
 }
 

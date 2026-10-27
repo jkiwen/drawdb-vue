@@ -11,6 +11,7 @@ function setUpDiagram() {
     name: "users",
     x: 0,
     y: 0,
+    logical: { id: "l_t1", name: "users", attributes: [] },
     fields: [],
   });
   diagram.addTable({
@@ -18,6 +19,7 @@ function setUpDiagram() {
     name: "posts",
     x: 200,
     y: 0,
+    logical: { id: "l_t2", name: "posts", attributes: [] },
     fields: [],
   });
   diagram.addRelationship({

@@ -1,3 +1,4 @@
+import { fieldSizeSuffix } from "@drawdb/core";
 import type {
   Area,
   Field,
@@ -169,10 +170,7 @@ export function viewBounds(view: View): Bounds {
 
 /** The label of a field, including its size, e.g. `VARCHAR(255)`. */
 export function fieldLabel(field: Field): string {
-  if (field.size === undefined || field.size === null || field.size === "") {
-    return field.type;
-  }
-  return `${field.type}(${field.size})`;
+  return `${field.fieldType.type}${fieldSizeSuffix(field.fieldType)}`;
 }
 
 /**

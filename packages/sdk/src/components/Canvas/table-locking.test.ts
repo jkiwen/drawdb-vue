@@ -29,15 +29,24 @@ function seed(pinia: Pinia) {
     name: "users",
     x: 40,
     y: 60,
+    logical: {
+      id: "l_users",
+      name: "users",
+      attributes: [
+        { id: "a_users_id", name: "id", logicalType: { family: "integer" }, fieldId: "users_id" },
+        { id: "a_users_name", name: "name", logicalType: { family: "string" }, fieldId: "users_name" },
+      ],
+    },
     fields: [
       {
         id: "users_id",
         name: "id",
-        type: "INTEGER",
+        fieldType: { type: "INTEGER" },
+        fieldTypeSource: "explicit",
         primary: true,
         notNull: true,
       },
-      { id: "users_name", name: "name", type: "VARCHAR", size: 255 },
+      { id: "users_name", name: "name", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
     ],
   });
 

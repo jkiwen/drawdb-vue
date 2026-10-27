@@ -41,7 +41,16 @@ function diagramFixture(): Diagram {
         name: "users",
         x: 0,
         y: 0,
-        fields: [{ id: "f1", name: "id", type: "INTEGER", primary: true }],
+        logical: {
+          id: "l_t1",
+          name: "users",
+          attributes: [
+            { id: "a_f1", name: "id", logicalType: { family: "integer" }, fieldId: "f1" },
+          ],
+        },
+        fields: [
+          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+        ],
       },
     ],
     relationships: [],

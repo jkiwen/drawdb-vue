@@ -48,7 +48,16 @@ function seedArea(diagram: DiagramStore, area: Partial<Area> = {}): Area {
 }
 
 function seedTable(diagram: DiagramStore, table: Pick<Table, "id" | "x" | "y">): void {
-  diagram.addTable({ name: String(table.id), fields: [], ...table });
+  diagram.addTable({
+    name: String(table.id),
+    logical: {
+      id: `l_${table.id}`,
+      name: String(table.id),
+      attributes: [],
+    },
+    fields: [],
+    ...table,
+  });
 }
 
 /** Dispatches a pointer event, the way a browser does. */
@@ -682,16 +691,20 @@ describe("the collapse of an area", () => {
       name: "users",
       x: 60,
       y: 80,
-      fields: [{ id: "users_id", name: "id", type: "INTEGER", primary: true }],
+      logical: { id: "l_users", name: "users", attributes: [] },
+      fields: [
+        { id: "users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+      ],
     });
     diagram.addTable({
       id: "posts",
       name: "posts",
       x: 600,
       y: 600,
+      logical: { id: "l_posts", name: "posts", attributes: [] },
       fields: [
-        { id: "posts_id", name: "id", type: "INTEGER", primary: true },
-        { id: "posts_user_id", name: "user_id", type: "INTEGER" },
+        { id: "posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+        { id: "posts_user_id", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
       ],
     });
     diagram.addRelationship({

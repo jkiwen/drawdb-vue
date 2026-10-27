@@ -22,9 +22,17 @@ function seed(): Diagram {
         name: "users",
         x: 0,
         y: 0,
+        logical: {
+          id: "l_users",
+          name: "users",
+          attributes: [
+            { id: "a_users_id", name: "id", logicalType: { family: "integer" }, fieldId: "users_id" },
+            { id: "a_users_email", name: "email", logicalType: { family: "string" }, fieldId: "users_email" },
+          ],
+        },
         fields: [
-          { id: "users_id", name: "id", type: "INTEGER", primary: true },
-          { id: "users_email", name: "email", type: "VARCHAR(255)" },
+          { id: "users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "users_email", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
         ],
       },
       {
@@ -32,9 +40,17 @@ function seed(): Diagram {
         name: "posts",
         x: 300,
         y: 0,
+        logical: {
+          id: "l_posts",
+          name: "posts",
+          attributes: [
+            { id: "a_posts_id", name: "id", logicalType: { family: "integer" }, fieldId: "posts_id" },
+            { id: "a_posts_user_id", name: "user_id", logicalType: { family: "integer" }, fieldId: "posts_user_id" },
+          ],
+        },
         fields: [
-          { id: "posts_id", name: "id", type: "INTEGER", primary: true },
-          { id: "posts_user_id", name: "user_id", type: "INTEGER" },
+          { id: "posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "posts_user_id", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
         ],
       },
     ],
@@ -157,7 +173,16 @@ describe("RelationshipDialog", () => {
       name: "logs",
       x: 600,
       y: 0,
-      fields: [{ id: "logs_message", name: "message", type: "TEXT" }],
+      logical: {
+        id: "l_logs",
+        name: "logs",
+        attributes: [
+          { id: "a_logs_message", name: "message", logicalType: { family: "text" }, fieldId: "logs_message" },
+        ],
+      },
+      fields: [
+        { id: "logs_message", name: "message", fieldType: { type: "TEXT" }, fieldTypeSource: "explicit" },
+      ],
     });
     const wrapper = mountDialog({ open: true });
     await nextTick();

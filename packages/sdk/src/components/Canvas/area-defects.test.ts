@@ -44,7 +44,16 @@ function seedArea(diagram: DiagramStore, area: Partial<Area> = {}): Area {
 }
 
 function seedTable(diagram: DiagramStore, table: Pick<Table, "id" | "x" | "y">): void {
-  diagram.addTable({ name: String(table.id), fields: [], ...table });
+  diagram.addTable({
+    name: String(table.id),
+    logical: {
+      id: `l_${table.id}`,
+      name: String(table.id),
+      attributes: [],
+    },
+    fields: [],
+    ...table,
+  });
 }
 
 function seedNote(diagram: DiagramStore, note: Partial<Note> & { id: string }): void {
