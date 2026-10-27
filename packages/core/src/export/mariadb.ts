@@ -3,6 +3,7 @@ import type { Field } from "../models/field.ts";
 import type { TypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
+  fieldSizeSuffix,
   getFkColumnNames,
   parseDefault,
   uniqueConstraintClause,
@@ -48,15 +49,15 @@ function getMariadbTypeMetadata(type: string): TypeMetadata | undefined {
 }
 
 function parseType(field: Field): string {
-  let res = field.type;
+  let res = field.fieldType.type;
 
-  if (field.type === "SET" || field.type === "ENUM") {
+  if (field.fieldType.type === "SET" || field.fieldType.type === "ENUM") {
     res += `${field.values ? "(" + field.values.map((value) => "'" + escapeQuotes(String(value)) + "'").join(", ") + ")" : ""}`;
   }
 
-  const meta = getMariadbTypeMetadata(field.type);
+  const meta = getMariadbTypeMetadata(field.fieldType.type);
   if (meta?.isSized || meta?.hasPrecision) {
-    res += `${field.size && field.size !== "" ? "(" + field.size + ")" : ""}`;
+    res += fieldSizeSuffix(field.fieldType);
   }
 
   return res;
@@ -80,7 +81,7 @@ function tablesToMariaDB(diagram: Diagram): string {
               }${
                 field.check === "" ||
                 field.check == null ||
-                !getMariadbTypeMetadata(field.type)?.hasCheck
+                !getMariadbTypeMetadata(field.fieldType.type)?.hasCheck
                   ? ""
                   : ` CHECK(${field.check})`
               }${field.comment ? ` COMMENT '${escapeQuotes(field.comment)}'` : ""}`,
@@ -98,7 +99,11 @@ function tablesToMariaDB(diagram: Diagram): string {
               `\nCREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(
                 i.name,
               )}\nON ${quoteIdentifier(table.name)} (${i.fields
-                .map((f) => quoteIdentifier(f))
+                .map((f) =>
+                  quoteIdentifier(
+                    table.fields.find((fl) => fl.id === f)?.name ?? String(f),
+                  ),
+                )
                 .join(", ")});`,
           )
           .join("")}` : ""}`,

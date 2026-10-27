@@ -31,19 +31,19 @@ describe("fromSQLite", () => {
     );
 
     const [id, email, age, name] = table.fields;
-    assert.equal(id.type, "INTEGER");
+    assert.equal(id.fieldType.type, "INTEGER");
     assert.equal(id.primary, true);
     assert.equal(id.increment, true);
     assert.equal(id.notNull, false);
 
-    assert.equal(email.type, "TEXT");
+    assert.equal(email.fieldType.type, "TEXT");
     assert.equal(email.notNull, true);
     assert.equal(email.unique, true);
 
     // Unknown SQLite type names fall back to the canonical affinity table.
-    assert.equal(age.type, "INTEGER");
-    assert.equal(name.type, "VARCHAR");
-    assert.equal(name.size, 100);
+    assert.equal(age.fieldType.type, "INTEGER");
+    assert.equal(name.fieldType.type, "VARCHAR");
+    assert.equal(name.fieldType.length, 100);
   });
 
   it("marks table level primary key and unique constraints", () => {
@@ -65,7 +65,12 @@ describe("fromSQLite", () => {
 
     assert.equal(table.uniqueConstraints?.length, 1);
     assert.equal(table.uniqueConstraints?.[0].name, "uq_accounts_email");
-    assert.deepEqual(table.uniqueConstraints?.[0].fields, ["email"]);
+    assert.deepEqual(
+      table.uniqueConstraints?.[0].fields.map(
+        (id) => table.fields.find((f) => f.id === id)?.name,
+      ),
+      ["email"],
+    );
     assert.equal(table.uniqueConstraints?.[0].id, 0);
   });
 
@@ -145,12 +150,22 @@ describe("fromSQLite", () => {
     assert.equal(table.indices?.length, 2);
     assert.equal(table.indices?.[0].name, "idx_posts_title");
     assert.equal(table.indices?.[0].unique, false);
-    assert.deepEqual(table.indices?.[0].fields, ["title"]);
+    assert.deepEqual(
+      table.indices?.[0].fields.map(
+        (id) => table.fields.find((f) => f.id === id)?.name,
+      ),
+      ["title"],
+    );
     assert.equal(table.indices?.[0].id, 0);
 
     assert.equal(table.indices?.[1].name, "uq_posts_title_id");
     assert.equal(table.indices?.[1].unique, true);
-    assert.deepEqual(table.indices?.[1].fields, ["title", "id"]);
+    assert.deepEqual(
+      table.indices?.[1].fields.map(
+        (id) => table.fields.find((f) => f.id === id)?.name,
+      ),
+      ["title", "id"],
+    );
     assert.equal(table.indices?.[1].id, 1);
   });
 

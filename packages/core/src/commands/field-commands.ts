@@ -1,8 +1,11 @@
 import type { Command } from "./command.ts";
 import type { Diagram } from "../models/diagram.ts";
 import type { Field, FieldId } from "../models/field.ts";
-import type { TableId } from "../models/table.ts";
+import type { LogicalAttribute } from "../models/logical.ts";
+import { removeFieldAtomic } from "../models/invariants.ts";
+import type { Table, TableId } from "../models/table.ts";
 import { deepClone } from "../utils/clone.ts";
+import { createId } from "../utils/id.ts";
 
 /**
  * Adds a field to a table.
@@ -14,6 +17,7 @@ export class AddFieldCommand implements Command {
   private readonly tableId: TableId;
   private readonly field: Field;
   private readonly index: number | undefined;
+  private addedAttributeId: string | undefined;
 
   constructor(
     diagram: Diagram,
@@ -40,6 +44,18 @@ export class AddFieldCommand implements Command {
         ? table.fields.length
         : Math.min(this.index, table.fields.length);
     table.fields.splice(idx, 0, this.field);
+
+    // INV-4 pairing: every physical field pairs with a logical attribute.
+    if (table.logical) {
+      const attribute: LogicalAttribute = {
+        id: createId(),
+        name: this.field.name,
+        logicalType: { family: "string" },
+        fieldId: this.field.id,
+      };
+      table.logical.attributes.push(attribute);
+      this.addedAttributeId = attribute.id;
+    }
   }
 
   undo(): void {
@@ -49,6 +65,15 @@ export class AddFieldCommand implements Command {
     const idx = table.fields.findIndex((f) => f.id === this.field.id);
     if (idx >= 0) {
       table.fields.splice(idx, 1);
+    }
+    if (table.logical && this.addedAttributeId !== undefined) {
+      const attributeIdx = table.logical.attributes.findIndex(
+        (a) => a.id === this.addedAttributeId,
+      );
+      if (attributeIdx >= 0) {
+        table.logical.attributes.splice(attributeIdx, 1);
+      }
+      this.addedAttributeId = undefined;
     }
   }
 }
@@ -107,8 +132,8 @@ export class RemoveFieldCommand implements Command {
   private readonly diagram: Diagram;
   private readonly tableId: TableId;
   private readonly fieldId: FieldId;
-  private removedField: Field | undefined;
-  private removedIndex = -1;
+  private previousTable: Table | undefined;
+  private removedFieldName: string | undefined;
 
   constructor(
     diagram: Diagram,
@@ -121,31 +146,33 @@ export class RemoveFieldCommand implements Command {
   }
 
   get description(): string {
-    return `Remove field ${this.removedField?.name ?? this.fieldId}`;
+    return `Remove field ${this.removedFieldName ?? this.fieldId}`;
   }
 
   execute(): void {
-    const table = this.diagram.tables.find((t) => t.id === this.tableId);
-    if (!table) return;
+    const tableIdx = this.diagram.tables.findIndex((t) => t.id === this.tableId);
+    if (tableIdx < 0) return;
 
-    const idx = table.fields.findIndex((f) => f.id === this.fieldId);
-    if (idx < 0) return;
+    const table = this.diagram.tables[tableIdx];
+    const field = table.fields.find((f) => f.id === this.fieldId);
+    if (!field) return;
 
-    this.removedIndex = idx;
-    this.removedField = deepClone(table.fields[idx]);
-    table.fields.splice(idx, 1);
+    // INV-4 atomic delete: field, paired attribute and index/unique
+    // constraint references go away in one step (spec section 3.5.2).
+    this.previousTable = deepClone(table);
+    this.removedFieldName = field.name;
+    this.diagram.tables[tableIdx] = removeFieldAtomic(table, this.fieldId);
   }
 
   undo(): void {
-    if (!this.removedField || this.removedIndex < 0) return;
+    if (!this.previousTable) return;
 
-    const table = this.diagram.tables.find((t) => t.id === this.tableId);
-    if (!table) return;
+    const tableIdx = this.diagram.tables.findIndex((t) => t.id === this.tableId);
+    if (tableIdx < 0) return;
 
-    const idx = Math.min(this.removedIndex, table.fields.length);
-    table.fields.splice(idx, 0, this.removedField);
-    this.removedField = undefined;
-    this.removedIndex = -1;
+    this.diagram.tables[tableIdx] = this.previousTable;
+    this.previousTable = undefined;
+    this.removedFieldName = undefined;
   }
 }
 

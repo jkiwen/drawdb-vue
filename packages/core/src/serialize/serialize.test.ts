@@ -17,9 +17,21 @@ function sampleDiagram(): Diagram {
       name: "users",
       x: 0,
       y: 0,
+      logical: { id: "le-t1", name: "users", attributes: [] },
       fields: [
-        { id: "f1", name: "id", type: "INTEGER", primary: true },
-        { id: "f2", name: "name", type: "VARCHAR" },
+        {
+          id: "f1",
+          name: "id",
+          fieldType: { type: "INTEGER" },
+          fieldTypeSource: "explicit",
+          primary: true,
+        },
+        {
+          id: "f2",
+          name: "name",
+          fieldType: { type: "VARCHAR" },
+          fieldTypeSource: "explicit",
+        },
       ],
     },
     {
@@ -27,9 +39,21 @@ function sampleDiagram(): Diagram {
       name: "posts",
       x: 300,
       y: 0,
+      logical: { id: "le-t2", name: "posts", attributes: [] },
       fields: [
-        { id: "f3", name: "id", type: "INTEGER", primary: true },
-        { id: "f4", name: "user_id", type: "INTEGER" },
+        {
+          id: "f3",
+          name: "id",
+          fieldType: { type: "INTEGER" },
+          fieldTypeSource: "explicit",
+          primary: true,
+        },
+        {
+          id: "f4",
+          name: "user_id",
+          fieldType: { type: "INTEGER" },
+          fieldTypeSource: "explicit",
+        },
       ],
     },
   ];

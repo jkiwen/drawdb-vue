@@ -63,11 +63,11 @@ describe("parseDBML", () => {
     const id = users.fields.find((f) => f.name === "id");
     const email = users.fields.find((f) => f.name === "email");
 
-    assert.equal(id?.type, "INTEGER");
+    assert.equal(id?.fieldType.type, "INTEGER");
     assert.equal(id?.primary, true);
     assert.equal(id?.increment, true);
-    assert.equal(email?.type, "VARCHAR");
-    assert.equal(email?.size, "255");
+    assert.equal(email?.fieldType.type, "VARCHAR");
+    assert.equal(email?.fieldType.length, 255);
     assert.equal(email?.notNull, true);
     assert.equal(email?.unique, true);
   });
@@ -83,7 +83,12 @@ describe("parseDBML", () => {
 
     assert.equal(posts.indices?.length, 1);
     assert.equal(posts.indices?.[0].name, "idx_posts_user");
-    assert.deepEqual(posts.indices?.[0].fields, ["user_id"]);
+    assert.deepEqual(
+      posts.indices?.[0].fields.map(
+        (id) => posts.fields.find((f) => f.id === id)?.name,
+      ),
+      ["user_id"],
+    );
   });
 
   it("parses relationships with cardinality and constraints", () => {
@@ -140,7 +145,7 @@ enum state_active_inactive_t {
     const t = tableByName(diagram, "t");
     const state = t.fields.find((f) => f.name === "state");
 
-    assert.equal(state?.type, "ENUM");
+    assert.equal(state?.fieldType.type, "ENUM");
     assert.deepEqual(state?.values, ["active", "inactive"]);
     assert.equal(diagram.enums.length, 0);
   });
@@ -179,6 +184,7 @@ describe("exportDBML", () => {
         x: 0,
         y: 0,
         fields: [],
+        logical: { id: "le-t1", name: "empty", attributes: [] },
       },
     ];
 
@@ -224,6 +230,7 @@ describe("diffDBML", () => {
       x: 0,
       y: 0,
       fields: [],
+      logical: { id: "le-new", name: "comments", attributes: [] },
     });
 
     const ops = diffDBML(before, after);

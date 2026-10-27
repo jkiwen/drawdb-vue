@@ -3,6 +3,7 @@ import type { Field } from "../models/field.ts";
 import {
   escapeQuotes,
   exportFieldComment,
+  fieldSizeSuffix,
   getFkColumnNames,
   uniqueConstraintClause,
 } from "./shared.ts";
@@ -66,7 +67,7 @@ function parseDefault(field: Field): string | number | boolean | undefined {
     return field.default;
   }
 
-  const meta = getTypeMetadata(field.type);
+  const meta = getTypeMetadata(field.fieldType.type);
   if (
     isFunction(field.default) ||
     isKeyword(field.default) ||
@@ -102,11 +103,7 @@ function tablesToOracleSQL(diagram: Diagram): string {
             (field) =>
               `${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
                 field.name,
-              )} ${field.type}${
-                field.size !== undefined && field.size !== ""
-                  ? "(" + field.size + ")"
-                  : ""
-              }${field.notNull ? " NOT NULL" : ""}${
+              )} ${field.fieldType.type}${fieldSizeSuffix(field.fieldType)}${field.notNull ? " NOT NULL" : ""}${
                 field.increment ? " GENERATED ALWAYS AS IDENTITY" : ""
               }${field.unique ? " UNIQUE" : ""}${
                 field.default !== undefined && field.default !== ""
@@ -115,7 +112,7 @@ function tablesToOracleSQL(diagram: Diagram): string {
               }${
                 field.check === "" ||
                 field.check == null ||
-                !getTypeMetadata(field.type)?.hasCheck
+                !getTypeMetadata(field.fieldType.type)?.hasCheck
                   ? ""
                   : ` CHECK(${field.check})`
               }`,
@@ -135,7 +132,12 @@ function tablesToOracleSQL(diagram: Diagram): string {
                     `\nCREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(
                       i.name,
                     )}\nON ${quoteIdentifier(table.name)} (${i.fields
-                      .map((f) => quoteIdentifier(f))
+                      .map((f) =>
+                        quoteIdentifier(
+                          table.fields.find((fl) => fl.id === f)?.name ??
+                            String(f),
+                        ),
+                      )
                       .join(", ")});`,
                 )
                 .join("")}`

@@ -1,7 +1,7 @@
 import { isKeyword } from "../export/shared.ts";
 import type { DatabaseType } from "../models/diagram.ts";
 import type { Enum } from "../models/enum.ts";
-import type { Field } from "../models/field.ts";
+import type { Field, FieldId } from "../models/field.ts";
 import type {
   Relationship,
   RelationshipFieldPair,
@@ -99,8 +99,8 @@ function sharesFieldName(
 }
 
 function resolveType(parsed: ParsedDBMLField, base: Field): string {
-  if (isInlineEnumType(parsed.type) && isInlineEnumType(base.type)) {
-    return base.type;
+  if (isInlineEnumType(parsed.type) && isInlineEnumType(base.fieldType.type)) {
+    return base.fieldType.type;
   }
   return parsed.type;
 }
@@ -117,18 +117,21 @@ function resolveSize(
   base: Field,
   type: string,
   database: DatabaseType,
-): string | number | undefined {
-  if (!typeTakesSize(type, database)) return base.size;
+): number | undefined {
+  if (!typeTakesSize(type, database)) return base.fieldType.length;
   if (parsed.size === "") return undefined;
-  if (String(base.size) === String(parsed.size)) return base.size;
-  return parsed.size;
+  if (String(base.fieldType.length) === String(parsed.size)) {
+    return base.fieldType.length;
+  }
+  return Number(parsed.size);
 }
 
 function createField(parsed: ParsedDBMLField): Field {
   const field: Field = {
     id: createId(),
     name: parsed.name,
-    type: parsed.type,
+    fieldType: { type: parsed.type },
+    fieldTypeSource: "imported",
     default: parsed.default,
     check: "",
     primary: parsed.primary,
@@ -138,7 +141,7 @@ function createField(parsed: ParsedDBMLField): Field {
     comment: parsed.comment,
   };
 
-  if (parsed.size !== "") field.size = parsed.size;
+  if (parsed.size !== "") field.fieldType.length = Number(parsed.size);
   if (isInlineEnumType(parsed.type)) field.values = parsed.values ?? [];
 
   return field;
@@ -153,7 +156,7 @@ function mergeField(
   const merged: Field = {
     ...base,
     name: parsed.name,
-    type,
+    fieldType: { ...base.fieldType, type },
     default: resolveDefault(parsed, base),
     primary: parsed.primary,
     unique: parsed.unique,
@@ -169,8 +172,8 @@ function mergeField(
   }
 
   const size = resolveSize(parsed, base, type, database);
-  if (size === undefined) delete merged.size;
-  else merged.size = size;
+  if (size === undefined) delete merged.fieldType.length;
+  else merged.fieldType.length = size;
 
   return merged;
 }
@@ -191,19 +194,23 @@ function mergeIndexEntry(
   parsed: ParsedDBMLIndex,
   base: Index | UniqueConstraint | undefined,
   position: number,
+  resolvedFields: FieldId[],
 ): Index & UniqueConstraint {
   return {
     ...(base ?? {}),
     id: position,
     name: parsed.name,
     fields:
-      base && sameList(base.fields, parsed.fields) ? base.fields : parsed.fields,
+      base && sameList(base.fields, resolvedFields)
+        ? base.fields
+        : resolvedFields,
   } as Index & UniqueConstraint;
 }
 
 function reconcileIndexes(
   parsedIndexes: ParsedDBMLIndex[],
   baseTable: Table,
+  fields: Field[],
 ): { indices: NonNullable<Table["indices"]>; uniqueConstraints: NonNullable<Table["uniqueConstraints"]> } {
   const baseIndices = baseTable.indices ?? [];
   const baseConstraints = baseTable.uniqueConstraints ?? [];
@@ -215,19 +222,23 @@ function reconcileIndexes(
   const uniqueConstraints: NonNullable<Table["uniqueConstraints"]> = [];
 
   for (const parsed of parsedIndexes) {
+    // Parsed DBML references fields by name; the model stores field ids.
+    const resolvedFields = parsed.fields.map(
+      (name) => fields.find((f) => f.name === name)?.id ?? name,
+    );
     if (parsed.unique && constraintNames.has(parsed.name)) {
       const base = baseConstraints.find((c) => c.name === parsed.name);
       uniqueConstraints.push({
-        ...mergeIndexEntry(parsed, base, uniqueConstraints.length),
+        ...mergeIndexEntry(parsed, base, uniqueConstraints.length, resolvedFields),
         name: parsed.name,
-        fields: base?.fields ?? parsed.fields,
+        fields: base?.fields ?? resolvedFields,
       });
     } else {
       const base =
         baseIndices.find((index) => index.name === parsed.name) ??
         baseIndices[indices.length];
       indices.push({
-        ...mergeIndexEntry(parsed, base, indices.length),
+        ...mergeIndexEntry(parsed, base, indices.length, resolvedFields),
         unique: parsed.unique,
       });
     }
@@ -241,29 +252,34 @@ function mergeTable(
   base: Table,
   database: DatabaseType,
 ): Table {
+  const fields = reconcileFields(parsed.fields, base.fields ?? [], database);
   return {
     ...base,
     name: parsed.name,
     comment: parsed.comment,
     color: parsed.color ?? base.color,
-    fields: reconcileFields(parsed.fields, base.fields ?? [], database),
-    ...reconcileIndexes(parsed.indices, base),
+    fields,
+    ...reconcileIndexes(parsed.indices, base, fields),
   };
 }
 
 function createTable(parsed: ParsedDBMLTable): Table {
+  const fields = parsed.fields.map(createField);
   return {
     id: createId(),
     name: parsed.name,
+    logical: { id: createId(), name: parsed.name, attributes: [] },
     comment: parsed.comment,
     color: parsed.color ?? DEFAULT_TABLE_COLOR,
     x: 0,
     y: 0,
-    fields: parsed.fields.map(createField),
+    fields,
     indices: parsed.indices.map((index, i) => ({
       id: i,
       name: index.name,
-      fields: index.fields,
+      fields: index.fields.map(
+        (name) => fields.find((f) => f.name === name)?.id ?? name,
+      ),
       unique: index.unique,
     })),
     uniqueConstraints: [],

@@ -18,7 +18,7 @@ test("imports a table with a serial primary key, not null and a varchar size", (
 
   const id = users.fields[0];
   assert.equal(id.name, "id");
-  assert.equal(id.type, "SERIAL");
+  assert.equal(id.fieldType.type, "SERIAL");
   assert.equal(id.primary, true);
   // React parity: `notNull` is only raised by an explicit NOT NULL, the
   // PostgreSQL grammar does not mark the primary key as such.
@@ -26,8 +26,8 @@ test("imports a table with a serial primary key, not null and a varchar size", (
 
   const name = users.fields[1];
   assert.equal(name.name, "name");
-  assert.equal(name.type, "VARCHAR");
-  assert.equal(name.size, 255);
+  assert.equal(name.fieldType.type, "VARCHAR");
+  assert.equal(name.fieldType.length, 255);
   assert.equal(name.notNull, true);
   assert.equal(name.primary, false);
 
@@ -110,15 +110,30 @@ test("imports unique constraints and indices", () => {
 
   assert.equal(users.uniqueConstraints?.length, 1);
   assert.equal(users.uniqueConstraints?.[0].name, "uq_users_email");
-  assert.deepEqual(users.uniqueConstraints?.[0].fields, ["email"]);
+  assert.deepEqual(
+    users.uniqueConstraints?.[0].fields.map(
+      (id) => users.fields.find((f) => f.id === id)?.name,
+    ),
+    ["email"],
+  );
 
   assert.equal(users.indices?.length, 2);
   assert.equal(users.indices?.[0].name, "idx_users_name");
   assert.equal(users.indices?.[0].unique, true);
-  assert.deepEqual(users.indices?.[0].fields, ["name"]);
+  assert.deepEqual(
+    users.indices?.[0].fields.map(
+      (id) => users.fields.find((f) => f.id === id)?.name,
+    ),
+    ["name"],
+  );
   assert.equal(users.indices?.[1].name, "idx_users_id_name");
   assert.equal(users.indices?.[1].unique, false);
-  assert.deepEqual(users.indices?.[1].fields, ["id", "name"]);
+  assert.deepEqual(
+    users.indices?.[1].fields.map(
+      (id) => users.fields.find((f) => f.id === id)?.name,
+    ),
+    ["id", "name"],
+  );
 });
 
 test("marks a column as unique when the constraint is inline", () => {
@@ -211,10 +226,11 @@ test("imports comments, defaults, sizes and checks", () => {
 
   assert.equal(users.comment, "the people");
   assert.equal(users.fields[0].comment, "the key");
-  assert.equal(users.fields[1].type, "NUMERIC");
-  assert.equal(users.fields[1].size, "10,2");
+  assert.equal(users.fields[1].fieldType.type, "NUMERIC");
+  assert.equal(users.fields[1].fieldType.precision, 10);
+  assert.equal(users.fields[1].fieldType.scale, 2);
   assert.equal(users.fields[1].default, "0");
-  assert.equal(users.fields[2].type, "TIMESTAMP");
+  assert.equal(users.fields[2].fieldType.type, "TIMESTAMP");
   assert.equal(users.fields[2].default, "now()");
   assert.equal(users.fields[3].check, '"age" > 0');
 });

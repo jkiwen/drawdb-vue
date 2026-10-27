@@ -22,11 +22,11 @@ describe("fromMSSQL", () => {
     assert.equal(users.name, "users");
     assert.equal(users.fields.length, 2);
     assert.equal(users.fields[0].name, "id");
-    assert.equal(users.fields[0].type, "INTEGER");
+    assert.equal(users.fields[0].fieldType.type, "INTEGER");
     assert.equal(users.fields[0].notNull, true);
     assert.equal(users.fields[0].increment, true);
     assert.equal(users.fields[1].name, "email");
-    assert.equal(users.fields[1].size, 255);
+    assert.equal(users.fields[1].fieldType.length, 255);
   });
 
   it("does not mark an explicitly nullable column as not null", () => {
@@ -197,11 +197,21 @@ describe("fromMSSQL", () => {
     const users = diagram.tables[0];
     assert.equal(users.uniqueConstraints?.length, 1);
     assert.equal(users.uniqueConstraints?.[0].name, "uq_users_email");
-    assert.deepEqual(users.uniqueConstraints?.[0].fields, ["email"]);
+    assert.deepEqual(
+      users.uniqueConstraints?.[0].fields.map(
+        (id) => users.fields.find((f) => f.id === id)?.name,
+      ),
+      ["email"],
+    );
     assert.equal(users.indices?.length, 1);
     assert.equal(users.indices?.[0].name, "ix_users_email");
     assert.equal(users.indices?.[0].unique, true);
-    assert.deepEqual(users.indices?.[0].fields, ["email"]);
+    assert.deepEqual(
+      users.indices?.[0].fields.map(
+        (id) => users.fields.find((f) => f.id === id)?.name,
+      ),
+      ["email"],
+    );
   });
 
   it("reads a composite foreign key", () => {

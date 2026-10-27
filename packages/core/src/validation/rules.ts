@@ -148,7 +148,7 @@ export function checkFields(diagram: Diagram): DiagramIssue[] {
           ),
         );
       }
-      if (!key(field?.type)) {
+      if (!key(field?.fieldType?.type)) {
         found.push(
           issue(
             "field.no_type",
@@ -159,7 +159,7 @@ export function checkFields(diagram: Diagram): DiagramIssue[] {
           ),
         );
       }
-      if (isEnumType(field?.type) && (field?.values?.length ?? 0) === 0) {
+      if (isEnumType(field?.fieldType?.type) && (field?.values?.length ?? 0) === 0) {
         found.push(
           issue(
             "field.no_values",
@@ -241,17 +241,17 @@ export function checkDefaultValues(
   for (const table of tablesOf(diagram)) {
     for (const field of table?.fields ?? []) {
       if (field?.default === undefined || field?.default === null) continue;
-      const kind = resolveDefaultKind(database, field?.type ?? "");
+      const kind = resolveDefaultKind(database, field?.fieldType?.type ?? "");
       if (isDefaultValid(kind, field.default)) continue;
       found.push(
         issue(
           "field.default_mismatch",
           "error",
-          `The default "${String(field.default)}" is not valid for the type "${field.type}".`,
+          `The default "${String(field.default)}" is not valid for the type "${field.fieldType?.type}".`,
           {
             table: table.name ?? "",
             field: field.name ?? "",
-            type: field.type ?? "",
+            type: field.fieldType?.type ?? "",
             default: String(field.default),
           },
           { tableId: String(table?.id), fieldId: String(field?.id) },

@@ -4,6 +4,7 @@ import type { TypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
   exportFieldComment,
+  fieldSizeSuffix,
   getFkColumnNames,
   uniqueConstraintClause,
 } from "./shared.ts";
@@ -103,7 +104,7 @@ function parseDefault(field: Field): string | number | boolean | undefined {
     return field.default;
   }
 
-  const typeInfo = getGenericTypeMetadata(field.type);
+  const typeInfo = getGenericTypeMetadata(field.fieldType.type);
   if (
     isFunction(field.default) ||
     isKeyword(field.default) ||
@@ -116,11 +117,11 @@ function parseDefault(field: Field): string | number | boolean | undefined {
 }
 
 function parseType(field: Field): string {
-  let res = field.type;
+  let res = field.fieldType.type;
 
-  const meta = getGenericTypeMetadata(field.type);
+  const meta = getGenericTypeMetadata(field.fieldType.type);
   if (meta?.isSized || meta?.hasPrecision) {
-    res += `${field.size && field.size !== "" ? `(${field.size})` : ""}`;
+    res += fieldSizeSuffix(field.fieldType);
   }
 
   return res;
@@ -141,7 +142,7 @@ function tablesToGeneric(diagram: Diagram): string {
                 ? ` DEFAULT ${parseDefault(field)}`
                 : ""
             }${
-              field.check && getGenericTypeMetadata(field.type)?.hasCheck
+              field.check && getGenericTypeMetadata(field.fieldType.type)?.hasCheck
                 ? ` CHECK(${field.check})`
                 : ""
             }`,
@@ -174,7 +175,11 @@ function tablesToGeneric(diagram: Diagram): string {
         .map(
           (i) =>
             `CREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(i.name)}\nON ${quoteIdentifier(table.name)} (${i.fields
-              .map((f) => quoteIdentifier(f))
+              .map((f) =>
+                quoteIdentifier(
+                  table.fields.find((fl) => fl.id === f)?.name ?? String(f),
+                ),
+              )
               .join(", ")});`,
         )
         .join("\n");

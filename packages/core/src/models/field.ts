@@ -1,21 +1,10 @@
-import type { Metadata } from "./metadata.ts";
+import type { PhysicalField } from "./physical.ts";
 
 export type FieldId = string | number;
 
-export interface Field {
-  id: FieldId;
-  name: string;
-  type: string;
-  default?: string | number | boolean;
-  check?: string;
-  primary?: boolean;
-  unique?: boolean;
-  nullable?: boolean;
-  notNull?: boolean;
-  unsigned?: boolean;
-  increment?: boolean;
-  comment?: string;
-  size?: string | number;
-  values?: string[];
-  metadata?: Metadata;
-}
+/**
+ * @deprecated The two-layer model (spec section 3) replaced the flat
+ * `Field` with `PhysicalField`; this alias only eases the migration and
+ * will be removed. New code must use `PhysicalField`.
+ */
+export type Field = PhysicalField;

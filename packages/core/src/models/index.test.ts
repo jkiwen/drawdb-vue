@@ -39,17 +39,19 @@ describe("createEmptyDiagram", () => {
           name: "users",
           x: 100,
           y: 200,
+          logical: { id: "le-t1", name: "users", attributes: [] },
           fields: [
             {
               id: "f1",
               name: "id",
-              type: "bigint",
+              fieldType: { type: "bigint" },
+              fieldTypeSource: "explicit",
               nullable: false,
               primary: true,
               metadata: { owner: "platform" },
             },
           ],
-          indices: [{ name: "pk_users", unique: true, fields: ["id"] }],
+          indices: [{ name: "pk_users", unique: true, fields: ["f1"] }],
         },
       ],
       relationships: [

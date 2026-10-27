@@ -53,7 +53,7 @@ function parseDefault(field: Field): string | number | boolean | undefined {
     return field.default;
   }
 
-  const typeInfo = getSqliteTypeMetadata(field.type);
+  const typeInfo = getSqliteTypeMetadata(field.fieldType.type);
   if (
     isFunction(field.default) ||
     isKeyword(field.default) ||
@@ -76,7 +76,7 @@ function tablesToSqlite(diagram: Diagram): string {
           (field) =>
             `${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
               field.name,
-            )} ${field.type}${field.notNull ? " NOT NULL" : ""}${
+            )} ${field.fieldType.type}${field.notNull ? " NOT NULL" : ""}${
               field.unique ? " UNIQUE" : ""
             }${
               field.default !== undefined && field.default !== ""
@@ -85,7 +85,7 @@ function tablesToSqlite(diagram: Diagram): string {
             }${
               field.check === "" ||
               field.check == null ||
-              !getSqliteTypeMetadata(field.type)?.hasCheck
+              !getSqliteTypeMetadata(field.fieldType.type)?.hasCheck
                 ? ""
                 : ` CHECK(${field.check})`
             }`,
@@ -106,7 +106,11 @@ function tablesToSqlite(diagram: Diagram): string {
             `\nCREATE ${i.unique ? "UNIQUE " : ""}INDEX IF NOT EXISTS ${quoteIdentifier(
               i.name,
             )}\nON ${quoteIdentifier(table.name)} (${i.fields
-              .map((f) => quoteIdentifier(f))
+              .map((f) =>
+                quoteIdentifier(
+                  table.fields.find((fl) => fl.id === f)?.name ?? String(f),
+                ),
+              )
               .join(", ")});`,
         )
         .join("\n")}`;
