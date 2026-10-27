@@ -45,7 +45,9 @@ export const BUILTIN_FAMILIES: LogicalTypeFamily[] = [
     id: "string",
     label: "type_family.string",
     params: [param("length", "type_param.length")],
-    defaultParams: { length: 255 },
+    // The 255 default lives in each mapping row (spec §4.1: family
+    // defaultParams are a scope-override level above mapping params; putting
+    // the builtin default there would make scope mapping overrides useless).
     mappings: row(
       m("VARCHAR", { length: 255 }),
       m("VARCHAR", { length: 255 }, { unicode: true }),
@@ -94,7 +96,7 @@ export const BUILTIN_FAMILIES: LogicalTypeFamily[] = [
       param("precision", "type_param.precision"),
       param("scale", "type_param.scale"),
     ],
-    defaultParams: { precision: 10, scale: 2 },
+    // Same as string: the (10, 2) default is carried by the mapping rows.
     mappings: row(
       m("DECIMAL", { precision: 10, scale: 2 }),
       m("DECIMAL", { precision: 10, scale: 2 }),

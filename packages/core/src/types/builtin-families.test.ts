@@ -94,6 +94,12 @@ describe("builtin logical type families", () => {
   it("defaults string length to 255 (spec section 3.2)", () => {
     const stringFamily = BUILTIN_FAMILIES.find((f) => f.id === "string");
     assert.ok(stringFamily);
-    assert.deepEqual(stringFamily.defaultParams, { length: 255 });
+    // The default is carried by every mapping row, not by defaultParams:
+    // defaultParams sit above mapping params in the §4.1 priority chain and
+    // would defeat scope-level mapping overrides.
+    assert.equal(stringFamily.defaultParams, undefined);
+    for (const mapping of Object.values(stringFamily.mappings)) {
+      assert.equal(mapping.params?.length, 255);
+    }
   });
 });
