@@ -48,9 +48,15 @@ test.describe("the area of the canvas", () => {
     // The area that was just added is the selected one.
     await expect(areaGroup(page)).toHaveClass(/is-selected/);
 
-    await page
-      .locator('[data-testid="canvas"]')
-      .click({ position: { x: 20, y: 20 } });
+    // The floating toolbar covers the top-left corner of the canvas, so the
+    // click that clears the selection lands on the empty bottom-right corner.
+    const canvas = page.locator('[data-testid="canvas"]');
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+    if (!box) return;
+    await canvas.click({
+      position: { x: box.width - 20, y: box.height - 20 },
+    });
     await expect(areaGroup(page)).not.toHaveClass(/is-selected/);
 
     await clickInsideTheArea(page);

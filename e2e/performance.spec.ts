@@ -1,12 +1,13 @@
 import { expect, test } from "@playwright/test";
-import { canvasTables, sidePanelTables, waitForEditor } from "./helpers.ts";
+import { canvasTables, outlineTables, waitForEditor } from "./helpers.ts";
 
 /**
  * The performance tests of the canvas.
  *
  * The canvas only draws the tables that lie inside of the viewport, so that a
- * diagram with a hundred tables stays fluent. The side panel lists every table
- * of the diagram, the canvas only the ones the user can see.
+ * diagram with a hundred tables stays fluent. The outline tree of the left
+ * panel keeps every table of the diagram, the canvas only the ones the user
+ * can see.
  */
 
 /** The number of the tables of the performance tests. */
@@ -29,8 +30,16 @@ test.describe("performance", () => {
 
     await addTables(page, TABLE_COUNT);
 
-    // The side panel lists every table of the diagram.
-    await expect(sidePanelTables(page)).toHaveCount(TABLE_COUNT);
+    // The outline lists every table of the diagram: the count badge of the
+    // tables category says so, while the virtual scroll only keeps the rows
+    // around the viewport in the DOM (the panel has followed the selection to
+    // the last added table, so the test scrolls back to its top).
+    await outlineTables(page).last().hover();
+    await page.mouse.wheel(0, -100_000);
+    await expect(page.getByTestId("outline-badge-cat:tables")).toHaveText(
+      String(TABLE_COUNT),
+    );
+    expect(await outlineTables(page).count()).toBeLessThan(TABLE_COUNT);
 
     // The canvas draws the tables that lie inside of the viewport, so it shows
     // a part of them. The tables of the list that are outside are not drawn.

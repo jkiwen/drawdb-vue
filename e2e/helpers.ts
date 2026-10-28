@@ -11,14 +11,16 @@ export function canvasTables(page: Page): Locator {
   return page.locator('[data-testid="canvas"] g[data-testid^="table-"]');
 }
 
-/** The tables of the logical view of the canvas. */
-export function canvasLogicalTables(page: Page): Locator {
-  return page.locator('[data-testid="canvas"] g[data-testid^="logical-table-"]');
+/** The table rows of the outline tree of the left panel. */
+export function outlineTables(page: Page): Locator {
+  return page.locator(
+    '[data-testid="outline-tree"] [data-testid^="outline-row-table:"]',
+  );
 }
 
-/** The rows of the table list of the side panel. */
-export function sidePanelTables(page: Page): Locator {
-  return page.locator('[data-testid="side-panel"] [data-testid="tables-list"] li');
+/** One row of the outline tree, named by the id of its node. */
+export function outlineRow(page: Page, nodeId: string): Locator {
+  return page.getByTestId(`outline-row-${nodeId}`);
 }
 
 /** Waits until the editor has finished its first render. */
