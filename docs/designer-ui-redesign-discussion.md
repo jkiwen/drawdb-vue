@@ -580,7 +580,7 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 | 2 没选中任何元素时，视图切换应作用于所有表 | `stores/toolbar-scope.ts` 增 `clearOverridesForCanvas()`：canvas 范围的 toggle / 显示模式变化会清掉 `viewState.overrides`，早先按表范围改过的表也跟着变 |
 | 3 导航点击后应把对象定位到可视区域中心 | `composables/zoom-actions.ts` 增 `centerScroll()`；`composables/canvas-viewport.ts` 保存画布视口（`ResizeObserver` 保持新鲜）；`composables/use-focus-measure.ts` 用 `tableRenderModel` 量节点尺寸；`selection-actions.ts` 的 `useFocusIssue(scrollTo, sizeOf)` 把**节点中心**交给 `ui.centerOn()` |
 | 4 折叠成仅表名后，连线锚点没有跟随 | `Canvas/Relationship.vue` 的 `startModel`/`endModel` 传 `toolbarScope.overrideFor(id)`，与画布实际绘制同源；回归测试 `relationship-override.test.ts` |
-| 5 PK 没有名称、tables 视图里不能选 PK/FK/UK | `table-sections.ts` 的 PK 行改为 `PRIMARY (id)`；树里新增键节点（见 8） |
+| 5 PK 没有名称、tables 视图里不能选 PK/FK/UK | `table-sections.ts` 的 PK 行改为 `PRIMARY (id)`；树里新增键节点（见 8）；画布键行本身也可点选——`TableSectionModel.refs` 带着每行代表的对象，`TableSections.vue` 把有 ref 的行渲染成 `table-section-<kind>-line-<table>-<i>` 按钮，点 PK/UK/INDEX 行选中字段、点 FK 行选中关系（`SelectRef` → `ui.selectField` / `ui.selectRelationship`） |
 | 6 PK/UK/FK 的字段不能编辑与排序 | `EditPanel/TableConstraints.vue` 重写为可编辑：PK 增删字段、UK 改名/加删/上下移字段/增删键、FK 改名；动作全部走 `diagram.updateField` / `updateTable` / `updateRelationship` |
 | 7 无法编辑 PK/UK/FK 信息 | 同上；FK 行的「打开」按钮选中对应关系（`ui.selectRelationship`） |
 | 8 导航里没有 PK | `Outline/outline-constraints.ts` 在表节点下、字段之前插入 `PK` / `UK <name>` / `FK <name>` 三种节点（`constraint:<tableId>:…`），点击选中表（外键再选中关系）；`OutlineTree.vue` 的 `select()` 与 `focus` 事件都认这一类 |

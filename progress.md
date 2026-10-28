@@ -474,3 +474,18 @@ Twelve findings of a hands-on review, each closed with a test beside it.
 - **The field pair is a card (1).** One summary line plus a 2×2 body of labelled controls keeps the type readable at any panel width; the six-column header row disappeared with it.
 - **The toolbar is part of the layout (10, 11).** It wraps instead of scrolling, the create and canvas-view groups moved out of the header into it, and the header lost its own toolbar and undo/redo row. Old testids were kept on the new buttons so hosts and e2e keep working.
 - **The note editor exists (12).** Colour, size and lock live in the panel; the canvas note keeps its inline title and body editing.
+### The key rows of the canvas pick their object
+
+The key blocks under a table used to be decoration: the only way to reach a
+primary or foreign key was the outline tree. A `TableSectionModel` now carries
+`refs` — one target per line — and the lines that have a target render as
+buttons (`table-section-<kind>-line-<table>-<i>`). A PK, UK or index line
+selects the field it names, a FK line selects the relationship. The rows still
+read as text: no border, no background, only the cursor and a hover underline,
+because a box around every line reads as an input field.
+
+`lines.map((_, i) => refs[i] ?? NO_REF)` keeps a line without a target inert, so
+a description block (no refs) and a missing column never become a dead button.
+The foreign key rows and their relationship ids moved to
+`components/Canvas/table-foreign-keys.ts` when `table-sections.ts` crossed the
+300-line guard.
