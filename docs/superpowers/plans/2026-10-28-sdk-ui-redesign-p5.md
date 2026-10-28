@@ -222,6 +222,8 @@
 
 **i18n** —— 三轮文案共 52 个 key（24 个布局/对齐 + 20 个编辑面板 + 8 个底部区），en 从 503 涨到 **555**，51 个 locale 全部补齐并按 en 顺序排列；每个 key 都要求真实翻译、占位符与复数分段数与 en 一致、locale 文件保持 CRLF。
 
+**提交**：`4c116f1`（每表覆盖进文档）、`70a9a12`（树新建入口）、`eab9902`（3a/3b/3c 与 52 个 i18n key）。
+
 **验证证据（lead 亲自跑）**：`node --experimental-strip-types scripts/run-tests.mjs` → **1120/1120**；`pnpm typecheck`（core → sdk → app → examples → e2e 五段）→ exit 0；`node node_modules/@playwright/test/cli.js test --config e2e/playwright.config.ts` → **55 passed**。
 
 ### 第二轮补齐后的剩余缺口
