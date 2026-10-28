@@ -16,7 +16,7 @@ describe("settings store panel preferences", () => {
 
   it("defaults the panel sizes and states", () => {
     assert.equal(DEFAULT_SETTINGS.panelLeftWidth, 280);
-    assert.equal(DEFAULT_SETTINGS.panelRightWidth, 320);
+    assert.equal(DEFAULT_SETTINGS.panelRightWidth, 464);
     assert.equal(DEFAULT_SETTINGS.panelLeftCollapsed, false);
     assert.equal(DEFAULT_SETTINGS.panelRightCollapsed, false);
   });
@@ -37,7 +37,7 @@ describe("settings store panel preferences", () => {
     const store = useSettingsStore();
     assert.equal(store.settings.panelLeftWidth, 250);
     assert.equal(store.settings.panelLeftCollapsed, true);
-    assert.equal(store.settings.panelRightWidth, 320);
+    assert.equal(store.settings.panelRightWidth, 464);
   });
 
   it("reports only the persisted keys, without the defaults", () => {

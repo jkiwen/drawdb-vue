@@ -8,9 +8,9 @@ export type ThemeMode = "light" | "dark" | "auto";
 export const PANEL_LEFT_MIN_WIDTH = 240;
 export const PANEL_LEFT_MAX_WIDTH = 320;
 export const PANEL_LEFT_DEFAULT_WIDTH = 280;
-export const PANEL_RIGHT_MIN_WIDTH = 280;
-export const PANEL_RIGHT_MAX_WIDTH = 400;
-export const PANEL_RIGHT_DEFAULT_WIDTH = 320;
+export const PANEL_RIGHT_MIN_WIDTH = 320;
+export const PANEL_RIGHT_MAX_WIDTH = 560;
+export const PANEL_RIGHT_DEFAULT_WIDTH = 464;
 
 /** The bounds and the default of the height of the bottom panel. */
 export const PANEL_BOTTOM_MIN_HEIGHT = 120;

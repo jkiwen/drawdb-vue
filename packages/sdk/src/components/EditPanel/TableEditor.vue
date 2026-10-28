@@ -44,34 +44,31 @@ function onRemove(row: (typeof rows.value)[number]): void {
     <div :class="styles.overview" data-testid="field-overview">
       {{ overview.text }}
     </div>
-    <div
-      :class="[
-        styles['row-header'],
-        props.logicalView ? styles['row-header-logical-view'] : '',
-      ]"
-    >
-      <span>{{ t("edit_panel_logical_attribute") }}</span>
-      <span>{{ t("edit_panel_logical_type") }}</span>
-      <span>{{ t("edit_panel_physical_column") }}</span>
-      <span>{{ t("edit_panel_physical_type") }}</span>
-      <span>{{ t("edit_panel_status") }}</span>
-      <span />
-    </div>
-    <div :class="styles.rows" data-testid="field-rows">
-      <FieldPairRow
-        v-for="row in rows"
-        :key="row.key"
-        :table="props.table"
-        :row="row"
-        :database="props.database"
-        :logical-view="props.logicalView"
-        :focused="row.field?.id !== undefined && String(row.field.id) === String(props.focusFieldId)"
-        @commit-logical-name="(id, value) => commitLogicalName(store, props.table, id, value)"
-        @commit-logical-family="(id, family) => commitLogicalFamily(store, props.table, id, family)"
-        @commit-physical-name="(id, value) => commitPhysicalName(store, props.table, id, value)"
-        @commit-physical-type="(id, spec) => commitPhysicalType(store, props.table, id, spec)"
-        @remove="onRemove(row)"
-      />
+    <div :class="styles.scroll" data-testid="field-grid">
+      <div :class="styles['row-header']">
+        <span>{{ t("edit_panel_logical_attribute") }}</span>
+        <span>{{ t("edit_panel_logical_type") }}</span>
+        <span>{{ t("edit_panel_physical_column") }}</span>
+        <span>{{ t("edit_panel_physical_type") }}</span>
+        <span>{{ t("edit_panel_status") }}</span>
+        <span />
+      </div>
+      <div :class="styles.rows" data-testid="field-rows">
+        <FieldPairRow
+          v-for="row in rows"
+          :key="row.key"
+          :table="props.table"
+          :row="row"
+          :database="props.database"
+          :logical-view="props.logicalView"
+          :focused="row.field?.id !== undefined && String(row.field.id) === String(props.focusFieldId)"
+          @commit-logical-name="(id, value) => commitLogicalName(store, props.table, id, value)"
+          @commit-logical-family="(id, family) => commitLogicalFamily(store, props.table, id, family)"
+          @commit-physical-name="(id, value) => commitPhysicalName(store, props.table, id, value)"
+          @commit-physical-type="(id, spec) => commitPhysicalType(store, props.table, id, spec)"
+          @remove="onRemove(row)"
+        />
+      </div>
     </div>
     <div style="padding: 6px 0">
       <button

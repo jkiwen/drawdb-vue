@@ -102,7 +102,6 @@ function commitType(spec: import("@drawdb/core").PhysicalSpec): void {
   <div
     :class="[
       styles.row,
-      props.logicalView ? styles['row-logical-view'] : '',
       props.focused ? styles['row-focused'] : '',
     ]"
     data-testid="field-row"

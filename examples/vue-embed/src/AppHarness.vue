@@ -32,9 +32,31 @@ const diagram = ref<Diagram | undefined>({
     {
       id: "t1",
       name: "users",
-      x: 60,
-      y: 60,
-      logical: { id: "l_t1", name: "users", attributes: [] },
+      x: 120,
+      y: 130,
+      logical: {
+        id: "l_t1",
+        name: "user",
+        description: "A person who can sign in.",
+        attributes: [
+          {
+            id: "a1",
+            name: "user identifier",
+            logicalType: { family: "integer" },
+            fieldId: "f1",
+            keyRole: "primary",
+            required: true,
+          },
+          {
+            id: "a2",
+            name: "email address",
+            logicalType: { family: "string" },
+            params: { length: 255 },
+            fieldId: "f2",
+            required: true,
+          },
+        ],
+      },
       fields: [
         {
           id: "f1",
@@ -58,9 +80,38 @@ const diagram = ref<Diagram | undefined>({
     {
       id: "t2",
       name: "posts",
-      x: 420,
-      y: 60,
-      logical: { id: "l_t2", name: "posts", attributes: [] },
+      x: 560,
+      y: 130,
+      logical: {
+        id: "l_t2",
+        name: "post",
+        description: "A message written by a user.",
+        attributes: [
+          {
+            id: "a3",
+            name: "post identifier",
+            logicalType: { family: "integer" },
+            fieldId: "f3",
+            keyRole: "primary",
+            required: true,
+          },
+          {
+            id: "a4",
+            name: "author identifier",
+            logicalType: { family: "integer" },
+            fieldId: "f4",
+            keyRole: "foreign",
+            required: true,
+          },
+          {
+            id: "a5",
+            name: "post title",
+            logicalType: { family: "string" },
+            params: { length: 255 },
+            fieldId: "f5",
+          },
+        ],
+      },
       fields: [
         {
           id: "f3",
@@ -96,6 +147,14 @@ const diagram = ref<Diagram | undefined>({
       endTableId: "t1",
       endFieldId: "f1",
       cardinality: "many_to_one",
+    },
+  ],
+  logicalRelationships: [
+    {
+      id: "r1",
+      name: "authored by",
+      cardinality: "many_to_one",
+      relationshipType: "identifying",
     },
   ],
   notes: [],

@@ -48,6 +48,32 @@
   --ddb-text-muted: var(--n-text-color-3, #6b7280);
   --ddb-accent: var(--n-color-target, #175e7a);
 
+  /**
+   * The names the newer chrome refers to.
+   *
+   * The components added by the P5 redesign were written against a dark
+   * palette, so their inline fallbacks are dark. Defining the names here
+   * keeps the editor on the light palette of the host and lets a theme
+   * override one name instead of every component.
+   */
+  --ddb-fg: var(--ddb-text);
+  --ddb-fg-muted: var(--ddb-text-muted);
+  --ddb-muted: var(--ddb-text-muted);
+  --ddb-input-bg: var(--n-color, #ffffff);
+  --ddb-primary: var(--ddb-accent);
+  --ddb-success: var(--n-success-color, #18a058);
+  --ddb-danger: var(--n-error-color, #d03050);
+  --ddb-error: var(--n-error-color, #d03050);
+  --ddb-warning: var(--n-warning-color, #bf8700);
+  --ddb-code-bg: var(--ddb-surface-muted);
+  --ddb-font-mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas,
+    monospace;
+  --ddb-code-font: var(--ddb-font-mono);
+  --ddb-badge-info-bg: rgba(23, 94, 122, 0.12);
+  --ddb-badge-info-fg: var(--ddb-accent);
+  --ddb-badge-warn-bg: rgba(240, 160, 32, 0.18);
+  --ddb-badge-warn-fg: #8a5a00;
+
   /* The smallest target a pointer may aim at, and the layers of the editor. */
   --ddb-hit-target: 24px;
   --ddb-z-header: 10;
