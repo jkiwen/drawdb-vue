@@ -17,6 +17,7 @@ import "../styles/tokens.css";
 import { useEditorCommands } from "../composables/use-editor-commands.ts";
 import { useEditorPlugins } from "../composables/use-editor-plugins.ts";
 import { useEditorSync } from "../composables/use-editor-sync.ts";
+import { usePanelHotkeys } from "../composables/use-panel-hotkeys.ts";
 import { resolvePinia } from "../composables/pinia.ts";
 import { setLocale } from "../i18n/index.ts";
 import { useDialogStore } from "../stores/dialogs.ts";
@@ -156,6 +157,10 @@ const sync = useEditorSync({
 void plugins.activate();
 commands.configureAutoSave(props.autoSave, props.autoSaveInterval);
 
+// The layout panel hotkeys (mod+b / mod+alt+b / mod+`) answer as long as the
+// editor is mounted.
+const stopPanelHotkeys = usePanelHotkeys();
+
 /**
  * Handles an entry of the menu of the header.
  *
@@ -170,6 +175,7 @@ function onMenu(key: string): void {
 
 onBeforeUnmount(() => {
   commands.stopAutoSave();
+  stopPanelHotkeys();
   void plugins.deactivate();
 });
 

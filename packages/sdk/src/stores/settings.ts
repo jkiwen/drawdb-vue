@@ -35,6 +35,8 @@ export interface DrawDBSettings {
   panelLeftCollapsed?: boolean;
   /** Whether the right panel of the layout is collapsed. */
   panelRightCollapsed?: boolean;
+  /** Whether the bottom panel of the layout is collapsed. */
+  panelBottomCollapsed?: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = "drawdb:settings";
@@ -53,6 +55,7 @@ export const DEFAULT_SETTINGS: DrawDBSettings = {
   panelRightWidth: PANEL_RIGHT_DEFAULT_WIDTH,
   panelLeftCollapsed: false,
   panelRightCollapsed: false,
+  panelBottomCollapsed: false,
 };
 
 function storage(): Storage | undefined {
