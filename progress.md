@@ -422,3 +422,42 @@ and a real translation rather than a copy of English.
 
 The last verification: 1120 unit tests, five typecheck programs, 55 Playwright
 cases, all green.
+
+## The third pass over the canvas and the outline (2026-10-28)
+
+**1. The table sections moved below the fields.** The description used to sit
+inside the table header and the key blocks did not exist, so everything the
+table says about itself was pushed under the title. The node now renders the
+field list first and then a stack of read-only blocks — PK, FK, UK, INDEX and
+the description — separated by 1px rules, with the box growing by the sum of
+the block heights (`table-sections.ts` owns the geometry, `TableSections.vue`
+the markup, `render-model.ts` only sums it into `height`). The block titles
+are the SQL shorthand `PK`/`FK`/`UK`/`INDEX` on purpose: they are the same in
+every language, so the 51 locale files stay at 555 keys. The description keeps
+the double-click editor it had in the header.
+
+One consequence is worth recording: leaving `width` out of the block geometry
+would have made a block taller than its text, so `sectionDescriptionLines()`
+estimates the wrapped line count from the width the model already computes,
+and the blocks use explicit pixel heights because the SVG `foreignObject`
+does not measure content.
+
+**2. A relationship shows its own name in the tree.** `relationshipLabels()`
+used to lead with the logical name in the logical layer; a relationship is a
+constraint with one name, so the tree now leads with `relationship.name` on
+both layers and keeps the logical name as the secondary label. A relationship
+with no name at all still falls back to `start → end`.
+
+**3. The toolbar is a strip, not an overlay.** Floating the toolbar over the
+canvas covered the first table that the automatic layout places at the top
+left corner. `.ddb-editor__canvas` is now a flex column with the toolbar as a
+fixed row and `.ddb-editor__canvas-body` holding the canvas, so the canvas
+geometry starts below the strip. Nine groups do not fit a 696px canvas column
+at 1440px, so the row scrolls sideways instead of clipping the last group.
+
+The `indexes` toggle lost its disabled state in the same change: the index
+block exists now, and the four toggles map one-to-one onto the four block
+classes (description, fields, PK/FK/UK, indexes).
+
+The last verification: 1135 unit tests, the sdk `vue-tsc` program and all 55
+Playwright cases, all green.

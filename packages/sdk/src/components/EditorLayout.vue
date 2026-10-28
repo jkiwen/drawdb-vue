@@ -170,13 +170,15 @@ defineExpose({ openDialog, closeDialog });
           :groups="toolbarGroups"
           @menu="emit('menu', $event)"
         />
-        <Canvas />
-        <component
-          v-for="(slot, name) in pluginSlots"
-          :key="name"
-          :is="slot"
-          class="ddb-editor__plugin-slot"
-        />
+        <div class="ddb-editor__canvas-body">
+          <Canvas />
+          <component
+            v-for="(slot, name) in pluginSlots"
+            :key="name"
+            :is="slot"
+            class="ddb-editor__plugin-slot"
+          />
+        </div>
       </div>
       <ResizablePanel
         v-if="showEditPanel"
@@ -221,19 +223,25 @@ defineExpose({ openDialog, closeDialog });
 }
 
 .ddb-editor__canvas {
-  position: relative;
+  display: flex;
+  flex-direction: column;
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
 }
 
-/* The toolbar floats over the top of the canvas (design 6.0); the canvas
-   keeps its full height so its geometry does not shift. */
+/* The toolbar is a strip above the canvas, not a floating card (the automatic
+   layout starts at the top left corner, and a floating strip would cover the
+   first table it places). */
 .ddb-editor__toolbar {
-  position: absolute;
-  top: var(--ddb-space-2, 8px);
-  left: var(--ddb-space-2, 8px);
-  z-index: 10;
+  flex: 0 0 auto;
+}
+
+.ddb-editor__canvas-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .ddb-editor__plugin-slot {

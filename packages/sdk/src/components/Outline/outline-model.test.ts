@@ -177,8 +177,10 @@ describe("buildOutlineTree", () => {
 
     const logical = buildOutlineTree(sampleDiagram(), "logical");
     const logicalRelationships = category(logical, "cat:relationships");
-    assert.equal(logicalRelationships.children[0].label, "places");
-    assert.equal(logicalRelationships.children[0].altLabel, "fk_orders_users");
+    // A relationship always shows its own name, whichever layer the tree is
+    // in; the logical name stays available as the secondary label.
+    assert.equal(logicalRelationships.children[0].label, "fk_orders_users");
+    assert.equal(logicalRelationships.children[0].altLabel, "places");
     assert.equal(logicalRelationships.children[1].label, "User → User");
   });
 

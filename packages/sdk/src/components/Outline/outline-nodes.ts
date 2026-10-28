@@ -178,8 +178,11 @@ export function buildTableNode(
 }
 
 /**
- * The two layer names of a relationship; a nameless one falls back to the
- * pair of its table names on the layer in question.
+ * The two layer names of a relationship. The relationship's own name leads
+ * on both layers — a relationship is a constraint with one name, and the
+ * tree should name it whatever the view layer is — with the other layer's
+ * name on the secondary label. A relationship with no name at all falls back
+ * to the pair of its table names on the layer in question.
  */
 export function relationshipLabels(
   relationship: Relationship,
@@ -193,12 +196,13 @@ export function relationshipLabels(
   };
   const fallback = (layer: OutlineViewLayer) =>
     `${tableName(relationship.startTableId, layer)} → ${tableName(relationship.endTableId, layer)}`;
-  const physical = relationship.name?.trim() || fallback("physical");
-  const logicalName =
-    logical?.name?.trim() || relationship.name?.trim() || fallback("logical");
-  return viewLayer === "logical"
-    ? { label: logicalName, altLabel: physical }
-    : { label: physical, altLabel: logical?.name?.trim() ? logicalName : undefined };
+  const physical = relationship.name?.trim() ?? "";
+  const logicalName = logical?.name?.trim() ?? "";
+  const label = physical || logicalName || fallback(viewLayer);
+  return {
+    label,
+    altLabel: logicalName !== "" && logicalName !== label ? logicalName : undefined,
+  };
 }
 
 /** The first-level category node with its count badge. */

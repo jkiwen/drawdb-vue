@@ -356,6 +356,13 @@
 - **折叠态摘要**：条目区折叠时显示计数摘要「1 PK / 2 UK / 1 FK / 3 indices」。
 - 取代现状 `TableDetails.vue` 的两个文本框区块（逗号分隔自由文本废弃）。
 
+> **已落地（第三轮，2026-10-28）**：字段列表下方现按 **PK → FK → UK → INDEX → 描述** 顺序渲染只读分块
+> （`components/Canvas/table-sections.ts` + `TableSections.vue`），块与块之间是 1px 分割线，块标题用
+> SQL 惯例缩写 `PK` / `FK` / `UK` / `INDEX`（不新增 51 语言文案），描述块不设标题、直接排版注释文本并
+> 保留双击编辑；表高 = 表头 + 字段行 + 分块高度之和，外框随之自动撑开。四个工具栏 toggle 与这些分块
+> 一一对应（描述 / 字段 / PK·FK·UK / INDEX），`indexes` toggle 不再置灰。
+> **仍属 P2'**：图标 + 名称的可点击条目、`logicalName` 双名显示、条目编辑器、新增/删除入口、折叠摘要。
+
 ### 7.2 交互
 
 - **点击条目定位到对应编辑器**：索引 → 索引编辑器；PK/UK → 约束编辑器；FK → 关系编辑器（画布条目区、树节点、SidePanel/树列表共用同一编辑组件 `IndexEditor.vue`，只换容器，R19）。
@@ -546,8 +553,17 @@ Tab 分组：**告警（Alerts）/ 日志（Logs）/ Trace / 操作日志（Acti
 
 **仍未覆盖**：布局前的「>50 表确认」、Print / PrintPreview、总览条跳诊断、R15 整表折叠物理列、字段级独立详情面板、底部区 max 态的 50% 视口上限、Trace 的性能计数、导入/导出/保存事件写日志。
 
+### 12.2 第三轮改动（2026-10-28，评审反馈）
+
+| 反馈 | 落地 |
+|---|---|
+| 表的「描述 / PK / UK / FK / INDEX」不该挤在表名下方，应是字段列表下方的独立分块，用分割线区分，外框自动撑开 | `components/Canvas/table-sections.ts`（`TableSectionKind`、`tableSections()`、`tableSectionsHeight()`、`foreignKeyRows()`）、`TableSections.vue`；`render-model.ts` 的 `TableRenderModel` 改带 `sections` / `sectionsHeight`，`headerHeight` 固定为 `TABLE_HEADER_HEIGHT`；`TableHeader.vue` 只剩标题与按钮，描述移到 `TableSections.vue`（双击仍可编辑）；块与块之间 1px 分割线，顺序 PK → FK → UK → INDEX → 描述（§7.1） |
+| 树里的关系节点应显示关系自身的 name | `Outline/outline-nodes.ts` 的 `relationshipLabels()` 改为两层都以 `relationship.name` 为准（缺失才退回 `表 → 表`），逻辑名放在副标签；`outline-model.test.ts` 同步 |
+| 顶部工具栏不该浮在画布上盖住第一张表 | `EditorLayout.vue` 把工具栏改为画布列上方的固定条（`.ddb-editor__canvas` 变 flex 列 + `.ddb-editor__canvas-body`），`toolbar.module.css` 增加横向滚动，九组在窄列下不再被裁切 |
+| INDEX 开关的占位状态 | `ToolbarViewToggles.vue` 去掉 `indexes` 的 disabled，四开关与画布四类分块一一对应 |
+
 P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏）：
-- §7 条目区（PK/UK/FK/INDEX 双名对象）与树中的 Constraints/Indexes 节点——属 P2'；工具栏的 indexes 开关已存在但置灰并注明 P2'。Q17 的「树吸收 Indices 页」在 P2' 落地时一并接线。
+- §7 条目区的**交互部分**（图标 + 名称的可点击条目、双名就地改名、条目编辑器、新增/删除入口、折叠摘要）与树中的 Constraints/Indexes 节点——属 P2'；分块的**显示**已在第三轮落地（§7.1），INDEX 开关不再置灰。Q17 的「树吸收 Indices 页」在 P2' 落地时一并接线。
 - §6.8 erwin 导入与导入报告（P7）、§6.9A DSM 映射管理界面与首选项对话框（P6，`onOpenDsm` 已预留入口）。
 - §6.6 图工具中的 Print / PrintPreview（Q8 裁决为内嵌分页预览 + 浏览器打印，P5 未实现）。
 - Q3 对象级隐藏（本期不引入）——P5 计划明确排除；§6.3 布局与 §6.5 对齐已在第二轮补齐（见上表）。
