@@ -27,6 +27,7 @@ import { useSaveStore } from "../stores/save.ts";
 import { useUIStore } from "../stores/ui.ts";
 import type {
   ChangeInfo,
+  EditorChromeOptions,
   EditorSelection,
   EditorTheme,
   SDKPlugin,
@@ -79,6 +80,8 @@ const props = defineProps({
   autoSave: { type: Boolean, default: false },
   /** The delay between two automatic saves, in milliseconds. */
   autoSaveInterval: { type: Number, default: 5000 },
+  /** Which parts of the editor chrome are shown (Q13). */
+  chrome: { type: Object as PropType<EditorChromeOptions>, default: undefined },
 });
 
 const emit = defineEmits<{
@@ -208,6 +211,7 @@ defineExpose({
       :show-side-panel="showSidePanel"
       :custom-types="customTypes"
       :database="diagramStore.diagram.database"
+      :chrome="chrome"
       @save="commands.runSave"
       @menu="onMenu"
     />

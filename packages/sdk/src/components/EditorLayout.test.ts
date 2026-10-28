@@ -150,4 +150,27 @@ describe("EditorLayout", () => {
     await header.vm.$emit("save");
     assert.ok(wrapper.emitted("save"));
   });
+
+  it("hides the chrome parts the host turns off (Q13)", () => {
+    const wrapper = mountLayout({
+      chrome: { outline: false, editPanel: false, bottomPanel: false, toolbar: false },
+    });
+    assert.ok(!wrapper.find('[data-testid="outline-tree"]').exists());
+    assert.ok(!wrapper.find('[data-testid="edit-panel"]').exists());
+    assert.ok(!wrapper.find('[data-testid="bottom-panel"]').exists());
+    assert.ok(!wrapper.find('[data-testid="canvas-toolbar"]').exists());
+    assert.ok(wrapper.find('[data-testid="canvas"]').exists());
+    assert.ok(wrapper.find('[data-testid="header"]').exists());
+  });
+
+  it("keeps only the toolbar groups the host picks", () => {
+    const wrapper = mountLayout({
+      chrome: { toolbar: { groups: ["zoom"] } },
+    });
+    const toolbar = wrapper.find('[data-testid="canvas-toolbar"]');
+    assert.ok(toolbar.exists());
+    assert.ok(toolbar.find('[data-testid="toolbar-zoom"]').exists());
+    assert.ok(!toolbar.find('[data-testid="toolbar-display-mode"]').exists());
+    assert.ok(!toolbar.find('[data-testid="toolbar-file"]').exists());
+  });
 });

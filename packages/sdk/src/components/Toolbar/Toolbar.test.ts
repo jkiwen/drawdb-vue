@@ -14,7 +14,7 @@ import Toolbar from "./Toolbar.vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useHistoryStore } from "../../stores/history.ts";
 import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
-import { useUIStore } from "../../stores/ui.ts";
+import { MAX_ZOOM, MIN_ZOOM, useUIStore } from "../../stores/ui.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 
 function makeTable(id: string, x = 0, y = 0) {
@@ -201,14 +201,14 @@ test("zoom in and out step the zoom and the label shows the percentage", async (
 
 test("the zoom buttons disable at the bounds", async () => {
   const { wrapper, ui } = mountToolbar();
-  ui.setZoom(2.5);
+  ui.setZoom(MAX_ZOOM);
   await wrapper.vm.$nextTick();
   assert.notEqual(
     wrapper.find('[data-testid="toolbar-zoom-in"]').attributes("disabled"),
     undefined,
   );
 
-  ui.setZoom(0.25);
+  ui.setZoom(MIN_ZOOM);
   await wrapper.vm.$nextTick();
   assert.notEqual(
     wrapper.find('[data-testid="toolbar-zoom-out"]').attributes("disabled"),

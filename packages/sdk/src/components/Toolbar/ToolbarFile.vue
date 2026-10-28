@@ -20,7 +20,7 @@ const ACTIONS = [
 </script>
 
 <template>
-  <div :class="classes.group" role="group" aria-label="File">
+  <div :class="classes.group" role="group" aria-label="File" data-testid="toolbar-file">
     <ToolbarButton
       v-for="action of ACTIONS"
       :key="action.key"

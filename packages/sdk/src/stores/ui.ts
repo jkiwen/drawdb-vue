@@ -42,8 +42,9 @@ export interface ContextMenuState {
     | { kind: "note"; id: string };
 }
 
-export const MIN_ZOOM = 0.25;
-export const MAX_ZOOM = 2.5;
+// The zoom range of design 6.6: 10% to 400%.
+export const MIN_ZOOM = 0.1;
+export const MAX_ZOOM = 4;
 export const ZOOM_STEP = 0.1;
 
 /**
@@ -245,7 +246,11 @@ export const useUIStore = defineStore("ui", () => {
   }
 
   // Selects the object a problem of the diagram is about and scrolls to it.
-  const focusIssue = useFocusIssue();
+  // The callback keeps the viewport of this store in step with the move.
+  const focusIssue = useFocusIssue((x, y) => {
+    scrollX.value = x;
+    scrollY.value = y;
+  });
 
   return {
     selectedTableIds,
@@ -271,15 +276,8 @@ export const useUIStore = defineStore("ui", () => {
     selectionBox,
     hasSelection,
     clearSelection,
-    selectTable,
-    selectRelationship,
-    selectNote,
-    selectArea,
-    selectField,
-    setZoom,
-    zoomIn,
-    zoomOut,
-    resetView,
+    selectTable, selectRelationship, selectNote, selectArea, selectField,
+    setZoom, zoomIn, zoomOut, resetView,
     setActiveTab,
     toggleSidebar,
     toggleGrid,

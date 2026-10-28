@@ -3,6 +3,7 @@ import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Component } from "vue";
 import type { CustomType, DatabaseType } from "@drawdb/core";
+import type { EditorChromeOptions, ToolbarGroupId } from "../types/sdk-options.ts";
 import Canvas from "./Canvas/Canvas.vue";
 import EditPanel from "./EditPanel/EditPanel.vue";
 import EditorDialogs from "./EditorDialogs.vue";
@@ -27,7 +28,7 @@ import {
 
 defineOptions({ name: "DrawDBEditorLayout" });
 
-defineProps({
+const props = defineProps({
   /** The components the plugins contributed. */
   pluginSlots: {
     type: Object as PropType<Record<string, Component>>,
@@ -39,9 +40,27 @@ defineProps({
   customTypes: { type: Array as PropType<CustomType[]>, default: () => [] },
   /** The database the diagram is written for. The import dialog needs it. */
   database: { type: String as PropType<DatabaseType>, default: "generic" },
+  /** Which parts of the chrome are shown (Q13). Everything defaults on. */
+  chrome: { type: Object as PropType<EditorChromeOptions>, default: () => ({}) },
 });
 
 const emit = defineEmits(["save", "menu"]);
+
+// The chrome switches of ruling Q13: the host hides the parts its own page
+// already provides. Everything defaults to shown.
+const showOutline = computed(
+  () => props.showSidePanel && props.chrome.outline !== false,
+);
+const showEditPanel = computed(() => props.chrome.editPanel !== false);
+const showBottomPanel = computed(() => props.chrome.bottomPanel !== false);
+const toolbarGroups = computed<ToolbarGroupId[] | undefined | null>(() => {
+  if (props.chrome.toolbar === false) {
+    return null;
+  }
+  return typeof props.chrome.toolbar === "object"
+    ? props.chrome.toolbar.groups
+    : undefined;
+});
 
 /**
  * The state of the dialogs of the editor.
@@ -131,7 +150,7 @@ defineExpose({ openDialog, closeDialog });
     <Header @save="emit('save')" @menu="emit('menu', $event)" />
     <div class="ddb-editor__body">
       <ResizablePanel
-        v-if="showSidePanel"
+        v-if="showOutline"
         v-model:width="panelLeftWidth"
         v-model:collapsed="panelLeftCollapsed"
         side="left"
@@ -145,7 +164,12 @@ defineExpose({ openDialog, closeDialog });
         />
       </ResizablePanel>
       <div class="ddb-editor__canvas">
-        <Toolbar class="ddb-editor__toolbar" @menu="emit('menu', $event)" />
+        <Toolbar
+          v-if="toolbarGroups !== null"
+          class="ddb-editor__toolbar"
+          :groups="toolbarGroups"
+          @menu="emit('menu', $event)"
+        />
         <Canvas />
         <component
           v-for="(slot, name) in pluginSlots"
@@ -155,6 +179,7 @@ defineExpose({ openDialog, closeDialog });
         />
       </div>
       <ResizablePanel
+        v-if="showEditPanel"
         v-model:width="panelRightWidth"
         v-model:collapsed="panelRightCollapsed"
         side="right"
@@ -167,7 +192,7 @@ defineExpose({ openDialog, closeDialog });
         </div>
       </ResizablePanel>
     </div>
-    <BottomPanel />
+    <BottomPanel v-if="showBottomPanel" />
     <EditorDialogs
       v-model:sql-preview-open="dialogs.sqlPreviewOpen"
       v-model:sql-preview-format="dialogs.sqlPreviewFormat"

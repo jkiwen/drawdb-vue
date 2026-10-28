@@ -70,6 +70,39 @@ export interface EditorSelection {
   fields: Array<{ tableId: string; fieldId: string }>;
 }
 
+/** A group of the canvas toolbar. */
+export type ToolbarGroupId =
+  | "displayMode"
+  | "viewToggles"
+  | "viewLayer"
+  | "zoom"
+  | "undoRedo"
+  | "file";
+
+/**
+ * Which parts of the editor chrome the host shows (ruling Q13 of the UI
+ * document). Everything defaults to shown; the host turns parts off to
+ * embed the editor into a page that owns that chrome itself.
+ */
+export interface EditorChromeOptions {
+  /** The outline tree on the left. Defaults to true. */
+  outline?: boolean;
+  /** The unified edit panel on the right. Defaults to true. */
+  editPanel?: boolean;
+  /** The bottom panel with the alerts and the history. Defaults to true. */
+  bottomPanel?: boolean;
+  /**
+   * The canvas toolbar: `false` hides it entirely, an object picks the
+   * groups it keeps. Defaults to true (all groups).
+   */
+  toolbar?: boolean | { groups?: ToolbarGroupId[] };
+  /**
+   * Opens the type system management of the host. Reserved for the DSM
+   * entry of the toolbar, which lands with P6.
+   */
+  onOpenDsm?: () => void;
+}
+
 /** The options of the `DrawDBEditor` component. */
 export interface DrawDBEditorOptions {
   /** The diagram of the editor. The component is controlled while it is set. */
@@ -98,4 +131,6 @@ export interface DrawDBEditorOptions {
   autoSave?: boolean;
   /** The delay between two automatic saves, in milliseconds. */
   autoSaveInterval?: number;
+  /** Which parts of the editor chrome are shown (Q13). */
+  chrome?: EditorChromeOptions;
 }

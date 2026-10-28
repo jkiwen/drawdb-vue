@@ -1,0 +1,78 @@
+
+  test-out.txt:1292:ℹ skipped 0
+  test-out.txt:1293:ℹ todo 0
+  test-out.txt:1294:ℹ duration_ms 6184.0977
+  test-out.txt:1295:
+  test-out.txt:1296:✖ failing tests:
+  test-out.txt:1297:
+  test-out.txt:1298:test at packages\sdk\src\components\EditorLayout.test.ts:154:3
+  test-out.txt:1299:✖ hides the chrome parts the host turns off (Q13) (15.4074ms)
+> test-out.txt:1300:  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  test-out.txt:1301:  
+  test-out.txt:1302:    assert.ok(!wrapper.find('[data-testid="toolbar"]').exists())
+  test-out.txt:1303:  
+  test-out.txt:1304:      at TestContext.<anonymous> (file:///D:/dev/repos/github/drawdb/sdk-workspace/.agents/worktrees/sdk-ui-redesign-p5/packages/sdk/src/components/EditorLayout.test.ts:161:12)
+  test-out.txt:1305:      at Test.runInAsyncScope (node:async_hooks:227:14)
+  test-out.txt:1306:      at Test.run (node:internal/test_runner/test:1402:25)
+  test-out.txt:1307:      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+  test-out.txt:1308:    generatedMessage: true,
+  test-out.txt:1309:    code: 'ERR_ASSERTION',
+  test-out.txt:1310:    actual: false,
+  test-out.txt:1311:    expected: true,
+  test-out.txt:1312:    operator: '==',
+  test-out.txt:1313:    diff: 'simple'
+  test-out.txt:1314:  }
+  test-out.txt:1315:
+  test-out.txt:1316:test at packages\sdk\src\components\EditorLayout.test.ts:166:3
+  test-out.txt:1317:✖ keeps only the toolbar groups the host picks (14.3965ms)
+> test-out.txt:1318:  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  test-out.txt:1319:  
+  test-out.txt:1320:    assert.ok(toolbar.find('[data-testid="toolbar-zoom"]').exists())
+  test-out.txt:1321:  
+  test-out.txt:1322:      at TestContext.<anonymous> (file:///D:/dev/repos/github/drawdb/sdk-workspace/.agents/worktrees/sdk-ui-redesign-p5/packages/sdk/src/components/EditorLayout.test.ts:172:12)
+  test-out.txt:1323:      at Test.runInAsyncScope (node:async_hooks:227:14)
+  test-out.txt:1324:      at Test.run (node:internal/test_runner/test:1402:25)
+  test-out.txt:1325:      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+  test-out.txt:1326:    generatedMessage: true,
+  test-out.txt:1327:    code: 'ERR_ASSERTION',
+  test-out.txt:1328:    actual: false,
+  test-out.txt:1329:    expected: true,
+  test-out.txt:1330:    operator: '==',
+  test-out.txt:1331:    diff: 'simple'
+  test-out.txt:1332:  }
+  test-out.txt:1333:
+  test-out.txt:1334:test at packages\sdk\src\components\Toolbar\Toolbar.test.ts:202:1
+  test-out.txt:1335:✖ the zoom buttons disable at the bounds (8.9309ms)
+> test-out.txt:1336:  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
+  test-out.txt:1337:  
+  test-out.txt:1338:  undefined
+  test-out.txt:1339:      at TestContext.<anonymous> (file:///D:/dev/repos/github/drawdb/sdk-workspace/.agents/worktrees/sdk-ui-redesign-p5/packages/sdk/src/components/Toolbar/Toolbar.test.ts:206:10)
+  test-out.txt:1340:      at async Test.run (node:internal/test_runner/test:1409:7)
+  test-out.txt:1341:      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+  test-out.txt:1342:    generatedMessage: true,
+  test-out.txt:1343:    code: 'ERR_ASSERTION',
+  test-out.txt:1344:    actual: undefined,
+  test-out.txt:1345:    expected: undefined,
+  test-out.txt:1346:    operator: 'notStrictEqual',
+  test-out.txt:1347:    diff: 'simple'
+  test-out.txt:1348:  }
+  test-out.txt:1349:
+  test-out.txt:1350:test at scripts\verify-constraints.test.ts:56:1
+  test-out.txt:1351:✖ no sdk file is longer than 300 lines (27.8089ms)
+> test-out.txt:1352:  AssertionError [ERR_ASSERTION]: the files of the sdk are too long: packages\sdk\src\stores\ui.ts
+  test-out.txt:1353:  + actual - expected
+  test-out.txt:1354:  
+  test-out.txt:1355:  + [
+  test-out.txt:1356:  +   'packages\\sdk\\src\\stores\\ui.ts'
+  test-out.txt:1357:  + ]
+  test-out.txt:1358:  - []
+  test-out.txt:1359:  
+  test-out.txt:1360:      at TestContext.<anonymous> (file:///D:/dev/repos/github/drawdb/sdk-workspace/.agents/worktrees/sdk-ui-redesign-p5/scripts/verify-constraints.test.ts:58:10)
+  test-out.txt:1361:      at Test.runInAsyncScope (node:async_hooks:227:14)
+  test-out.txt:1362:      at Test.run (node:internal/test_runner/test:1402:25)
+  test-out.txt:1363:      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+  test-out.txt:1364:      at Test.postRun (node:internal/test_runner/test:1542:19)
+  test-out.txt:1365:      at Test.run (node:internal/test_runner/test:1467:12)
+  test-out.txt:1366:      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+
+

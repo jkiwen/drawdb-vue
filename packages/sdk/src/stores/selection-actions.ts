@@ -14,13 +14,14 @@ export interface FocusIssueTarget {
  * canvas to it. A relationship is selected when the issue carries one, a
  * field when it carries a field, and the table otherwise.
  *
- * It lives next to the selection store because it needs the diagram as
- * well: the scroll position comes from the coordinates of the table the
- * issue points at. The scroll position is written through the store, and
- * the caller reads it back from the store, so that a component holding the
- * same selection store always sees the move.
+ * The scroll position is written through the selection store and, when the
+ * caller passes `scrollTo`, through that callback as well: the canvas reads
+ * its viewport from the ui store, so the editor passes a writer for it and
+ * the two stay in step.
  */
-export function useFocusIssue(): (issue: FocusIssueTarget) => void {
+export function useFocusIssue(
+  scrollTo?: (x: number, y: number) => void,
+): (issue: FocusIssueTarget) => void {
   const diagram = useDiagramStore();
   const selection = useSelectionStore();
 
@@ -41,6 +42,7 @@ export function useFocusIssue(): (issue: FocusIssueTarget) => void {
       if (table) {
         selection.scrollX = table.x;
         selection.scrollY = table.y;
+        scrollTo?.(table.x, table.y);
       }
     }
   };
