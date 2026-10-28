@@ -1,85 +1,119 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import {
-  canvasLogicalTables,
   canvasTables,
-  fillInput,
-  sidePanelTables,
+  outlineRow,
+  outlineTables,
   waitForEditor,
 } from "./helpers.ts";
 
 /**
  * The tests of the editor of the SDK.
  *
- * They cover the work a user does with the side panel, the canvas and the menu
- * of the header.
+ * They cover the work a user does with the outline tree, the edit panel, the
+ * canvas and the menu of the header.
  */
 
 /** Opens the editor of a diagram that only the test knows. */
-async function openEditor(
-  page: import("@playwright/test").Page,
-  id: string,
-): Promise<void> {
+async function openEditor(page: Page, id: string): Promise<void> {
   await page.goto(`/editor/${id}`);
   await waitForEditor(page);
 }
 
+/** The id of the only table of the canvas, read from its test id. */
+async function tableId(page: Page): Promise<string> {
+  const testId = await canvasTables(page).first().getAttribute("data-testid");
+  expect(testId).toMatch(/^table-.+/);
+  return (testId ?? "").slice("table-".length);
+}
+
+/** Renames a node of the outline tree through its context menu. */
+async function renameInOutline(
+  page: Page,
+  nodeId: string,
+  name: string,
+): Promise<void> {
+  await outlineRow(page, nodeId).click({ button: "right" });
+  await page.getByTestId("outline-menu-rename").click();
+  const input = page.getByTestId("outline-rename-input");
+  await input.fill(name);
+  await input.press("Enter");
+}
+
 test.describe("the editor", () => {
-  test("renames a table in the side panel", async ({ page }) => {
+  test("renames a table in the outline", async ({ page }) => {
     await openEditor(page, "editor-rename");
 
     await page.getByTestId("add-table-btn").click();
     await expect(canvasTables(page)).toHaveCount(1);
+    const id = await tableId(page);
 
-    await page.getByTestId("table-item-table").click();
-    await fillInput(page, "table-name-input", "customers");
+    await renameInOutline(page, `table:${id}`, "customers");
 
-    await expect(page.getByTestId("table-item-customers")).toBeVisible();
-    await expect(page.getByTestId("table-item-table")).toHaveCount(0);
+    await expect(outlineRow(page, `table:${id}`)).toContainText("customers");
+    await expect(outlineTables(page)).toHaveCount(1);
+    await expect(page.getByTestId(`table-name-${id}`)).toHaveText("customers");
   });
 
   test("adds a field to the selected table", async ({ page }) => {
     await openEditor(page, "editor-field");
 
     await page.getByTestId("add-table-btn").click();
-    await page.getByTestId("table-item-table").click();
+    const id = await tableId(page);
+    await outlineRow(page, `table:${id}`).click();
 
-    await page.getByTestId("add-field-btn").click();
+    const editPanel = page.getByTestId("edit-panel");
+    await expect(editPanel.getByTestId("table-editor")).toBeVisible();
+    await editPanel.getByTestId("add-field").click();
 
-    await expect(page.getByTestId("field-list").locator("li")).toHaveCount(1);
+    await expect(editPanel.getByTestId("field-row")).toHaveCount(1);
+    await expect(
+      page.locator(
+        `[data-testid="canvas"] [data-testid="table-${id}"] .ddb-table__row`,
+      ),
+    ).toHaveCount(1);
   });
 
-  test("removes a table from the side panel", async ({ page }) => {
+  test("removes a table from the outline", async ({ page }) => {
     await openEditor(page, "editor-remove");
 
     await page.getByTestId("add-table-btn").click();
     await expect(canvasTables(page)).toHaveCount(1);
+    const id = await tableId(page);
 
-    await page.getByTestId("table-item-table").click();
-    await page.getByTestId("remove-table-btn").click();
+    await outlineRow(page, `table:${id}`).click({ button: "right" });
+    await page.getByTestId("outline-menu-delete").click();
 
     await expect(canvasTables(page)).toHaveCount(0);
-    await expect(sidePanelTables(page)).toHaveCount(0);
+    await expect(outlineTables(page)).toHaveCount(0);
+    await expect(page.getByTestId("outline-empty")).toBeVisible();
   });
 
-  test("searches a table in the side panel", async ({ page }) => {
+  test("searches a table in the outline", async ({ page }) => {
     await openEditor(page, "editor-search");
 
     await page.getByTestId("add-table-btn").click();
     await page.getByTestId("add-table-btn").click();
-    await expect(sidePanelTables(page)).toHaveCount(2);
+    await expect(outlineTables(page)).toHaveCount(2);
 
-    await fillInput(page, "side-panel-search", "table_1");
+    const filter = page.getByTestId("outline-filter");
+    await filter.fill("table_1");
 
-    await expect(sidePanelTables(page)).toHaveCount(1);
-    await expect(page.getByTestId("table-item-table_1")).toBeVisible();
+    await expect(outlineTables(page)).toHaveCount(1);
+    await expect(outlineTables(page).first()).toContainText("table_1");
+
+    await filter.fill("");
+    await expect(outlineTables(page)).toHaveCount(2);
   });
 
-  test("switches the tab of the side panel", async ({ page }) => {
+  test("switches the tab of the bottom panel", async ({ page }) => {
     await openEditor(page, "editor-tabs");
 
-    await page.getByTestId("relationships-tab").click();
+    await page.getByTestId("tab-history").click();
+    await expect(page.getByTestId("history-tab")).toBeVisible();
 
-    await expect(page.getByTestId("relationships-panel")).toBeVisible();
+    await page.getByTestId("tab-issues").click();
+    await expect(page.getByTestId("alerts-tab")).toBeVisible();
+    await expect(page.getByTestId("history-tab")).toHaveCount(0);
   });
 
   test("redoes the addition of a table", async ({ page }) => {
@@ -99,12 +133,29 @@ test.describe("the editor", () => {
     await openEditor(page, "editor-views");
 
     await page.getByTestId("add-table-btn").click();
+    const id = await tableId(page);
 
-    await page.getByTestId("menu-view").click();
-    await page.getByText("Toggle view mode").click();
+    await outlineRow(page, `table:${id}`).click();
+    const physicalName = page.getByTestId("table-physical-name");
+    await physicalName.fill("customers");
+    await physicalName.blur();
 
-    await expect(canvasLogicalTables(page)).toHaveCount(1);
-    await expect(canvasTables(page)).toHaveCount(0);
+    const layer = page.getByTestId("toolbar-view-layer");
+    await expect(page.getByTestId(`table-name-${id}`)).toHaveText("customers");
+    await expect(layer).not.toHaveAttribute("aria-pressed", "true");
+
+    await layer.click();
+
+    // The logical layer names the table by its logical entity name, which the
+    // physical rename left untouched, and the outline follows the layer.
+    await expect(layer).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId(`table-name-${id}`)).toHaveText("table");
+    await expect(outlineRow(page, `table:${id}`)).toContainText("table");
+
+    await layer.click();
+
+    await expect(layer).not.toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId(`table-name-${id}`)).toHaveText("customers");
   });
 
   test("zooms the canvas in and out", async ({ page }) => {
@@ -136,8 +187,9 @@ test.describe("the editor", () => {
     await openEditor(page, "editor-menu-dbml");
 
     await page.getByTestId("add-table-btn").click();
-    await page.getByTestId("table-item-table").click();
-    await page.getByTestId("add-field-btn").click();
+    const id = await tableId(page);
+    await outlineRow(page, `table:${id}`).click();
+    await page.getByTestId("edit-panel").getByTestId("add-field").click();
 
     await page.getByTestId("menu-file").click();
     await page.getByText("Export DBML").click();
@@ -180,15 +232,26 @@ test.describe("the editor", () => {
     await expect(page.getByTestId("auto-relationships-dialog")).toBeVisible();
   });
 
-  test("hides the side panel from the menu", async ({ page }) => {
+  test("collapses the outline from the menu (Q21)", async ({ page }) => {
     await openEditor(page, "editor-menu-sidebar");
 
-    await expect(page.getByTestId("side-panel")).toBeVisible();
+    const panel = page.locator('[data-side="left"]');
+    await expect(page.getByTestId("outline-tree")).toBeVisible();
+    await expect(panel).not.toHaveAttribute("aria-hidden", "true");
 
     await page.getByTestId("menu-view").click();
     await page.getByText("Toggle side panel").click();
 
-    await expect(page.getByTestId("side-panel")).toBeHidden();
+    // Ruling Q21: one mechanism hides the left panel, the collapse, so the
+    // tree keeps its state instead of unmounting.
+    await expect(panel).toHaveAttribute("aria-hidden", "true");
+    await expect(
+      panel.getByTestId("panel-collapse-toggle"),
+    ).toHaveAttribute("aria-expanded", "false");
+
+    await page.getByTestId("menu-view").click();
+    await page.getByText("Toggle side panel").click();
+    await expect(page.getByTestId("outline-tree")).toBeVisible();
   });
 
   test("changes the database of the diagram", async ({ page }) => {

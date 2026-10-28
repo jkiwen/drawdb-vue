@@ -23,12 +23,14 @@ export function exportDiagramJson(
     sqlHeader: diagram.sqlHeader,
     tables: diagram.tables ?? [],
     relationships: diagram.relationships ?? [],
+    logicalRelationships: diagram.logicalRelationships ?? [],
     notes: diagram.notes ?? [],
     subjectAreas: diagram.areas ?? diagram.subjectAreas ?? [],
     types: diagram.types ?? [],
     enums: diagram.enums ?? [],
     views: diagram.views ?? [],
     metadata: diagram.metadata,
+    viewState: diagram.viewState,
   };
 
   return JSON.stringify(value, null, options.pretty ? 2 : undefined);

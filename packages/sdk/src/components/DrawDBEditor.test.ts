@@ -8,6 +8,8 @@ import DrawDBEditor from "./DrawDBEditor.vue";
 import { useDiagramStore } from "../stores/diagram.ts";
 import { useUIStore } from "../stores/ui.ts";
 import { useSaveStore } from "../stores/save.ts";
+import { useViewStateStore } from "../stores/view-state.ts";
+import { useSettingsStore } from "../stores/settings.ts";
 import { MemoryStorageAdapter } from "@drawdb/core";
 import type { Diagram } from "@drawdb/core";
 import { getLocale } from "../i18n/index.ts";
@@ -84,10 +86,10 @@ describe("DrawDBEditor", () => {
     });
   }
 
-  it("renders the canvas and the side panel", () => {
+  it("renders the canvas and the outline tree", () => {
     const wrapper = mountEditor();
     assert.ok(wrapper.find('[data-testid="canvas"]').exists());
-    assert.ok(wrapper.find('[data-testid="side-panel"]').exists());
+    assert.ok(wrapper.find('[data-testid="outline-tree"]').exists());
   });
 
   it("renders the header", () => {
@@ -133,9 +135,9 @@ describe("DrawDBEditor", () => {
     assert.equal(useDiagramStore().tables[0].name, "customers");
   });
 
-  it("hides the side panel in the readonly mode", () => {
+  it("hides the outline tree in the readonly mode", () => {
     const wrapper = mountEditor({ readonly: true });
-    assert.ok(!wrapper.find('[data-testid="side-panel"]').exists());
+    assert.ok(!wrapper.find('[data-testid="outline-tree"]').exists());
   });
 
   it("saves the diagram with the storage adapter and emits save", async () => {
@@ -220,11 +222,33 @@ describe("DrawDBEditor", () => {
     assert.equal(useDiagramStore().diagram.database, "postgres");
   });
 
-  it("toggles the side panel of the editor", async () => {
+  it("collapses the side panel instead of unmounting it (Q21)", async () => {
     const wrapper = mountEditor();
     assert.equal(useUIStore().sidebarOpen, true);
+
     useUIStore().toggleSidebar(false);
     await nextTick();
-    assert.ok(!wrapper.find('[data-testid="side-panel"]').exists());
+
+    const panel = wrapper.find('[data-side="left"]');
+    assert.ok(panel.exists(), "the panel stays in the layout");
+    assert.equal(panel.attributes("aria-hidden"), "true");
+    assert.equal(useSettingsStore().settings.panelLeftCollapsed, true);
+    assert.equal(
+      wrapper.find('[data-testid="outline-tree"]').exists(),
+      true,
+      "the outline keeps its state while the panel is collapsed",
+    );
+
+    // The preference is persisted, so the test restores it for the specs that
+    // share this process.
+    useUIStore().toggleSidebar(true);
+    assert.equal(useSettingsStore().settings.panelLeftCollapsed, false);
+  });
+
+  it("follows the viewMode prop", async () => {
+    const wrapper = mountEditor({ viewMode: "logical" });
+    assert.equal(useViewStateStore().viewLayer, "logical");
+    await wrapper.setProps({ viewMode: "physical" });
+    assert.equal(useViewStateStore().viewLayer, "physical");
   });
 });

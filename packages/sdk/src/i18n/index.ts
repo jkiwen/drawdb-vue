@@ -180,6 +180,39 @@ export function resolveLocale(locale: string | undefined | null): string {
 }
 
 /**
+ * The plural rules of the locales whose count of forms is not the default
+ * two of English.
+ *
+ * Vue I18n picks a form by the index this rule returns: 0 (one), 1 (few),
+ * 2 (many). The rule of a locale that only has a singular and a plural is
+ * the default one, because the index is the number itself capped at one; a
+ * Slavic locale has a third form and needs the rule of its own, or a count
+ * of one reads as "few" and a count of five reads as "many" by accident.
+ */
+const pluralRules: Record<string, (count: number) => number> = {
+  ru: slavicPlural,
+  uk: slavicPlural,
+  pl: (count: number) => (count === 1 ? 0 : isFew(count) ? 1 : 2),
+  cz: (count: number) => (count === 1 ? 0 : count >= 2 && count <= 4 ? 1 : 2),
+};
+
+/** Two to four, but not twelve to fourteen. */
+function isFew(count: number): boolean {
+  const unit = count % 10;
+  const hundred = count % 100;
+  return unit >= 2 && unit <= 4 && (hundred < 12 || hundred > 14);
+}
+
+/** The rule of the Russian and the Ukrainian plurals. */
+function slavicPlural(count: number): number {
+  const unit = count % 10;
+  const hundred = count % 100;
+  if (unit === 1 && hundred !== 11) return 0;
+  if (isFew(count)) return 1;
+  return 2;
+}
+
+/**
  * Creates an instance of Vue I18n with the messages of the SDK.
  *
  * A host application that uses its own translations can install the instance
@@ -191,6 +224,7 @@ export async function createI18n(locale: string = "en"): Promise<SdkI18n> {
     locale: resolveLocale(locale),
     fallbackLocale: "en",
     messages: localeMessages,
+    pluralRules,
   }) as unknown as SdkI18n;
 }
 
@@ -207,6 +241,7 @@ const shared = createVueI18n({
   locale: "en",
   fallbackLocale: "en",
   messages: localeMessages,
+  pluralRules,
 }) as unknown as SdkI18n;
 
 /** Sets the locale of the shared instance. */

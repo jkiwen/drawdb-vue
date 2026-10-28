@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { PropType } from "vue";
-import type { Table } from "@drawdb/core";
+import type { Field, Table } from "@drawdb/core";
 import { VueDraggable } from "vue-draggable-plus";
-import { tableHeight, tableWidth } from "./geometry.ts";
+import { tableRenderModel, type TableFieldRowModel } from "./render-model.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import { useViewStateStore } from "../../stores/view-state.ts";
+import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
 import { useSortable } from "../../composables/use-sortable.ts";
 import { elementBounds, heldByLockedArea } from "../../utils/elements.ts";
 import FieldHandle from "./FieldHandle.vue";
@@ -15,10 +17,18 @@ import TableDetails from "./TableDetails.vue";
 
 defineOptions({ name: "DrawDBTableNode" });
 
+/**
+ * A table of the diagram on the canvas.
+ *
+ * The same node draws both layers (UI document section 6.1): what it shows —
+ * the title, the description, the rows, the key marks — is derived from the
+ * view layer and the display toggles of the view-state store by the render
+ * model (render-model.ts). Only the physical layer is editable on the
+ * canvas: the rows of the logical layer are read-only and cannot be sorted.
+ */
 const props = defineProps({
   table: { type: Object as PropType<Table>, required: true },
   selected: { type: Boolean, default: false },
-  showFieldTypes: { type: Boolean, default: true },
 });
 
 const emit = defineEmits([
@@ -30,19 +40,62 @@ const emit = defineEmits([
 ]);
 
 const diagram = useDiagramStore();
+const viewState = useViewStateStore();
+const toolbarScope = useToolbarScopeStore();
 const resizing = ref(false);
 const { sortableOptions, onSort } = useSortable();
-
-const width = computed(() => tableWidth(props.table));
 
 // The table that is stored in the store, so that the edits on the canvas (the
 // inline editing, the indices, the unique constraints) always work on the live
 // object and never on a stale copy.
 const liveTable = computed(() => diagram.tableById(props.table.id) ?? props.table);
 
-// The height comes from the live table as well: opening the details of the
-// table replaces the table in the store, and the table must grow with it.
-const height = computed(() => tableHeight(liveTable.value));
+/**
+ * The ids of the fields a foreign key points from, so the "all" display
+ * mode can mark them with "FK" (UI document section 6.1).
+ */
+const foreignFieldIds = computed(() => {
+  const ids = new Set<string>();
+  for (const relationship of diagram.relationships) {
+    if (String(relationship.endTableId) === String(liveTable.value.id)) {
+      ids.add(String(relationship.endFieldId));
+    }
+  }
+  return ids;
+});
+
+/**
+ * The render model of the table: everything the node draws, derived from
+ * the view layer and the display toggles. The height comes from the model
+ * as well, so the node, the virtualization and the relationship anchors all
+ * measure the table the same way.
+ */
+const model = computed(() =>
+  tableRenderModel(liveTable.value, viewState.viewLayer, viewState.toggles, {
+    foreignFieldIds: foreignFieldIds.value,
+    // Ruling Q1: a scoped toolbar change overrides the canvas-wide toggles
+    // for this table only.
+    overrides: toolbarScope.overrideFor(String(liveTable.value.id)),
+  }),
+);
+
+const width = computed(() => model.value.width);
+const height = computed(() => model.value.height);
+
+/** Only the physical layer is edited on the canvas. */
+const editable = computed(
+  () => viewState.viewLayer === "physical" && !locked.value,
+);
+
+/** The physical field a row edits and anchors, when it has one. */
+function fieldOf(row: TableFieldRowModel): Field | undefined {
+  if (row.fieldId === undefined) {
+    return undefined;
+  }
+  return liveTable.value.fields.find(
+    (field) => String(field.id) === String(row.fieldId),
+  );
+}
 
 /**
  * Whether the table is locked.
@@ -139,8 +192,10 @@ defineExpose({ resizing });
       >
         <TableHeader
           :table="liveTable"
+          :model="model"
           :selected="selected"
           :locked="locked"
+          :editable="editable"
           @togglelock="onToggleLock"
           @toggledetails="onToggleDetails"
         />
@@ -153,6 +208,7 @@ defineExpose({ resizing });
           @pointerdown.stop
         />
         <VueDraggable
+          v-if="editable"
           :model-value="liveTable.fields"
           v-bind="sortableOptions"
           @end="onDragEnd"
@@ -160,24 +216,50 @@ defineExpose({ resizing });
           class="ddb-table__fields"
         >
           <div
-            v-for="field in liveTable.fields"
-            :key="field.id"
+            v-for="row in model.rows"
+            :key="row.rowId"
             class="ddb-table__row"
           >
             <TableField
               :table="liveTable"
-              :field="field"
+              :row="row"
+              :field="fieldOf(row)"
               :locked="locked"
-              :show-field-types="showFieldTypes"
+              :editable="editable"
+              :show-marks="model.showKeyMarks"
               @fieldselect="onFieldSelect"
             />
             <FieldHandle
+              v-if="row.fieldId !== undefined"
               :table-id="liveTable.id"
-              :field-id="field.id"
+              :field-id="row.fieldId"
               @linkstart="onLinkStart"
             />
           </div>
         </VueDraggable>
+        <div v-else class="ddb-table__fields">
+          <div
+            v-for="row in model.rows"
+            :key="row.rowId"
+            class="ddb-table__row"
+          >
+            <TableField
+              :table="liveTable"
+              :row="row"
+              :field="fieldOf(row)"
+              :locked="locked"
+              :editable="false"
+              :show-marks="model.showKeyMarks"
+              @fieldselect="onFieldSelect"
+            />
+            <FieldHandle
+              v-if="row.fieldId !== undefined"
+              :table-id="liveTable.id"
+              :field-id="row.fieldId"
+              @linkstart="onLinkStart"
+            />
+          </div>
+        </div>
         <ResizeHandles
           :table-id="table.id"
           :width="width"

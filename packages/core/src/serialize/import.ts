@@ -3,7 +3,9 @@ import type { DatabaseType, Diagram } from "../models/diagram.ts";
 import type { Area } from "../models/area.ts";
 import type { Enum } from "../models/enum.ts";
 import type { FieldId } from "../models/field.ts";
+import type { LogicalRelationship } from "../models/logical-relationship.ts";
 import type { Note } from "../models/note.ts";
+import { normalizeViewState } from "../models/view-state.ts";
 import type { Relationship } from "../models/relationship.ts";
 import type { Table } from "../models/table.ts";
 import type { CustomType } from "../models/type.ts";
@@ -154,6 +156,9 @@ export function importDiagramJson(
 
   diagram.tables = [...tableList];
   diagram.relationships = [...relationshipList];
+  diagram.logicalRelationships = [
+    ...(collection(record, "logicalRelationships") as LogicalRelationship[]),
+  ];
   diagram.notes = [...(collection(record, "notes") as Note[])];
   diagram.subjectAreas = [...areaList];
   diagram.types = [...(collection(record, "types") as CustomType[])];
@@ -164,6 +169,11 @@ export function importDiagramJson(
   if (metadata && typeof metadata === "object") {
     diagram.metadata = metadata as Diagram["metadata"];
   }
+
+  // The view state is optional in the document; a legacy document keeps the
+  // defaults of `createEmptyDiagram`, a partial one is completed field by
+  // field (UI document section 9.2, ruling Q2).
+  diagram.viewState = normalizeViewState(property(record, "viewState"));
 
   return diagram;
 }

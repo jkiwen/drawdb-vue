@@ -1,11 +1,13 @@
 import type { Area } from "../models/area.ts";
 import type { DatabaseType } from "../models/diagram.ts";
 import type { Enum } from "../models/enum.ts";
+import type { LogicalRelationship } from "../models/logical-relationship.ts";
 import type { Metadata } from "../models/metadata.ts";
 import type { Note } from "../models/note.ts";
 import type { Relationship } from "../models/relationship.ts";
 import type { Table } from "../models/table.ts";
 import type { CustomType } from "../models/type.ts";
+import type { ViewState } from "../models/view-state.ts";
 import type { View } from "../models/view.ts";
 
 /**
@@ -19,12 +21,14 @@ export interface DiagramJson {
   sqlHeader?: string;
   tables: Table[];
   relationships: Relationship[];
+  logicalRelationships?: LogicalRelationship[];
   notes: Note[];
   subjectAreas: Area[];
   types: CustomType[];
   enums: Enum[];
   views: View[];
   metadata?: Metadata;
+  viewState?: ViewState;
 }
 
 /** A message that explains why an import failed. */

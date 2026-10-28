@@ -1,0 +1,96 @@
+/**
+ * The styles of the resizable panel of the layout.
+ *
+ * The width itself is inline: the component owns it, so the transition of
+ * the collapse animation only has to be declared here.
+ */
+
+.panel {
+  position: relative;
+  flex: 0 0 auto;
+  height: 100%;
+  min-height: 0;
+  transition: width 200ms var(--ddb-easing, ease);
+}
+
+.collapsed {
+  overflow: visible;
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.collapsed .content {
+  visibility: hidden;
+}
+
+/* The separator the user drags; it sits on the edge towards the canvas. */
+.resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  cursor: col-resize;
+  z-index: 2;
+}
+
+.left .resizer {
+  right: -3px;
+}
+
+.right .resizer {
+  left: -3px;
+}
+
+.resizer:hover {
+  background: var(--ddb-accent, #3b82f6);
+  opacity: 0.25;
+}
+
+/* The chevron handle that collapses and expands the panel. */
+.toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 48px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ddb-border, #d0d7de);
+  background: var(--ddb-surface, #ffffff);
+  color: var(--ddb-text-muted, #57606a);
+  cursor: pointer;
+  z-index: 3;
+}
+
+.left .toggle {
+  right: -14px;
+  border-radius: 0 6px 6px 0;
+  border-left: none;
+}
+
+.right .toggle {
+  left: -14px;
+  border-radius: 6px 0 0 6px;
+  border-right: none;
+}
+
+.toggle:hover {
+  color: var(--ddb-accent, #3b82f6);
+}
+
+.chevron {
+  transition: transform 200ms ease;
+}
+
+.chevronFlipped {
+  transform: rotate(180deg);
+}

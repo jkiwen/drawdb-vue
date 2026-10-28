@@ -80,7 +80,9 @@ test("the built SDK renders the editor", async () => {
 
   const html = wrapper.html();
   assert.ok(html.includes('data-testid="canvas"'), "the canvas is missing");
-  assert.ok(html.includes('data-testid="side-panel"'), "the side panel is missing");
+  assert.ok(html.includes('data-testid="outline-tree"'), "the outline tree is missing");
+  assert.ok(html.includes('data-testid="edit-panel"'), "the edit panel is missing");
+  assert.ok(html.includes('data-testid="bottom-panel"'), "the bottom panel is missing");
 
   wrapper.unmount();
 });

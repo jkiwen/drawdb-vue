@@ -7,20 +7,22 @@ import type {
   View,
 } from "@drawdb/core";
 import { useDiagramStore } from "../stores/diagram.ts";
+import { useToolbarScopeStore } from "../stores/toolbar-scope.ts";
 import { useUIStore } from "../stores/ui.ts";
+import { useViewStateStore } from "../stores/view-state.ts";
 import {
   areaBounds,
-  logicalRelationshipBounds,
-  logicalTableBounds,
   noteBounds,
-  relationshipBounds,
-  tableBounds,
   tableWidth,
   viewBounds,
   visibleWorldBounds,
   type Bounds,
   type EdgeAnchor,
 } from "../components/Canvas/geometry.ts";
+import {
+  renderRelationshipBounds,
+  tableRenderBounds,
+} from "../components/Canvas/render-geometry.ts";
 import {
   areaHoldsElement,
   elementBounds,
@@ -49,20 +51,11 @@ export interface CanvasItems {
   visibleViews: ComputedRef<View[]>;
   visibleTables: ComputedRef<Table[]>;
   visibleRelationships: ComputedRef<Relationship[]>;
-  /**
-   * The anchor of a relationship end that folds with a collapsed area: the
-   * edge of the title bar of the area, facing the other end. Keyed by the id
-   * of the relationship.
-   */
+  /** The anchor of a relationship end that folds with a collapsed area. */
   relationshipEndpoints: ComputedRef<
     Map<string, { start?: EdgeAnchor; end?: EdgeAnchor }>
   >;
-  /**
-   * The tables outside of each collapsed area that a relationship anchored
-   * on the title bar points at, by the id of the area. The badge on the
-   * title bar of the area counts them and the hover on the badge draws a
-   * dashed line to each.
-   */
+  /** The outside tables a collapsed area still links to, by area id. */
   collapsedAreaLinks: ComputedRef<Map<string, Array<{ x: number; y: number }>>>;
 }
 
@@ -79,17 +72,17 @@ function toItem<T>(item: T, bounds: Bounds): CanvasItem<T> {
 }
 
 /**
- * Computes the elements of the canvas that are visible.
- *
- * The virtualization keeps the canvas responsive with a big diagram: the
- * elements that are outside of the viewport are not drawn at all.
+ * Computes the elements of the canvas that are visible. The virtualization
+ * keeps a big diagram responsive: off-viewport elements are not drawn.
  */
 export function useCanvasItems(options: {
   width: () => number;
   height: () => number;
 }): CanvasItems {
   const diagram = useDiagramStore();
+  const toolbarScope = useToolbarScopeStore();
   const ui = useUIStore();
+  const viewState = useViewStateStore();
 
   /** The part of the diagram that is currently visible. */
   const world = computed(() =>
@@ -102,8 +95,9 @@ export function useCanvasItems(options: {
     ),
   );
 
-  /** The logical view draws the entities instead of the tables. */
-  const isLogical = computed(() => ui.viewMode === "logical");
+  // The layer comes from the view state of the diagram (UI document
+  // section 6.1); the legacy `ui.viewMode` no longer drives the canvas.
+  const isLogical = computed(() => viewState.viewLayer === "logical");
 
   /** The visible area, in the coordinates of the canvas. */
   const viewportRect = computed(() => ({
@@ -132,12 +126,16 @@ export function useCanvasItems(options: {
   );
 
   const viewItems = computed<CanvasItem<View>[]>(() =>
-    diagram.views
-      .filter(
-        (view) =>
-          !heldByCollapsedArea(collapsedAreas.value, elementBounds(view)),
-      )
-      .map((view) => toItem(view, viewBounds(view))),
+    // Ruling Q15: the views are a physical concept; the logical layer hides
+    // them.
+    isLogical.value
+      ? []
+      : diagram.views
+          .filter(
+            (view) =>
+              !heldByCollapsedArea(collapsedAreas.value, elementBounds(view)),
+          )
+          .map((view) => toItem(view, viewBounds(view))),
   );
 
   const tableItems = computed<CanvasItem<Table>[]>(() =>
@@ -147,10 +145,15 @@ export function useCanvasItems(options: {
           !table.hidden &&
           !heldByCollapsedArea(collapsedAreas.value, elementBounds(table)),
       )
+      // The bounds come from the render model, so the virtualization culls
+      // exactly what the node draws — including the scoped overrides (Q1).
       .map((table) =>
-        isLogical.value
-          ? toItem(table, logicalTableBounds(table))
-          : toItem(table, tableBounds(table)),
+        toItem(
+          table,
+          tableRenderBounds(table, viewState.viewLayer, viewState.toggles, {
+            overrides: toolbarScope.overrideFor(String(table.id)),
+          }),
+        ),
       ),
   );
 
@@ -192,10 +195,8 @@ export function useCanvasItems(options: {
       `translate(${-ui.scrollX * ui.zoom} ${-ui.scrollY * ui.zoom}) scale(${ui.zoom})`,
   );
 
-  /**
-   * The anchors of the relationships with exactly one end in a collapsed
-   * area: the end the area holds anchors on the title bar of the area.
-   */
+  // The end of a relationship inside a collapsed area anchors on the title
+  // bar of the area.
   const relationshipEndpoints = useRelationshipEndpoints(diagram, collapsedAreas);
 
   const visibleRelationships = computed(() =>
@@ -208,9 +209,7 @@ export function useCanvasItems(options: {
       }
 
       // A relationship whose both ends fold with the same collapsed area is
-      // hidden with it; a relationship that reaches out of a collapsed area,
-      // or that connects two different collapsed areas, stays drawn and
-      // anchors on the title bar of the area.
+      // hidden with it.
       const startArea = collapsedAreas.value.find((area) =>
         areaHoldsElement(area, startTable),
       );
@@ -221,9 +220,17 @@ export function useCanvasItems(options: {
         return false;
       }
 
-      const bounds = isLogical.value
-        ? logicalRelationshipBounds(startTable, endTable)
-        : relationshipBounds(relationship, startTable, endTable);
+      const bounds = renderRelationshipBounds(
+        relationship,
+        startTable,
+        endTable,
+        viewState.viewLayer,
+        viewState.toggles,
+        {
+          start: { overrides: toolbarScope.overrideFor(String(startTable.id)) },
+          end: { overrides: toolbarScope.overrideFor(String(endTable.id)) },
+        },
+      );
       // The margin keeps a relationship drawn while its detour around an
       // obstacle is near the edge of the viewport.
       const MARGIN = 64;
@@ -242,16 +249,8 @@ export function useCanvasItems(options: {
     }),
   );
 
-  /**
-   * The tables outside of each collapsed area that a relationship still
-   * connects to it.
-   *
-   * A relationship with one end inside a collapsed area and one end outside
-   * of it anchors on the title bar of the area; the badge on the title bar
-   * counts these relationships and the hover on the badge draws a dashed
-   * line to the table outside, so the connections of a collapsed area stay
-   * discoverable.
-   */
+  // The badge of a collapsed area links to each table outside that a
+  // relationship still connects to it.
   const collapsedAreaLinks = computed(() => {
     const links = new Map<string, Array<{ x: number; y: number }>>();
     for (const area of collapsedAreas.value) {

@@ -70,4 +70,26 @@ describe("the translations of the SDK", () => {
     setLocale("zh-CN");
     assert.equal(t("save"), "保存");
   });
+
+  it("picks the russian plural form of a count", async () => {
+    const i18n = await createI18n("ru");
+    assert.equal(i18n.global.t("scope_tables", { count: 1 }), "1 таблица");
+    assert.equal(i18n.global.t("scope_tables", { count: 2 }), "2 таблицы");
+    assert.equal(i18n.global.t("scope_tables", { count: 5 }), "5 таблиц");
+    assert.equal(i18n.global.t("scope_tables", { count: 21 }), "21 таблица");
+  });
+
+  it("picks the polish plural form of a count", async () => {
+    const i18n = await createI18n("pl");
+    assert.equal(i18n.global.t("scope_tables", { count: 1 }), "1 tabela");
+    assert.equal(i18n.global.t("scope_tables", { count: 22 }), "22 tabele");
+    assert.equal(i18n.global.t("scope_tables", { count: 25 }), "25 tabel");
+  });
+
+  it("picks the czech plural form of a count", async () => {
+    const i18n = await createI18n("cz");
+    assert.equal(i18n.global.t("scope_tables", { count: 1 }), "1 tabulka");
+    assert.equal(i18n.global.t("scope_tables", { count: 3 }), "3 tabulky");
+    assert.equal(i18n.global.t("scope_tables", { count: 22 }), "22 tabulek");
+  });
 });

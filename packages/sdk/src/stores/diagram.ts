@@ -35,8 +35,10 @@ import { computed, reactive, ref } from "vue";
 import { elementBounds, heldByLockedArea } from "../utils/elements.ts";
 import { useHistoryStore } from "./history.ts";
 import { elementActions } from "./element-actions.ts";
+import { editPanelActions } from "./edit-panel-actions.ts";
 import { sidePanelActions } from "./side-panel-actions.ts";
 import { tableToggles } from "./table-toggles.ts";
+import { viewStateActions } from "./view-state-actions.ts";
 
 /**
  * The diagram store owns the edited ER diagram.
@@ -109,12 +111,9 @@ export const useDiagramStore = defineStore("diagram", () => {
   }
 
   /**
-   * Whether a table can be changed.
-   *
-   * A table the user locked, or a table a locked area holds, is a table the
-   * user does not want to touch any more, so every change of it is refused.
-   * The refusal lives here and not in the components, because the side panel
-   * changes a table as well and the user expects the lock to hold there too.
+   * Whether a table can be changed. A user-locked table, or one a locked area
+   * holds, refuses every change. The refusal lives here, not in components,
+   * because the side panel changes a table as well.
    */
   function isLocked(tableId: TableId): boolean {
     const table = tableById(tableId);
@@ -293,7 +292,8 @@ export const useDiagramStore = defineStore("diagram", () => {
     resizeTable, ...toggles, updateSqlHeader,
     applyRelationships, autoArrange: autoArrangeTables, setImportedDiagram,
     addEntity, removeEntity,
-    ...sidePanel, ...elements,
+    ...sidePanel, ...elements, ...viewStateActions(diagram, bump),
+    ...editPanelActions(diagram, history, bump),
   };
 });
 

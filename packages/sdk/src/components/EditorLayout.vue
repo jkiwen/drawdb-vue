@@ -1,16 +1,34 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Component } from "vue";
 import type { CustomType, DatabaseType } from "@drawdb/core";
+import type { EditorChromeOptions, ToolbarGroupId } from "../types/sdk-options.ts";
 import Canvas from "./Canvas/Canvas.vue";
+import EditPanel from "./EditPanel/EditPanel.vue";
 import EditorDialogs from "./EditorDialogs.vue";
 import Header from "./Header/Header.vue";
-import SidePanel from "./SidePanel/SidePanel.vue";
+import OutlineTree from "./Outline/OutlineTree.vue";
+import ResizablePanel from "./Layout/ResizablePanel.vue";
+import BottomPanel from "./BottomPanel/BottomPanel.vue";
+import Toolbar from "./Toolbar/Toolbar.vue";
+import { useOutlineIntegration } from "../composables/use-outline-integration.ts";
 import { useDialogStore } from "../stores/dialogs.ts";
+import type { DrawDBSettings } from "../stores/settings.ts";
+import {
+  PANEL_LEFT_DEFAULT_WIDTH,
+  PANEL_LEFT_MAX_WIDTH,
+  PANEL_LEFT_MIN_WIDTH,
+  PANEL_RIGHT_DEFAULT_WIDTH,
+  PANEL_RIGHT_MAX_WIDTH,
+  PANEL_RIGHT_MIN_WIDTH,
+  readPersistedSettings,
+  useSettingsStore,
+} from "../stores/settings.ts";
 
 defineOptions({ name: "DrawDBEditorLayout" });
 
-defineProps({
+const props = defineProps({
   /** The components the plugins contributed. */
   pluginSlots: {
     type: Object as PropType<Record<string, Component>>,
@@ -22,9 +40,27 @@ defineProps({
   customTypes: { type: Array as PropType<CustomType[]>, default: () => [] },
   /** The database the diagram is written for. The import dialog needs it. */
   database: { type: String as PropType<DatabaseType>, default: "generic" },
+  /** Which parts of the chrome are shown (Q13). Everything defaults on. */
+  chrome: { type: Object as PropType<EditorChromeOptions>, default: () => ({}) },
 });
 
 const emit = defineEmits(["save", "menu"]);
+
+// The chrome switches of ruling Q13: the host hides the parts its own page
+// already provides. Everything defaults to shown.
+const showOutline = computed(
+  () => props.showSidePanel && props.chrome.outline !== false,
+);
+const showEditPanel = computed(() => props.chrome.editPanel !== false);
+const showBottomPanel = computed(() => props.chrome.bottomPanel !== false);
+const toolbarGroups = computed<ToolbarGroupId[] | undefined | null>(() => {
+  if (props.chrome.toolbar === false) {
+    return null;
+  }
+  return typeof props.chrome.toolbar === "object"
+    ? props.chrome.toolbar.groups
+    : undefined;
+});
 
 /**
  * The state of the dialogs of the editor.
@@ -34,6 +70,64 @@ const emit = defineEmits(["save", "menu"]);
  * application.
  */
 const dialogs = useDialogStore();
+
+/**
+ * The preferences of the layout.
+ *
+ * The widths and the collapsed states of the panels live in the settings of
+ * the user, so they survive a reload and follow the user across diagrams
+ * (the user global scope of the design discussion, Q5).
+ */
+const settings = useSettingsStore();
+
+// The outline-to-canvas wiring lives in a composable so this file stays
+// under the 300 line budget.
+const { focusOutlineNode, assignTableToArea } = useOutlineIntegration();
+
+/** Whether the viewport is too narrow for two expanded panels. */
+function isSmallViewport(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(max-width: 1023px)").matches
+  );
+}
+
+// A narrow viewport starts with collapsed panels, but only while the user
+// has not picked a state yet: a persisted preference always wins.
+if (isSmallViewport()) {
+  const persisted = readPersistedSettings();
+  const initial: Partial<DrawDBSettings> = {};
+  if (persisted.panelLeftCollapsed === undefined) {
+    initial.panelLeftCollapsed = true;
+  }
+  if (persisted.panelRightCollapsed === undefined) {
+    initial.panelRightCollapsed = true;
+  }
+  if (Object.keys(initial).length > 0) {
+    settings.update(initial);
+  }
+}
+
+const panelLeftWidth = computed<number>({
+  get: () => settings.settings.panelLeftWidth ?? PANEL_LEFT_DEFAULT_WIDTH,
+  set: (width) => settings.update({ panelLeftWidth: width }),
+});
+
+const panelRightWidth = computed<number>({
+  get: () => settings.settings.panelRightWidth ?? PANEL_RIGHT_DEFAULT_WIDTH,
+  set: (width) => settings.update({ panelRightWidth: width }),
+});
+
+const panelLeftCollapsed = computed<boolean>({
+  get: () => settings.settings.panelLeftCollapsed ?? false,
+  set: (collapsed) => settings.update({ panelLeftCollapsed: collapsed }),
+});
+
+const panelRightCollapsed = computed<boolean>({
+  get: () => settings.settings.panelRightCollapsed ?? false,
+  set: (collapsed) => settings.update({ panelRightCollapsed: collapsed }),
+});
 
 /** Opens one of the dialogs of the editor. */
 function openDialog(
@@ -55,8 +149,27 @@ defineExpose({ openDialog, closeDialog });
   <div class="ddb-editor__layout">
     <Header @save="emit('save')" @menu="emit('menu', $event)" />
     <div class="ddb-editor__body">
-      <SidePanel v-if="showSidePanel" class="ddb-editor__side-panel" :custom-types="customTypes" />
+      <ResizablePanel
+        v-if="showOutline"
+        v-model:width="panelLeftWidth"
+        v-model:collapsed="panelLeftCollapsed"
+        side="left"
+        :min-width="PANEL_LEFT_MIN_WIDTH"
+        :max-width="PANEL_LEFT_MAX_WIDTH"
+        :default-width="PANEL_LEFT_DEFAULT_WIDTH"
+      >
+        <OutlineTree
+          @focus="focusOutlineNode"
+          @assign-to-area="assignTableToArea"
+        />
+      </ResizablePanel>
       <div class="ddb-editor__canvas">
+        <Toolbar
+          v-if="toolbarGroups !== null"
+          class="ddb-editor__toolbar"
+          :groups="toolbarGroups"
+          @menu="emit('menu', $event)"
+        />
         <Canvas />
         <component
           v-for="(slot, name) in pluginSlots"
@@ -65,7 +178,21 @@ defineExpose({ openDialog, closeDialog });
           class="ddb-editor__plugin-slot"
         />
       </div>
+      <ResizablePanel
+        v-if="showEditPanel"
+        v-model:width="panelRightWidth"
+        v-model:collapsed="panelRightCollapsed"
+        side="right"
+        :min-width="PANEL_RIGHT_MIN_WIDTH"
+        :max-width="PANEL_RIGHT_MAX_WIDTH"
+        :default-width="PANEL_RIGHT_DEFAULT_WIDTH"
+      >
+        <div class="ddb-editor__edit-panel" data-testid="edit-panel">
+          <EditPanel />
+        </div>
+      </ResizablePanel>
     </div>
+    <BottomPanel v-if="showBottomPanel" />
     <EditorDialogs
       v-model:sql-preview-open="dialogs.sqlPreviewOpen"
       v-model:sql-preview-format="dialogs.sqlPreviewFormat"
@@ -93,11 +220,6 @@ defineExpose({ openDialog, closeDialog });
   min-height: 0;
 }
 
-.ddb-editor__side-panel {
-  flex: 0 0 280px;
-  overflow: auto;
-}
-
 .ddb-editor__canvas {
   position: relative;
   flex: 1 1 auto;
@@ -105,9 +227,23 @@ defineExpose({ openDialog, closeDialog });
   overflow: hidden;
 }
 
+/* The toolbar floats over the top of the canvas (design 6.0); the canvas
+   keeps its full height so its geometry does not shift. */
+.ddb-editor__toolbar {
+  position: absolute;
+  top: var(--ddb-space-2, 8px);
+  left: var(--ddb-space-2, 8px);
+  z-index: 10;
+}
+
 .ddb-editor__plugin-slot {
   position: absolute;
   top: 0;
   right: 0;
+}
+
+.ddb-editor__edit-panel {
+  height: 100%;
+  min-height: 0;
 }
 </style>

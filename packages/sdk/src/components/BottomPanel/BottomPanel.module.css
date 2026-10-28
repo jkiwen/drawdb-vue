@@ -1,0 +1,247 @@
+/**
+ * The styles of the bottom panel of the editor (design section 8).
+ *
+ * The height itself is inline: the component owns it, so only the layout
+ * and the look of the parts live here.
+ */
+
+.panel {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--ddb-border, #d0d7de);
+  background: var(--ddb-surface, #ffffff);
+  color: var(--ddb-text, #1f2328);
+  transition: height 200ms var(--ddb-easing, ease);
+}
+
+/* The separator the user drags; it sits on the edge towards the canvas. */
+.resizer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -3px;
+  height: 6px;
+  cursor: row-resize;
+  z-index: 2;
+}
+
+.resizer:hover {
+  background: var(--ddb-accent, #3b82f6);
+  opacity: 0.25;
+}
+
+/* The 28px title bar: the tabs on the left, the collapse toggle right. */
+.header {
+  flex: 0 0 28px;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: var(--ddb-space-2, 8px);
+  padding: 0 var(--ddb-space-2, 8px);
+}
+
+.tabs {
+  display: flex;
+  align-items: stretch;
+  gap: var(--ddb-space-1, 4px);
+  min-width: 0;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ddb-space-1, 4px);
+  padding: 0 var(--ddb-space-2, 8px);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ddb-text-muted, #57606a);
+  font: inherit;
+  font-size: var(--ddb-text-meta, 12px);
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: var(--ddb-text, #1f2328);
+}
+
+.tabActive {
+  color: var(--ddb-text, #1f2328);
+  border-bottom-color: var(--ddb-accent, #3b82f6);
+}
+
+/* The red error count of the issues tab (ruling Q9). */
+.errorBadge {
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--ddb-danger, #d1242f);
+  color: #ffffff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--ddb-space-1, 4px);
+  border: 0;
+  background: transparent;
+  color: var(--ddb-text-muted, #57606a);
+  cursor: pointer;
+}
+
+.toggle:hover {
+  color: var(--ddb-accent, #3b82f6);
+}
+
+.chevron {
+  transition: transform 200ms ease;
+}
+
+.chevronFlipped {
+  transform: rotate(180deg);
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden auto;
+  padding: var(--ddb-space-2, 8px);
+}
+
+.empty {
+  margin: 0;
+  color: var(--ddb-text-muted, #57606a);
+  font-size: var(--ddb-text-meta, 12px);
+}
+
+/* The alerts tab. */
+.alertList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ddb-space-1, 4px);
+}
+
+.alertItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--ddb-space-2, 8px);
+  padding: var(--ddb-space-1, 4px) var(--ddb-space-2, 8px);
+  border: 0;
+  border-radius: var(--ddb-radius-md, 6px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--ddb-text-body, 13px);
+  text-align: left;
+  cursor: pointer;
+}
+
+.alertItem:hover:not(:disabled) {
+  background: var(--ddb-surface-hover, #f3f4f6);
+}
+
+.alertItem:disabled {
+  color: var(--ddb-text-muted, #57606a);
+  cursor: not-allowed;
+}
+
+.severityIcon {
+  flex: 0 0 auto;
+  width: 14px;
+  text-align: center;
+}
+
+.severity_error {
+  color: var(--ddb-danger, #d1242f);
+}
+
+.severity_warning {
+  color: var(--ddb-warning, #bf8700);
+}
+
+.severity_info {
+  color: var(--ddb-accent, #3b82f6);
+}
+
+.alertCode {
+  flex: 0 0 auto;
+  font-family: var(--ddb-font-mono, monospace);
+  font-size: var(--ddb-text-meta, 12px);
+  color: var(--ddb-text-muted, #57606a);
+}
+
+.alertLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* The history tab. */
+.historyList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.historyEntry {
+  padding: var(--ddb-space-1, 4px) var(--ddb-space-2, 8px);
+  font-size: var(--ddb-text-body, 13px);
+}
+
+.historyUndone {
+  color: var(--ddb-text-muted, #57606a);
+  text-decoration: line-through;
+}
+
+.historyCurrent {
+  padding: 0 var(--ddb-space-2, 8px);
+  font-size: var(--ddb-text-meta, 12px);
+  color: var(--ddb-accent, #3b82f6);
+}
+
+/* The one-time toast of ruling Q9. */
+.toast {
+  position: absolute;
+  right: var(--ddb-space-3, 12px);
+  bottom: calc(100% + var(--ddb-space-2, 8px));
+  display: flex;
+  align-items: center;
+  gap: var(--ddb-space-2, 8px);
+  padding: var(--ddb-space-2, 8px) var(--ddb-space-3, 12px);
+  border: 1px solid var(--ddb-border, #d0d7de);
+  border-radius: var(--ddb-radius-md, 6px);
+  background: var(--ddb-surface, #ffffff);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+  font-size: var(--ddb-text-meta, 12px);
+  z-index: 4;
+}
+
+.toastDismiss {
+  border: 0;
+  background: transparent;
+  color: var(--ddb-text-muted, #57606a);
+  cursor: pointer;
+  padding: 0;
+}

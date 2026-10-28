@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { canvasLogicalTables, canvasTables } from "./helpers.ts";
+import { canvasTables } from "./helpers.ts";
 
 /**
  * The smoke tests of the standalone application.
@@ -26,7 +26,7 @@ test.describe("smoke", () => {
 
     await expect(page.getByTestId("editor-view")).toBeVisible();
     await expect(page.getByTestId("canvas")).toBeVisible();
-    await expect(page.getByTestId("side-panel")).toBeVisible();
+    await expect(page.getByTestId("outline-tree")).toBeVisible();
   });
 
   test("adds a table in the editor", async ({ page }) => {
@@ -65,10 +65,22 @@ test.describe("smoke", () => {
     await page.getByTestId("add-table-btn").click();
     await expect(canvasTables(page)).toHaveCount(1);
 
-    await page.getByTestId("menu-view").click();
-    await page.getByText("Toggle view mode").click();
+    // The physical layer also lists the physical-only categories; the logical
+    // layer hides them.
+    await expect(page.getByTestId("outline-row-cat:views")).toBeVisible();
 
-    await expect(canvasLogicalTables(page)).toHaveCount(1);
-    await expect(canvasTables(page)).toHaveCount(0);
+    const layer = page.getByTestId("toolbar-view-layer");
+    await layer.click();
+
+    await expect(layer).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("outline-row-cat:views")).toHaveCount(0);
+    // The canvas draws the table uniformly in both layers.
+    await expect(canvasTables(page)).toHaveCount(1);
+
+    await layer.click();
+
+    await expect(layer).not.toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("outline-row-cat:views")).toBeVisible();
+    await expect(canvasTables(page)).toHaveCount(1);
   });
 });

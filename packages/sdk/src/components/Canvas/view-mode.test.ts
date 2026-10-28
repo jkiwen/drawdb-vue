@@ -6,12 +6,10 @@ import { mount } from "@vue/test-utils";
 import type { Component } from "vue";
 import type { Diagram } from "@drawdb/core";
 import Canvas from "./Canvas.vue";
-import LogicalRelationship from "./LogicalRelationship.vue";
-import LogicalTable from "./LogicalTable.vue";
 import Relationship from "./Relationship.vue";
 import Table from "./Table.vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
-import { useUIStore } from "../../stores/ui.ts";
+import { useViewStateStore } from "../../stores/view-state.ts";
 import { naive } from "../../../../../scripts/naive-ui-mock.mjs";
 
 function seed(): Diagram {
@@ -28,18 +26,64 @@ function seed(): Diagram {
         comment: "the people",
         logical: {
           id: "l_t1",
-          name: "users",
+          name: "Customer",
+          description: "a person who buys",
           attributes: [
-            { id: "a_f1", name: "id", logicalType: { family: "integer" }, fieldId: "f1" },
-            { id: "a_f2", name: "email", logicalType: { family: "string" }, fieldId: "f2" },
+            {
+              id: "a_f1",
+              name: "identifier",
+              logicalType: { family: "integer" },
+              fieldId: "f1",
+              keyRole: "primary",
+              required: true,
+            },
+            {
+              id: "a_f2",
+              name: "email address",
+              logicalType: { family: "string" },
+              fieldId: "f2",
+            },
+            {
+              // No logical name: the row falls back to the physical name.
+              id: "a_f3",
+              name: "",
+              logicalType: { family: "string" },
+              fieldId: "f3",
+            },
           ],
         },
         fields: [
-          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
-          { id: "f2", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
+          {
+            id: "f1",
+            name: "id",
+            fieldType: { type: "INTEGER" },
+            fieldTypeSource: "explicit",
+            primary: true,
+            notNull: true,
+          },
+          {
+            id: "f2",
+            name: "email",
+            fieldType: { type: "VARCHAR", length: 255 },
+            fieldTypeSource: "explicit",
+          },
+          {
+            id: "f3",
+            name: "nickname",
+            fieldType: { type: "VARCHAR", length: 64 },
+            fieldTypeSource: "explicit",
+          },
         ],
       },
-      { id: "t2", name: "orders", x: 320, y: 0, logical: { id: "l_t2", name: "orders", attributes: [] }, fields: [] },
+      {
+        // No logical name: the title falls back to the physical name.
+        id: "t2",
+        name: "orders",
+        x: 320,
+        y: 0,
+        logical: { id: "l_t2", name: "", attributes: [] },
+        fields: [{ id: "o1", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" }],
+      },
     ],
     relationships: [
       {
@@ -47,7 +91,7 @@ function seed(): Diagram {
         startTableId: "t1",
         startFieldId: "f1",
         endTableId: "t2",
-        endFieldId: "id",
+        endFieldId: "o1",
         name: "fk_orders_user",
         cardinality: "one_to_many",
       },
@@ -57,12 +101,14 @@ function seed(): Diagram {
     areas: [],
     types: [],
     enums: [],
-    views: [],
+    views: [
+      { id: "view-1", name: "active_users", x: 0, y: 300 },
+    ],
     metadata: {},
   };
 }
 
-describe("the view mode of the canvas", () => {
+describe("the view layer and the display modes of the canvas", () => {
   let pinia: Pinia;
 
   beforeEach(() => {
@@ -80,45 +126,138 @@ describe("the view mode of the canvas", () => {
     return mount(component, { props, global: { plugins: [pinia, naive] } });
   }
 
-  it("shows the field types in the physical view", () => {
+  it("defaults to the physical layer in the attributes mode", () => {
     const wrapper = mountComponent(Table, { table: seed().tables[0] });
-    assert.ok(wrapper.find('[data-testid="field-type"]').exists());
+    // The title is the physical name, the rows show the physical fields
+    // with their type specifications.
+    assert.equal(wrapper.find('[data-testid="table-name-t1"]').text().trim(), "users");
+    assert.ok(wrapper.find('[data-testid="field-name-f1"]').exists());
+    assert.equal(wrapper.find('[data-testid="field-type"]').text().trim(), "INTEGER");
+    // The description and the key marks stay off until their toggle is set.
+    assert.ok(!wrapper.find('[data-testid="table-comment-t1"]').exists());
+    assert.ok(!wrapper.find('[data-testid="field-primary"]').exists());
   });
 
-  it("hides the field types in the logical view", () => {
-    useUIStore().setViewMode("logical");
+  it("shows the logical names and the logical types in the logical layer", () => {
+    useViewStateStore().setViewLayer("logical");
     const wrapper = mountComponent(Table, { table: seed().tables[0] });
-    assert.ok(!wrapper.find('[data-testid="field-type"]').exists());
+    assert.equal(wrapper.find('[data-testid="table-name-t1"]').text().trim(), "Customer");
+    assert.equal(wrapper.find('[data-testid="field-name-f1"]').text().trim(), "identifier");
+    assert.equal(wrapper.find('[data-testid="field-name-f2"]').text().trim(), "email address");
+    const types = wrapper.findAll('[data-testid="field-type"]');
+    assert.deepEqual(
+      types.map((type) => type.text()),
+      ["Integer", "String", "String"],
+    );
   });
 
-  it("draws the entity without its fields in the logical view", () => {
-    const wrapper = mountComponent(LogicalTable, { table: seed().tables[0] });
-    assert.ok(wrapper.find('[data-testid="logical-table-t1"]').exists());
-    assert.ok(wrapper.text().includes("users"));
-    assert.ok(wrapper.text().includes("the people"));
-    assert.ok(!wrapper.find('[data-testid="field-t1-f1"]').exists());
+  it("falls back to the physical name with a badge when the logical name is missing", () => {
+    useViewStateStore().setViewLayer("logical");
+    const wrapper = mountComponent(Table, { table: seed().tables[0] });
+    const row = wrapper.find('[data-testid="field-name-f3"]');
+    assert.equal(row.text().trim(), "nickname");
+    assert.ok(wrapper.find('[data-testid="field-name-fallback-f3"]').exists());
   });
 
-  it("keeps the cardinality in the logical relationship", () => {
-    const diagram = seed();
-    const wrapper = mountComponent(LogicalRelationship, {
-      relationship: diagram.relationships[0],
-      startTable: diagram.tables[0],
-      endTable: diagram.tables[1],
-    });
-    assert.ok(wrapper.find('[data-testid="logical-relationship-r1"]').exists());
-    assert.equal(wrapper.findAll("path").length, 1);
-
-    // The cardinality is drawn as a label on both ends of the relationship.
-    // The relationship of the seed is one to many: "1" on the start, "n" on
-    // the end.
-    const cardinalities = wrapper.findAll(".ddb-canvas-relationship__cardinality");
-    assert.equal(cardinalities.length, 2);
-    assert.equal(cardinalities[0].text(), "1");
-    assert.equal(cardinalities[1].text(), "n");
+  it("falls back to the physical title with a badge when the logical entity name is missing", () => {
+    useViewStateStore().setViewLayer("logical");
+    const wrapper = mountComponent(Table, { table: seed().tables[1] });
+    assert.equal(wrapper.find('[data-testid="table-name-t2"]').text().trim(), "orders");
+    assert.ok(wrapper.find('[data-testid="table-title-fallback-t2"]').exists());
   });
 
-  it("attaches the relationship to the fields in the physical view", () => {
+  it("shows only the title in the entity display mode", () => {
+    useViewStateStore().setDisplayMode("entity");
+    const wrapper = mountComponent(Table, { table: seed().tables[0] });
+    assert.ok(wrapper.find('[data-testid="table-name-t1"]').exists());
+    assert.ok(!wrapper.find('[data-testid="field-name-f1"]').exists());
+    assert.ok(!wrapper.find('[data-testid="table-comment-t1"]').exists());
+  });
+
+  it("shows the physical comment in the definition display mode", () => {
+    useViewStateStore().setDisplayMode("definition");
+    const wrapper = mountComponent(Table, { table: seed().tables[0] });
+    assert.equal(
+      wrapper.find('[data-testid="table-comment-t1"]').text().trim(),
+      "the people",
+    );
+    assert.ok(!wrapper.find('[data-testid="field-name-f1"]').exists());
+  });
+
+  it("shows the logical description in the definition display mode of the logical layer", () => {
+    const viewState = useViewStateStore();
+    viewState.setViewLayer("logical");
+    viewState.setDisplayMode("definition");
+    const wrapper = mountComponent(Table, { table: seed().tables[0] });
+    assert.equal(
+      wrapper.find('[data-testid="table-comment-t1"]').text().trim(),
+      "a person who buys",
+    );
+  });
+
+  it("shows the key marks in the all display mode", () => {
+    useDiagramStore().setDiagram(seed());
+    useViewStateStore().setDisplayMode("all");
+    const wrapper = mountComponent(Table, { table: seed().tables[0] });
+    assert.ok(wrapper.find('[data-testid="field-primary"]').exists());
+    // The field o1 of the other table is the foreign key; here f3 of the
+    // seed points nowhere, so no row carries the FK mark.
+    assert.ok(!wrapper.find('[data-testid="field-foreign"]').exists());
+  });
+
+  it("marks the foreign key fields in the all display mode", () => {
+    useDiagramStore().setDiagram(seed());
+    useViewStateStore().setDisplayMode("all");
+    const wrapper = mountComponent(Table, { table: seed().tables[1] });
+    assert.ok(wrapper.find('[data-testid="field-foreign"]').exists());
+  });
+
+  it("marks the key roles of the attributes in the all display mode of the logical layer", () => {
+    const viewState = useViewStateStore();
+    viewState.setViewLayer("logical");
+    viewState.setDisplayMode("all");
+    const wrapper = mountComponent(Table, { table: seed().tables[0] });
+    assert.ok(wrapper.find('[data-testid="field-primary"]').exists());
+    // The required attribute is not nullable, so no question mark on it.
+    const rows = wrapper.findAll('[data-testid^="field-"]');
+    assert.ok(rows.length > 0);
+  });
+
+  it("does not edit inline in the logical layer", () => {
+    useViewStateStore().setViewLayer("logical");
+    const wrapper = mountComponent(Table, { table: seed().tables[0] });
+    // No drag handles and no edit inputs: the canvas edits only the
+    // physical layer.
+    assert.ok(!wrapper.find('[data-testid^="field-drag-handle"]').exists());
+    assert.ok(!wrapper.find('[data-testid^="remove-field"]').exists());
+  });
+
+  it("hides the views in the logical layer", () => {
+    const viewState = useViewStateStore();
+    useDiagramStore().setDiagram(seed());
+    const physical = mountComponent(Canvas, {});
+    assert.ok(physical.find('[data-testid="view-view-1"]').exists());
+
+    viewState.setViewLayer("logical");
+    const logical = mountComponent(Canvas, {});
+    assert.ok(!logical.find('[data-testid="view-view-1"]').exists());
+  });
+
+  it("draws the same table node in both layers", () => {
+    const viewState = useViewStateStore();
+    useDiagramStore().setDiagram(seed());
+    const physical = mountComponent(Canvas, {});
+    assert.ok(physical.find('[data-testid="table-t1"]').exists());
+
+    viewState.setViewLayer("logical");
+    const logical = mountComponent(Canvas, {});
+    assert.ok(logical.find('[data-testid="table-t1"]').exists());
+    // The compact entity box of the old view mode is gone.
+    assert.ok(!logical.find('[data-testid="logical-table-t1"]').exists());
+  });
+
+  it("keeps drawing the relationships in the logical layer", () => {
+    useViewStateStore().setViewLayer("logical");
     const diagram = seed();
     const wrapper = mountComponent(Relationship, {
       relationship: diagram.relationships[0],
@@ -126,30 +265,22 @@ describe("the view mode of the canvas", () => {
       endTable: diagram.tables[1],
     });
     assert.ok(wrapper.find('[data-testid="relationship-r1"]').exists());
+    // The cardinality stays on both ends of the relationship.
+    const cardinalities = wrapper.findAll(".ddb-canvas-relationship__cardinality");
+    assert.equal(cardinalities.length, 2);
+    assert.equal(cardinalities[0].text().trim(), "1");
+    assert.equal(cardinalities[1].text().trim(), "n");
   });
 
-  it("draws the tables in the physical view by default", () => {
-    useDiagramStore().setDiagram(seed());
-    const wrapper = mountComponent(Canvas, {});
-    assert.ok(wrapper.find('[data-testid="table-t1"]').exists());
-    assert.ok(!wrapper.find('[data-testid="logical-table-t1"]').exists());
-  });
-
-  it("draws the entities in the logical view", () => {
-    useDiagramStore().setDiagram(seed());
-    useUIStore().setViewMode("logical");
-    const wrapper = mountComponent(Canvas, {});
-    assert.ok(wrapper.find('[data-testid="logical-table-t1"]').exists());
-    assert.ok(wrapper.find('[data-testid="logical-relationship-r1"]').exists());
-    assert.ok(!wrapper.find('[data-testid="table-t1"]').exists());
-  });
-
-  it("switches between the two view modes", () => {
-    const ui = useUIStore();
-    assert.equal(ui.viewMode, "physical");
-    ui.toggleViewMode();
-    assert.equal(ui.viewMode, "logical");
-    ui.toggleViewMode();
-    assert.equal(ui.viewMode, "physical");
+  it("derives the custom display mode from a manual toggle", () => {
+    const viewState = useViewStateStore();
+    assert.equal(viewState.displayMode, "attributes");
+    viewState.setToggle("description", true);
+    assert.equal(viewState.displayMode, "custom");
+    const wrapper = mountComponent(Table, { table: seed().tables[0] });
+    // Both the fields and the description show: the toggles are the only
+    // source of the display.
+    assert.ok(wrapper.find('[data-testid="field-name-f1"]').exists());
+    assert.ok(wrapper.find('[data-testid="table-comment-t1"]').exists());
   });
 });

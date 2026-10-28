@@ -17,6 +17,7 @@ import "../styles/tokens.css";
 import { useEditorCommands } from "../composables/use-editor-commands.ts";
 import { useEditorPlugins } from "../composables/use-editor-plugins.ts";
 import { useEditorSync } from "../composables/use-editor-sync.ts";
+import { usePanelHotkeys } from "../composables/use-panel-hotkeys.ts";
 import { resolvePinia } from "../composables/pinia.ts";
 import { setLocale } from "../i18n/index.ts";
 import { useDialogStore } from "../stores/dialogs.ts";
@@ -26,6 +27,7 @@ import { useSaveStore } from "../stores/save.ts";
 import { useUIStore } from "../stores/ui.ts";
 import type {
   ChangeInfo,
+  EditorChromeOptions,
   EditorSelection,
   EditorTheme,
   SDKPlugin,
@@ -78,6 +80,8 @@ const props = defineProps({
   autoSave: { type: Boolean, default: false },
   /** The delay between two automatic saves, in milliseconds. */
   autoSaveInterval: { type: Number, default: 5000 },
+  /** Which parts of the editor chrome are shown (Q13). */
+  chrome: { type: Object as PropType<EditorChromeOptions>, default: undefined },
 });
 
 const emit = defineEmits<{
@@ -113,7 +117,9 @@ const saveStore = useSaveStore();
 const dialogs = useDialogStore();
 
 const theme = computed(() => (props.theme === "dark" ? darkTheme : lightTheme));
-const showSidePanel = computed(() => !props.readonly && uiStore.sidebarOpen);
+// Ruling Q21: hiding the left panel is the collapse of the layout panel, so
+// the panel stays mounted here and keeps the state of the outline tree.
+const showSidePanel = computed(() => !props.readonly);
 
 const plugins = useEditorPlugins({
   plugins: () => props.plugins,
@@ -156,6 +162,10 @@ const sync = useEditorSync({
 void plugins.activate();
 commands.configureAutoSave(props.autoSave, props.autoSaveInterval);
 
+// The layout panel hotkeys (mod+b / mod+alt+b / mod+`) answer as long as the
+// editor is mounted.
+const stopPanelHotkeys = usePanelHotkeys();
+
 /**
  * Handles an entry of the menu of the header.
  *
@@ -170,6 +180,7 @@ function onMenu(key: string): void {
 
 onBeforeUnmount(() => {
   commands.stopAutoSave();
+  stopPanelHotkeys();
   void plugins.deactivate();
 });
 
@@ -202,6 +213,7 @@ defineExpose({
       :show-side-panel="showSidePanel"
       :custom-types="customTypes"
       :database="diagramStore.diagram.database"
+      :chrome="chrome"
       @save="commands.runSave"
       @menu="onMenu"
     />

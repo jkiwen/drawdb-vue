@@ -16,3 +16,18 @@ declare module "*.vue" {
 
   export default component;
 }
+
+/**
+ * Type declaration for the CSS modules.
+ *
+ * The SDK components import their stylesheet as a module (`import styles
+ * from "./edit-panel.module.css"`), and this app boots them through the
+ * source aliases, so the declaration has to be part of this program too.
+ * Vite turns every class name into a hashed one at build time; the type
+ * checker only needs the shape of the default export.
+ */
+declare module "*.module.css" {
+  const classes: Record<string, string>;
+
+  export default classes;
+}

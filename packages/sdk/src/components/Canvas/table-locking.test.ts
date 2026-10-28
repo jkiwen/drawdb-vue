@@ -213,10 +213,9 @@ describe("the lock of a table on the canvas", () => {
     const wrapper = mountTable(pinia);
     await nextTick();
 
-    const draggable = wrapper.findComponent({ name: "VueDraggable" });
-    draggable.vm.$emit("end", { oldIndex: 0, newIndex: 1 });
-    await nextTick();
-
+    // A locked table is not sortable at all: its rows are drawn without
+    // the drag sortable, so there is nothing to reorder.
+    assert.equal(wrapper.findComponent({ name: "VueDraggable" }).exists(), false);
     assert.equal(diagram.tables[0].fields[0].id, "users_id");
   });
 });

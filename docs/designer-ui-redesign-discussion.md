@@ -498,15 +498,44 @@ Tab 分组：**告警（Alerts）/ 日志（Logs）/ Trace / 操作日志（Acti
 | Q19 | fieldTypeSource 来源徽标密度 | **仅编辑面板**逐字段显示 mapped/explicit/imported；画布字段行不显示（密度优先），诊断与告警里体现 |
 | Q20 | 条目区与显示模式关系 | **逐项开关（PK/UK/FK、INDEX）为条目区显隐的唯一状态源**；四显示模式只是预设组合，手动调整后显示切换进「自定义」态 |
 
+### 11.1 P5 实施中新提出的问题
+
+| 编号 | 问题 | 现状 | 裁决 / 落地 |
+|---|---|---|---|
+| Q21 | 左侧面板「隐藏」有两个入口，语义不一致 | View 菜单「Toggle side panel」走 `ui.sidebarOpen` 卸载大纲树；`mod+b` 走 `settings.panelLeftCollapsed` 收起但保留挂载与状态 | **裁决：统一为「收起」**（2026-10-28）。`settings.panelLeftCollapsed` 成为唯一状态源，`ui.sidebarOpen` 改为它的镜像（读），`ui.toggleSidebar()` 写回设置；菜单项、Header 按钮、`mod+b` 三条入口因此同步。`showSidePanel` 不再随 `sidebarOpen` 卸载面板，树在收起期间保留状态，恢复即可逆。命令名暂保留 `Toggle side panel`（文案随 P6 首选项/菜单整理一并调整）。
+
 ---
 
 ## 12. 后续步骤
 
 1. ~~评审本文档，收敛 §11 的开放问题~~ —— **已完成（2026-10-27，19 条全部裁决，见 §11）**。
 2. ~~将定稿拆解为实施计划~~ —— **类型系统核心 P1–P4 计划已立**：[`docs/superpowers/plans/2026-10-27-erwin-type-system-core.md`](superpowers/plans/2026-10-27-erwin-type-system-core.md)（模型 → 解析器 → lint → 导出接入）。执行时按 using-git-worktrees 新建 worktree。
-3. 后续计划（待 P1–P4 完成后分别立项），与类型系统设计分期对齐：
-   - **P2'（索引与约束维护，与 P1 并行线）** ↔ §7（条目区）、§3.1（树节点）、§8（索引诊断通道）；
-   - **P5（SDK 接入）** ↔ 本文档 §3–§5、§6.1/§6.2/§6.4、§4（统一编辑面板）；
-   - **P6（App 接入）** ↔ §6.9A（DSM 映射管理界面）+ 首选项对话框（Q7）；
-   - **P7（erwin 导入器）** ↔ §6.8（导入入口与报告呈现）、§3.4 / §8（异常标记与告警）。
-4. 对百表级场景做树虚拟滚动、条目区渲染与布局动画的性能验证（对齐 `plan.md` 的 60fps 要求）。
+3. 后续计划（与类型系统设计分期对齐）：
+   - **P2'（索引与约束维护，与 P1 并行线）** ↔ §7（条目区）、§3.1（树节点）、§8（索引诊断通道）——**未立项**；
+   - ~~**P5（SDK 接入）** ↔ 本文档 §3–§5、§6.1/§6.2/§6.4、§4（统一编辑面板）~~ ——**已完成（2026-10-28，分支 `sdk-ui-redesign-p5`）**，见下方 §12.1；
+   - **P6（App 接入）** ↔ §6.9A（DSM 映射管理界面）+ 首选项对话框（Q7）——**未立项**；
+   - **P7（erwin 导入器）** ↔ §6.8（导入入口与报告呈现）、§3.4 / §8（异常标记与告警）——**未立项**。
+4. ~~对百表级场景做树虚拟滚动、条目区渲染与布局动画的性能验证~~ —— P5 内已验（§12.1）。
+
+### 12.1 P5 的落地情况（2026-10-28）
+
+计划：`docs/superpowers/plans/2026-10-28-sdk-ui-redesign-p5.md`。落地与本文档的对应关系：
+
+| 本文档 | 落地位置（`packages/sdk/src/`） |
+|---|---|
+| §2 布局骨架、§5 面板收缩/展开、Q5 尺寸持久化、Q21 单一隐藏机制 | `components/EditorLayout.vue`、`components/Layout/ResizablePanel.vue`、`composables/use-panel-hotkeys.ts`（mod+b / mod+alt+b / mod+\`）、`stores/settings.ts`（`panelLeftCollapsed` 为唯一状态源，`ui.sidebarOpen` 是它的镜像） |
+| §3 树型大纲、Q11 拖拽、§3.1 双层命名 | `components/Outline/`（`OutlineTree.vue`、`outline-nodes.ts`、`outline-model.ts`、`outline-actions.ts`） |
+| §6.1 四显示模式 × 双层、§6.4 逻辑/物理切换 | `components/Canvas/render-model.ts`、`render-geometry.ts`、`stores/view-state.ts`、core `models/view-state.ts`（随图保存，Q2） |
+| §6 九组工具栏（Q1 范围自动判定 + 常驻指示器、Q20 逐项开关为状态源） | `components/Toolbar/`、`stores/toolbar-scope.ts`（选中表/Area 范围只影响选中表，无选中写全局） |
+| §4 统一编辑面板（五列成对、combobox、Q12 原子批量、Q19 来源徽标） | `components/EditPanel/`、`stores/edit-panel-actions.ts` |
+| §8 底部告警区（Q9 不自动展开+徽标+Toast、Q14 Trace 仅开发者） | `components/BottomPanel/`（Alerts / History / Log，Trace 占位待 Q14 场景） |
+| Q13 SDK 可配置 | `types/sdk-options.ts`（`outline` / `editPanel` / `bottomPanel` / `toolbar.groups` / `onOpenDsm`） |
+| AGENTS.md 的 i18n 硬约束 | 108 个新 key × 51 个 locale 全部真实翻译 |
+
+P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏）：
+- §7 条目区（PK/UK/FK/INDEX 双名对象）与树中的 Constraints/Indexes 节点——属 P2'；工具栏的 indexes 开关已存在但置灰并注明 P2'。Q17 的「树吸收 Indices 页」在 P2' 落地时一并接线。
+- §6.8 erwin 导入与导入报告（P7）、§6.9A DSM 映射管理界面与首选项对话框（P6，`onOpenDsm` 已预留入口）。
+- §6.6 图工具中的 Print / PrintPreview（Q8 裁决为内嵌分页预览 + 浏览器打印，P5 未实现）、文件组仅发出 `file:new/open/save` 事件由宿主接。
+- Q3 对象级隐藏（本期不引入）、§6.5 对齐工具与 §6.3 布局工具（Grid/Flow/Auto Flow + Q6 位置锁定属性）——P5 计划明确排除。
+- 树节点拖拽的落库行为（Q11 表↔Area）：P5 只发出事件并把表移入区域几何范围，属性级落库留待 Area 成员模型定案。
+- §2 描述的「收缩后保留约 36px 窄边栏 + 类别图标浮层速览」（Q4）尚未实现：当前收起是宽度归零 + 边缘 chevron 按钮，没有类别图标也没有浮层。Q4 的裁决保留，实现留待 P6 与首选项一起做。
