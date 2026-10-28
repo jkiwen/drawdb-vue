@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, watch } from "vue";
+import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
@@ -90,23 +91,22 @@ function onBasicsCommit(
   commitTableBasics(diagramStore, panelTarget.table, patch);
 }
 
-// TODO(i18n): Task 7 moves the panel copy into the locale files.
-const EMPTY_COPY: Record<string, string> = {
-  none: "Select a table, relationship or area to edit it.",
-  mixed: "The selection mixes object types; select objects of one type.",
-  note: "Notes are edited on the canvas.",
+const EMPTY_KEYS: Record<string, string> = {
+  none: "edit_panel_empty_none",
+  mixed: "edit_panel_empty_mixed",
+  note: "edit_panel_empty_note",
 };
 </script>
 
 <template>
   <div :class="styles.panel" data-testid="edit-panel-root">
     <div v-if="target.kind === 'empty'" :class="styles.empty" data-testid="edit-panel-empty">
-      {{ EMPTY_COPY[target.reason] ?? EMPTY_COPY.none }}
+      {{ t(EMPTY_KEYS[target.reason] ?? EMPTY_KEYS.none) }}
     </div>
 
     <template v-else-if="target.kind === 'table'">
       <PanelGroup
-        title="Table"
+        :title="t('table')"
         :collapsed="isCollapsed('basics')"
         testid="group-basics"
         @toggle="toggleGroup('basics')"
@@ -118,7 +118,7 @@ const EMPTY_COPY: Record<string, string> = {
         />
       </PanelGroup>
       <PanelGroup
-        title="Fields"
+        :title="t('fields')"
         :collapsed="isCollapsed('fields')"
         testid="group-fields"
         @toggle="toggleGroup('fields')"
@@ -135,7 +135,7 @@ const EMPTY_COPY: Record<string, string> = {
 
     <template v-else-if="target.kind === 'tables'">
       <PanelGroup
-        title="Tables"
+        :title="t('tables')"
         :collapsed="isCollapsed('batch')"
         testid="group-batch"
         @toggle="toggleGroup('batch')"
@@ -146,7 +146,7 @@ const EMPTY_COPY: Record<string, string> = {
 
     <template v-else-if="target.kind === 'relationship'">
       <PanelGroup
-        title="Relationship"
+        :title="t('relationship')"
         :collapsed="isCollapsed('relationship')"
         testid="group-relationship"
         @toggle="toggleGroup('relationship')"
@@ -161,7 +161,7 @@ const EMPTY_COPY: Record<string, string> = {
 
     <template v-else-if="target.kind === 'area'">
       <PanelGroup
-        title="Subject area"
+        :title="t('edit_panel_subject_area')"
         :collapsed="isCollapsed('area')"
         testid="group-area"
         @toggle="toggleGroup('area')"

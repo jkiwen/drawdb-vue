@@ -5,17 +5,17 @@
  * sees which one at all times.
  */
 import { computed } from "vue";
+import { t } from "../../i18n/index.ts";
 import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
 import { TOOLBAR_ICONS } from "./toolbar-icons.ts";
 import classes from "./toolbar.module.css";
 
 const scope = useToolbarScopeStore();
 
-// TODO(i18n Task 7): move the labels into the locale files.
 const label = computed(() =>
   scope.scopeKind === "canvas"
-    ? "Canvas"
-    : `${scope.scopeCount} ${scope.scopeCount === 1 ? "table" : "tables"}`,
+    ? t("scope_canvas")
+    : t("scope_tables", { count: scope.scopeCount }),
 );
 </script>
 
@@ -23,7 +23,7 @@ const label = computed(() =>
   <span
     :class="classes.scope"
     data-testid="toolbar-scope"
-    title="Scope of the display tools: the selection, or the whole canvas"
+    :title="t('scope_label')"
   >
     <svg
       viewBox="0 0 24 24"

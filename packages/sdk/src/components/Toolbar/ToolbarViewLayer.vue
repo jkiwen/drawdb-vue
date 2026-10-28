@@ -4,17 +4,19 @@
  * layer and says where a click leads.
  */
 import { computed } from "vue";
+import { t } from "../../i18n/index.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 import ToolbarButton from "./ToolbarButton.vue";
 import classes from "./toolbar.module.css";
 
 const viewState = useViewStateStore();
 
-// TODO(i18n Task 7): the titles move into the locale files.
 const title = computed(() =>
-  viewState.viewLayer === "logical"
-    ? "Logical view — switch to physical"
-    : "Physical view — switch to logical",
+  t(
+    viewState.viewLayer === "logical"
+      ? "view_layer_logical"
+      : "view_layer_physical",
+  ),
 );
 
 function flip(): void {
@@ -25,7 +27,7 @@ function flip(): void {
 </script>
 
 <template>
-  <div :class="classes.group" role="group" aria-label="View layer">
+  <div :class="classes.group" role="group" :aria-label="t('view_layer_group')">
     <ToolbarButton
       icon="view-layer"
       :title="title"

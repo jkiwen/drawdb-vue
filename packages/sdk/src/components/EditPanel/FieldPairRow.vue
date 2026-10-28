@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { BUILTIN_FAMILIES } from "@drawdb/core";
 import type { Table } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import styles from "./edit-panel.module.css";
 import type { FieldPairRow as RowModel } from "./edit-panel-model.ts";
 import TypeCombobox from "./TypeCombobox.vue";
@@ -54,14 +55,13 @@ const family = computed(() => {
 const badge = computed(() => {
   switch (props.row.status) {
     case "missing-logical-name":
-      // TODO(i18n): Task 7 moves the panel copy into the locale files.
-      return { class: styles["badge-info"], text: "no logical name" };
+      return { class: styles["badge-info"], text: t("edit_panel_badge_no_logical_name") };
     case "diverged":
-      return { class: styles["badge-warn"], text: "diverged" };
+      return { class: styles["badge-warn"], text: t("edit_panel_badge_diverged") };
     case "logical-only":
-      return { class: styles["badge-info"], text: "logical only" };
+      return { class: styles["badge-info"], text: t("edit_panel_badge_logical_only") };
     case "physical-only":
-      return { class: styles["badge-info"], text: "physical only" };
+      return { class: styles["badge-info"], text: t("edit_panel_badge_physical_only") };
     default:
       return undefined;
   }
@@ -71,7 +71,8 @@ const divergedTitle = computed(() => {
   if (props.row.status !== "diverged" || !props.row.suggestion) return undefined;
   const s = props.row.suggestion;
   const params = [s.length, s.precision, s.scale].filter((v) => v !== undefined);
-  return `Suggested: ${s.type}${params.length ? `(${params.join(",")})` : ""}`;
+  const suggestion = `${s.type}${params.length ? `(${params.join(",")})` : ""}`;
+  return t("edit_panel_suggested", { suggestion });
 });
 
 function commitLogicalName(): void {
@@ -123,10 +124,10 @@ function commitType(spec: import("@drawdb/core").PhysicalSpec): void {
       @change="commitFamily"
     >
       <option v-if="family.startsWith('domain:')" :value="family">
-        {{ family.slice("domain:".length) }} (domain)
+        {{ t("edit_panel_domain_option", { name: family.slice("domain:".length) }) }}
       </option>
       <option v-for="item in BUILTIN_FAMILIES" :key="item.id" :value="item.id">
-        {{ item.label }}
+        {{ t(item.label) }}
       </option>
     </select>
     <template v-if="!props.logicalView">
@@ -167,7 +168,7 @@ function commitType(spec: import("@drawdb/core").PhysicalSpec): void {
     <button
       type="button"
       :class="styles['icon-button']"
-      title="Remove field"
+      :title="t('edit_panel_remove_field')"
       data-testid="remove-field"
       @click="emit('remove')"
     >

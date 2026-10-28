@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type { Table } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import styles from "./edit-panel.module.css";
 import { commonText } from "./edit-panel-model.ts";
@@ -49,36 +50,33 @@ function apply(): void {
   if (Object.keys(patch).length === 0) return;
   const applied = store.applyTableBatch(props.tables, patch);
   if (!applied) {
-    // TODO(i18n): Task 7 moves the panel copy into the locale files.
-    error.value =
-      "The batch change was not applied: at least one selected table is locked.";
+    error.value = t("edit_panel_batch_locked");
   }
 }
 
-// TODO(i18n): Task 7 moves the panel copy into the locale files.
-const MULTIPLE = "Multiple values";
+const MULTIPLE = "edit_panel_multiple_values";
 </script>
 
 <template>
   <div :class="styles['pair-grid']" data-testid="batch-editor">
     <p style="grid-column: 1 / -1; margin: 0" :class="styles.label">
-      {{ props.tables.length }} tables selected
+      {{ t("edit_panel_tables_selected", { count: props.tables.length }) }}
     </p>
     <label>
-      <span :class="styles.label">Logical description</span>
+      <span :class="styles.label">{{ t("edit_panel_logical_description") }}</span>
       <textarea
         v-model="description"
         :class="styles.textarea"
-        :placeholder="descriptionCommon.multiple ? MULTIPLE : ''"
+        :placeholder="descriptionCommon.multiple ? t(MULTIPLE) : ''"
         data-testid="batch-description"
       />
     </label>
     <label>
-      <span :class="styles.label">Physical comment</span>
+      <span :class="styles.label">{{ t("edit_panel_physical_comment") }}</span>
       <textarea
         v-model="comment"
         :class="styles.textarea"
-        :placeholder="commentCommon.multiple ? MULTIPLE : ''"
+        :placeholder="commentCommon.multiple ? t(MULTIPLE) : ''"
         data-testid="batch-comment"
       />
     </label>
@@ -89,7 +87,7 @@ const MULTIPLE = "Multiple values";
         data-testid="batch-apply"
         @click="apply"
       >
-        Apply to all
+        {{ t("edit_panel_apply_all") }}
       </button>
       <span v-if="error" :class="styles.error" data-testid="batch-error">{{ error }}</span>
     </div>

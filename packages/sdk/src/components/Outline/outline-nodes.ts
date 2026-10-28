@@ -4,6 +4,7 @@ import type {
   Relationship,
   Table,
 } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 
 /**
  * The node vocabulary and the per-element node builders of the outline
@@ -73,15 +74,14 @@ export interface OutlineRow {
   hasChildren: boolean;
 }
 
-// TODO(i18n Task 7): swap for the `outline.category.*` keys.
-export const CATEGORY_LABELS: Record<OutlineCategoryKey, string> = {
-  tables: "Tables",
-  relationships: "Relationships",
-  areas: "Areas",
-  notes: "Notes",
-  views: "Views",
-  enums: "Enums",
-  types: "Types",
+export const CATEGORY_LABEL_KEYS: Record<OutlineCategoryKey, string> = {
+  tables: "outline_category_tables",
+  relationships: "outline_category_relationships",
+  areas: "outline_category_areas",
+  notes: "outline_category_notes",
+  views: "outline_category_views",
+  enums: "outline_category_enums",
+  types: "outline_category_types",
 };
 
 /** The categories of one layer, in their fixed order (Q15). */
@@ -209,7 +209,7 @@ export function buildCategory(
   return {
     id: `cat:${key}`,
     kind: "category",
-    label: CATEGORY_LABELS[key],
+    label: t(CATEGORY_LABEL_KEYS[key]),
     category: key,
     count: children.length,
     matched: false,

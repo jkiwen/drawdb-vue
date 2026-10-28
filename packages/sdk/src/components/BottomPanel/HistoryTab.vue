@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { t } from "../../i18n/index.ts";
 import { useHistoryStore } from "../../stores/history.ts";
 import classes from "./BottomPanel.module.css";
 
@@ -34,14 +35,14 @@ const entries = computed<HistoryEntry[]>(() => {
   for (let i = snapshot.undoStack.length - 1; i >= 0; i -= 1) {
     items.push({
       key: `undo-${i}`,
-      description: snapshot.undoStack[i].description ?? "command",
+      description: snapshot.undoStack[i].description ?? t("history_command_fallback"),
       applied: true,
     });
   }
   for (let i = snapshot.redoStack.length - 1; i >= 0; i -= 1) {
     items.push({
       key: `redo-${i}`,
-      description: snapshot.redoStack[i].description ?? "command",
+      description: snapshot.redoStack[i].description ?? t("history_command_fallback"),
       applied: false,
     });
   }
@@ -65,7 +66,7 @@ const currentIndex = computed(() => {
           :class="classes.historyCurrent"
           data-testid="history-current"
         >
-          — current —
+          {{ t("history_current_marker") }}
         </li>
         <li
           :class="[classes.historyEntry, !entry.applied && classes.historyUndone]"
@@ -80,9 +81,11 @@ const currentIndex = computed(() => {
         :class="classes.historyCurrent"
         data-testid="history-current"
       >
-        — current —
+        {{ t("history_current_marker") }}
       </li>
     </ol>
-    <p v-else :class="classes.empty" data-testid="history-empty">No actions yet.</p>
+    <p v-else :class="classes.empty" data-testid="history-empty">
+      {{ t("history_empty") }}
+    </p>
   </div>
 </template>

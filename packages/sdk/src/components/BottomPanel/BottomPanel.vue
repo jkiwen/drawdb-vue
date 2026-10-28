@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
+import { t } from "../../i18n/index.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import AlertsTab from "./AlertsTab.vue";
 import classes from "./BottomPanel.module.css";
@@ -34,12 +35,12 @@ const { errorCount } = useAlerts();
 /** The tabs the header shows; the trace tab is developer-only (Q14). */
 const tabs = computed<{ id: BottomPanelTab; label: string }[]>(() => {
   const items: { id: BottomPanelTab; label: string }[] = [
-    { id: "issues", label: "Issues" },
-    { id: "log", label: "Log" },
-    { id: "history", label: "History" },
+    { id: "issues", label: t("bottom_tab_issues") },
+    { id: "log", label: t("bottom_tab_log") },
+    { id: "history", label: t("bottom_tab_history") },
   ];
   if (props.devMode) {
-    items.push({ id: "trace", label: "Trace" });
+    items.push({ id: "trace", label: t("bottom_tab_trace") });
   }
   return items;
 });
@@ -54,9 +55,7 @@ const panelStyle = computed(() => ({
 // raise another one.
 watch(errorCount, (next, previous) => {
   if (next > 0 && (previous === undefined || previous === 0)) {
-    ui.notify(
-      next === 1 ? "1 error in the diagram" : `${next} errors in the diagram`,
-    );
+    ui.notify(t("bottom_error_count", { count: next }));
   }
 });
 
@@ -113,7 +112,7 @@ watch(
       <button
         type="button"
         :class="classes.toggle"
-        :aria-label="panel.collapsed.value ? 'Expand the bottom panel' : 'Collapse the bottom panel'"
+        :aria-label="t(panel.collapsed.value ? 'bottom_expand' : 'bottom_collapse')"
         :aria-expanded="!panel.collapsed.value"
         data-testid="bottom-panel-toggle"
         @click="panel.toggleCollapsed"
@@ -145,13 +144,13 @@ watch(
       <PlaceholderTab
         v-else-if="panel.activeTab.value === 'log'"
         testid="log"
-        message="No log entries yet."
+        :message="t('bottom_log_empty')"
       />
       <HistoryTab v-else-if="panel.activeTab.value === 'history'" />
       <PlaceholderTab
         v-else
         testid="trace"
-        message="No trace entries yet."
+        :message="t('bottom_trace_empty')"
       />
     </div>
     <div

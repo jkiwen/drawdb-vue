@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { Table } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import styles from "./edit-panel.module.css";
 
 /**
@@ -36,7 +37,7 @@ watch(
 <template>
   <div :class="styles['pair-grid']" data-testid="table-basics">
     <label>
-      <span :class="styles.label">Logical entity</span>
+      <span :class="styles.label">{{ t("edit_panel_logical_entity") }}</span>
       <input
         v-model="logicalName"
         :class="styles.input"
@@ -45,7 +46,7 @@ watch(
       />
     </label>
     <label>
-      <span :class="styles.label">Physical table</span>
+      <span :class="styles.label">{{ t("edit_panel_physical_table") }}</span>
       <input
         v-model="physicalName"
         :class="styles.input"
@@ -54,7 +55,7 @@ watch(
       />
     </label>
     <label>
-      <span :class="styles.label">Description</span>
+      <span :class="styles.label">{{ t("edit_panel_description") }}</span>
       <textarea
         v-model="description"
         :class="styles.textarea"
@@ -63,7 +64,7 @@ watch(
       />
     </label>
     <label>
-      <span :class="styles.label">Comment</span>
+      <span :class="styles.label">{{ t("comment") }}</span>
       <textarea
         v-model="comment"
         :class="styles.textarea"

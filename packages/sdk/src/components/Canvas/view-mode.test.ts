@@ -147,7 +147,7 @@ describe("the view layer and the display modes of the canvas", () => {
     const types = wrapper.findAll('[data-testid="field-type"]');
     assert.deepEqual(
       types.map((type) => type.text()),
-      ["integer", "string", "string"],
+      ["Integer", "String", "String"],
     );
   });
 

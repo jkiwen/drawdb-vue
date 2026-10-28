@@ -2,6 +2,7 @@
 import type { PropType } from "vue";
 import type { Table } from "@drawdb/core";
 import { NInput } from "naive-ui";
+import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useInlineEdit } from "../../composables/use-inline-edit.ts";
 import { TABLE_COLOR_STRIP_HEIGHT } from "./geometry.ts";
@@ -130,10 +131,9 @@ function onToggleLock(event: Event): void {
           v-if="model.titleFallback"
           class="ddb-table__fallback-badge"
           :data-testid="`table-title-fallback-${table.id}`"
-          title="No logical name — the physical name is shown"
+          :title="t('table_no_logical_name_title')"
         >
-          <!-- TODO(i18n): the badge label needs a locale key. -->
-          no logical name
+          {{ t("table_no_logical_name") }}
         </span>
       </template>
 

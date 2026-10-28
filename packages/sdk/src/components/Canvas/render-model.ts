@@ -6,6 +6,7 @@ import type {
   ViewLayer,
   ViewStateToggles,
 } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import {
   TABLE_FIELD_HEIGHT,
   TABLE_HEADER_HEIGHT,
@@ -66,9 +67,8 @@ export interface LogicalTypeLabel {
  * the name of the domain for a domain reference — or the domain id itself
  * when the domain is not known.
  *
- * TODO(i18n): a builtin family shows its id ("string"); the translated
- * label is the `type_family.<id>` key of the family, to wire once the SDK
- * locales carry it.
+ * A builtin family renders the `type_family.<id>` locale key; an unknown
+ * family falls back to its raw id.
  */
 export function logicalTypeLabel(
   type: LogicalTypeRef,
@@ -81,7 +81,10 @@ export function logicalTypeLabel(
       : { label: type.domainId, placeholder: true };
   }
   const family = BUILTIN_FAMILIES.find((entry) => entry.id === type.family);
-  return { label: family?.id ?? String(type.family), placeholder: false };
+  return {
+    label: family ? t(`type_family.${family.id}`) : String(type.family),
+    placeholder: false,
+  };
 }
 
 /** A row of the field list of a table, in either layer. */

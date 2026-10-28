@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { t } from "../../i18n/index.ts";
 import classes from "./BottomPanel.module.css";
 
 /**
@@ -13,7 +14,7 @@ defineProps({
   /** The test id of the tab body, one per tab. */
   testid: { type: String, required: true },
   /** The empty-state message of the tab. */
-  message: { type: String, default: "Nothing here yet." },
+  message: { type: String, default: () => t("bottom_placeholder_default") },
 });
 </script>
 

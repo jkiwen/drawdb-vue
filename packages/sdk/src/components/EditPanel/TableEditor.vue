@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { Table } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import styles from "./edit-panel.module.css";
 import { buildFieldRows, fieldOverview } from "./edit-panel-model.ts";
@@ -49,12 +50,11 @@ function onRemove(row: (typeof rows.value)[number]): void {
         props.logicalView ? styles['row-header-logical-view'] : '',
       ]"
     >
-      <!-- TODO(i18n): Task 7 moves the panel copy into the locale files. -->
-      <span>Logical attribute</span>
-      <span>Logical type</span>
-      <span>Physical column</span>
-      <span>Physical type</span>
-      <span>Status</span>
+      <span>{{ t("edit_panel_logical_attribute") }}</span>
+      <span>{{ t("edit_panel_logical_type") }}</span>
+      <span>{{ t("edit_panel_physical_column") }}</span>
+      <span>{{ t("edit_panel_physical_type") }}</span>
+      <span>{{ t("edit_panel_status") }}</span>
       <span />
     </div>
     <div :class="styles.rows" data-testid="field-rows">
@@ -80,7 +80,7 @@ function onRemove(row: (typeof rows.value)[number]): void {
         data-testid="add-field"
         @click="addFieldPair(store, props.table)"
       >
-        + Add field
+        + {{ t("edit_panel_add_field") }}
       </button>
     </div>
   </div>

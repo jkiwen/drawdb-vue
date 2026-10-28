@@ -28,7 +28,6 @@ const emit = defineEmits<{ click: [] }>();
     :aria-pressed="props.active ? 'true' : undefined"
     @click="emit('click')"
   >
-    <!-- TODO(i18n Task 7): the titles move into the locale files. -->
     <svg
       viewBox="0 0 24 24"
       fill="none"

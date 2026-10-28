@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import type { PhysicalSpec } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import styles from "./edit-panel.module.css";
 import { filterTypeOptions, typeParamVisibility } from "./edit-panel-model.ts";
 
@@ -79,7 +80,7 @@ function commitParam(key: "length" | "precision" | "scale", event: Event): void 
         v-if="params.length"
         :class="styles.param"
         :value="props.spec.length ?? ''"
-        placeholder="len"
+        :placeholder="t('edit_panel_param_len')"
         data-testid="type-length"
         @change="commitParam('length', $event)"
       />
@@ -87,7 +88,7 @@ function commitParam(key: "length" | "precision" | "scale", event: Event): void 
         v-if="params.precision"
         :class="styles.param"
         :value="props.spec.precision ?? ''"
-        placeholder="p"
+        :placeholder="t('edit_panel_param_precision')"
         data-testid="type-precision"
         @change="commitParam('precision', $event)"
       />
@@ -95,7 +96,7 @@ function commitParam(key: "length" | "precision" | "scale", event: Event): void 
         v-if="params.scale"
         :class="styles.param"
         :value="props.spec.scale ?? ''"
-        placeholder="s"
+        :placeholder="t('edit_panel_param_scale')"
         data-testid="type-scale"
         @change="commitParam('scale', $event)"
       />

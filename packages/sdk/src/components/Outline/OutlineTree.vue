@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch, watchEffect } from "vue";
+import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
@@ -23,7 +24,6 @@ import classes from "./outline-tree.module.css";
  * store and re-emits `focus`; a ui-store change reveals the node here.
  */
 
-// TODO(i18n Task 7): replace the literals with the `outline.*` keys.
 const ROW_HEIGHT = 26;
 
 const emit = defineEmits<{
@@ -212,27 +212,27 @@ function onDrop(node: OutlineNode): void {
         v-model="filterText"
         :class="classes.filter"
         data-testid="outline-filter"
-        placeholder="Filter by name…"
+        :placeholder="t('outline_filter_placeholder')"
       />
       <button
         type="button"
         :class="classes.sort"
         data-testid="outline-sort-toggle"
-        :title="sortMode === 'name' ? 'Sorted by name' : 'Creation order'"
+        :title="t(sortMode === 'name' ? 'outline_sorted_by_name' : 'outline_creation_order')"
         @click="sortMode = sortMode === 'name' ? 'created' : 'name'"
       >
         {{ sortMode === "name" ? "A–Z" : "#" }}
       </button>
     </div>
     <div v-if="showEmpty" :class="classes.empty" data-testid="outline-empty">
-      No objects yet
+      {{ t("outline_empty") }}
     </div>
     <div
       v-else-if="showNoMatches"
       :class="classes.empty"
       data-testid="outline-no-matches"
     >
-      No matches
+      {{ t("outline_no_matches") }}
     </div>
     <div v-else ref="bodyRef" :class="classes.body" @scroll="onScroll">
       <div :style="{ height: `${rows.length * ROW_HEIGHT}px`, position: 'relative' }">
@@ -282,7 +282,7 @@ function onDrop(node: OutlineNode): void {
         data-testid="outline-menu-rename"
         @click="startRename"
       >
-        Rename
+        {{ t("rename") }}
       </button>
       <button
         type="button"
@@ -290,7 +290,7 @@ function onDrop(node: OutlineNode): void {
         data-testid="outline-menu-delete"
         @click="commitDelete"
       >
-        Delete
+        {{ t("delete") }}
       </button>
     </div>
   </div>

@@ -18,6 +18,7 @@ import {
   getTypeMetadata,
   resolveType,
 } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 
 // The pure derivation of the edit panel (plan Task 5): everything the
 // components render is computed here; the writes live in edit-actions.ts.
@@ -229,8 +230,7 @@ export function fieldOverview(rows: readonly FieldPairRow[]): FieldOverview {
     paired,
     diverged,
     missingNames,
-    // TODO(i18n Task 7): replace the literal with an i18n key.
-    text: `${total} fields: ${paired} paired, ${diverged} diverged`,
+    text: t("edit_panel_fields_overview", { count: total, paired, diverged }),
   };
 }
 

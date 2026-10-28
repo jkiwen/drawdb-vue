@@ -6,6 +6,7 @@
  * for `custom`, only reach it through the toggles.
  */
 import type { DisplayMode } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 import ToolbarButton from "./ToolbarButton.vue";
@@ -16,29 +17,28 @@ const scope = useToolbarScopeStore();
 
 type PresetMode = Exclude<DisplayMode, "custom">;
 
-// TODO(i18n Task 7): the titles move into the locale files.
-const MODES: { mode: PresetMode; icon: string; title: string }[] = [
-  { mode: "entity", icon: "mode-entity", title: "Entity view: table headers only" },
-  { mode: "definition", icon: "mode-definition", title: "Definition view: headers and descriptions" },
-  { mode: "attributes", icon: "mode-attributes", title: "Attributes view: headers and fields" },
-  { mode: "all", icon: "mode-all", title: "Full view: everything" },
+const MODES: { mode: PresetMode; icon: string; titleKey: string }[] = [
+  { mode: "entity", icon: "mode-entity", titleKey: "display_mode_entity" },
+  { mode: "definition", icon: "mode-definition", titleKey: "display_mode_definition" },
+  { mode: "attributes", icon: "mode-attributes", titleKey: "display_mode_attributes" },
+  { mode: "all", icon: "mode-all", titleKey: "display_mode_full" },
 ];
 </script>
 
 <template>
-  <div :class="classes.group" role="group" aria-label="Display mode" data-testid="toolbar-display-mode">
+  <div :class="classes.group" role="group" :aria-label="t('display_mode_group')" data-testid="toolbar-display-mode">
     <ToolbarButton
       v-for="entry of MODES"
       :key="entry.mode"
       :icon="entry.icon"
-      :title="entry.title"
+      :title="t(entry.titleKey)"
       :testid="`toolbar-mode-${entry.mode}`"
       :active="viewState.displayMode === entry.mode"
       @click="scope.setScopedDisplayMode(entry.mode)"
     />
     <ToolbarButton
       icon="mode-custom"
-      title="Custom view: a manual combination of the toggles below"
+      :title="t('display_mode_custom')"
       testid="toolbar-mode-custom"
       :active="viewState.displayMode === 'custom'"
       disabled

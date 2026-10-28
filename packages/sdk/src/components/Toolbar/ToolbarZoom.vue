@@ -7,6 +7,7 @@
  */
 import { computed, watch } from "vue";
 import { useFullscreen } from "../../composables/use-fullscreen.ts";
+import { t } from "../../i18n/index.ts";
 import {
   MAX_ZOOM,
   MIN_ZOOM,
@@ -27,17 +28,16 @@ const fullscreenSupported =
   typeof document !== "undefined" &&
   typeof document.documentElement.requestFullscreen === "function";
 
-// TODO(i18n Task 7): the titles move into the locale files.
-const fullscreenTitle = fullscreenSupported
-  ? "Full screen (F11)"
-  : "Full screen is not supported in this browser or context";
+const fullscreenTitle = computed(() =>
+  t(fullscreenSupported ? "fullscreen_enter" : "fullscreen_unsupported"),
+);
 </script>
 
 <template>
-  <div :class="classes.group" role="group" aria-label="Zoom" data-testid="toolbar-zoom">
+  <div :class="classes.group" role="group" :aria-label="t('zoom_group')" data-testid="toolbar-zoom">
     <ToolbarButton
       icon="zoom-out"
-      title="Zoom out (Ctrl+-)"
+      :title="t('zoom_out_title')"
       testid="toolbar-zoom-out"
       :disabled="ui.zoom <= MIN_ZOOM"
       @click="ui.zoomOut()"
@@ -45,7 +45,7 @@ const fullscreenTitle = fullscreenSupported
     <span :class="classes.zoomLabel" data-testid="toolbar-zoom-label">{{ zoomLabel }}</span>
     <ToolbarButton
       icon="zoom-in"
-      title="Zoom in (Ctrl++)"
+      :title="t('zoom_in_title')"
       testid="toolbar-zoom-in"
       :disabled="ui.zoom >= MAX_ZOOM"
       @click="ui.zoomIn()"

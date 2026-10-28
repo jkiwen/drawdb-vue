@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AlertItem } from "./use-alerts.ts";
+import { t } from "../../i18n/index.ts";
 import { useAlerts } from "./use-alerts.ts";
 import classes from "./BottomPanel.module.css";
 
@@ -30,7 +31,7 @@ function severityIcon(severity: AlertItem["severity"]): string {
           :data-severity="alert.severity"
           :data-source="alert.source"
           :disabled="!alert.target"
-          :title="alert.target ? undefined : 'The object no longer exists'"
+          :title="alert.target ? undefined : t('alerts_no_target')"
           @click="focus(alert)"
         >
           <span
@@ -42,6 +43,6 @@ function severityIcon(severity: AlertItem["severity"]): string {
         </button>
       </li>
     </ul>
-    <p v-else :class="classes.empty" data-testid="alerts-empty">No issues found.</p>
+    <p v-else :class="classes.empty" data-testid="alerts-empty">{{ t("alerts_empty") }}</p>
   </div>
 </template>

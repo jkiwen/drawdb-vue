@@ -7,6 +7,7 @@
  */
 import { computed } from "vue";
 import type { ViewStateToggles } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 import ToolbarButton from "./ToolbarButton.vue";
@@ -15,20 +16,19 @@ import classes from "./toolbar.module.css";
 const viewState = useViewStateStore();
 const scope = useToolbarScopeStore();
 
-// TODO(i18n Task 7): the titles move into the locale files.
 const TOGGLES: {
   key: keyof ViewStateToggles;
   icon: string;
-  title: string;
+  titleKey: string;
   testid: string;
 }[] = [
-  { key: "description", icon: "toggle-description", title: "Descriptions", testid: "toolbar-toggle-description" },
-  { key: "fields", icon: "toggle-fields", title: "Fields", testid: "toolbar-toggle-fields" },
-  { key: "pkUkFk", icon: "toggle-keys", title: "Key markers (PK/UK/FK)", testid: "toolbar-toggle-pkUkFk" },
+  { key: "description", icon: "toggle-description", titleKey: "toggle_descriptions", testid: "toolbar-toggle-description" },
+  { key: "fields", icon: "toggle-fields", titleKey: "fields", testid: "toolbar-toggle-fields" },
+  { key: "pkUkFk", icon: "toggle-keys", titleKey: "toggle_key_markers", testid: "toolbar-toggle-pkUkFk" },
   {
     key: "indexes",
     icon: "toggle-indexes",
-    title: "Indexes — available with the index entries of P2'",
+    titleKey: "toggle_indexes",
     testid: "toolbar-toggle-indexes",
   },
 ];
@@ -49,12 +49,12 @@ function flip(key: keyof ViewStateToggles): void {
 </script>
 
 <template>
-  <div :class="classes.group" role="group" aria-label="Table view toggles" data-testid="toolbar-view-toggles">
+  <div :class="classes.group" role="group" :aria-label="t('toggle_group')" data-testid="toolbar-view-toggles">
     <ToolbarButton
       v-for="entry of TOGGLES"
       :key="entry.key"
       :icon="entry.icon"
-      :title="entry.title"
+      :title="t(entry.titleKey)"
       :testid="entry.testid"
       :active="effective[entry.key]"
       :disabled="entry.key === 'indexes'"

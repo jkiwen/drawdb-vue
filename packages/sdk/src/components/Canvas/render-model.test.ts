@@ -94,9 +94,9 @@ const DOMAINS: Record<string, LogicalDomain> = {
 };
 
 describe("logicalTypeLabel", () => {
-  it("labels a builtin family with its id", () => {
+  it("labels a builtin family with its translated name", () => {
     const label = logicalTypeLabel({ family: "string" });
-    assert.equal(label.label, "string");
+    assert.equal(label.label, "String");
     assert.equal(label.placeholder, false);
   });
 
@@ -192,7 +192,7 @@ describe("tableFieldRows in the logical layer", () => {
     const rows = tableFieldRows(makeTable(), "logical", { domains: DOMAINS });
     assert.equal(rows.length, 3);
     assert.equal(rows[0].name, "identifier");
-    assert.equal(rows[0].typeLabel, "integer");
+    assert.equal(rows[0].typeLabel, "Integer");
     assert.equal(rows[1].name, "email address");
     assert.equal(rows[1].typeLabel, "Email address");
     assert.equal(rows[1].typePlaceholder, false);
@@ -299,9 +299,9 @@ describe("tableRenderModel display modes", () => {
       "nickname",
     ]);
     assert.deepEqual(model.rows.map((row) => row.typeLabel), [
-      "integer",
+      "Integer",
       "Email address",
-      "string",
+      "String",
     ]);
   });
 

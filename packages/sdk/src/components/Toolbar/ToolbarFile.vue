@@ -6,26 +6,26 @@
  * through the same path as the menu bar (`runEditorMenu` of the
  * editor-menu composable).
  */
+import { t } from "../../i18n/index.ts";
 import ToolbarButton from "./ToolbarButton.vue";
 import classes from "./toolbar.module.css";
 
 const emit = defineEmits<{ menu: [key: string] }>();
 
-// TODO(i18n Task 7): the titles move into the locale files.
 const ACTIONS = [
-  { key: "file:new", icon: "file-new", title: "New diagram", testid: "toolbar-file-new" },
-  { key: "file:open", icon: "file-open", title: "Open diagram (Ctrl+O)", testid: "toolbar-file-open" },
-  { key: "file:save", icon: "file-save", title: "Save (Ctrl+S)", testid: "toolbar-file-save" },
+  { key: "file:new", icon: "file-new", titleKey: "file_new", testid: "toolbar-file-new" },
+  { key: "file:open", icon: "file-open", titleKey: "file_open", testid: "toolbar-file-open" },
+  { key: "file:save", icon: "file-save", titleKey: "file_save", testid: "toolbar-file-save" },
 ];
 </script>
 
 <template>
-  <div :class="classes.group" role="group" aria-label="File" data-testid="toolbar-file">
+  <div :class="classes.group" role="group" :aria-label="t('file')" data-testid="toolbar-file">
     <ToolbarButton
       v-for="action of ACTIONS"
       :key="action.key"
       :icon="action.icon"
-      :title="action.title"
+      :title="t(action.titleKey)"
       :testid="action.testid"
       @click="emit('menu', action.key)"
     />

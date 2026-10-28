@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { LogicalRelationship, Relationship } from "@drawdb/core";
+import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import styles from "./edit-panel.module.css";
 import { commitRelationship } from "./edit-actions.ts";
@@ -40,7 +41,7 @@ function commit(patch: import("./edit-actions.ts").RelationshipPatch): void {
 <template>
   <div :class="styles['pair-grid']" data-testid="relationship-editor">
     <label>
-      <span :class="styles.label">Logical relationship</span>
+      <span :class="styles.label">{{ t("edit_panel_logical_relationship") }}</span>
       <input
         v-model="logicalName"
         :class="styles.input"
@@ -49,7 +50,7 @@ function commit(patch: import("./edit-actions.ts").RelationshipPatch): void {
       />
     </label>
     <label>
-      <span :class="styles.label">Physical foreign key</span>
+      <span :class="styles.label">{{ t("edit_panel_physical_fk") }}</span>
       <input
         v-model="physicalName"
         :class="styles.input"
@@ -58,7 +59,7 @@ function commit(patch: import("./edit-actions.ts").RelationshipPatch): void {
       />
     </label>
     <label>
-      <span :class="styles.label">Parent role</span>
+      <span :class="styles.label">{{ t("edit_panel_parent_role") }}</span>
       <input
         v-model="parentRole"
         :class="styles.input"
@@ -67,7 +68,7 @@ function commit(patch: import("./edit-actions.ts").RelationshipPatch): void {
       />
     </label>
     <label>
-      <span :class="styles.label">Child role</span>
+      <span :class="styles.label">{{ t("edit_panel_child_role") }}</span>
       <input
         v-model="childRole"
         :class="styles.input"

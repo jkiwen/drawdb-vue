@@ -199,10 +199,9 @@ function onRemove(event: Event): void {
           v-if="row.nameFallback"
           class="ddb-table__fallback-badge"
           :data-testid="`field-name-fallback-${row.rowId}`"
-          title="No logical name — the physical name is shown"
+          :title="t('table_no_logical_name_title')"
         >
-          <!-- TODO(i18n): the badge label needs a locale key. -->
-          no logical name
+          {{ t("table_no_logical_name") }}
         </span>
       </template>
     </span>

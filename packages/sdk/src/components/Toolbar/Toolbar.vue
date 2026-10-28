@@ -5,6 +5,7 @@
  * indicator of ruling Q1 on the left. The file group emits the menu keys of
  * the editor-menu protocol, so the host keeps owning New/Open/Save.
  */
+import { t } from "../../i18n/index.ts";
 import ToolbarDisplayMode from "./ToolbarDisplayMode.vue";
 import ToolbarFile from "./ToolbarFile.vue";
 import ToolbarScopeIndicator from "./ToolbarScopeIndicator.vue";
@@ -33,7 +34,7 @@ function shows(group: ToolbarGroupId): boolean {
 </script>
 
 <template>
-  <div :class="classes.toolbar" role="toolbar" aria-label="Canvas toolbar" data-testid="canvas-toolbar">
+  <div :class="classes.toolbar" role="toolbar" :aria-label="t('toolbar_canvas')" data-testid="canvas-toolbar">
     <ToolbarScopeIndicator />
     <span :class="classes.divider" aria-hidden="true" />
     <template v-if="shows('displayMode')"><ToolbarDisplayMode /></template>
