@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Component } from "vue";
 import type { CustomType, DatabaseType } from "@drawdb/core";
@@ -6,7 +7,20 @@ import Canvas from "./Canvas/Canvas.vue";
 import EditorDialogs from "./EditorDialogs.vue";
 import Header from "./Header/Header.vue";
 import SidePanel from "./SidePanel/SidePanel.vue";
+import ResizablePanel from "./Layout/ResizablePanel.vue";
 import { useDialogStore } from "../stores/dialogs.ts";
+import type { DrawDBSettings } from "../stores/settings.ts";
+import {
+  PANEL_LEFT_DEFAULT_WIDTH,
+  PANEL_LEFT_MAX_WIDTH,
+  PANEL_LEFT_MIN_WIDTH,
+  PANEL_RIGHT_DEFAULT_WIDTH,
+  PANEL_RIGHT_MAX_WIDTH,
+  PANEL_RIGHT_MIN_WIDTH,
+  readPersistedSettings,
+  useSettingsStore,
+} from "../stores/settings.ts";
+import { t } from "../i18n/index.ts";
 
 defineOptions({ name: "DrawDBEditorLayout" });
 
@@ -35,6 +49,60 @@ const emit = defineEmits(["save", "menu"]);
  */
 const dialogs = useDialogStore();
 
+/**
+ * The preferences of the layout.
+ *
+ * The widths and the collapsed states of the panels live in the settings of
+ * the user, so they survive a reload and follow the user across diagrams
+ * (the user global scope of the design discussion, Q5).
+ */
+const settings = useSettingsStore();
+
+/** Whether the viewport is too narrow for two expanded panels. */
+function isSmallViewport(): boolean {
+  return (
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(max-width: 1023px)").matches
+  );
+}
+
+// A narrow viewport starts with collapsed panels, but only while the user
+// has not picked a state yet: a persisted preference always wins.
+if (isSmallViewport()) {
+  const persisted = readPersistedSettings();
+  const initial: Partial<DrawDBSettings> = {};
+  if (persisted.panelLeftCollapsed === undefined) {
+    initial.panelLeftCollapsed = true;
+  }
+  if (persisted.panelRightCollapsed === undefined) {
+    initial.panelRightCollapsed = true;
+  }
+  if (Object.keys(initial).length > 0) {
+    settings.update(initial);
+  }
+}
+
+const panelLeftWidth = computed<number>({
+  get: () => settings.settings.panelLeftWidth ?? PANEL_LEFT_DEFAULT_WIDTH,
+  set: (width) => settings.update({ panelLeftWidth: width }),
+});
+
+const panelRightWidth = computed<number>({
+  get: () => settings.settings.panelRightWidth ?? PANEL_RIGHT_DEFAULT_WIDTH,
+  set: (width) => settings.update({ panelRightWidth: width }),
+});
+
+const panelLeftCollapsed = computed<boolean>({
+  get: () => settings.settings.panelLeftCollapsed ?? false,
+  set: (collapsed) => settings.update({ panelLeftCollapsed: collapsed }),
+});
+
+const panelRightCollapsed = computed<boolean>({
+  get: () => settings.settings.panelRightCollapsed ?? false,
+  set: (collapsed) => settings.update({ panelRightCollapsed: collapsed }),
+});
+
 /** Opens one of the dialogs of the editor. */
 function openDialog(
   name: Parameters<typeof dialogs.open>[0],
@@ -55,7 +123,17 @@ defineExpose({ openDialog, closeDialog });
   <div class="ddb-editor__layout">
     <Header @save="emit('save')" @menu="emit('menu', $event)" />
     <div class="ddb-editor__body">
-      <SidePanel v-if="showSidePanel" class="ddb-editor__side-panel" :custom-types="customTypes" />
+      <ResizablePanel
+        v-if="showSidePanel"
+        v-model:width="panelLeftWidth"
+        v-model:collapsed="panelLeftCollapsed"
+        side="left"
+        :min-width="PANEL_LEFT_MIN_WIDTH"
+        :max-width="PANEL_LEFT_MAX_WIDTH"
+        :default-width="PANEL_LEFT_DEFAULT_WIDTH"
+      >
+        <SidePanel :custom-types="customTypes" />
+      </ResizablePanel>
       <div class="ddb-editor__canvas">
         <Canvas />
         <component
@@ -65,6 +143,19 @@ defineExpose({ openDialog, closeDialog });
           class="ddb-editor__plugin-slot"
         />
       </div>
+      <ResizablePanel
+        v-model:width="panelRightWidth"
+        v-model:collapsed="panelRightCollapsed"
+        side="right"
+        :min-width="PANEL_RIGHT_MIN_WIDTH"
+        :max-width="PANEL_RIGHT_MAX_WIDTH"
+        :default-width="PANEL_RIGHT_DEFAULT_WIDTH"
+      >
+        <div class="ddb-editor__edit-panel" data-testid="edit-panel" />
+      </ResizablePanel>
+    </div>
+    <div class="ddb-editor__bottom-panel" data-testid="bottom-panel">
+      <span class="ddb-editor__bottom-panel-title">{{ t("issues") }}</span>
     </div>
     <EditorDialogs
       v-model:sql-preview-open="dialogs.sqlPreviewOpen"
@@ -93,11 +184,6 @@ defineExpose({ openDialog, closeDialog });
   min-height: 0;
 }
 
-.ddb-editor__side-panel {
-  flex: 0 0 280px;
-  overflow: auto;
-}
-
 .ddb-editor__canvas {
   position: relative;
   flex: 1 1 auto;
@@ -109,5 +195,26 @@ defineExpose({ openDialog, closeDialog });
   position: absolute;
   top: 0;
   right: 0;
+}
+
+.ddb-editor__edit-panel {
+  height: 100%;
+  min-height: 0;
+}
+
+/* The bottom panel renders only its title bar until its content lands. */
+.ddb-editor__bottom-panel {
+  display: flex;
+  align-items: center;
+  flex: 0 0 28px;
+  height: 28px;
+  padding: 0 var(--ddb-space-3, 12px);
+  border-top: 1px solid var(--ddb-border, rgba(0, 0, 0, 0.08));
+  background: var(--ddb-surface, #fff);
+}
+
+.ddb-editor__bottom-panel-title {
+  font-size: var(--ddb-text-meta, 12px);
+  color: var(--ddb-text-muted, #6b7280);
 }
 </style>

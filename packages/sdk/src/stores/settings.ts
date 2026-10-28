@@ -4,6 +4,14 @@ import { reactive } from "vue";
 
 export type ThemeMode = "light" | "dark" | "auto";
 
+/** The bounds and the defaults of the widths of the layout panels. */
+export const PANEL_LEFT_MIN_WIDTH = 240;
+export const PANEL_LEFT_MAX_WIDTH = 320;
+export const PANEL_LEFT_DEFAULT_WIDTH = 280;
+export const PANEL_RIGHT_MIN_WIDTH = 280;
+export const PANEL_RIGHT_MAX_WIDTH = 400;
+export const PANEL_RIGHT_DEFAULT_WIDTH = 320;
+
 export interface DrawDBSettings {
   theme: ThemeMode;
   language: string;
@@ -14,6 +22,19 @@ export interface DrawDBSettings {
   showMinimap: boolean;
   snapToGrid: boolean;
   showFieldTypes: boolean;
+  /**
+   * The width of the left panel of the layout, in pixels.
+   *
+   * The panel preferences are optional so that the state a user persisted
+   * before they existed stays valid. The defaults below fill the gaps.
+   */
+  panelLeftWidth?: number;
+  /** The width of the right panel of the layout, in pixels. */
+  panelRightWidth?: number;
+  /** Whether the left panel of the layout is collapsed. */
+  panelLeftCollapsed?: boolean;
+  /** Whether the right panel of the layout is collapsed. */
+  panelRightCollapsed?: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = "drawdb:settings";
@@ -28,6 +49,10 @@ export const DEFAULT_SETTINGS: DrawDBSettings = {
   showMinimap: false,
   snapToGrid: true,
   showFieldTypes: true,
+  panelLeftWidth: PANEL_LEFT_DEFAULT_WIDTH,
+  panelRightWidth: PANEL_RIGHT_DEFAULT_WIDTH,
+  panelLeftCollapsed: false,
+  panelRightCollapsed: false,
 };
 
 function storage(): Storage | undefined {
@@ -50,6 +75,16 @@ function readSettings(): Partial<DrawDBSettings> {
   } catch {
     return {};
   }
+}
+
+/**
+ * The settings the user persisted, without the defaults.
+ *
+ * The layout reads them to tell an explicit preference of the user apart
+ * from a gap the defaults filled.
+ */
+export function readPersistedSettings(): Partial<DrawDBSettings> {
+  return readSettings();
 }
 
 /**
