@@ -5,13 +5,26 @@ import { NInput } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useInlineEdit } from "../../composables/use-inline-edit.ts";
 import { TABLE_COLOR_STRIP_HEIGHT } from "./geometry.ts";
+import type { TableRenderModel } from "./render-model.ts";
 
 defineOptions({ name: "DrawDBTableHeader" });
 
+/**
+ * The header of a table node.
+ *
+ * The header draws the title of the render model: the name of the layer the
+ * canvas shows, with a pale badge when the physical name stands in for a
+ * missing logical name (ruling of section 6.4), and the description of the
+ * layer when the display toggles ask for it. Only the physical layer is
+ * editable on the canvas (TODO: the inline editing of the logical names).
+ */
 const props = defineProps({
   table: { type: Object as PropType<Table>, required: true },
+  model: { type: Object as PropType<TableRenderModel>, required: true },
   selected: { type: Boolean, default: false },
   locked: { type: Boolean, default: false },
+  /** Whether the name and the description can be edited on the canvas. */
+  editable: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(["togglelock", "toggledetails"]);
@@ -34,7 +47,7 @@ const {
 
 function onStartName(event: Event): void {
   event.stopPropagation();
-  if (props.locked) {
+  if (props.locked || !props.editable) {
     return;
   }
   startName(props.table.name);
@@ -53,7 +66,7 @@ function onCommitName(): void {
 
 function onStartComment(event: Event): void {
   event.stopPropagation();
-  if (props.locked) {
+  if (props.locked || !props.editable) {
     return;
   }
   startComment(props.table.comment ?? "");
@@ -104,15 +117,25 @@ function onToggleLock(event: Event): void {
         @blur="onCommitName"
         @keyup.enter="onCommitName"
       />
-      <span
-        v-else
-        class="ddb-table__name"
-        :class="{ 'is-locked': locked }"
-        :data-testid="`table-name-${table.id}`"
-        @dblclick="onStartName"
-      >
-        {{ table.name }}
-      </span>
+      <template v-else>
+        <span
+          class="ddb-table__name"
+          :class="{ 'is-locked': locked }"
+          :data-testid="`table-name-${table.id}`"
+          @dblclick="onStartName"
+        >
+          {{ model.title }}
+        </span>
+        <span
+          v-if="model.titleFallback"
+          class="ddb-table__fallback-badge"
+          :data-testid="`table-title-fallback-${table.id}`"
+          title="No logical name — the physical name is shown"
+        >
+          <!-- TODO(i18n): the badge label needs a locale key. -->
+          no logical name
+        </span>
+      </template>
 
       <NInput
         v-if="editingComment"
@@ -125,13 +148,13 @@ function onToggleLock(event: Event): void {
         @keyup.enter="onCommitComment"
       />
       <span
-        v-else-if="table.comment"
-        class="ddb-table__comment"
+        v-else-if="model.showDescription"
+        class="ddb-table__comment ddb-table__comment--multiline"
         :class="{ 'is-locked': locked }"
         :data-testid="`table-comment-${table.id}`"
         @dblclick="onStartComment"
       >
-        {{ table.comment }}
+        {{ model.description }}
       </span>
 
       <button
@@ -159,4 +182,3 @@ function onToggleLock(event: Event): void {
 
   </div>
 </template>
-

@@ -1,0 +1,140 @@
+/* The outline tree (plan Task 2): toolbar, virtual-scroll body, rows, badges and the context menu. */
+
+.outline {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  font-size: 13px;
+  color: var(--outline-fg, #1f2329);
+  background: var(--outline-bg, #ffffff);
+}
+
+.toolbar {
+  display: flex;
+  gap: 6px;
+  padding: 6px;
+  border-bottom: 1px solid var(--outline-border, #e5e7eb);
+}
+
+.filter {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border: 1px solid var(--outline-border, #e5e7eb);
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.sort {
+  padding: 4px 8px;
+  border: 1px solid var(--outline-border, #e5e7eb);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  position: relative;
+}
+
+.empty {
+  padding: 16px 12px;
+  color: var(--outline-muted, #6b7280);
+  font-style: italic;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  padding-right: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.row:hover {
+  background: var(--outline-hover, #f3f4f6);
+}
+
+.current {
+  background: var(--outline-current, #e0e7ff);
+}
+
+.toggle {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  width: 16px;
+  padding: 0;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.toggleSpacer {
+  width: 16px;
+  flex: none;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  margin-left: auto;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--outline-badge-bg, #eef2f7);
+  color: var(--outline-muted, #6b7280);
+  font-size: 11px;
+}
+
+.renameInput {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  padding: 1px 4px;
+  border: 1px solid var(--outline-accent, #4f6ef7);
+  border-radius: 3px;
+}
+
+.menuOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+
+.menu {
+  position: fixed;
+  z-index: 41;
+  min-width: 120px;
+  padding: 4px;
+  border: 1px solid var(--outline-border, #e5e7eb);
+  border-radius: 6px;
+  background: var(--outline-bg, #ffffff);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 12%);
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.menuItem:hover {
+  background: var(--outline-hover, #f3f4f6);
+}

@@ -1,0 +1,297 @@
+<script setup lang="ts">
+import { computed, nextTick, onMounted, ref, watch, watchEffect } from "vue";
+import { useDiagramStore } from "../../stores/diagram.ts";
+import { useUIStore } from "../../stores/ui.ts";
+import { useViewStateStore } from "../../stores/view-state.ts";
+import OutlineNodeRow from "./OutlineNodeRow.vue";
+import { deleteOutlineNode, renameOutlineNode } from "./outline-actions.ts";
+import {
+  buildOutlineTree,
+  flattenOutlineTree,
+  outlineBranchIds,
+  outlineNodePath,
+  windowOutlineRows,
+  type OutlineNode,
+  type OutlineSortMode,
+} from "./outline-model.ts";
+import classes from "./outline-tree.module.css";
+
+/**
+ * The left outline tree (plan Task 2): category badges, fuzzy filter over
+ * both layer names, name / creation-order sort, dependency-free virtual
+ * scroll. Selection is two-way (design 3.2): a click selects in the ui
+ * store and re-emits `focus`; a ui-store change reveals the node here.
+ */
+
+// TODO(i18n Task 7): replace the literals with the `outline.*` keys.
+const ROW_HEIGHT = 26;
+
+const emit = defineEmits<{
+  focus: [payload: { kind: string; id: string | number; tableId?: string | number }];
+  "assign-to-area": [payload: { tableId: string | number; areaId: string | number }];
+}>();
+
+const diagramStore = useDiagramStore();
+const ui = useUIStore();
+const viewState = useViewStateStore();
+
+const filterText = ref("");
+const sortMode = ref<OutlineSortMode>("created");
+const filterActive = computed(() => filterText.value.trim() !== "");
+
+const tree = computed(() =>
+  buildOutlineTree(
+    diagramStore.diagram,
+    viewState.viewLayer,
+    filterText.value,
+    sortMode.value,
+  ),
+);
+
+// The expansion defaults: the categories and the areas start open, the
+// tables start closed; an explicit toggle always wins.
+const expanded = ref(new Set<string>());
+const decided = new Set<string>();
+watchEffect(() => {
+  for (const id of outlineBranchIds(tree.value, (node) => node.kind !== "table")) {
+    if (!decided.has(id)) {
+      decided.add(id);
+      expanded.value.add(id);
+    }
+  }
+});
+
+const effectiveExpanded = computed(() =>
+  // An active filter auto-expands every branch so the matches are visible.
+  filterActive.value ? outlineBranchIds(tree.value) : expanded.value,
+);
+
+const rows = computed(() => flattenOutlineTree(tree.value, effectiveExpanded.value));
+
+const bodyRef = ref<HTMLElement | null>(null);
+const scrollTop = ref(0);
+const viewportHeight = ref(600);
+onMounted(() => {
+  const height = bodyRef.value?.clientHeight ?? 0;
+  if (height > 0) viewportHeight.value = height;
+});
+
+function onScroll(event: Event): void {
+  scrollTop.value = (event.target as HTMLElement).scrollTop;
+}
+
+const windowedRows = computed(() =>
+  windowOutlineRows(rows.value, scrollTop.value, viewportHeight.value),
+);
+
+const showEmpty = computed(
+  () => !filterActive.value && tree.value.every((node) => node.count === 0),
+);
+const showNoMatches = computed(() => filterActive.value && tree.value.length === 0);
+
+// —— Selection (tree → ui store, ui store → reveal) ——
+
+const currentNodeId = computed(() => {
+  const field = ui.selectedFields[ui.selectedFields.length - 1];
+  if (field) return `field:${field.tableId}:${field.fieldId}`;
+  const last = (ids: (string | number)[]) => ids[ids.length - 1];
+  if (ui.selectedTableIds.length) return `table:${last(ui.selectedTableIds)}`;
+  if (ui.selectedRelationshipIds.length)
+    return `relationship:${last(ui.selectedRelationshipIds)}`;
+  if (ui.selectedNoteIds.length) return `note:${last(ui.selectedNoteIds)}`;
+  if (ui.selectedAreaIds.length) return `area:${last(ui.selectedAreaIds)}`;
+  return undefined;
+});
+
+/** Expands the ancestors of a node and scrolls it into view. */
+async function reveal(nodeId: string): Promise<void> {
+  const path = outlineNodePath(tree.value, nodeId);
+  if (!path) return;
+  for (const ancestor of path.slice(0, -1)) expanded.value.add(ancestor.id);
+  await nextTick();
+  const index = rows.value.findIndex((row) => row.node.id === nodeId);
+  if (index >= 0 && bodyRef.value) {
+    bodyRef.value.scrollTop = Math.max(0, (index - 2) * ROW_HEIGHT);
+    scrollTop.value = bodyRef.value.scrollTop;
+  }
+}
+defineExpose({ reveal });
+
+watch(currentNodeId, (id) => {
+  if (id !== undefined) void reveal(id);
+});
+
+function toggle(id: string): void {
+  if (expanded.value.has(id)) expanded.value.delete(id);
+  else expanded.value.add(id);
+}
+
+function select(node: OutlineNode): void {
+  switch (node.kind) {
+    case "category":
+      toggle(node.id);
+      return;
+    case "table":
+    case "area-table":
+      ui.selectTable(String(node.refId));
+      emit("focus", { kind: "table", id: node.refId! });
+      return;
+    case "field":
+      ui.selectField(String(node.parentRefId), String(node.refId));
+      emit("focus", { kind: "field", id: node.refId!, tableId: node.parentRefId! });
+      return;
+    case "relationship":
+      ui.selectRelationship(String(node.refId));
+      emit("focus", { kind: "relationship", id: node.refId! });
+      return;
+    case "note":
+      ui.selectNote(String(node.refId));
+      emit("focus", { kind: "note", id: node.refId! });
+      return;
+    case "area":
+      ui.selectArea(String(node.refId));
+      emit("focus", { kind: "area", id: node.refId! });
+      return;
+    default:
+      // Views, enums and types have no ui-store selection yet.
+      emit("focus", { kind: node.kind, id: node.refId! });
+  }
+}
+
+// —— Context menu: rename writes the current layer, delete uses the store ——
+
+const menu = ref<{ x: number; y: number; node: OutlineNode } | null>(null);
+const renamingId = ref<string | null>(null);
+
+function openMenu(node: OutlineNode, event: MouseEvent): void {
+  if (node.kind === "category") return;
+  menu.value = { x: event.clientX ?? 0, y: event.clientY ?? 0, node };
+}
+
+function startRename(): void {
+  if (menu.value) renamingId.value = menu.value.node.id;
+  menu.value = null;
+}
+
+function commitRename(value: string): void {
+  const node = rows.value.find((row) => row.node.id === renamingId.value)?.node;
+  renamingId.value = null;
+  if (node) renameOutlineNode(diagramStore, node, value, viewState.viewLayer);
+}
+
+function commitDelete(): void {
+  const node = menu.value?.node;
+  menu.value = null;
+  if (node) deleteOutlineNode(diagramStore, node);
+}
+
+// —— Drag and drop: only table ↔ area (Q11) ——
+
+const dragTableId = ref<string | number | null>(null);
+
+function onDragstart(node: OutlineNode, event: DragEvent): void {
+  if (node.kind !== "table") return;
+  dragTableId.value = node.refId!;
+  event.dataTransfer?.setData("text/plain", String(node.refId));
+}
+
+function onDrop(node: OutlineNode): void {
+  if (node.kind === "area" && dragTableId.value !== null) {
+    // TODO(Q11): area membership is geometric, there is no diagram-store
+    // command for it yet; the host of the tree decides what the drop means.
+    emit("assign-to-area", { tableId: dragTableId.value, areaId: node.refId! });
+  }
+  dragTableId.value = null;
+}
+</script>
+
+<template>
+  <div :class="classes.outline" data-testid="outline-tree">
+    <div :class="classes.toolbar">
+      <input
+        v-model="filterText"
+        :class="classes.filter"
+        data-testid="outline-filter"
+        placeholder="Filter by name…"
+      />
+      <button
+        type="button"
+        :class="classes.sort"
+        data-testid="outline-sort-toggle"
+        :title="sortMode === 'name' ? 'Sorted by name' : 'Creation order'"
+        @click="sortMode = sortMode === 'name' ? 'created' : 'name'"
+      >
+        {{ sortMode === "name" ? "A–Z" : "#" }}
+      </button>
+    </div>
+    <div v-if="showEmpty" :class="classes.empty" data-testid="outline-empty">
+      No objects yet
+    </div>
+    <div
+      v-else-if="showNoMatches"
+      :class="classes.empty"
+      data-testid="outline-no-matches"
+    >
+      No matches
+    </div>
+    <div v-else ref="bodyRef" :class="classes.body" @scroll="onScroll">
+      <div :style="{ height: `${rows.length * ROW_HEIGHT}px`, position: 'relative' }">
+        <div
+          v-for="item in windowedRows"
+          :key="item.row.node.id"
+          :style="{
+            position: 'absolute',
+            top: `${item.index * ROW_HEIGHT}px`,
+            left: 0,
+            right: 0,
+            height: `${ROW_HEIGHT}px`,
+          }"
+        >
+          <OutlineNodeRow
+            :row="item.row"
+            :expanded="effectiveExpanded.has(item.row.node.id)"
+            :current="item.row.node.id === currentNodeId"
+            :renaming="item.row.node.id === renamingId"
+            :draggable-row="item.row.node.kind === 'table'"
+            @toggle="toggle(item.row.node.id)"
+            @select="select(item.row.node)"
+            @contextmenu="openMenu(item.row.node, $event)"
+            @rename-commit="commitRename"
+            @rename-cancel="renamingId = null"
+            @dragstart="onDragstart(item.row.node, $event)"
+            @drop="onDrop(item.row.node)"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="menu"
+      :class="classes.menuOverlay"
+      @click="menu = null"
+      @contextmenu.prevent="menu = null"
+    />
+    <div
+      v-if="menu"
+      :class="classes.menu"
+      :style="{ left: `${menu.x}px`, top: `${menu.y}px` }"
+      data-testid="outline-menu"
+    >
+      <button
+        type="button"
+        :class="classes.menuItem"
+        data-testid="outline-menu-rename"
+        @click="startRename"
+      >
+        Rename
+      </button>
+      <button
+        type="button"
+        :class="classes.menuItem"
+        data-testid="outline-menu-delete"
+        @click="commitDelete"
+      >
+        Delete
+      </button>
+    </div>
+  </div>
+</template>

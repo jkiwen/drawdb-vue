@@ -5,8 +5,6 @@ import { useCanvasEvents } from "../../composables/use-canvas-events.ts";
 import { useCanvasItems } from "../../composables/use-canvas-items.ts";
 import Area from "./Area.vue";
 import ContextMenu from "./ContextMenu.vue";
-import LogicalRelationship from "./LogicalRelationship.vue";
-import LogicalTable from "./LogicalTable.vue";
 import Note from "./Note.vue";
 import Relationship from "./Relationship.vue";
 import Table from "./Table.vue";
@@ -170,49 +168,30 @@ onBeforeUnmount(() => {
         @togglelock="onAreaToggleLock"
         @toggledetails="onAreaToggleDetails"
       />
-      <template
+      <!--
+        Both layers draw with the same nodes: the layer and the display
+        toggles only change what a node shows (UI document section 6.1).
+      -->
+      <Relationship
         v-for="relationship in items.visibleRelationships.value"
         :key="`relationship-${relationship.id}`"
-      >
-        <LogicalRelationship
-          v-if="items.isLogical.value"
-          :relationship="relationship"
-          :start-table="tableOf(relationship.startTableId)"
-          :end-table="tableOf(relationship.endTableId)"
-          :selected="canvas.selection.isSelected(String(relationship.id))"
-          :start-point="items.relationshipEndpoints.value.get(String(relationship.id))?.start ?? null"
-          :end-point="items.relationshipEndpoints.value.get(String(relationship.id))?.end ?? null"
-        />
-        <Relationship
-          v-else
-          :relationship="relationship"
-          :start-table="tableOf(relationship.startTableId)"
-          :end-table="tableOf(relationship.endTableId)"
-          :selected="canvas.selection.isSelected(String(relationship.id))"
-          :start-point="items.relationshipEndpoints.value.get(String(relationship.id))?.start ?? null"
-          :end-point="items.relationshipEndpoints.value.get(String(relationship.id))?.end ?? null"
-        />
-      </template>
-      <template
+        :relationship="relationship"
+        :start-table="tableOf(relationship.startTableId)"
+        :end-table="tableOf(relationship.endTableId)"
+        :selected="canvas.selection.isSelected(String(relationship.id))"
+        :start-point="items.relationshipEndpoints.value.get(String(relationship.id))?.start ?? null"
+        :end-point="items.relationshipEndpoints.value.get(String(relationship.id))?.end ?? null"
+      />
+      <Table
         v-for="table in items.visibleTables.value"
         :key="`table-${table.id}`"
-      >
-        <LogicalTable
-          v-if="items.isLogical.value"
-          :table="table"
-          :selected="canvas.selection.isSelected(String(table.id))"
-          @dragstart="canvas.onTableDragStart"
-        />
-        <Table
-          v-else
-          :table="table"
-          :selected="canvas.selection.isSelected(String(table.id))"
-          @dragstart="canvas.onTableDragStart"
-          @fieldselect="canvas.onFieldSelect"
-          @linkstart="canvas.onLinkStart"
-          @resizestart="canvas.onResizeStart"
-        />
-      </template>
+        :table="table"
+        :selected="canvas.selection.isSelected(String(table.id))"
+        @dragstart="canvas.onTableDragStart"
+        @fieldselect="canvas.onFieldSelect"
+        @linkstart="canvas.onLinkStart"
+        @resizestart="canvas.onResizeStart"
+      />
       <Note
         v-for="note in items.visibleNotes.value"
         :key="`note-${note.id}`"

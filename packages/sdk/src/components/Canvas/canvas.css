@@ -393,6 +393,61 @@
   white-space: nowrap;
 }
 
+/*
+ * The "all" display mode shows the key marks of the row: the unique key and
+ * the foreign key join the key of the primary key (UI document section
+ * 6.1). They are letters, because two keys in a row would read as one.
+ */
+.ddb-table__field-unique,
+.ddb-table__field-foreign {
+  display: inline-flex;
+  align-items: center;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ddb-table__field-unique {
+  color: #2563eb;
+}
+
+.ddb-table__field-foreign {
+  color: #7c3aed;
+}
+
+/*
+ * The light badge of the fall back rule (UI document section 6.4): the
+ * logical name is not set, so the node shows the physical name and this
+ * badge says why.
+ *
+ * TODO: i18n keys needed — the badge text ("no logical name") and the
+ * placeholder state of the logical type should come from the locale files.
+ */
+.ddb-table__fallback-badge {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0 4px;
+  border: 1px solid #f59e0b;
+  border-radius: 4px;
+  background-color: rgb(245 158 11 / 12%);
+  color: #b45309;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+/*
+ * A logical type whose family or domain is not known is a placeholder: it
+ * is drawn in italics, like a placeholder of a form.
+ */
+.ddb-table__field-type--placeholder {
+  font-style: italic;
+  color: #a1a1aa;
+}
+
 .ddb-table__field-remove {
   display: flex;
   flex: 0 0 auto;
@@ -1157,6 +1212,20 @@
 .ddb-canvas--dark .ddb-table__field-nullable,
 .ddb-canvas--dark .ddb-table__field-marks {
   color: #a1a1aa;
+}
+
+.ddb-canvas--dark .ddb-table__field-unique {
+  color: #60a5fa;
+}
+
+.ddb-canvas--dark .ddb-table__field-foreign {
+  color: #a78bfa;
+}
+
+.ddb-canvas--dark .ddb-table__fallback-badge {
+  border-color: #fbbf24;
+  background-color: rgb(251 191 36 / 16%);
+  color: #fcd34d;
 }
 
 .ddb-canvas--dark .ddb-canvas-relationship__label,

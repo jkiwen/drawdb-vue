@@ -5,24 +5,38 @@ import type { Field, Table } from "@drawdb/core";
 import { getTypeMetadata, typeColor } from "@drawdb/core";
 import { NInput } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
-import { useUIStore } from "../../stores/ui.ts";
 import { useInlineEdit } from "../../composables/use-inline-edit.ts";
 import { t } from "../../i18n/index.ts";
-import { fieldLabel } from "./geometry.ts";
+import type { TableFieldRowModel } from "./render-model.ts";
 
 defineOptions({ name: "DrawDBTableField" });
 
+/**
+ * A row of the field list of a table.
+ *
+ * The row draws a render-model row (render-model.ts): in the physical layer
+ * it shows the name and the type specification of the field, in the logical
+ * layer the name and the logical type label of the attribute. Only a row of
+ * the physical layer is editable on the canvas — the names and the types of
+ * the logical model are edited from the editors (TODO: the inline editing
+ * of the logical layer).
+ */
 const props = defineProps({
   table: { type: Object as PropType<Table>, required: true },
-  field: { type: Object as PropType<Field>, required: true },
+  row: { type: Object as PropType<TableFieldRowModel>, required: true },
+  /** The physical field of the row, when it has one (the editing target). */
+  field: { type: Object as PropType<Field>, default: undefined },
   selected: { type: Boolean, default: false },
   locked: { type: Boolean, default: false },
-  showFieldTypes: { type: Boolean, default: true },
+  /** Whether the row can be edited on the canvas: the physical layer only. */
+  editable: { type: Boolean, default: false },
+  /** Whether the key marks (PK / UK / FK / nullable) are drawn. */
+  showMarks: { type: Boolean, default: false },
+  showType: { type: Boolean, default: true },
 });
 
 const emit = defineEmits(["fieldselect"]);
 
-const ui = useUIStore();
 const diagram = useDiagramStore();
 
 const {
@@ -39,21 +53,8 @@ const {
   commit: commitType,
 } = useInlineEdit();
 
-/**
- * The types of the fields are a property of the physical view.
- *
- * The logical view only shows the names of the entities and their relations.
- */
-const showsFieldTypes = computed(
-  () => props.showFieldTypes && ui.viewMode !== "logical",
-);
-
-/**
- * The row of the field is hovered.
- *
- * The reference application replaces the marks of the row with a delete
- * button while the pointer is on it.
- */
+// The reference application replaces the marks of the row with a delete
+// button while the pointer is on it.
 const hovered = ref(false);
 
 function onPointerEnter(): void {
@@ -69,9 +70,13 @@ function onPointerLeave(): void {
  *
  * The colours are the ones of the reference application: the integers are
  * yellow, the decimals green, the booleans violet, the dates cyan and the
- * strings orange.
+ * strings orange. Only a physical field has a colour; the logical type
+ * labels keep the default colour.
  */
 const typeColorOfField = computed(() => {
+  if (!props.field) {
+    return undefined;
+  }
   const database = diagram.diagram.database;
   const metadata = getTypeMetadata(database, props.field.fieldType.type);
   return typeColor(props.field.fieldType.type, metadata);
@@ -80,7 +85,7 @@ const typeColorOfField = computed(() => {
 function onPointerDown(event: PointerEvent): void {
   emit("fieldselect", {
     tableId: props.table.id,
-    fieldId: props.field.id,
+    fieldId: props.row.fieldId ?? props.row.rowId,
     event,
   });
 }
@@ -95,7 +100,7 @@ function onTypeInput(value: string): void {
 
 function onStartName(event: Event): void {
   event.stopPropagation();
-  if (props.locked) {
+  if (props.locked || !props.editable || !props.field) {
     return;
   }
   startName(props.field.name);
@@ -103,13 +108,16 @@ function onStartName(event: Event): void {
 
 function onStartType(event: Event): void {
   event.stopPropagation();
-  if (props.locked) {
+  if (props.locked || !props.editable || !props.field) {
     return;
   }
   startType(props.field.fieldType.type);
 }
 
 function onCommitName(): void {
+  if (!props.field) {
+    return;
+  }
   const value = commitName(props.field.name);
   if (value !== undefined) {
     diagram.updateField(props.table.id, props.field.id, { name: value });
@@ -117,6 +125,9 @@ function onCommitName(): void {
 }
 
 function onCommitType(): void {
+  if (!props.field) {
+    return;
+  }
   const value = commitType(props.field.fieldType.type);
   if (value !== undefined) {
     diagram.updateField(props.table.id, props.field.id, {
@@ -128,7 +139,7 @@ function onCommitType(): void {
 
 function onTogglePrimary(event: Event): void {
   event.stopPropagation();
-  if (props.locked) {
+  if (props.locked || !props.editable || !props.field) {
     return;
   }
   diagram.updateField(props.table.id, props.field.id, {
@@ -138,7 +149,7 @@ function onTogglePrimary(event: Event): void {
 
 function onRemove(event: Event): void {
   event.stopPropagation();
-  if (props.locked) {
+  if (props.locked || !props.editable || !props.field) {
     return;
   }
   diagram.removeField(props.table.id, props.field.id);
@@ -150,17 +161,18 @@ function onRemove(event: Event): void {
     class="ddb-table__field"
     :class="{ 'is-selected': selected }"
     :data-table-id="table.id"
-    :data-field-id="field.id"
-    :data-testid="`field-${table.id}-${field.id}`"
+    :data-field-id="row.rowId"
+    :data-testid="`field-${table.id}-${row.rowId}`"
     @pointerdown.stop="onPointerDown"
     @pointerenter="onPointerEnter"
     @pointerleave="onPointerLeave"
   >
     <span class="ddb-table__field-main">
       <span
+        v-if="editable"
         class="ddb-table__field-handle field-drag-handle"
         data-drag-handle="true"
-        :data-testid="`field-drag-handle-${field.id}`"
+        :data-testid="`field-drag-handle-${row.rowId}`"
         @pointerdown.stop
         @dblclick.stop
       />
@@ -169,28 +181,38 @@ function onRemove(event: Event): void {
         class="ddb-table__field-name-input"
         size="tiny"
         :value="nameDraft"
-        :data-testid="`field-name-input-${field.id}`"
+        :data-testid="`field-name-input-${row.rowId}`"
         @update:value="onNameInput"
         @blur="onCommitName"
         @keyup.enter="onCommitName"
       />
-      <span
-        v-else
-        class="ddb-table__field-name"
-        :class="{ 'is-locked': locked }"
-        :data-testid="`field-name-${field.id}`"
-        @dblclick="onStartName"
-      >
-        {{ field.name }}
-      </span>
+      <template v-else>
+        <span
+          class="ddb-table__field-name"
+          :class="{ 'is-locked': locked }"
+          :data-testid="`field-name-${row.rowId}`"
+          @dblclick="onStartName"
+        >
+          {{ row.name }}
+        </span>
+        <span
+          v-if="row.nameFallback"
+          class="ddb-table__fallback-badge"
+          :data-testid="`field-name-fallback-${row.rowId}`"
+          title="No logical name — the physical name is shown"
+        >
+          <!-- TODO(i18n): the badge label needs a locale key. -->
+          no logical name
+        </span>
+      </template>
     </span>
     <span class="ddb-table__field-marks">
-      <span v-if="showsFieldTypes" class="ddb-table__field-marks-row">
+      <span class="ddb-table__field-marks-row">
         <span
-          v-if="field.primary"
+          v-if="showMarks && row.primary"
           class="ddb-table__field-key"
           data-testid="field-primary"
-          :data-field-id="field.id"
+          :data-field-id="row.rowId"
           :title="t('primary_key')"
           @click="onTogglePrimary"
         >
@@ -209,10 +231,28 @@ function onRemove(event: Event): void {
           </svg>
         </span>
         <span
-          v-if="!field.notNull"
+          v-if="showMarks && row.unique"
+          class="ddb-table__field-unique"
+          data-testid="field-unique"
+          :data-field-id="row.rowId"
+          title="Unique"
+        >
+          U
+        </span>
+        <span
+          v-if="showMarks && row.foreign"
+          class="ddb-table__field-foreign"
+          data-testid="field-foreign"
+          :data-field-id="row.rowId"
+          title="Foreign key"
+        >
+          FK
+        </span>
+        <span
+          v-if="showMarks && !row.notNull"
           class="ddb-table__field-nullable"
           data-testid="field-not-null"
-          :data-field-id="field.id"
+          :data-field-id="row.rowId"
           :title="t('nullable')"
         >
           ?
@@ -222,28 +262,31 @@ function onRemove(event: Event): void {
           class="ddb-table__field-type-input"
           size="tiny"
           :value="typeDraft"
-          :data-testid="`field-type-input-${field.id}`"
+          :data-testid="`field-type-input-${row.rowId}`"
           @update:value="onTypeInput"
           @blur="onCommitType"
           @keyup.enter="onCommitType"
         />
         <span
-          v-else
+          v-else-if="showType"
           class="ddb-table__field-type"
-          :class="{ 'is-locked': locked }"
+          :class="{
+            'is-locked': locked,
+            'ddb-table__field-type--placeholder': row.typePlaceholder,
+          }"
           data-testid="field-type"
-          :data-field-id="field.id"
-          :style="{ color: typeColorOfField }"
+          :data-field-id="row.rowId"
+          :style="typeColorOfField ? { color: typeColorOfField } : undefined"
           @dblclick="onStartType"
         >
-          {{ fieldLabel(field) }}
+          {{ row.typeLabel }}
         </span>
       </span>
       <button
-        v-if="hovered && !locked"
+        v-if="hovered && !locked && editable && field"
         type="button"
         class="ddb-table__field-remove"
-        :data-testid="`remove-field-${field.id}`"
+        :data-testid="`remove-field-${row.rowId}`"
         @pointerdown.stop
         @click="onRemove"
       >

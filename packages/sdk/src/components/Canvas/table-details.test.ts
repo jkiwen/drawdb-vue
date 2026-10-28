@@ -67,7 +67,7 @@ function setup() {
   const table = diagram.tableById("users");
   assert.ok(table);
   const wrapper = mount(Table, {
-    props: { table, selected: false, showFieldTypes: true },
+    props: { table, selected: false },
     global: { plugins: [pinia, naive] },
     attachTo: document.body,
   });

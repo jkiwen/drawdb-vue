@@ -3,7 +3,7 @@ import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Relationship, Table } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
-import { useUIStore } from "../../stores/ui.ts";
+import { useViewStateStore } from "../../stores/view-state.ts";
 import {
   areaHoldsElement,
   elementBounds,
@@ -11,17 +11,14 @@ import {
 } from "../../utils/elements.ts";
 import {
   areaBounds,
-  boundsCenter,
   cardinalitySides,
   cardinalityText,
-  logicalEdgeAnchor,
-  logicalTableBounds,
   relationshipPath,
-  tableBounds,
-  tableEdgeAnchor,
   type Bounds,
   type EdgeAnchor,
 } from "./geometry.ts";
+import { renderEdgeAnchor, tableRenderBounds } from "./render-geometry.ts";
+import { tableRenderModel } from "./render-model.ts";
 
 defineOptions({ name: "DrawDBRelationshipNode" });
 
@@ -36,32 +33,58 @@ const props = defineProps({
 });
 
 const diagram = useDiagramStore();
-const ui = useUIStore();
+const viewState = useViewStateStore();
 
-const logical = computed(() => ui.viewMode === "logical");
+/**
+ * The render models of the two tables.
+ *
+ * The relationship attaches to what the canvas draws, so the anchors and
+ * the obstacles are measured with the render model of the current layer and
+ * the display toggles (render-model.ts).
+ */
+const startModel = computed(() =>
+  tableRenderModel(props.startTable, viewState.viewLayer, viewState.toggles),
+);
+const endModel = computed(() =>
+  tableRenderModel(props.endTable, viewState.viewLayer, viewState.toggles),
+);
+
+function modelCenter(model: { width: number; height: number }, table: Table) {
+  return {
+    x: table.x + model.width / 2,
+    y: table.y + model.height / 2,
+  };
+}
 
 /**
  * The anchors of the relationship.
  *
  * An end a collapsed area holds anchors on the title bar of the area; every
- * other end anchors on the edge of its table nearest to the other end. The
- * physical view attaches the relationship to the fields it points at, the
- * logical view attaches it to the entities.
+ * other end anchors on the edge of its table nearest to the other end, on
+ * the row of the field it points at — in both layers, the row is found by
+ * the physical field the attribute maps to.
  */
 const anchors = computed<{ start: EdgeAnchor; end: EdgeAnchor }>(() => {
-  const boundsOf = logical.value ? logicalTableBounds : tableBounds;
-  const startToward = props.endPoint ?? boundsCenter(boundsOf(props.endTable));
-  const endToward = props.startPoint ?? boundsCenter(boundsOf(props.startTable));
+  const startToward =
+    props.endPoint ?? modelCenter(endModel.value, props.endTable);
+  const endToward =
+    props.startPoint ?? modelCenter(startModel.value, props.startTable);
   const start =
     props.startPoint ??
-    (logical.value
-      ? logicalEdgeAnchor(props.startTable, startToward)
-      : tableEdgeAnchor(props.startTable, props.relationship.startFieldId, startToward));
+    renderEdgeAnchor(
+      props.startTable,
+      startModel.value,
+      props.relationship.startFieldId,
+      startToward,
+    );
   const end =
     props.endPoint ??
-    (logical.value
-      ? logicalEdgeAnchor(props.endTable, endToward)
-      : tableEdgeAnchor(props.endTable, props.relationship.endFieldId, endToward));
+    renderEdgeAnchor(
+      props.endTable,
+      endModel.value,
+      props.relationship.endFieldId,
+      endToward,
+    );
   return { start, end };
 });
 
@@ -71,9 +94,6 @@ const anchors = computed<{ start: EdgeAnchor; end: EdgeAnchor }>(() => {
  * no box on the canvas, so it is not an obstacle.
  */
 const obstacles = computed<Bounds[]>(() => {
-  if (logical.value) {
-    return [];
-  }
   const collapsed = diagram.areas.filter((area) => area.collapsed === true);
   const startId = String(props.startTable.id);
   const endId = String(props.endTable.id);
@@ -85,7 +105,9 @@ const obstacles = computed<Bounds[]>(() => {
     if (table.hidden || heldByCollapsedArea(collapsed, elementBounds(table))) {
       continue;
     }
-    blocks.push(tableBounds(table));
+    blocks.push(
+      tableRenderBounds(table, viewState.viewLayer, viewState.toggles),
+    );
   }
   for (const area of diagram.areas) {
     if (area.collapsed === true) {

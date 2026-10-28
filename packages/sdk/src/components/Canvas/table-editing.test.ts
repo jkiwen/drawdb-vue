@@ -5,6 +5,7 @@ import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useHistoryStore } from "../../stores/history.ts";
+import { useViewStateStore } from "../../stores/view-state.ts";
 import Table from "./Table.vue";
 import { naive } from "../../../../../scripts/naive-ui-mock.mjs";
 
@@ -134,6 +135,9 @@ describe("the editing of a table on the canvas", () => {
     const pinia = freshPinia();
     const diagram = seed(pinia);
     diagram.updateTable("users", { comment: "The users of the system" });
+    // The description is an opt-in of the display toggles (UI document
+    // section 6.1): the default attributes mode does not draw it.
+    useViewStateStore(pinia).setToggle("description", true);
     const wrapper = mountTable(pinia);
     await nextTick();
 
@@ -269,6 +273,8 @@ describe("the editing of a table on the canvas", () => {
   it("the primary key flag of a field is toggled", async () => {
     const pinia = freshPinia();
     seed(pinia);
+    // The key marks belong to the pkUkFk toggle: the all mode draws them.
+    useViewStateStore(pinia).setDisplayMode("all");
     const wrapper = mountTable(pinia);
 
     // The key of a primary field is drawn as a key, so the mark of a field
