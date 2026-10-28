@@ -165,4 +165,27 @@ describe("OutlineTree", () => {
     await wrapper.find('[data-testid="outline-menu-delete"]').trigger("click");
     assert.equal(useDiagramStore().tableById("t_users")?.fields.length, 0);
   });
+
+  it("creates a view from the category context menu", async () => {
+    const wrapper = mountTree();
+    await wrapper.find('[data-testid="outline-row-cat:views"]').trigger("contextmenu");
+    const create = wrapper.find('[data-testid="outline-menu-create"]');
+    assert.ok(create.exists());
+    assert.equal(create.text(), "Add view");
+    // A category row creates; it does not rename or delete.
+    assert.ok(!wrapper.find('[data-testid="outline-menu-rename"]').exists());
+
+    await create.trigger("click");
+
+    assert.deepEqual(
+      useDiagramStore().diagram.views.map((view) => view.name),
+      ["active_users", "view_1"],
+    );
+  });
+
+  it("offers no menu on a category that creates nothing", async () => {
+    const wrapper = mountTree();
+    await wrapper.find('[data-testid="outline-row-cat:tables"]').trigger("contextmenu");
+    assert.ok(!wrapper.find('[data-testid="outline-menu"]').exists());
+  });
 });

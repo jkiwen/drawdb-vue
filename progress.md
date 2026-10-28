@@ -346,3 +346,28 @@ The editor of the SDK carries the interface that the designer UI document descri
 - **The left panel has one hide mechanism now (Q21, resolved 2026-10-28)** - the collapse of the layout panel is that mechanism: `settings.panelLeftCollapsed` is the single source, `ui.sidebarOpen` became a computed mirror of it, `ui.toggleSidebar()` writes the setting, and `showSidePanel` no longer unmounts the panel. The View menu entry, the header button and `mod+b` therefore agree, and the outline keeps its filter and scroll position while collapsed. The same cleanup is why the artifact spec now expects the outline tree, the edit panel and the bottom panel instead of the retired `side-panel` (that spec mounts the built SDK). Cost if wrong: a collapsed panel rebuilding a hundred-table virtual list on every expand.
 - **The redesigned chrome sits on the host palette (fixed after the merge)** - sixteen `--ddb-*` names the P5 components referred to (`--ddb-fg`, `--ddb-fg-muted`, `--ddb-input-bg`, the badge and status colours) were defined nowhere, so their inline dark fallbacks won and the edit panel inputs rendered black on a light page. `styles/tokens.css` now defines every name on top of the Naive UI variables the rest of the chrome uses, which also gives a host one place to theme the editor. Cost if wrong: an embedding that themes Naive UI still gets dark inputs until it overrides sixteen names itself.
 - **The paired field grid keeps one alignment** - the six column grid stayed in both view layers (the four column override wrapped the status and the delete button onto a second line in the logical layer), it scrolls horizontally under 436 pixels instead of squeezing the inputs, and the right panel defaults to 464 pixels so the whole grid is visible without a drag. The example harness seeds a real two layer diagram (paired logical attributes, a logical relationship name) so the manual test shows the redesign instead of four PHYSICAL_ONLY warnings on legacy fixtures.
+The per-table view overrides belong to the document (2026-10-28)
+
+The review of the P5 delivery found that the toolbar scope overrides lived in a
+`ref` inside `stores/toolbar-scope.ts`: a per-table display override survived
+neither a reload nor a reopened file, which is the one thing Q2 decided the
+document owns. `ViewState.overrides` is now part of the core model, serialized
+with the rest of the view state; `normalizeViewOverrides` drops unknown toggle
+keys and empty entries on load, so a hand-edited file cannot poison the render.
+The store keeps a computed view of the document field, and both the scoped
+write and the reset go through `updateViewState`, which is the path that does
+not enter the undo stack.
+
+The outline tree creates the objects the side panel used to create (2026-10-28)
+
+Replacing the side panel with the outline tree silently dropped the only
+entries that created views, enums and custom types: the store actions existed
+but had no caller. A category row of those three kinds now offers a create
+entry in its context menu, reusing the `add_view` / `add_enum` / `add_type`
+strings that all 51 locales already carry. The action generates the first free
+`<kind>_<n>` name, builds the default object (a view with no columns, an enum
+with no values, a type with no fields) and runs it through the diagram-store
+commands, so a create is undoable like any other document change and the tree
+expands to reveal the new row. Categories without a create entry keep the plain
+menu-less behaviour, and the logical view still hides all three categories per
+Q15, which also disables their creation there.

@@ -5,7 +5,13 @@ import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 import OutlineNodeRow from "./OutlineNodeRow.vue";
-import { deleteOutlineNode, renameOutlineNode } from "./outline-actions.ts";
+import OutlineMenu from "./OutlineMenu.vue";
+import {
+  createOutlineNode,
+  creatableCategoryOf,
+  deleteOutlineNode,
+  renameOutlineNode,
+} from "./outline-actions.ts";
 import {
   buildOutlineTree,
   flattenOutlineTree,
@@ -127,35 +133,22 @@ function toggle(id: string): void {
 }
 
 function select(node: OutlineNode): void {
-  switch (node.kind) {
-    case "category":
-      toggle(node.id);
-      return;
-    case "table":
-    case "area-table":
-      ui.selectTable(String(node.refId));
-      emit("focus", { kind: "table", id: node.refId! });
-      return;
-    case "field":
-      ui.selectField(String(node.parentRefId), String(node.refId));
-      emit("focus", { kind: "field", id: node.refId!, tableId: node.parentRefId! });
-      return;
-    case "relationship":
-      ui.selectRelationship(String(node.refId));
-      emit("focus", { kind: "relationship", id: node.refId! });
-      return;
-    case "note":
-      ui.selectNote(String(node.refId));
-      emit("focus", { kind: "note", id: node.refId! });
-      return;
-    case "area":
-      ui.selectArea(String(node.refId));
-      emit("focus", { kind: "area", id: node.refId! });
-      return;
-    default:
-      // Views, enums and types have no ui-store selection yet.
-      emit("focus", { kind: node.kind, id: node.refId! });
+  if (node.kind === "category") {
+    toggle(node.id);
+    return;
   }
+  if (node.kind === "table" || node.kind === "area-table") ui.selectTable(String(node.refId));
+  else if (node.kind === "field")
+    ui.selectField(String(node.parentRefId), String(node.refId));
+  else if (node.kind === "relationship") ui.selectRelationship(String(node.refId));
+  else if (node.kind === "note") ui.selectNote(String(node.refId));
+  else if (node.kind === "area") ui.selectArea(String(node.refId));
+  // Views, enums and types have no ui-store selection yet; they only focus.
+  emit("focus", {
+    kind: node.kind === "area-table" ? "table" : node.kind,
+    id: node.refId!,
+    ...(node.kind === "field" ? { tableId: node.parentRefId! } : {}),
+  });
 }
 
 // —— Context menu: rename writes the current layer, delete uses the store ——
@@ -164,8 +157,28 @@ const menu = ref<{ x: number; y: number; node: OutlineNode } | null>(null);
 const renamingId = ref<string | null>(null);
 
 function openMenu(node: OutlineNode, event: MouseEvent): void {
-  if (node.kind === "category") return;
+  if (node.kind === "category" && !creatableCategoryOf(node.category)) return;
   menu.value = { x: event.clientX ?? 0, y: event.clientY ?? 0, node };
+}
+
+/** The label of the create entry, or null when the node creates nothing. */
+const createLabel = computed(() => {
+  const node = menu.value?.node;
+  if (!node || node.kind !== "category") return null;
+  const category = creatableCategoryOf(node.category);
+  if (!category) return null;
+  const singular = category.slice(0, -1);
+  return t(`add_${singular}`);
+});
+
+function commitCreate(): void {
+  const node = menu.value?.node;
+  menu.value = null;
+  if (!node || node.kind !== "category") return;
+  const createdId = createOutlineNode(diagramStore, node.category);
+  if (!createdId) return;
+  expanded.value.add(node.id);
+  void reveal(node.id);
 }
 
 function startRename(): void {
@@ -264,34 +277,16 @@ function onDrop(node: OutlineNode): void {
         </div>
       </div>
     </div>
-    <div
+    <OutlineMenu
       v-if="menu"
-      :class="classes.menuOverlay"
-      @click="menu = null"
-      @contextmenu.prevent="menu = null"
+      :x="menu.x"
+      :y="menu.y"
+      :node="menu.node"
+      :create-label="createLabel"
+      @close="menu = null"
+      @create="commitCreate"
+      @rename="startRename"
+      @delete="commitDelete"
     />
-    <div
-      v-if="menu"
-      :class="classes.menu"
-      :style="{ left: `${menu.x}px`, top: `${menu.y}px` }"
-      data-testid="outline-menu"
-    >
-      <button
-        type="button"
-        :class="classes.menuItem"
-        data-testid="outline-menu-rename"
-        @click="startRename"
-      >
-        {{ t("rename") }}
-      </button>
-      <button
-        type="button"
-        :class="classes.menuItem"
-        data-testid="outline-menu-delete"
-        @click="commitDelete"
-      >
-        {{ t("delete") }}
-      </button>
-    </div>
   </div>
 </template>

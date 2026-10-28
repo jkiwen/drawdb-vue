@@ -157,13 +157,13 @@
 ### Task 2 — 左侧树型大纲（完成，三项未做）
 
 - 已实现：7 个类目（tables/relationships/areas/notes/views/enums/types，其中 `types` 即 CustomTypes，`diagram.types` 是 `CustomType[]`）、计数徽标、双层命名 + tooltip、过滤、排序（A–Z / 创建序）、虚拟滚动、双向联动（`OutlineTree.vue:92-121` 监听 ui 选中并 reveal）、重命名/删除右键菜单、表↔Area 拖拽 emit。
-- 未实现：①`Domains` 占位节点（core 无 domains 集合）；②右键菜单的**复制粘贴 / 移入 Area / 定位画布**（`OutlineTree.vue:161-184` 只有 rename 与 delete）；③Q4 的 36px 窄栏 + 类别图标浮层（§12.1 已记为未覆盖）。
+- 未实现：①`Domains` 占位节点（core 无 domains 集合）；②右键菜单的**复制粘贴 / 移入 Area / 定位画布**（`OutlineTree.vue` 现为 rename / delete / 类目新建三项）；③Q4 的 36px 窄栏 + 类别图标浮层（§12.1 已记为未覆盖）。
 - 拖拽只发事件不落库，符合 Q11 裁决，非缺口。
 
 ### Task 3 — 画布显示模式 × 双层视图（完成，一处违背 Q2）
 
 - 已实现：`render-model.ts` 按 viewLayer+toggles 派生、四模式=预设/custom 派生、Q15 隐藏物理侧独有对象、逻辑名缺失回退徽标、视图感知几何（`render-geometry.ts`）。
-- **违背 Q2（需修）**：每表覆盖只活在 `stores/toolbar-scope.ts:57` 的 `ref<Record<string, Partial<ViewStateToggles>>>` 里——既不进 `diagram.viewState`，core 的 `ViewState` 也没有 overrides 字段，刷新即丢。计划要求「结果存于每表视图覆盖 + 全局默认（视图状态，随图保存）」。
+- ~~**违背 Q2（需修）**~~ → **已修（`4c116f1`）**：`ViewState.overrides` 进 core 模型并参与序列化（`normalizeViewOverrides` 丢弃未知键），`stores/toolbar-scope.ts` 的 `overrides` 改为读文档的 `computed`，写路径走 `diagramStore.updateViewState({ overrides })`，刷新与重开都在。
 - 未实现：逻辑视图下「新建入口禁用」只在旧 SidePanel 内成立，新布局已无对应入口（见下方回归项）。
 
 ### Task 4 — 顶部工具栏（**部分完成：三组缺失**）
@@ -187,4 +187,4 @@
 
 ### 计划外的功能回归（需决定是否补）
 
-树替换了旧 `SidePanel`，而**创建 View / Enum / Type 的入口原本只在那几个 tab 里**（`SidePanel/ViewsTab.vue`、`EnumsTab.vue`、`TypesTab.vue`、`CustomTypesTab.vue` 已不再挂载）。结果：新界面里这三类对象**只可浏览、改名、删除，无法新建**（`stores/side-panel-actions.ts:52-60` 的 `addView/addEnum/addType` 没有调用方）。计划 Task 3 只写了「逻辑视图隐藏 + 新建入口禁用」，未处理「物理视图下这些入口去哪」。
+树替换了旧 `SidePanel`，而**创建 View / Enum / Type 的入口原本只在那几个 tab 里**（`SidePanel/ViewsTab.vue`、`EnumsTab.vue`、`TypesTab.vue`、`CustomTypesTab.vue` 已不再挂载），新界面里这三类对象一度只可浏览、改名、删除。\n\n- **已修（`outline-actions.ts` + `OutlineMenu.vue`）**：类目行右键出现 `add_view` / `add_enum` / `add_type`（复用已存在的 51 locale 文案），`createOutlineNode` 用 `uniqueName` 生成 `view_1` 这类默认名，经 diagram-store 命令入 undo 栈，创建后展开该类目并 reveal；tables/notes 等类目右键仍无菜单。逻辑视图下这些类目按 Q15 整体隐藏，等于新建入口一并禁用，符合 Task 3 的要求。
