@@ -569,3 +569,24 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 - Q3 对象级隐藏（本期不引入）——P5 计划明确排除；§6.3 布局与 §6.5 对齐已在第二轮补齐（见上表）。
 - 树节点拖拽的落库行为（Q11 表↔Area）：P5 只发出事件并把表移入区域几何范围，属性级落库留待 Area 成员模型定案。
 - §2 描述的「收缩后保留约 36px 窄边栏 + 类别图标浮层速览」（Q4）尚未实现：当前收起是宽度归零 + 边缘 chevron 按钮，没有类别图标也没有浮层。Q4 的裁决保留，实现留待 P6 与首选项一起做。
+
+### 12.3 第四轮改动（2026-10-29，十二条评审反馈）
+
+这一轮全部来自实际操作反馈，逐条对应到代码，每一条都有测试跟着：
+
+| 反馈 | 落地 |
+|---|---|
+| 1 右侧属性表格里字段的单行编辑太挤 | `components/EditPanel/FieldPairRow.vue` 改成可折叠卡片：摘要行（名称、物理类型、状态、来源、删除）+ 展开后的 2×2 带标签控件（逻辑名/逻辑类型/物理列/物理类型）；`TableEditor.vue` 不再需要六列表头；样式在 `edit-panel.module.css` 的 `.field-card*` |
+| 2 没选中任何元素时，视图切换应作用于所有表 | `stores/toolbar-scope.ts` 增 `clearOverridesForCanvas()`：canvas 范围的 toggle / 显示模式变化会清掉 `viewState.overrides`，早先按表范围改过的表也跟着变 |
+| 3 导航点击后应把对象定位到可视区域中心 | `composables/zoom-actions.ts` 增 `centerScroll()`；`composables/canvas-viewport.ts` 保存画布视口（`ResizeObserver` 保持新鲜）；`composables/use-focus-measure.ts` 用 `tableRenderModel` 量节点尺寸；`selection-actions.ts` 的 `useFocusIssue(scrollTo, sizeOf)` 把**节点中心**交给 `ui.centerOn()` |
+| 4 折叠成仅表名后，连线锚点没有跟随 | `Canvas/Relationship.vue` 的 `startModel`/`endModel` 传 `toolbarScope.overrideFor(id)`，与画布实际绘制同源；回归测试 `relationship-override.test.ts` |
+| 5 PK 没有名称、tables 视图里不能选 PK/FK/UK | `table-sections.ts` 的 PK 行改为 `PRIMARY (id)`；树里新增键节点（见 8） |
+| 6 PK/UK/FK 的字段不能编辑与排序 | `EditPanel/TableConstraints.vue` 重写为可编辑：PK 增删字段、UK 改名/加删/上下移字段/增删键、FK 改名；动作全部走 `diagram.updateField` / `updateTable` / `updateRelationship` |
+| 7 无法编辑 PK/UK/FK 信息 | 同上；FK 行的「打开」按钮选中对应关系（`ui.selectRelationship`） |
+| 8 导航里没有 PK | `Outline/outline-constraints.ts` 在表节点下、字段之前插入 `PK` / `UK <name>` / `FK <name>` 三种节点（`constraint:<tableId>:…`），点击选中表（外键再选中关系）；`OutlineTree.vue` 的 `select()` 与 `focus` 事件都认这一类 |
+| 9 右键菜单一直显示 | `Canvas/ContextMenu.vue` 增 `@close`、点击外部与 Escape 关闭；`Canvas.vue` 在命令执行后、视口移动（`scrollX/scrollY/zoom`）时关闭——三个用例在 `canvas-interactions.test.ts` |
+| 10 工具栏按钮多时应折行而不是滚动条 | `toolbar.module.css` 的 `.toolbar` 改 `flex-wrap: wrap`，按钮 24×24、间距收紧；窄画布列下两到三行而不是横向滚动 |
+| 11 创建/缩放/Grid-Panel 按钮应并入工具栏并分组 | 新增 `Toolbar/ToolbarCreate.vue`（Add table / note / area，沿用 `add-table-btn` 等 testid）与 `ToolbarCanvasView.vue`（grid、panel）；`ToolbarGroupId` 增 `create` / `canvasView`；`Header.vue` 删掉旧的文本按钮工具栏与 `UndoRedoButtons.vue`，页头只留菜单栏、标题与保存状态 |
+| 12 Note 无法编辑显示属性 | `EditPanel/NoteEditor.vue`：颜色、宽高、锁定，写入 `diagram.updateNote()`；`PanelTarget` 增 `{kind:"note"}` |
+
+一条实现经验写在 `progress.md`：居中定位必须用**当下**量到的节点尺寸与视口尺寸——harness 的画布只有一百多像素高，挂载时测的视口是旧的，于是对象落在偏离中心 144px 的位置；`ResizeObserver` 让 `reportViewport()` 跟上布局变化后，e2e 里改成直接断言「对象中心 ≈ 视口中心」，不再依赖某个具体的 scroll 数值。

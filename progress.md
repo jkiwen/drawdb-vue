@@ -461,3 +461,16 @@ classes (description, fields, PK/FK/UK, indexes).
 
 The last verification: 1135 unit tests, the sdk `vue-tsc` program and all 55
 Playwright cases, all green.
+
+## The fourth pass over the editor (2026-10-29)
+
+Twelve findings of a hands-on review, each closed with a test beside it.
+
+- **Centring a focus (3) needs a measured object and a fresh viewport.** The scroll is derived from the node the canvas actually draws (`useTableFocusSize`, which runs `tableRenderModel`) and from a viewport kept up to date by a `ResizeObserver` on the canvas element. A mount-time measurement is not enough: the harness canvas is about 140 px tall and settles after mount, and the focus landed 144 px above the centre. The e2e spec now asserts that the centre of the node is within 24 px of the centre of the viewport, instead of naming a scroll offset that the next layout change invalidates.
+- **Per-table overrides have three readers, not two (4).** The canvas node, the relationship anchors and the hit testing all measure with the overrides of the table; `Relationship.vue` was the one still measuring with the global toggles, so a folded table kept its old anchor. `relationship-override.test.ts` pins both ends.
+- **A canvas-wide change reaches every table (2).** `toolbar-scope` clears `viewState.overrides` when the scope is the canvas: the promise of the scope indicator is that the change lands on all tables, so a stale per-table override would be a lie.
+- **The menu is transient (9).** Escape, a click outside, the command itself and any viewport movement close it. The naive dropdown is mocked in tests, so the three cases drive the component's `command`/`close` events and the ui store directly.
+- **The keys are objects (5–8).** A key has a name and an ordered field list, so the panel edits it in place (add, remove, reorder, rename) and the outline lists PK/UK/FK above the fields of a table. The canvas PK row reads `PRIMARY (id)` so the name is visible where the key is used.
+- **The field pair is a card (1).** One summary line plus a 2×2 body of labelled controls keeps the type readable at any panel width; the six-column header row disappeared with it.
+- **The toolbar is part of the layout (10, 11).** It wraps instead of scrolling, the create and canvas-view groups moved out of the header into it, and the header lost its own toolbar and undo/redo row. Old testids were kept on the new buttons so hosts and e2e keep working.
+- **The note editor exists (12).** Colour, size and lock live in the panel; the canvas note keeps its inline title and body editing.
