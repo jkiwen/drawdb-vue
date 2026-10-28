@@ -1,6 +1,6 @@
 # P5 — SDK 视图与编辑器 UI 改造实施计划
 
-> **✅ 已完成（2026-10-28，分支 `sdk-ui-redesign-p5`）**。执行偏差与验收证据见文末「执行记录」。
+> **⚠️ 主体完成（2026-10-28，分支 `sdk-ui-redesign-p5`，已合并 `761fe7b`）**：Task 1–3 与 Task 7 完成；Task 4/5/6 的骨架落地但各有未实现子项——逐项结论见文末「落地审计（2026-10-28）」。执行偏差与验收证据见「执行记录」。
 
 > **来源**：`docs/designer-ui-redesign-discussion.md`（v1.0 定稿，§11 裁决 19 条已生效，下称「UI 文档」）。
 > **范围**：UI 文档 §2–§5、§6.1/§6.2/§6.3/§6.5/§6.6/§6.7、§8、§9 —— 即 **@drawdb/vue-sdk 编辑器外壳** 的树型大纲、统一编辑面板、画布工具栏、底部告警区、视图状态管理。
@@ -144,3 +144,47 @@
 - 连带修正：`scripts/verify-artifacts.test.ts` 的产物渲染断言从已退役的 `side-panel` 改为 `outline-tree` / `edit-panel` / `bottom-panel`；两处测试隔离修复（设置 store 会从 `localStorage` 还原偏好，而 runner 共享一个进程，故 `EditorLayout` 与 `use-panel-hotkeys` 两个 spec 各自清理存储）。
 - 文档对齐：设计文档 §11.1 的 Q21 改为裁决记录、§12.1 补「Q21 单一机制」与「Q4 窄栏浮层未实现」；progress.md 记录同一条裁决。
 - 复验：`pnpm typecheck` 0 错、`pnpm test` 1028/1028、`pnpm build` 4/4、e2e 55/55。
+
+## 落地审计（2026-10-28，逐 Task 核对代码）
+
+对照本计划的每个编号条目核对实现（`git log` + 源码 + 测试）。验收门仍全绿：`pnpm typecheck` 五段 0 错、`pnpm test` 1028/1028、`pnpm build` 4/4、e2e 55/55。下表只列与计划文字**不一致**的部分；未列的条目均已按原文落地。
+
+### Task 1 — 布局骨架与视图状态（完成，一处形态偏差）
+
+- 偏差：计划把 `panelLeft/panelRight`、`bottomPanel{state,height,activeTab}` 都写在 `stores/view-state.ts` 里；实际拆成三处——面板宽/收缩与底部高度进 `stores/settings.ts`（Q5 用户全局持久化），`activeTab` 留在 `stores/ui.ts`（会话态），只有显示态进 `diagram.viewState`（Q2 随图保存）。行为符合两条裁决，但计划文字未同步。
+- 未实现：底部区的 **max 三态**（`BottomPanel` 只有 collapsed/open）与「拖拽至 50% 视口」（`PANEL_BOTTOM_MAX_HEIGHT` 固定 400px）。
+
+### Task 2 — 左侧树型大纲（完成，三项未做）
+
+- 已实现：7 个类目（tables/relationships/areas/notes/views/enums/types，其中 `types` 即 CustomTypes，`diagram.types` 是 `CustomType[]`）、计数徽标、双层命名 + tooltip、过滤、排序（A–Z / 创建序）、虚拟滚动、双向联动（`OutlineTree.vue:92-121` 监听 ui 选中并 reveal）、重命名/删除右键菜单、表↔Area 拖拽 emit。
+- 未实现：①`Domains` 占位节点（core 无 domains 集合）；②右键菜单的**复制粘贴 / 移入 Area / 定位画布**（`OutlineTree.vue:161-184` 只有 rename 与 delete）；③Q4 的 36px 窄栏 + 类别图标浮层（§12.1 已记为未覆盖）。
+- 拖拽只发事件不落库，符合 Q11 裁决，非缺口。
+
+### Task 3 — 画布显示模式 × 双层视图（完成，一处违背 Q2）
+
+- 已实现：`render-model.ts` 按 viewLayer+toggles 派生、四模式=预设/custom 派生、Q15 隐藏物理侧独有对象、逻辑名缺失回退徽标、视图感知几何（`render-geometry.ts`）。
+- **违背 Q2（需修）**：每表覆盖只活在 `stores/toolbar-scope.ts:57` 的 `ref<Record<string, Partial<ViewStateToggles>>>` 里——既不进 `diagram.viewState`，core 的 `ViewState` 也没有 overrides 字段，刷新即丢。计划要求「结果存于每表视图覆盖 + 全局默认（视图状态，随图保存）」。
+- 未实现：逻辑视图下「新建入口禁用」只在旧 SidePanel 内成立，新布局已无对应入口（见下方回归项）。
+
+### Task 4 — 顶部工具栏（**部分完成：三组缺失**）
+
+- 已实现六组：`displayMode`、`viewToggles`、`viewLayer`、`zoom`、`undoRedo`、`file`（`Toolbar.vue:38-52`，`ToolbarGroupId` 也只有这六个）；范围指示器、tooltip、置灰规则、Undo/Redo 带命令描述均有测试（15 例）。
+- 未实现：①**布局组**（Grid/Flow/Auto、>50 表确认、跳过锁定表）；②**对齐组**（6 对齐 + 2 分布、<2/<3 置灰）；③**配置组**（DSM 入口 + 首选项占位）；④缩放组的 **Fit / 缩放到选中 / 100% / 百分比可输入**（`ToolbarZoom.vue` 只有 ±、百分比标签、FullScreen）；⑤文件组的 **SaveAs / Import / Export**（只有 new/open/save，导入导出仍只在菜单里）。
+
+### Task 5 — 右侧编辑面板（**部分完成：分组与联动不全**）
+
+- 已实现：成对五列行（逻辑名/逻辑类型族域/物理列名/物理类型 combobox/状态），失焦提交，`fieldTypeSource="explicit"` 置位，`addFieldPair`/`removeFieldPair` 跨层原子，多选表的 Q12 原子批量 + 行内红字，分组折叠按 `kind:group` 记忆，`resolveType` 派生建议，39 例测试（24 派生 + 15 组件）。
+- 未实现：①**约束组 / 索引组 / 外观组**（`EditPanel.vue:108-126` 只有 basics + fields 两组）；②**图表级兜底面板**（无选中时是 `empty` 占位「Select a table…」，计划要求图表级属性兜底）；③**单字段详情**（现为定位到表编辑器的行高亮，未做字段级面板）；④**多选异类**（`edit-panel-model.ts:42` 直接落到 `empty` + reason `mixed`，计划要求通用属性 + 计数）；⑤**Q19 来源徽标**（`FieldPairRow.vue` 无 explicit/mapped/imported 徽标）；⑥总览条不可点击跳诊断、**R15 整表折叠物理列**未做。
+
+### Task 6 — 底部可伸缩区（**部分完成：告警功能薄**）
+
+- 已实现：28px 标题条/展开、拖拽 120–400、双击恢复 168、持久化、Alerts/History/Trace 四个 tab（Trace 仅 devMode，Q14）、双通道合并（`useIssues` + `lintDialect` 现算）、error 红徽标 + 一次性 toast（Q9）、告警点击定位（无目标时置灰）。
+- 未实现：①**级别过滤**；②**fixable 一键应用建议**（应用后置 explicit，§6.5）；③**日志 Tab**（`log` 仍是 `PlaceholderTab`，导入导出/保存事件未产生）；④**Trace 的 perf 计数**（同为占位）；⑤**每 Tab 1000 条上限 + 复制/导出/清空**；⑥max 态与 50% 视口上限（同 Task 1）。
+
+### Task 7 — 可配置 + i18n + 收尾（完成）
+
+- 已完成：`types/sdk-options.ts` 的 `outline/editPanel/bottomPanel/toolbar{groups}` + `onOpenDsm`；108 key × 51 locale（含补齐的 `type_param.*`）；`MIN_ZOOM 0.1 / MAX_ZOOM 4`；e2e 四条关键路径（`e2e/p5-redesign.spec.ts:59/79/108/137`）；百表 60fps 实测；文档三处更新。
+
+### 计划外的功能回归（需决定是否补）
+
+树替换了旧 `SidePanel`，而**创建 View / Enum / Type 的入口原本只在那几个 tab 里**（`SidePanel/ViewsTab.vue`、`EnumsTab.vue`、`TypesTab.vue`、`CustomTypesTab.vue` 已不再挂载）。结果：新界面里这三类对象**只可浏览、改名、删除，无法新建**（`stores/side-panel-actions.ts:52-60` 的 `addView/addEnum/addType` 没有调用方）。计划 Task 3 只写了「逻辑视图隐藏 + 新建入口禁用」，未处理「物理视图下这些入口去哪」。
