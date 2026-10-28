@@ -16,6 +16,7 @@ import {
 } from "@drawdb/core";
 import { useDiagramStore } from "../stores/diagram.ts";
 import { useHistoryStore } from "../stores/history.ts";
+import { useUIStore } from "../stores/ui.ts";
 import { useViewStateStore } from "../stores/view-state.ts";
 
 function freshStores() {
@@ -87,5 +88,16 @@ describe("view-state store", () => {
     diagram.setDiagram(reloaded);
     assert.equal(viewState.viewLayer, "logical");
     assert.equal(viewState.displayMode, "all");
+  });
+
+  it("lets the legacy ui store drive the layer the canvas renders", () => {
+    const { viewState } = freshStores();
+    const ui = useUIStore();
+    ui.setViewMode("logical");
+    assert.equal(viewState.viewLayer, "logical");
+    assert.equal(ui.viewMode, "logical");
+    ui.toggleViewMode();
+    assert.equal(viewState.viewLayer, "physical");
+    assert.equal(ui.viewMode, "physical");
   });
 });

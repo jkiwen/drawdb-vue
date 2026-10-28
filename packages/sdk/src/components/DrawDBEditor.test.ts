@@ -8,6 +8,7 @@ import DrawDBEditor from "./DrawDBEditor.vue";
 import { useDiagramStore } from "../stores/diagram.ts";
 import { useUIStore } from "../stores/ui.ts";
 import { useSaveStore } from "../stores/save.ts";
+import { useViewStateStore } from "../stores/view-state.ts";
 import { MemoryStorageAdapter } from "@drawdb/core";
 import type { Diagram } from "@drawdb/core";
 import { getLocale } from "../i18n/index.ts";
@@ -220,11 +221,17 @@ describe("DrawDBEditor", () => {
     assert.equal(useDiagramStore().diagram.database, "postgres");
   });
 
-  it("toggles the side panel of the editor", async () => {
-    const wrapper = mountEditor();
+  it("toggles the side panel of the editor", async () => {    const wrapper = mountEditor();
     assert.equal(useUIStore().sidebarOpen, true);
     useUIStore().toggleSidebar(false);
     await nextTick();
     assert.ok(!wrapper.find('[data-testid="outline-tree"]').exists());
+  });
+
+  it("follows the viewMode prop", async () => {
+    const wrapper = mountEditor({ viewMode: "logical" });
+    assert.equal(useViewStateStore().viewLayer, "logical");
+    await wrapper.setProps({ viewMode: "physical" });
+    assert.equal(useViewStateStore().viewLayer, "physical");
   });
 });

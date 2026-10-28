@@ -7,6 +7,7 @@ import type {
   SelectionBox,
 } from "../components/Canvas/interactions/interaction-state.ts";
 import { useFocusIssue } from "./selection-actions.ts";
+import { useViewStateStore } from "./view-state.ts";
 
 export type UiTab =
   | "tables"
@@ -70,7 +71,12 @@ export const useUIStore = defineStore("ui", () => {
   const snapToGrid = ref(true);
   const showMinimap = ref(false);
   const searchTerm = ref("");
-  const viewMode = ref<ViewMode>("physical");
+  /**
+   * The layer the canvas renders: the view-state store owns it (it is document
+   * data, section 9.2), this store only mirrors it for the older surface (the
+   * menu entry and the `viewMode` prop of the editor).
+   */
+  const viewMode = computed<ViewMode>(() => useViewStateStore().viewLayer);
   const contextMenu = ref<ContextMenuState | null>(null);
   const isFullscreen = ref(false);
   // The one-time toast of the bottom panel (ruling Q9: new errors never
@@ -213,14 +219,13 @@ export const useUIStore = defineStore("ui", () => {
 
   /** Switches between the physical and the logical view. */
   function setViewMode(mode: ViewMode): void {
-    viewMode.value = mode;
+    useViewStateStore().setViewLayer(mode);
   }
 
   /** Switches to the other view mode. */
   function toggleViewMode(): void {
-    viewMode.value = viewMode.value === "physical" ? "logical" : "physical";
+    setViewMode(viewMode.value === "physical" ? "logical" : "physical");
   }
-
   function openContextMenu(state: ContextMenuState): void {
     contextMenu.value = state;
   }
@@ -258,9 +263,7 @@ export const useUIStore = defineStore("ui", () => {
     selectedNoteIds,
     selectedAreaIds,
     selectedFields,
-    zoom,
-    scrollX,
-    scrollY,
+    zoom, scrollX, scrollY,
     activeTab,
     sidebarOpen,
     showGrid,
@@ -284,8 +287,7 @@ export const useUIStore = defineStore("ui", () => {
     toggleSnapToGrid,
     toggleMinimap,
     setSearchTerm,
-    setViewMode,
-    toggleViewMode,
+    setViewMode, toggleViewMode,
     openContextMenu,
     closeContextMenu,
     setFullscreen,
