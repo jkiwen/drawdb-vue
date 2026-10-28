@@ -137,3 +137,10 @@
 - **验证**：`pnpm typecheck` 五段全绿（core / sdk / app / examples / e2e）；`pnpm test` 1026/1026；`pnpm build` 4/4（需 `NODE_OPTIONS=--max-old-space-size=8192`）；e2e 55/55；百表平移实测 60 fps（179 帧，最差帧 19 ms，探针脚本跑完即删）。
 - **新发现并修复的缺陷**：`View ▸ Toggle view mode` 与 `viewMode` prop 此前只切 `ui.viewMode`，而画布读 `viewState.viewLayer`（真 bug）；现由 ui store 镜像文档视图状态，并补 2 条单测。另有左侧面板两条隐藏路径语义不一致（菜单卸载 / mod+b 收起），记为 UI 文档 §11.1 Q21 待裁决。
 - **团队编排**：Task 1c/2/3/4/5/6 由 6 个 spawn 队友并行交付；e2e 现代化与 8 批 locale 翻译由 subagent 完成；每份交付均由 lead 亲自复跑该范围测试与 `tsc` 后才提交。
+
+## 后续修订（2026-10-28，评审后）
+
+- **Q21 裁决为「统一收起」并落地**（`d65bb3d`）：`settings.panelLeftCollapsed` 成为隐藏左栏的唯一状态源，`ui.sidebarOpen` 改为它的 computed 镜像，`ui.toggleSidebar()` 写回设置，`showSidePanel` 不再卸载面板。View 菜单、Header 按钮、`mod+b` 三条入口因此一致，树在收起期间保留状态。
+- 连带修正：`scripts/verify-artifacts.test.ts` 的产物渲染断言从已退役的 `side-panel` 改为 `outline-tree` / `edit-panel` / `bottom-panel`；两处测试隔离修复（设置 store 会从 `localStorage` 还原偏好，而 runner 共享一个进程，故 `EditorLayout` 与 `use-panel-hotkeys` 两个 spec 各自清理存储）。
+- 文档对齐：设计文档 §11.1 的 Q21 改为裁决记录、§12.1 补「Q21 单一机制」与「Q4 窄栏浮层未实现」；progress.md 记录同一条裁决。
+- 复验：`pnpm typecheck` 0 错、`pnpm test` 1028/1028、`pnpm build` 4/4、e2e 55/55。

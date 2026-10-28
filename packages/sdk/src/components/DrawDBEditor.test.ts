@@ -9,6 +9,7 @@ import { useDiagramStore } from "../stores/diagram.ts";
 import { useUIStore } from "../stores/ui.ts";
 import { useSaveStore } from "../stores/save.ts";
 import { useViewStateStore } from "../stores/view-state.ts";
+import { useSettingsStore } from "../stores/settings.ts";
 import { MemoryStorageAdapter } from "@drawdb/core";
 import type { Diagram } from "@drawdb/core";
 import { getLocale } from "../i18n/index.ts";
@@ -221,11 +222,27 @@ describe("DrawDBEditor", () => {
     assert.equal(useDiagramStore().diagram.database, "postgres");
   });
 
-  it("toggles the side panel of the editor", async () => {    const wrapper = mountEditor();
+  it("collapses the side panel instead of unmounting it (Q21)", async () => {
+    const wrapper = mountEditor();
     assert.equal(useUIStore().sidebarOpen, true);
+
     useUIStore().toggleSidebar(false);
     await nextTick();
-    assert.ok(!wrapper.find('[data-testid="outline-tree"]').exists());
+
+    const panel = wrapper.find('[data-side="left"]');
+    assert.ok(panel.exists(), "the panel stays in the layout");
+    assert.equal(panel.attributes("aria-hidden"), "true");
+    assert.equal(useSettingsStore().settings.panelLeftCollapsed, true);
+    assert.equal(
+      wrapper.find('[data-testid="outline-tree"]').exists(),
+      true,
+      "the outline keeps its state while the panel is collapsed",
+    );
+
+    // The preference is persisted, so the test restores it for the specs that
+    // share this process.
+    useUIStore().toggleSidebar(true);
+    assert.equal(useSettingsStore().settings.panelLeftCollapsed, false);
   });
 
   it("follows the viewMode prop", async () => {

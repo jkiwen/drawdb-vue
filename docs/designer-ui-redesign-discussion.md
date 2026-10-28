@@ -500,9 +500,9 @@ Tab 分组：**告警（Alerts）/ 日志（Logs）/ Trace / 操作日志（Acti
 
 ### 11.1 P5 实施中新提出的问题
 
-| 编号 | 问题 | 现状 | 待讨论 |
+| 编号 | 问题 | 现状 | 裁决 / 落地 |
 |---|---|---|---|
-| Q21 | 左侧面板「隐藏」有两个入口，语义不一致 | View 菜单「Toggle side panel」走 `ui.sidebarOpen`，卸载大纲树；`mod+b` 走 `settings.panelLeftCollapsed`，收起为窄条但保留挂载与状态 | 建议统一为「收起」（保留状态、可互逆恢复），菜单项文案随之改为「收起侧栏」；需确认卸载行为是否有保留价值（例如释放 100+ 表的虚拟列表开销） |
+| Q21 | 左侧面板「隐藏」有两个入口，语义不一致 | View 菜单「Toggle side panel」走 `ui.sidebarOpen` 卸载大纲树；`mod+b` 走 `settings.panelLeftCollapsed` 收起但保留挂载与状态 | **裁决：统一为「收起」**（2026-10-28）。`settings.panelLeftCollapsed` 成为唯一状态源，`ui.sidebarOpen` 改为它的镜像（读），`ui.toggleSidebar()` 写回设置；菜单项、Header 按钮、`mod+b` 三条入口因此同步。`showSidePanel` 不再随 `sidebarOpen` 卸载面板，树在收起期间保留状态，恢复即可逆。命令名暂保留 `Toggle side panel`（文案随 P6 首选项/菜单整理一并调整）。
 
 ---
 
@@ -523,7 +523,7 @@ Tab 分组：**告警（Alerts）/ 日志（Logs）/ Trace / 操作日志（Acti
 
 | 本文档 | 落地位置（`packages/sdk/src/`） |
 |---|---|
-| §2 布局骨架、§5 面板收缩/展开、Q5 尺寸持久化 | `components/EditorLayout.vue`、`components/Layout/ResizablePanel.vue`、`composables/use-panel-hotkeys.ts`（mod+b / mod+alt+b / mod+\`）、`stores/settings.ts` |
+| §2 布局骨架、§5 面板收缩/展开、Q5 尺寸持久化、Q21 单一隐藏机制 | `components/EditorLayout.vue`、`components/Layout/ResizablePanel.vue`、`composables/use-panel-hotkeys.ts`（mod+b / mod+alt+b / mod+\`）、`stores/settings.ts`（`panelLeftCollapsed` 为唯一状态源，`ui.sidebarOpen` 是它的镜像） |
 | §3 树型大纲、Q11 拖拽、§3.1 双层命名 | `components/Outline/`（`OutlineTree.vue`、`outline-nodes.ts`、`outline-model.ts`、`outline-actions.ts`） |
 | §6.1 四显示模式 × 双层、§6.4 逻辑/物理切换 | `components/Canvas/render-model.ts`、`render-geometry.ts`、`stores/view-state.ts`、core `models/view-state.ts`（随图保存，Q2） |
 | §6 九组工具栏（Q1 范围自动判定 + 常驻指示器、Q20 逐项开关为状态源） | `components/Toolbar/`、`stores/toolbar-scope.ts`（选中表/Area 范围只影响选中表，无选中写全局） |
@@ -538,3 +538,4 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 - §6.6 图工具中的 Print / PrintPreview（Q8 裁决为内嵌分页预览 + 浏览器打印，P5 未实现）、文件组仅发出 `file:new/open/save` 事件由宿主接。
 - Q3 对象级隐藏（本期不引入）、§6.5 对齐工具与 §6.3 布局工具（Grid/Flow/Auto Flow + Q6 位置锁定属性）——P5 计划明确排除。
 - 树节点拖拽的落库行为（Q11 表↔Area）：P5 只发出事件并把表移入区域几何范围，属性级落库留待 Area 成员模型定案。
+- §2 描述的「收缩后保留约 36px 窄边栏 + 类别图标浮层速览」（Q4）尚未实现：当前收起是宽度归零 + 边缘 chevron 按钮，没有类别图标也没有浮层。Q4 的裁决保留，实现留待 P6 与首选项一起做。

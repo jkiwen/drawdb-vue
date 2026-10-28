@@ -7,6 +7,7 @@ import type {
   SelectionBox,
 } from "../components/Canvas/interactions/interaction-state.ts";
 import { useFocusIssue } from "./selection-actions.ts";
+import { useSettingsStore } from "./settings.ts";
 import { useViewStateStore } from "./view-state.ts";
 
 export type UiTab =
@@ -66,16 +67,13 @@ export const useUIStore = defineStore("ui", () => {
   const scrollY = ref(0);
 
   const activeTab = ref<UiTab>("tables");
-  const sidebarOpen = ref(true);
+  // Q21: the panel collapse is the only mechanism, this flag mirrors it.
+  const sidebarOpen = computed(() => !useSettingsStore().settings.panelLeftCollapsed);
   const showGrid = ref(true);
   const snapToGrid = ref(true);
   const showMinimap = ref(false);
   const searchTerm = ref("");
-  /**
-   * The layer the canvas renders: the view-state store owns it (it is document
-   * data, section 9.2), this store only mirrors it for the older surface (the
-   * menu entry and the `viewMode` prop of the editor).
-   */
+  // The layer lives in the document (section 9.2); this mirrors it.
   const viewMode = computed<ViewMode>(() => useViewStateStore().viewLayer);
   const contextMenu = ref<ContextMenuState | null>(null);
   const isFullscreen = ref(false);
@@ -197,8 +195,10 @@ export const useUIStore = defineStore("ui", () => {
     activeTab.value = tab;
   }
 
+  /** Shows or collapses the left panel (ruling Q21: one mechanism only). */
   function toggleSidebar(value?: boolean): void {
-    sidebarOpen.value = value ?? !sidebarOpen.value;
+    const wanted = value ?? !sidebarOpen.value;
+    useSettingsStore().update({ panelLeftCollapsed: !wanted });
   }
 
   function toggleGrid(value?: boolean): void {

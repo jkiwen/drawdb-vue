@@ -232,15 +232,26 @@ test.describe("the editor", () => {
     await expect(page.getByTestId("auto-relationships-dialog")).toBeVisible();
   });
 
-  test("hides the outline from the menu", async ({ page }) => {
+  test("collapses the outline from the menu (Q21)", async ({ page }) => {
     await openEditor(page, "editor-menu-sidebar");
 
+    const panel = page.locator('[data-side="left"]');
     await expect(page.getByTestId("outline-tree")).toBeVisible();
+    await expect(panel).not.toHaveAttribute("aria-hidden", "true");
 
     await page.getByTestId("menu-view").click();
     await page.getByText("Toggle side panel").click();
 
-    await expect(page.getByTestId("outline-tree")).toBeHidden();
+    // Ruling Q21: one mechanism hides the left panel, the collapse, so the
+    // tree keeps its state instead of unmounting.
+    await expect(panel).toHaveAttribute("aria-hidden", "true");
+    await expect(
+      panel.getByTestId("panel-collapse-toggle"),
+    ).toHaveAttribute("aria-expanded", "false");
+
+    await page.getByTestId("menu-view").click();
+    await page.getByText("Toggle side panel").click();
+    await expect(page.getByTestId("outline-tree")).toBeVisible();
   });
 
   test("changes the database of the diagram", async ({ page }) => {

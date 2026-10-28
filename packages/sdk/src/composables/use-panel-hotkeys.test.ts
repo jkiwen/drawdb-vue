@@ -4,7 +4,7 @@
  * shared hotkey registry through a window keydown listener.
  */
 import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, it, beforeEach } from "node:test";
 import { createPinia, setActivePinia } from "pinia";
 import { useSettingsStore } from "../stores/settings.ts";
 import { usePanelHotkeys } from "./use-panel-hotkeys.ts";
@@ -19,6 +19,12 @@ function keydown(
 }
 
 describe("use-panel-hotkeys", () => {
+  // The settings store restores persisted preferences, and the runner shares
+  // one process (and one localStorage) between the specs.
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it("toggles the left panel with mod+b", () => {
     setActivePinia(createPinia());
     const settings = useSettingsStore();

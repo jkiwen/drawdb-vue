@@ -51,6 +51,8 @@ describe("EditorLayout", () => {
 
   afterEach(() => {
     dropMatchMedia();
+    // The specs share one process, so a persisted preference would leak.
+    localStorage.clear();
   });
 
   function mountLayout(props: Record<string, unknown> = {}) {

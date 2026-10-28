@@ -117,7 +117,9 @@ const saveStore = useSaveStore();
 const dialogs = useDialogStore();
 
 const theme = computed(() => (props.theme === "dark" ? darkTheme : lightTheme));
-const showSidePanel = computed(() => !props.readonly && uiStore.sidebarOpen);
+// Ruling Q21: hiding the left panel is the collapse of the layout panel, so
+// the panel stays mounted here and keeps the state of the outline tree.
+const showSidePanel = computed(() => !props.readonly);
 
 const plugins = useEditorPlugins({
   plugins: () => props.plugins,
