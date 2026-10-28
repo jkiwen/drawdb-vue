@@ -200,3 +200,29 @@ test("overrideFor returns the override of one table and reset clears them", () =
   scope.resetOverrides();
   assert.deepEqual(scope.overrides, {});
 });
+
+// —— Ruling Q2: the overrides are document data and travel with the diagram ——
+
+test("a scoped write lands in the view state of the document", () => {
+  const { diagram, ui } = setup();
+  diagram.addTable(makeTable("t1"));
+  ui.selectTable("t1");
+
+  useToolbarScopeStore().setScopedToggle("description", true);
+
+  assert.deepEqual(diagram.diagram.viewState?.overrides, {
+    t1: { description: true },
+  });
+});
+
+test("resetOverrides clears the overrides of the document", () => {
+  const { diagram, ui, scope } = setup();
+  diagram.addTable(makeTable("t1"));
+  ui.selectTable("t1");
+  scope.setScopedToggle("description", true);
+
+  scope.resetOverrides();
+
+  assert.deepEqual(diagram.diagram.viewState?.overrides, {});
+  assert.deepEqual(scope.overrides, {});
+});

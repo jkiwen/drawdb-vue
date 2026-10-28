@@ -8,7 +8,7 @@
  * model through the `TableRenderOptions.overrides` hook. A change without a
  * selection lands in the view-state store like before.
  */
-import { computed, ref } from "vue";
+import { computed } from "vue";
 import { defineStore } from "pinia";
 import {
   togglesForDisplayMode,
@@ -53,8 +53,13 @@ export const useToolbarScopeStore = defineStore("toolbar-scope", () => {
   const ui = useUIStore();
   const viewState = useViewStateStore();
 
-  /** Per-table overrides of the view toggles, keyed by table id. */
-  const overrides = ref<Record<string, Partial<ViewStateToggles>>>({});
+  /**
+   * The per-table overrides of the view toggles, keyed by table id. They live
+   * in the view state of the document (ruling Q2), so a reload keeps them.
+   */
+  const overrides = computed<Record<string, Partial<ViewStateToggles>>>(
+    () => diagramStore.diagram.viewState?.overrides ?? {},
+  );
 
   const scopeTableIds = computed(() =>
     resolveToolbarScope(
@@ -75,9 +80,13 @@ export const useToolbarScopeStore = defineStore("toolbar-scope", () => {
   const scopeCount = computed(() => scopeTableIds.value.length);
 
   function writeScoped(partial: Partial<ViewStateToggles>): void {
+    const next: Record<string, Partial<ViewStateToggles>> = {
+      ...overrides.value,
+    };
     for (const id of scopeTableIds.value) {
-      overrides.value[id] = { ...overrides.value[id], ...partial };
+      next[id] = { ...next[id], ...partial };
     }
+    diagramStore.updateViewState({ overrides: next });
   }
 
   function setScopedToggle(
@@ -106,7 +115,7 @@ export const useToolbarScopeStore = defineStore("toolbar-scope", () => {
   }
 
   function resetOverrides(): void {
-    overrides.value = {};
+    diagramStore.updateViewState({ overrides: {} });
   }
 
   return {

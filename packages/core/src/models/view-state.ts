@@ -35,6 +35,12 @@ export interface ViewState {
   /** The active display mode, or "custom" for a manual toggle mix. */
   displayMode: DisplayMode;
   toggles: ViewStateToggles;
+  /**
+   * The per-table display overrides, keyed by table id (design 6.0, ruling
+   * Q2). The toolbar writes them when a selection scopes a change; they are
+   * document data, so they travel with the diagram.
+   */
+  overrides: Record<string, Partial<ViewStateToggles>>;
 }
 
 /** The preset toggle combinations of the four display modes. */
@@ -90,7 +96,41 @@ export function createDefaultViewState(): ViewState {
     viewLayer: "physical",
     displayMode: "attributes",
     toggles: togglesForDisplayMode("attributes"),
+    overrides: {},
   };
+}
+
+const TOGGLE_KEYS: readonly (keyof ViewStateToggles)[] = [
+  "description",
+  "fields",
+  "pkUkFk",
+  "indexes",
+];
+
+/**
+ * Reads the per-table overrides from an untrusted value: entries that are
+ * not objects are dropped, unknown keys are dropped, and an entry that ends
+ * up empty is dropped as well.
+ */
+export function normalizeViewOverrides(
+  value: unknown,
+): Record<string, Partial<ViewStateToggles>> {
+  const overrides: Record<string, Partial<ViewStateToggles>> = {};
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return overrides;
+  }
+  for (const [tableId, entry] of Object.entries(value as Record<string, unknown>)) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+    const record = entry as Record<string, unknown>;
+    const partial: Partial<ViewStateToggles> = {};
+    for (const key of TOGGLE_KEYS) {
+      if (typeof record[key] === "boolean") {
+        partial[key] = record[key] as boolean;
+      }
+    }
+    if (Object.keys(partial).length > 0) overrides[tableId] = partial;
+  }
+  return overrides;
 }
 
 const VIEW_LAYERS: readonly ViewLayer[] = ["logical", "physical"];
@@ -142,5 +182,6 @@ export function normalizeViewState(value: unknown): ViewState {
           ? toggles.indexes
           : defaults.toggles.indexes,
     },
+    overrides: normalizeViewOverrides(record.overrides),
   };
 }

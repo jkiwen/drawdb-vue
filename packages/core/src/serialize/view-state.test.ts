@@ -71,6 +71,7 @@ describe("view state serialization", () => {
       viewLayer: "logical",
       displayMode: "custom",
       toggles: { description: true, fields: true, pkUkFk: true, indexes: false },
+      overrides: {},
     };
     const restored = importDiagramJson(exportDiagramJson(diagram));
     assert.deepEqual(restored.viewState, diagram.viewState);
@@ -199,5 +200,49 @@ describe("logical relationships serialization", () => {
     ];
     const restored = importDiagramJson(exportDiagramJson(diagram));
     assert.deepEqual(restored.logicalRelationships, diagram.logicalRelationships);
+  });
+});
+
+describe("per-table view overrides", () => {
+  it("a new diagram starts without overrides", () => {
+    assert.deepEqual(createEmptyDiagram().viewState?.overrides, {});
+  });
+
+  it("round trips the per-table overrides", () => {
+    const diagram = createEmptyDiagram();
+    diagram.viewState = {
+      ...createDefaultViewState(),
+      overrides: { t1: { fields: false }, t2: { description: true, pkUkFk: true } },
+    };
+    const restored = importDiagramJson(exportDiagramJson(diagram));
+    assert.deepEqual(restored.viewState?.overrides, diagram.viewState.overrides);
+  });
+
+  it("normalizes unknown override entries away", () => {
+    const document = JSON.stringify({
+      database: "postgres",
+      tables: [],
+      relationships: [],
+      notes: [],
+      subjectAreas: [],
+      types: [],
+      enums: [],
+      views: [],
+      viewState: {
+        viewLayer: "physical",
+        displayMode: "attributes",
+        overrides: {
+          t1: { fields: true, bogus: 1, description: "yes" },
+          t2: "nope",
+          t3: {},
+          t4: { indexes: false },
+        },
+      },
+    });
+    const restored = importDiagramJson(document);
+    assert.deepEqual(restored.viewState?.overrides, {
+      t1: { fields: true },
+      t4: { indexes: false },
+    });
   });
 });
