@@ -1,0 +1,73 @@
+/**
+ * The styles of the log tab of the bottom panel (design section 8.3).
+ *
+ * The log tab mirrors the command stack as plain read-only lines: the
+ * toolbar above the list holds the clear action, the list itself scrolls.
+ */
+
+.tabBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden auto;
+  padding: var(--ddb-space-2, 8px);
+}
+
+.empty {
+  margin: 0;
+  color: var(--ddb-text-muted, #57606a);
+  font-size: var(--ddb-text-meta, 12px);
+}
+
+/* The clear action above the log lines. */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--ddb-space-1, 4px);
+  margin-bottom: var(--ddb-space-2, 8px);
+}
+
+.action {
+  padding: 2px var(--ddb-space-2, 8px);
+  border: 1px solid var(--ddb-border, #d0d7de);
+  border-radius: var(--ddb-radius-md, 6px);
+  background: transparent;
+  color: var(--ddb-text, #1f2328);
+  font: inherit;
+  font-size: var(--ddb-text-meta, 12px);
+  cursor: pointer;
+}
+
+.action:hover:not(:disabled) {
+  background: var(--ddb-surface-hover, #f3f4f6);
+}
+
+.action:disabled {
+  color: var(--ddb-text-muted, #57606a);
+  cursor: not-allowed;
+}
+
+/* The read-only command lines, newest first. */
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.entry {
+  padding: 2px var(--ddb-space-1, 4px);
+  border-radius: var(--ddb-radius-sm, 4px);
+  color: var(--ddb-text, #1f2328);
+  font-size: var(--ddb-text-meta, 12px);
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entry:hover {
+  background: var(--ddb-surface-hover, #f3f4f6);
+}

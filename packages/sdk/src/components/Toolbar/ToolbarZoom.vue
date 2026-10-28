@@ -1,28 +1,44 @@
 <script setup lang="ts">
 /**
- * The zoom and the full screen (design 6.6). The zoom steps stay inside the
- * bounds of the ui store and the buttons grey at the edges; the full screen
- * probes the Fullscreen API and greys with the reason when it is missing
- * (an iframe without `allowfullscreen`, for example).
+ * The zoom group (design 6.6): step out and in, a percent field, fit the
+ * diagram, fit the selection, back to 100%, and the full screen. The zoom
+ * steps stay inside the bounds of the ui store and grey at the edges; the
+ * full screen probes the Fullscreen API and greys with the reason when it is
+ * missing (an iframe without `allowfullscreen`, for example).
  */
-import { computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useFullscreen } from "../../composables/use-fullscreen.ts";
+import { useZoomActions } from "../../composables/use-zoom-actions.ts";
 import { t } from "../../i18n/index.ts";
-import {
-  MAX_ZOOM,
-  MIN_ZOOM,
-  useUIStore,
-} from "../../stores/ui.ts";
+import { MAX_ZOOM, MIN_ZOOM, useUIStore } from "../../stores/ui.ts";
 import ToolbarButton from "./ToolbarButton.vue";
 import classes from "./toolbar.module.css";
 
 const ui = useUIStore();
 const fullscreen = useFullscreen();
+const zoomActions = useZoomActions();
 
 // Keep the ui store in sync, so the canvas can react to the full screen too.
 watch(fullscreen.isFullscreen, (value) => ui.setFullscreen(value));
 
-const zoomLabel = computed(() => `${Math.round(ui.zoom * 100)}%`);
+const percent = computed(() => Math.round(ui.zoom * 100));
+
+/** The draft of the percent field while the user types. */
+const draft = ref(String(percent.value));
+
+// Follow the store whenever the zoom changes from elsewhere (wheel, buttons).
+watch(percent, (value) => {
+  draft.value = String(value);
+});
+
+/** Applies the typed percentage; a broken value snaps back to the store. */
+function commit(): void {
+  const value = Number.parseInt(draft.value.replace("%", ""), 10);
+  if (Number.isFinite(value)) {
+    zoomActions.zoomToPercent(value);
+  }
+  draft.value = String(percent.value);
+}
 
 const fullscreenSupported =
   typeof document !== "undefined" &&
@@ -31,6 +47,8 @@ const fullscreenSupported =
 const fullscreenTitle = computed(() =>
   t(fullscreenSupported ? "fullscreen_enter" : "fullscreen_unsupported"),
 );
+
+const hasSelection = computed(() => ui.selectedTableIds.length > 0);
 </script>
 
 <template>
@@ -42,13 +60,42 @@ const fullscreenTitle = computed(() =>
       :disabled="ui.zoom <= MIN_ZOOM"
       @click="ui.zoomOut()"
     />
-    <span :class="classes.zoomLabel" data-testid="toolbar-zoom-label">{{ zoomLabel }}</span>
+    <input
+      v-model="draft"
+      :class="classes.zoomInput"
+      :aria-label="t('zoom_percent')"
+      data-testid="toolbar-zoom-input"
+      inputmode="numeric"
+      @change="commit"
+      @blur="commit"
+      @keydown.enter="commit"
+    />
     <ToolbarButton
       icon="zoom-in"
       :title="t('zoom_in_title')"
       testid="toolbar-zoom-in"
       :disabled="ui.zoom >= MAX_ZOOM"
       @click="ui.zoomIn()"
+    />
+    <ToolbarButton
+      icon="zoom-fit"
+      :title="t('zoom_fit')"
+      testid="toolbar-zoom-fit"
+      @click="zoomActions.fitToContent()"
+    />
+    <ToolbarButton
+      icon="zoom-selection"
+      :title="t('zoom_selection')"
+      testid="toolbar-zoom-selection"
+      :disabled="!hasSelection"
+      @click="zoomActions.fitToSelection()"
+    />
+    <ToolbarButton
+      icon="zoom-reset"
+      :title="t('zoom_reset')"
+      testid="toolbar-zoom-reset"
+      :disabled="ui.zoom === 1"
+      @click="ui.resetView()"
     />
     <ToolbarButton
       icon="fullscreen"

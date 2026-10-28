@@ -1,4 +1,5 @@
 import { computed } from "vue";
+import type { PhysicalSpec } from "@drawdb/core";
 import type { LocalizedIssue } from "../../composables/use-issues.ts";
 import { useIssues } from "../../composables/use-issues.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
@@ -18,6 +19,11 @@ export type AlertSource = "diagram" | "dialect";
  * list of the dialect lint. Both are recomputed from the diagram on every
  * edit and never stored; the alert carries the ids of the object it is
  * about, so a click can select and scroll to it.
+ *
+ * A dialect diagnostic may carry a suggested physical specification; an
+ * alert with `fixable` shows a button that applies it through the command
+ * path of the diagram store (ruling 6.5: the fix is an explicit user
+ * choice, so the field type source becomes explicit).
  */
 export interface AlertItem {
   id: string;
@@ -27,7 +33,14 @@ export interface AlertItem {
   label: string;
   /** The object the alert is about; null when there is nothing to focus. */
   target: FocusIssueTarget | null;
+  /** Whether the alert carries a suggested fix the user can apply. */
+  fixable: boolean;
+  /** The suggested physical type of a fixable dialect alert. */
+  suggestion?: PhysicalSpec;
 }
+
+/** The number of alerts the panel keeps; older entries are dropped. */
+export const MAX_ALERTS = 1000;
 
 /** The display order of the severities: errors first. */
 const SEVERITY_RANK: Record<AlertItem["severity"], number> = {
@@ -79,6 +92,32 @@ function dialectTarget(
 }
 
 /**
+ * Deduplicates, caps and orders the merged alerts (plan Task 6 item 6).
+ *
+ * The incoming list is the newest-first generation order of the two
+ * channels; the first entry of a `(code, tableId, fieldId)` group wins, so
+ * a repeated diagnostic never piles up. The cap keeps the newest entries
+ * and drops the oldest. The display order is errors, warnings, info, and
+ * then the code, so the tab always reads the same way.
+ */
+export function mergeAlerts(items: AlertItem[]): AlertItem[] {
+  const seen = new Set<string>();
+  const unique: AlertItem[] = [];
+  for (const item of items) {
+    if (unique.length >= MAX_ALERTS) break;
+    const key = `${item.code}|${item.target?.tableId ?? ""}|${item.target?.fieldId ?? ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(item);
+  }
+  return unique.sort(
+    (a, b) =>
+      SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] ||
+      a.code.localeCompare(b.code),
+  );
+}
+
+/**
  * The alerts of the bottom panel, merged from both diagnostic channels.
  *
  * The list is derived from the diagram, so it changes with every edit; the
@@ -89,7 +128,9 @@ export function useAlerts(): {
   alerts: import("vue").ComputedRef<AlertItem[]>;
   errorCount: import("vue").ComputedRef<number>;
   warningCount: import("vue").ComputedRef<number>;
+  infoCount: import("vue").ComputedRef<number>;
   focus: (alert: AlertItem) => void;
+  applyFix: (alert: AlertItem) => void;
 } {
   const ui = useUIStore();
   const diagram = useDiagramStore();
@@ -108,6 +149,7 @@ export function useAlerts(): {
       code: issue.code,
       label: issue.label,
       target: issueTarget(issue),
+      fixable: false,
     }));
     for (const diagnostic of dialectDiagnostics.value) {
       const severity: DialectSeverity = diagnostic.severity;
@@ -118,13 +160,11 @@ export function useAlerts(): {
         code: diagnostic.code,
         label: diagnostic.message,
         target: dialectTarget(diagnostic),
+        fixable: diagnostic.fixable,
+        suggestion: diagnostic.suggestion,
       });
     }
-    return items.sort(
-      (a, b) =>
-        SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] ||
-        a.code.localeCompare(b.code),
-    );
+    return mergeAlerts(items);
   });
 
   const errorCount = computed(
@@ -132,6 +172,9 @@ export function useAlerts(): {
   );
   const warningCount = computed(
     () => alerts.value.filter((alert) => alert.severity === "warning").length,
+  );
+  const infoCount = computed(
+    () => alerts.value.filter((alert) => alert.severity === "info").length,
   );
 
   /** Selects and scrolls to the object the alert is about. */
@@ -141,5 +184,31 @@ export function useAlerts(): {
     }
   }
 
-  return { alerts, errorCount, warningCount, focus };
+  /**
+   * Applies the suggested physical type of a fixable alert (ruling 6.5).
+   *
+   * The writes go through the ordinary `updateField` command of the
+   * diagram store, so the fix is undoable and never mutates the diagram in
+   * place; it is not applied when the alert carries no suggestion or no
+   * field to write to.
+   */
+  function applyFix(alert: AlertItem): void {
+    const target = alert.target;
+    if (!alert.fixable || !alert.suggestion || !target?.tableId || !target.fieldId) {
+      return;
+    }
+    diagram.updateField(target.tableId, target.fieldId, {
+      fieldType: alert.suggestion,
+      fieldTypeSource: "explicit",
+    });
+  }
+
+  return {
+    alerts,
+    errorCount,
+    warningCount,
+    infoCount,
+    focus,
+    applyFix,
+  };
 }

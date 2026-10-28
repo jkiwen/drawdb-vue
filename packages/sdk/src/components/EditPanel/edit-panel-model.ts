@@ -11,6 +11,7 @@ import type {
   Table,
   TypeParamKey,
 } from "@drawdb/core";
+import type { MixedCounts } from "./edit-panel-groups.ts";
 import {
   DATABASE_TYPE_NAMES,
   buildAttributeIndex,
@@ -32,6 +33,9 @@ export interface SelectionSnapshot {
   fields: ReadonlyArray<{ tableId: string | number; fieldId: FieldId }>;
 }
 
+/** The composition of a selection that mixes object types (design 4.7). */
+export type { MixedCounts };
+
 /**
  * What the panel shows for the current selection (design discussion
  * section 4.1): nothing, one table, several tables, one relationship or
@@ -40,6 +44,8 @@ export interface SelectionSnapshot {
  */
 export type PanelTarget =
   | { kind: "empty"; reason: "none" | "mixed" | "note" }
+  | { kind: "diagram"; diagram: Diagram }
+  | { kind: "mixed"; counts: MixedCounts }
   | { kind: "table"; table: Table; focusFieldId?: FieldId }
   | { kind: "tables"; tables: Table[] }
   | {
@@ -69,7 +75,8 @@ export function resolvePanelTarget(
     noteIds.length +
     fields.length;
 
-  if (total === 0) return { kind: "empty", reason: "none" };
+  // Nothing selected: the panel edits the diagram itself (design 4.1).
+  if (total === 0) return { kind: "diagram", diagram };
 
   if (total > 1) {
     // The only multi selection the panel edits is a set of tables (Q12).
@@ -79,7 +86,16 @@ export function resolvePanelTarget(
         .filter((table): table is Table => table !== undefined);
       if (tables.length > 1) return { kind: "tables", tables };
     }
-    return { kind: "empty", reason: "mixed" };
+    return {
+      kind: "mixed",
+      counts: {
+        tables: tableIds.length,
+        relationships: relationshipIds.length,
+        areas: areaIds.length,
+        notes: noteIds.length,
+        fields: fields.length,
+      },
+    };
   }
 
   if (tableIds.length === 1) {

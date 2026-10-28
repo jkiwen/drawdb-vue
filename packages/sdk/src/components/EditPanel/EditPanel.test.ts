@@ -81,9 +81,9 @@ function table(diagram: ReturnType<typeof useDiagramStore>, id: string): Table {
 }
 
 describe("EditPanel selection states", () => {
-  it("shows the empty state with no selection", () => {
+  it("shows the diagram editor with no selection", () => {
     const { wrapper } = mountPanel();
-    assert.ok(wrapper.find('[data-testid="edit-panel-empty"]').exists());
+    assert.ok(wrapper.find('[data-testid="diagram-editor"]').exists());
   });
 
   it("shows the table editor for a selected table", async () => {

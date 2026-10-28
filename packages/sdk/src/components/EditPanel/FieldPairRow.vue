@@ -5,6 +5,7 @@ import type { DatabaseType, Table } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import styles from "./edit-panel.module.css";
 import type { FieldPairRow as RowModel } from "./edit-panel-model.ts";
+import { sourceKey } from "./edit-panel-groups.ts";
 import TypeCombobox from "./TypeCombobox.vue";
 
 /**
@@ -155,15 +156,19 @@ function commitType(spec: import("@drawdb/core").PhysicalSpec): void {
         {{ props.row.field?.fieldType.type ?? "—" }}
       </span>
     </template>
-    <span
-      v-if="badge"
-      :class="[styles.badge, badge.class]"
-      :title="divergedTitle"
-      data-testid="row-status"
-    >
-      {{ badge.text }}
+    <span :class="styles['status-cell']" data-testid="row-status">
+      <span v-if="badge" :class="[styles.badge, badge.class]" :title="divergedTitle">
+        {{ badge.text }}
+      </span>
+      <span
+        v-if="props.row.field"
+        :class="styles['badge-source']"
+        :title="t(sourceKey(props.row.field.fieldTypeSource))"
+        data-testid="source-badge"
+      >
+        {{ t(sourceKey(props.row.field.fieldTypeSource)) }}
+      </span>
     </span>
-    <span v-else :class="styles.badge" data-testid="row-status" />
     <button
       type="button"
       :class="styles['icon-button']"

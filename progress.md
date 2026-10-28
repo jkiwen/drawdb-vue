@@ -371,3 +371,54 @@ commands, so a create is undoable like any other document change and the tree
 expands to reveal the new row. Categories without a create entry keep the plain
 menu-less behaviour, and the logical view still hides all three categories per
 Q15, which also disables their creation there.
+
+### The second pass over the P5 chrome (2026-10-28)
+
+The audit of the delivered P5 work listed three gaps; the user asked for them in
+order (1, 2, 3), each with a failing test first.
+
+**1. Per-table view overrides belong to the document.** The overrides lived in a
+`ref` inside `stores/toolbar-scope.ts`, so a table's own display mode and toggles
+were lost on reload — which contradicts Q2 ("the view state is part of the
+diagram, the zoom is not"). `ViewState` now carries `overrides:
+Record<string, Partial<ViewStateToggles>>`, `normalizeViewOverrides` drops
+unknown keys and non-object entries when an old file is loaded, and every write
+goes through `updateViewState`.
+
+**2. The outline tree can create the three entity kinds again.** Replacing the
+old `SidePanel` silently removed the only entry points for views, enums and
+custom types. Category rows now offer `add_view`/`add_enum`/`add_type` in the
+row menu (`OutlineMenu.vue`), `createOutlineNode` picks the first free
+`view_1`-style name and runs through the diagram store, so undo removes the new
+object like any other edit.
+
+**3a. The toolbar has its nine groups.** Grid/Flow layouts are pure functions in
+`packages/core/src/layout/block-layout.ts`; alignment and distribution are
+geometry in `composables/align-geometry.ts`; `stores/arrange-actions.ts` folds
+all five of those actions into one `AutoArrangeCommand`, so one click is one
+undo step and locked tables never move (Q6). Alignment and distribution only
+accept an explicit selection — snapping the whole canvas to one edge is not a
+thing anyone wants — while layout falls back to every unlocked table (Q1).
+Zoom gained fit-to-content, fit-to-selection, a typed 100% reset and an editable
+percentage field; the file group grew SaveAs/Import/Export.
+
+**3b. The edit panel covers every selection shape.** Constraints (primary,
+unique, foreign), indexes (including unique constraints, with ids resolved back
+to names), appearance (colour, lock, field visibility) and a diagram-level
+fallback when nothing is selected. A selection that mixes object kinds lists
+what is selected instead of showing an empty panel. The source of a physical
+type is visible per row (Q19).
+
+**3c. The bottom panel is usable.** Maximize joins collapsed/normal (the canvas
+gives way through `:has(> [data-maximized="true"])`, no layout change in
+`EditorLayout.vue`), alerts filter by severity with per-level counts, fixable
+diagnostics apply their suggestion as an explicit type, and the log tab renders
+the command history instead of a placeholder. Merging the two diagnostic
+channels dedupes by `code|tableId|fieldId` and caps each source at 1000.
+
+Fifty-two strings landed across 51 locales in three batches (layout/align,
+edit panel, bottom panel); every locale file stays CRLF, sorted like `en.json`
+and a real translation rather than a copy of English.
+
+The last verification: 1120 unit tests, five typecheck programs, 55 Playwright
+cases, all green.

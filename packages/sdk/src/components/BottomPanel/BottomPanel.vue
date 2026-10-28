@@ -5,6 +5,7 @@ import { useUIStore } from "../../stores/ui.ts";
 import AlertsTab from "./AlertsTab.vue";
 import classes from "./BottomPanel.module.css";
 import HistoryTab from "./HistoryTab.vue";
+import LogTab from "./LogTab.vue";
 import PlaceholderTab from "./PlaceholderTab.vue";
 import { useAlerts } from "./use-alerts.ts";
 import type { BottomPanelTab } from "./use-bottom-panel.ts";
@@ -12,14 +13,18 @@ import { useBottomPanel } from "./use-bottom-panel.ts";
 
 /**
  * The resizable bottom panel of the editor (design section 8): the alerts
- * tab merges the diagram and the dialect diagnostic channels, the log and
- * trace tabs are placeholders and the history tab mirrors the undo stack.
+ * tab merges the diagram and the dialect diagnostic channels, the log tab
+ * mirrors the command stack as read-only text and the history tab mirrors
+ * the undo stack; the trace tab is a placeholder.
  *
- * Collapsed, the panel is a 28px title bar; a drag of its top edge adjusts
- * the height (120–400px, persisted) and a double click restores the
- * default. New errors never auto expand the panel (ruling Q9): the title
- * bar shows the error badge and a one-time toast is raised instead. The
- * trace tab is only visible in the developer mode (ruling Q14).
+ * The panel has three states. Collapsed, it is a 28px title bar; a drag of
+ * its top edge adjusts the height (120–400px, persisted) and a double click
+ * restores the default; maximized, it fills the canvas area while its title
+ * bar stays visible (design section 8.2). Maximizing is session-only state
+ * and never changes the persisted height. New errors never auto expand the
+ * panel (ruling Q9): the title bar shows the error badge and a one-time
+ * toast is raised instead. The trace tab is only visible in the developer
+ * mode (ruling Q14).
  */
 defineOptions({ name: "DrawDBBottomPanel" });
 
@@ -45,10 +50,16 @@ const tabs = computed<{ id: BottomPanelTab; label: string }[]>(() => {
   return items;
 });
 
-/** The inline height of the panel; the collapsed panel is its title bar. */
-const panelStyle = computed(() => ({
-  height: `${panel.collapsed.value ? 28 : panel.height.value}px`,
-}));
+/**
+ * The inline style of the panel. The maximized panel grows to fill the
+ * space the canvas body releases; otherwise the persisted height applies
+ * (and the collapsed panel is its title bar).
+ */
+const panelStyle = computed(() =>
+  panel.maximized.value
+    ? { height: "auto", flex: "1 1 auto" }
+    : { height: `${panel.collapsed.value ? 28 : panel.height.value}px` },
+);
 
 // Ruling Q9: the arrival of errors raises a single toast instead of
 // auto-expanding the panel. A later edit that keeps errors around does not
@@ -76,12 +87,16 @@ watch(
 
 <template>
   <section
-    :class="[classes.panel, panel.collapsed.value && classes.collapsed]"
+    :class="[
+      classes.panel,
+      panel.collapsed.value && classes.collapsed,
+    ]"
     :style="panelStyle"
+    :data-maximized="panel.maximized.value || undefined"
     data-testid="bottom-panel"
   >
     <div
-      v-if="!panel.collapsed.value"
+      v-if="!panel.collapsed.value && !panel.maximized.value"
       :class="classes.resizer"
       role="separator"
       aria-orientation="horizontal"
@@ -109,31 +124,60 @@ watch(
           >{{ errorCount }}</span>
         </button>
       </div>
-      <button
-        type="button"
-        :class="classes.toggle"
-        :aria-label="t(panel.collapsed.value ? 'bottom_expand' : 'bottom_collapse')"
-        :aria-expanded="!panel.collapsed.value"
-        data-testid="bottom-panel-toggle"
-        @click="panel.toggleCollapsed"
-      >
-        <svg
-          :class="[classes.chevron, panel.collapsed.value && classes.chevronFlipped]"
-          viewBox="0 0 16 16"
-          width="12"
-          height="12"
-          aria-hidden="true"
+      <div :class="classes.headerActions">
+        <button
+          type="button"
+          :class="classes.toggle"
+          :aria-label="t(panel.maximized.value ? 'bottom_restore' : 'bottom_maximize')"
+          :aria-pressed="panel.maximized.value"
+          data-testid="bottom-panel-maximize"
+          @click="panel.toggleMaximized"
         >
-          <path
-            d="M3.5 10.5 8 6l4.5 4.5"
+          <svg
+            viewBox="0 0 16 16"
+            width="12"
+            height="12"
+            aria-hidden="true"
             fill="none"
             stroke="currentColor"
             stroke-width="1.5"
             stroke-linecap="round"
             stroke-linejoin="round"
-          />
-        </svg>
-      </button>
+          >
+            <template v-if="panel.maximized.value">
+              <path d="M6 2v4H2M10 2v4h4M10 14v-4h4M6 14v-4H2" />
+            </template>
+            <template v-else>
+              <path d="M2 6V2h4M14 6V2h-4M14 10v4h-4M2 10v4h4" />
+            </template>
+          </svg>
+        </button>
+        <button
+          type="button"
+          :class="classes.toggle"
+          :aria-label="t(panel.collapsed.value ? 'bottom_expand' : 'bottom_collapse')"
+          :aria-expanded="!panel.collapsed.value"
+          data-testid="bottom-panel-toggle"
+          @click="panel.toggleCollapsed"
+        >
+          <svg
+            :class="[classes.chevron, panel.collapsed.value && classes.chevronFlipped]"
+            viewBox="0 0 16 16"
+            width="12"
+            height="12"
+            aria-hidden="true"
+          >
+            <path
+              d="M3.5 10.5 8 6l4.5 4.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
     </header>
     <div
       v-if="!panel.collapsed.value"
@@ -141,11 +185,7 @@ watch(
       data-testid="bottom-panel-body"
     >
       <AlertsTab v-if="panel.activeTab.value === 'issues'" />
-      <PlaceholderTab
-        v-else-if="panel.activeTab.value === 'log'"
-        testid="log"
-        :message="t('bottom_log_empty')"
-      />
+      <LogTab v-else-if="panel.activeTab.value === 'log'" />
       <HistoryTab v-else-if="panel.activeTab.value === 'history'" />
       <PlaceholderTab
         v-else

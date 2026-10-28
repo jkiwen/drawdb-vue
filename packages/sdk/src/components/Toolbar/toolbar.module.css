@@ -79,3 +79,16 @@
   color: var(--toolbar-fg, var(--text-color, #333333));
   font-variant-numeric: tabular-nums;
 }
+
+.zoomInput {
+  width: 52px;
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid var(--toolbar-border, var(--border-color, #e5e5e5));
+  border-radius: 4px;
+  background: transparent;
+  color: var(--toolbar-fg, var(--text-color, #333333));
+  font-size: 12px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}

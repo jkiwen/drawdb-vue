@@ -184,18 +184,45 @@ test("the layer switch toggles between the physical and the logical layer", asyn
 
 // —— Zoom and full screen (6.6) ——
 
-test("zoom in and out step the zoom and the label shows the percentage", async () => {
+test("zoom in and out step the zoom and the field shows the percentage", async () => {
   const { wrapper, ui } = mountToolbar();
-  assert.match(wrapper.find('[data-testid="toolbar-zoom-label"]').text(), /100%/);
+  const field = () =>
+    wrapper.find('[data-testid="toolbar-zoom-input"]').element as HTMLInputElement;
+  assert.equal(field().value, "100");
 
   await wrapper.find('[data-testid="toolbar-zoom-in"]').trigger("click");
   assert.equal(ui.zoom, 1.1);
-  assert.match(wrapper.find('[data-testid="toolbar-zoom-label"]').text(), /110%/);
+  assert.equal(field().value, "110");
 
   await wrapper.find('[data-testid="toolbar-zoom-out"]').trigger("click");
   await wrapper.find('[data-testid="toolbar-zoom-out"]').trigger("click");
   assert.equal(ui.zoom, 0.9);
-  assert.match(wrapper.find('[data-testid="toolbar-zoom-label"]').text(), /90%/);
+  assert.equal(field().value, "90");
+  wrapper.unmount();
+});
+
+test("the percent field applies the typed zoom and snaps a broken value back", async () => {
+  const { wrapper, ui } = mountToolbar();
+  const field = wrapper.find('[data-testid="toolbar-zoom-input"]');
+
+  await field.setValue("150");
+  await field.trigger("change");
+  assert.equal(ui.zoom, 1.5);
+
+  await field.setValue("nonsense");
+  await field.trigger("change");
+  assert.equal(ui.zoom, 1.5);
+  assert.equal((field.element as HTMLInputElement).value, "150");
+  wrapper.unmount();
+});
+
+test("actual size goes back to 100%", async () => {
+  const { wrapper, ui } = mountToolbar();
+  ui.setZoom(2);
+  await wrapper.vm.$nextTick();
+
+  await wrapper.find('[data-testid="toolbar-zoom-reset"]').trigger("click");
+  assert.equal(ui.zoom, 1);
   wrapper.unmount();
 });
 
@@ -275,5 +302,145 @@ test("the file buttons emit the menu keys for the host", async () => {
     ["file:open"],
     ["file:save"],
   ]);
+  wrapper.unmount();
+});
+
+// —— Layout group (6.3) ——
+
+test("the layout group greys without a movable table and lays them out otherwise", async () => {
+  const { wrapper, diagram, ui } = mountToolbar();
+  const grid = () => wrapper.find('[data-testid="toolbar-layout-grid"]');
+  assert.notEqual(grid().attributes("disabled"), undefined);
+
+  diagram.setDiagram({
+    ...diagram.diagram,
+    tables: [
+      { ...makeTable("t_a", 40, 40) as object, fields: [] },
+      { ...makeTable("t_b", 300, 90) as object, fields: [], locked: true },
+    ],
+  } as never);
+  await wrapper.vm.$nextTick();
+
+  assert.equal(grid().attributes("disabled"), undefined);
+  await grid().trigger("click");
+
+  const [first, locked] = diagram.diagram.tables.map((table) => ({ x: table.x, y: table.y }));
+  assert.deepEqual(first, { x: 0, y: 0 });
+  // The locked table never moves (Q6).
+  assert.deepEqual(locked, { x: 300, y: 90 });
+  assert.equal(ui.selectedTableIds.length, 0);
+  wrapper.unmount();
+});
+
+test("the layout applies to the selection when there is one (Q1)", async () => {
+  const { wrapper, diagram, ui } = mountToolbar();
+  diagram.setDiagram({
+    ...diagram.diagram,
+    tables: [
+      { ...makeTable("t_a", 40, 40) as object, fields: [] },
+      { ...makeTable("t_b", 300, 90) as object, fields: [] },
+    ],
+  } as never);
+  ui.selectTable("t_b");
+  await wrapper.vm.$nextTick();
+
+  await wrapper.find('[data-testid="toolbar-layout-grid"]').trigger("click");
+
+  // A single table in scope restarts the grid at the origin.
+  assert.deepEqual(
+    diagram.diagram.tables.map((table) => ({ x: table.x, y: table.y })),
+    [{ x: 40, y: 40 }, { x: 0, y: 0 }],
+  );
+  wrapper.unmount();
+});
+
+// —— Alignment group (6.5) ——
+
+test("alignment needs two targets and the reason shows in the tooltip", async () => {
+  const { wrapper, diagram, ui } = mountToolbar();
+  diagram.setDiagram({
+    ...diagram.diagram,
+    tables: [makeTable("t_a", 10, 10), makeTable("t_b", 300, 200)],
+  } as never);
+  await wrapper.vm.$nextTick();
+
+  const left = () => wrapper.find('[data-testid="toolbar-align-left"]');
+  assert.notEqual(left().attributes("disabled"), undefined);
+  assert.match(left().attributes("title") ?? "", /two tables/);
+
+  ui.selectTable("t_a", true);
+  ui.selectTable("t_b", true);
+  await wrapper.vm.$nextTick();
+  assert.equal(left().attributes("disabled"), undefined);
+
+  await left().trigger("click");
+  assert.deepEqual(
+    diagram.diagram.tables.map((table) => table.x),
+    [10, 10],
+  );
+  wrapper.unmount();
+});
+
+test("distributing needs three targets", async () => {
+  const { wrapper, diagram, ui } = mountToolbar();
+  diagram.setDiagram({
+    ...diagram.diagram,
+    tables: [
+      makeTable("t_a", 0, 0),
+      makeTable("t_b", 100, 0),
+      makeTable("t_c", 500, 0),
+    ],
+  } as never);
+  const spread = () => wrapper.find('[data-testid="toolbar-distribute-h"]');
+  await wrapper.vm.$nextTick();
+  assert.notEqual(spread().attributes("disabled"), undefined);
+
+  for (const id of ["t_a", "t_b", "t_c"]) {
+    ui.selectTable(id, true);
+  }
+  await wrapper.vm.$nextTick();
+  assert.equal(spread().attributes("disabled"), undefined);
+
+  await spread().trigger("click");
+  // 720 wide of boxes, 660 of tables: the two gaps are 30 each.
+  assert.deepEqual(
+    diagram.diagram.tables.map((table) => table.x),
+    [0, 250, 500],
+  );
+  wrapper.unmount();
+});
+
+// —— File and configuration groups (6.8, 6.9) ——
+
+test("save as, import and export emit their menu keys", async () => {
+  const { wrapper } = mountToolbar();
+  for (const [testid, key] of [
+    ["toolbar-file-save-as", "file:saveAs"],
+    ["toolbar-file-import", "file:import"],
+    ["toolbar-file-export", "file:export"],
+  ] as const) {
+    await wrapper.find(`[data-testid="${testid}"]`).trigger("click");
+    assert.deepEqual(wrapper.emitted("menu")?.at(-1), [key]);
+  }
+  wrapper.unmount();
+});
+
+test("the configuration group emits the open key", async () => {
+  const { wrapper } = mountToolbar();
+  await wrapper.find('[data-testid="toolbar-config"]').trigger("click");
+  assert.deepEqual(wrapper.emitted("menu")?.at(-1), ["config:open"]);
+  wrapper.unmount();
+});
+
+test("the host can hide the new groups too", () => {
+  const pinia: Pinia = createPinia();
+  setActivePinia(pinia);
+  const wrapper = mount(Toolbar, {
+    props: { groups: ["displayMode"] },
+    global: { plugins: [pinia] },
+  });
+  assert.ok(wrapper.find('[data-testid="toolbar-layout-grid"]').exists() === false);
+  assert.ok(wrapper.find('[data-testid="toolbar-align-left"]').exists() === false);
+  assert.ok(wrapper.find('[data-testid="toolbar-config"]').exists() === false);
   wrapper.unmount();
 });

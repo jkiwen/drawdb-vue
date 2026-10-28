@@ -18,6 +18,18 @@
   transition: height 200ms var(--ddb-easing, ease);
 }
 
+/*
+ * Maximizing (design section 8.2): the panel takes the space the canvas
+ * body released while its own title bar stays visible. The layout is the
+ * flex column the panel is the last child of; the component sets the
+ * panel's flex and height inline, only the sibling needs this rule.
+ */
+:global(.ddb-editor__layout:has(> [data-maximized="true"]) > .ddb-editor__body) {
+  flex: 0 0 0;
+  overflow: hidden;
+}
+
+
 /* The separator the user drags; it sits on the edge towards the canvas. */
 .resizer {
   position: absolute;
@@ -101,6 +113,13 @@
   color: var(--ddb-accent, #3b82f6);
 }
 
+/* The maximize and collapse controls share the right end of the title bar. */
+.headerActions {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+}
+
 .chevron {
   transition: transform 200ms ease;
 }
@@ -128,71 +147,6 @@
   margin: 0;
   color: var(--ddb-text-muted, #57606a);
   font-size: var(--ddb-text-meta, 12px);
-}
-
-/* The alerts tab. */
-.alertList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ddb-space-1, 4px);
-}
-
-.alertItem {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: var(--ddb-space-2, 8px);
-  padding: var(--ddb-space-1, 4px) var(--ddb-space-2, 8px);
-  border: 0;
-  border-radius: var(--ddb-radius-md, 6px);
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: var(--ddb-text-body, 13px);
-  text-align: left;
-  cursor: pointer;
-}
-
-.alertItem:hover:not(:disabled) {
-  background: var(--ddb-surface-hover, #f3f4f6);
-}
-
-.alertItem:disabled {
-  color: var(--ddb-text-muted, #57606a);
-  cursor: not-allowed;
-}
-
-.severityIcon {
-  flex: 0 0 auto;
-  width: 14px;
-  text-align: center;
-}
-
-.severity_error {
-  color: var(--ddb-danger, #d1242f);
-}
-
-.severity_warning {
-  color: var(--ddb-warning, #bf8700);
-}
-
-.severity_info {
-  color: var(--ddb-accent, #3b82f6);
-}
-
-.alertCode {
-  flex: 0 0 auto;
-  font-family: var(--ddb-font-mono, monospace);
-  font-size: var(--ddb-text-meta, 12px);
-  color: var(--ddb-text-muted, #57606a);
-}
-
-.alertLabel {
-  flex: 1 1 auto;
-  min-width: 0;
 }
 
 /* The history tab. */

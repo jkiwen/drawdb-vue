@@ -1,10 +1,13 @@
 <script setup lang="ts">
 /**
- * The file group (design 6.8): New, Open and Save. The actions belong to the
- * host (a new diagram confirms unsaved changes, opening reads a file of the
- * file system), so the buttons only emit the menu key — the editor routes it
- * through the same path as the menu bar (`runEditorMenu` of the
- * editor-menu composable).
+ * The file group (design 6.8): New, Open, Save, Save as, Import and Export.
+ * The actions belong to the host (a new diagram confirms unsaved changes,
+ * opening reads a file of the file system), so the buttons only emit the menu
+ * key — the editor routes it through the same path as the menu bar
+ * (`runEditorMenu` of the editor-menu composable).
+ *
+ * Printing is out of this iteration: the design leaves it to P6 with the
+ * print preview, so the group does not carry the two print buttons yet.
  */
 import { t } from "../../i18n/index.ts";
 import ToolbarButton from "./ToolbarButton.vue";
@@ -16,6 +19,9 @@ const ACTIONS = [
   { key: "file:new", icon: "file-new", titleKey: "file_new", testid: "toolbar-file-new" },
   { key: "file:open", icon: "file-open", titleKey: "file_open", testid: "toolbar-file-open" },
   { key: "file:save", icon: "file-save", titleKey: "file_save", testid: "toolbar-file-save" },
+  { key: "file:saveAs", icon: "file-save-as", titleKey: "file_save_as", testid: "toolbar-file-save-as" },
+  { key: "file:import", icon: "file-import", titleKey: "file_import", testid: "toolbar-file-import" },
+  { key: "file:export", icon: "file-export", titleKey: "file_export", testid: "toolbar-file-export" },
 ];
 </script>
 

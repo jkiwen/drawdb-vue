@@ -1,6 +1,8 @@
 # P5 — SDK 视图与编辑器 UI 改造实施计划
 
 > **⚠️ 主体完成（2026-10-28，分支 `sdk-ui-redesign-p5`，已合并 `761fe7b`）**：Task 1–3 与 Task 7 完成；Task 4/5/6 的骨架落地但各有未实现子项——逐项结论见文末「落地审计（2026-10-28）」。执行偏差与验收证据见「执行记录」。
+>
+> **✅ 补齐完成（2026-10-28，第二轮）**：审计发现的三项缺口已按顺序修完——①每表视图覆盖进文档（Q2）；②树恢复 View/Enum/Type 新建入口；③Task 4/5/6 的子项补齐（3a 工具栏三组 + 缩放/文件组、3b 编辑面板四组 + 图表级 + 混合选择 + Q19、3c 底部区三态 + 过滤 + fixable + 日志）。仍开放的子项见文末「第二轮补齐后的剩余缺口」。
 
 > **来源**：`docs/designer-ui-redesign-discussion.md`（v1.0 定稿，§11 裁决 19 条已生效，下称「UI 文档」）。
 > **范围**：UI 文档 §2–§5、§6.1/§6.2/§6.3/§6.5/§6.6/§6.7、§8、§9 —— 即 **@drawdb/vue-sdk 编辑器外壳** 的树型大纲、统一编辑面板、画布工具栏、底部告警区、视图状态管理。
@@ -166,25 +168,65 @@
 - ~~**违背 Q2（需修）**~~ → **已修（`4c116f1`）**：`ViewState.overrides` 进 core 模型并参与序列化（`normalizeViewOverrides` 丢弃未知键），`stores/toolbar-scope.ts` 的 `overrides` 改为读文档的 `computed`，写路径走 `diagramStore.updateViewState({ overrides })`，刷新与重开都在。
 - 未实现：逻辑视图下「新建入口禁用」只在旧 SidePanel 内成立，新布局已无对应入口（见下方回归项）。
 
-### Task 4 — 顶部工具栏（**部分完成：三组缺失**）
+### Task 4 — 顶部工具栏（**完成：九组全覆盖**）
 
-- 已实现六组：`displayMode`、`viewToggles`、`viewLayer`、`zoom`、`undoRedo`、`file`（`Toolbar.vue:38-52`，`ToolbarGroupId` 也只有这六个）；范围指示器、tooltip、置灰规则、Undo/Redo 带命令描述均有测试（15 例）。
-- 未实现：①**布局组**（Grid/Flow/Auto、>50 表确认、跳过锁定表）；②**对齐组**（6 对齐 + 2 分布、<2/<3 置灰）；③**配置组**（DSM 入口 + 首选项占位）；④缩放组的 **Fit / 缩放到选中 / 100% / 百分比可输入**（`ToolbarZoom.vue` 只有 ±、百分比标签、FullScreen）；⑤文件组的 **SaveAs / Import / Export**（只有 new/open/save，导入导出仍只在菜单里）。
+- 第二轮补齐后：`displayMode`、`viewToggles`、`viewLayer`、`layout`、`align`、`zoom`、`undoRedo`、`file`、`config` 九组齐备（`ToolbarGroupId` 同步扩到九个）。
+- 布局组 `ToolbarLayout.vue`：Grid / Flow / Auto(Flow)，作用于 `targetTables`（无选中=全部未锁定表，Q1）；core 侧新增 `packages/core/src/layout/block-layout.ts`（`gridLayout`/`flowLayout` 纯函数），Auto 走既有 dagre `autoArrange`。
+- 对齐组 `ToolbarAlign.vue`：6 对齐 + 2 分布，**只认选中**（分布需 3 张、对齐需 2 张，不足时按钮置灰且 tooltip 用 `needs_two_tables`/`needs_three_tables` 说明原因），几何计算在 `composables/align-geometry.ts`。
+- 三条布局/对齐/分布路径合并为 `stores/arrange-actions.ts` 的**一条** `AutoArrangeCommand`，因此一次操作一次 undo；锁定表一律不动（Q6）。
+- 缩放组 `ToolbarZoom.vue`：`-` / 可输入的百分比框（`toolbar-zoom-input`，坏值回弹） / `+` / 适应图表 / 缩放到选中 / 回到 100% / FullScreen；`composables/zoom-actions.ts`（`fitZoom`/`fitScroll`/`contentBounds`）+ `use-zoom-actions.ts`，Canvas 上报视口尺寸。
+- 文件组扩到 New / Open / Save / SaveAs / Import / Export 六项（emit `file:*`）。
+- 配置组 `ToolbarConfig.vue` 只 emit `config:open`，组内尚无面板（P6 的 DSM 与首选项入口）。
+- 仍未做：**布局前的「>50 表确认」**（计划 Task 4 原文要求）；**Print / PrintPreview**（Q8 已裁决形态，属后续阶段）。
 
-### Task 5 — 右侧编辑面板（**部分完成：分组与联动不全**）
+### Task 5 — 右侧编辑面板（**完成：六种选择态全覆盖**）
 
-- 已实现：成对五列行（逻辑名/逻辑类型族域/物理列名/物理类型 combobox/状态），失焦提交，`fieldTypeSource="explicit"` 置位，`addFieldPair`/`removeFieldPair` 跨层原子，多选表的 Q12 原子批量 + 行内红字，分组折叠按 `kind:group` 记忆，`resolveType` 派生建议，39 例测试（24 派生 + 15 组件）。
-- 未实现：①**约束组 / 索引组 / 外观组**（`EditPanel.vue:108-126` 只有 basics + fields 两组）；②**图表级兜底面板**（无选中时是 `empty` 占位「Select a table…」，计划要求图表级属性兜底）；③**单字段详情**（现为定位到表编辑器的行高亮，未做字段级面板）；④**多选异类**（`edit-panel-model.ts:42` 直接落到 `empty` + reason `mixed`，计划要求通用属性 + 计数）；⑤**Q19 来源徽标**（`FieldPairRow.vue` 无 explicit/mapped/imported 徽标）；⑥总览条不可点击跳诊断、**R15 整表折叠物理列**未做。
+- 第二轮补齐后：`EditPanel.vue` 的 238 行里覆盖 `empty` / `table` / `tables` / `relationship` / `area` / `mixed` / `diagram` 七种选择态，均为真实编辑器而非占位。
+- 表格分支的四组：basics（逻辑实体名/物理表名/描述/注释）、fields（成对五列行 + 来源徽标 Q19）、constraints（`TableConstraints.vue`：主键 / UNIQUE / 外键）、indexes（`TableIndexes.vue`：索引 + 唯一约束，字段 id 查名）、appearance（`TableAppearance.vue`：颜色 / 锁定 / 显示字段）。
+- 图表级兜底 `DiagramEditor.vue`：无选中时编辑图表本身的标题与数据库（只读展示）+ 一句提示，不再是「Select a table…」的死占位。
+- 多选异类 `mixed`：`edit-panel-groups.ts` 的 `MixedCounts`/`mixedEntries`，面板显示一句 `edit_panel_empty_mixed` + 每类对象的计数 chip（行为升级：`resolvePanelTarget` 现在返回 `{kind:"mixed", counts}`）。
+- 纯派生逻辑从 309 行瘦到 292 行：`ConstraintRow`/`IndexRow`/`AppearanceValues`/`SOURCE_KEYS` 等与节点构建相关的都进 `edit-panel-groups.ts`。
+- 仍未做：**总览条点击跳诊断**、**R15 整表折叠物理列**、**字段级独立详情面板**（现为行高亮定位）。
 
-### Task 6 — 底部可伸缩区（**部分完成：告警功能薄**）
+### Task 6 — 底部可伸缩区（**完成：告警/日志可用**）
 
-- 已实现：28px 标题条/展开、拖拽 120–400、双击恢复 168、持久化、Alerts/History/Trace 四个 tab（Trace 仅 devMode，Q14）、双通道合并（`useIssues` + `lintDialect` 现算）、error 红徽标 + 一次性 toast（Q9）、告警点击定位（无目标时置灰）。
-- 未实现：①**级别过滤**；②**fixable 一键应用建议**（应用后置 explicit，§6.5）；③**日志 Tab**（`log` 仍是 `PlaceholderTab`，导入导出/保存事件未产生）；④**Trace 的 perf 计数**（同为占位）；⑤**每 Tab 1000 条上限 + 复制/导出/清空**；⑥max 态与 50% 视口上限（同 Task 1）。
+- 第二轮补齐后：三态 collapsed / normal / max（`bottom-panel-maximize` 带 `aria-pressed`，max 态靠 `:has(> [data-maximized="true"])` 让画布让位，不改 `EditorLayout.vue`）。
+- 告警 Tab：级别过滤 `All/Errors/Warnings/Info` + 每级计数、`alerts-filter-empty` 空态、fixable 一键修复（`alert-fix-<index>`，走 `diagram.updateField(..., { fieldTypeSource: "explicit" })`，无安全命令路径的 code 不显示按钮）、复制与导出仅针对过滤后的可见告警。
+- 日志 Tab 变成真内容：历史命令描述倒序、`log-list`/`log-clear`、上限 1000 条。
+- `use-alerts.ts` 合并双通道时按 `code|tableId|fieldId` 去重、同一来源最多 1000 条、按级别排序。
+- 仍未做：**max 态的 50% 视口上限**（当前 max 态填满画布区，而计划 Task 1 原文要求上限取「50% 视口」）、**Trace 的性能计数**（仍是占位 Tab）、**导入/导出/保存事件写日志**（Log 目前只显示 undo 栈里的命令描述）。
 
 ### Task 7 — 可配置 + i18n + 收尾（完成）
 
 - 已完成：`types/sdk-options.ts` 的 `outline/editPanel/bottomPanel/toolbar{groups}` + `onOpenDsm`；108 key × 51 locale（含补齐的 `type_param.*`）；`MIN_ZOOM 0.1 / MAX_ZOOM 4`；e2e 四条关键路径（`e2e/p5-redesign.spec.ts:59/79/108/137`）；百表 60fps 实测；文档三处更新。
 
-### 计划外的功能回归（需决定是否补）
+### 计划外的功能回归（已修）
 
-树替换了旧 `SidePanel`，而**创建 View / Enum / Type 的入口原本只在那几个 tab 里**（`SidePanel/ViewsTab.vue`、`EnumsTab.vue`、`TypesTab.vue`、`CustomTypesTab.vue` 已不再挂载），新界面里这三类对象一度只可浏览、改名、删除。\n\n- **已修（`outline-actions.ts` + `OutlineMenu.vue`）**：类目行右键出现 `add_view` / `add_enum` / `add_type`（复用已存在的 51 locale 文案），`createOutlineNode` 用 `uniqueName` 生成 `view_1` 这类默认名，经 diagram-store 命令入 undo 栈，创建后展开该类目并 reveal；tables/notes 等类目右键仍无菜单。逻辑视图下这些类目按 Q15 整体隐藏，等于新建入口一并禁用，符合 Task 3 的要求。
+树替换了旧 `SidePanel`，而**创建 View / Enum / Type 的入口原本只在那几个 tab 里**（`SidePanel/ViewsTab.vue`、`EnumsTab.vue`、`TypesTab.vue`、`CustomTypesTab.vue` 已不再挂载），新界面里这三类对象一度只可浏览、改名、删除。
+
+- **已修（`outline-actions.ts` + `OutlineMenu.vue`）**：类目行右键出现 `add_view` / `add_enum` / `add_type`（复用已存在的 51 locale 文案），`createOutlineNode` 用 `uniqueName` 生成 `view_1` 这类默认名，经 diagram-store 命令入 undo 栈，创建后展开该类目并 reveal；tables/notes 等类目右键仍无菜单。逻辑视图下这些类目按 Q15 整体隐藏，等于新建入口一并禁用，符合 Task 3 的要求。
+
+### 第二轮补齐（2026-10-28，审计之后）
+
+审计列出的三项按用户裁决「逐次完成 1，2，3」依次落地，每项都先写失败测试再实现。
+
+**1. 每表视图覆盖进文档（Q2）** —— `packages/core/src/models/view-state.ts` 的 `ViewState` 增 `overrides: Record<string, Partial<ViewStateToggles>>`，新增 `normalizeViewOverrides`（丢弃未知键与非对象项），序列化双向往返；`stores/toolbar-scope.ts` 的 `overrides` 从内存 `ref` 改成文档上的 `computed`，所有写入走 `updateViewState`。就此每张表的「实体/定义/属性/全部」覆盖与显示开关一起随图表保存。提交 `4c116f1`。
+
+**2. View / Enum / Type 新建入口回归** —— `outline-actions.ts` 新增 `CREATABLE_CATEGORIES`、`creatableCategoryOf`、`createOutlineNode`（`view_1`/`enum_1`/`type_1` 默认名，经命令入 undo 栈），菜单抽到 `OutlineMenu.vue`（`OutlineTree.vue` 因此从 305 行回到 292 行），类目行右键出现 `add_view`/`add_enum`/`add_type`。提交 `70a9a12`。
+
+**3a. 工具栏九组** —— core 新增 `layout/block-layout.ts`（Grid/Flow 纯函数）；sdk 新增 `composables/align-geometry.ts`（6 对齐 + 2 分布）、`stores/arrange-actions.ts`（五种布局/对齐动作合并成一条 `AutoArrangeCommand`）、`composables/zoom-actions.ts` + `use-zoom-actions.ts`（适应图表/缩放到选中/百分比），组件新增 `ToolbarLayout.vue`/`ToolbarAlign.vue`/`ToolbarConfig.vue`，`ToolbarZoom.vue` 重写，`ToolbarFile.vue` 扩到六项，`ToolbarGroupId` 与九组接线、图标、样式同步。
+
+**3b. 编辑面板四组** —— 新增 `edit-panel-groups.ts`（约束/索引/外观/来源与混合选择的纯派生）、`TableConstraints.vue`、`TableIndexes.vue`、`TableAppearance.vue`、`DiagramEditor.vue`；`TableBatchPatch` 扩到颜色/锁定/显示字段；`FieldPairRow.vue` 增来源徽标；`EditPanel.vue` 接线四组 + `diagram` 兜底 + `mixed` 计数分支。
+
+**3c. 底部区** —— `BottomPanel.vue` 增 max 态；`AlertsTab.vue` 增级别过滤、fixable 一键修复、复制/导出；`LogTab.vue` 变真内容（历史倒序、上限 1000、本地清空）；`use-alerts.ts` 去重与上限。
+
+**i18n** —— 三轮文案共 52 个 key（24 个布局/对齐 + 20 个编辑面板 + 8 个底部区），en 从 503 涨到 **555**，51 个 locale 全部补齐并按 en 顺序排列；每个 key 都要求真实翻译、占位符与复数分段数与 en 一致、locale 文件保持 CRLF。
+
+**验证证据（lead 亲自跑）**：`node --experimental-strip-types scripts/run-tests.mjs` → **1120/1120**；`pnpm typecheck`（core → sdk → app → examples → e2e 五段）→ exit 0；`node node_modules/@playwright/test/cli.js test --config e2e/playwright.config.ts` → **55 passed**。
+
+### 第二轮补齐后的剩余缺口
+
+- Task 4：布局前的「>50 表确认」对话框；Print / PrintPreview（Q8 形态已定，属后续阶段）。
+- Task 5：总览条点击跳诊断；R15 整表折叠物理列；字段级独立详情面板。
+- Task 6：max 态的 50% 视口上限；Trace 的性能计数；导入/导出/保存事件写日志。
+- 跨阶段：Q4 的 36px 窄栏 + 类目图标浮层；P2' 的约束/索引双名对象与条目区；P6 的 DSM 与首选项（`ToolbarConfig` 目前只 emit `config:open`）。

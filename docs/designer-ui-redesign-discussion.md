@@ -532,10 +532,24 @@ Tab 分组：**告警（Alerts）/ 日志（Logs）/ Trace / 操作日志（Acti
 | Q13 SDK 可配置 | `types/sdk-options.ts`（`outline` / `editPanel` / `bottomPanel` / `toolbar.groups` / `onOpenDsm`） |
 | AGENTS.md 的 i18n 硬约束 | 108 个新 key × 51 个 locale 全部真实翻译 |
 
+**第二轮补齐（2026-10-28，审计之后按 1/2/3 顺序完成）**：
+
+| 本文档 | 第二轮落地 |
+|---|---|
+| §6.3 布局工具（Grid / Flow / Auto Flow）、§6.5 对齐工具 | `components/Toolbar/ToolbarLayout.vue`、`ToolbarAlign.vue`、core `layout/block-layout.ts`、`composables/align-geometry.ts`、`stores/arrange-actions.ts`（五种动作各一次 undo，锁定表不动） |
+| §6.6 图工具（适应图表 / 缩放到选中 / 100% / 百分比输入） | `ToolbarZoom.vue` 重写、`composables/zoom-actions.ts` 与 `use-zoom-actions.ts` |
+| §6.8 文件组（SaveAs / Import / Export） | `ToolbarFile.vue` 扩到六项，emit `file:*` 由宿主接 |
+| §4 编辑面板的分组与选择态 | `EditPanel.vue` 增 constraints / indexes / appearance / diagram 四组，`TableConstraints.vue`、`TableIndexes.vue`、`TableAppearance.vue`、`DiagramEditor.vue`；混合选择改为计数 chip 而非空态 |
+| Q19 来源徽标 | `FieldPairRow.vue` 的 `source-badge` + `edit-panel-groups.ts` 的 `SOURCE_KEYS` |
+| §8 底部区（级别过滤 / fixable / 日志 / max 态） | `BottomPanel.vue` 三态、`AlertsTab.vue`（过滤 + 计数 + 一键修复 + 复制/导出）、`LogTab.vue`（命令历史）、`use-alerts.ts`（去重 + 1000 上限） |
+| §9.5 国际化 | 第二轮再补 52 个 key（布局/对齐 24、编辑面板 20、底部区 8），en 共 555 键，51 个 locale 全量对齐 |
+
+**仍未覆盖**：布局前的「>50 表确认」、Print / PrintPreview、总览条跳诊断、R15 整表折叠物理列、字段级独立详情面板、底部区 max 态的 50% 视口上限、Trace 的性能计数、导入/导出/保存事件写日志。
+
 P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏）：
 - §7 条目区（PK/UK/FK/INDEX 双名对象）与树中的 Constraints/Indexes 节点——属 P2'；工具栏的 indexes 开关已存在但置灰并注明 P2'。Q17 的「树吸收 Indices 页」在 P2' 落地时一并接线。
 - §6.8 erwin 导入与导入报告（P7）、§6.9A DSM 映射管理界面与首选项对话框（P6，`onOpenDsm` 已预留入口）。
-- §6.6 图工具中的 Print / PrintPreview（Q8 裁决为内嵌分页预览 + 浏览器打印，P5 未实现）、文件组仅发出 `file:new/open/save` 事件由宿主接。
-- Q3 对象级隐藏（本期不引入）、§6.5 对齐工具与 §6.3 布局工具（Grid/Flow/Auto Flow + Q6 位置锁定属性）——P5 计划明确排除。
+- §6.6 图工具中的 Print / PrintPreview（Q8 裁决为内嵌分页预览 + 浏览器打印，P5 未实现）。
+- Q3 对象级隐藏（本期不引入）——P5 计划明确排除；§6.3 布局与 §6.5 对齐已在第二轮补齐（见上表）。
 - 树节点拖拽的落库行为（Q11 表↔Area）：P5 只发出事件并把表移入区域几何范围，属性级落库留待 Area 成员模型定案。
 - §2 描述的「收缩后保留约 36px 窄边栏 + 类别图标浮层速览」（Q4）尚未实现：当前收起是宽度归零 + 边缘 chevron 按钮，没有类别图标也没有浮层。Q4 的裁决保留，实现留待 P6 与首选项一起做。

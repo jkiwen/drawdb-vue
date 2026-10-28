@@ -5,14 +5,19 @@ import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 import styles from "./edit-panel.module.css";
+import { mixedEntries } from "./edit-panel-groups.ts";
 import { resolvePanelTarget } from "./edit-panel-model.ts";
 import type { PanelTarget, SelectionSnapshot } from "./edit-panel-model.ts";
 import AreaEditor from "./AreaEditor.vue";
+import DiagramEditor from "./DiagramEditor.vue";
 import MultiTableEditor from "./MultiTableEditor.vue";
 import PanelGroup from "./PanelGroup.vue";
 import RelationshipEditor from "./RelationshipEditor.vue";
+import TableAppearance from "./TableAppearance.vue";
 import TableBasics from "./TableBasics.vue";
+import TableConstraints from "./TableConstraints.vue";
 import TableEditor from "./TableEditor.vue";
+import TableIndexes from "./TableIndexes.vue";
 import { commitTableBasics } from "./edit-actions.ts";
 
 /**
@@ -47,6 +52,7 @@ const target = computed<PanelTarget>(() =>
 
 const database = computed(() => diagramStore.diagram.database ?? "generic");
 const logicalView = computed(() => viewState.viewLayer === "logical");
+const relationships = computed(() => diagramStore.diagram.relationships);
 
 /** Collapse memory, per object type (plan section 4.4). */
 function loadCollapsed(): Record<string, boolean> {
@@ -104,6 +110,20 @@ const EMPTY_KEYS: Record<string, string> = {
       {{ t(EMPTY_KEYS[target.reason] ?? EMPTY_KEYS.none) }}
     </div>
 
+    <div v-else-if="target.kind === 'mixed'" :class="styles.empty" data-testid="edit-panel-mixed">
+      <p>{{ t('edit_panel_empty_mixed') }}</p>
+      <p :class="styles['mixed-chips']">
+        <span
+          v-for="entry in mixedEntries(target.counts)"
+          :key="entry.key"
+          :class="[styles.badge, styles['badge-info']]"
+          data-testid="mixed-chip"
+        >
+          {{ entry.count }} {{ t(entry.key) }}
+        </span>
+      </p>
+    </div>
+
     <template v-else-if="target.kind === 'table'">
       <PanelGroup
         :title="t('table')"
@@ -131,6 +151,41 @@ const EMPTY_KEYS: Record<string, string> = {
           :focus-field-id="target.focusFieldId"
         />
       </PanelGroup>
+      <PanelGroup
+        :title="t('edit_panel_group_constraints')"
+        :collapsed="isCollapsed('constraints')"
+        testid="group-constraints"
+        @toggle="toggleGroup('constraints')"
+      >
+        <TableConstraints :table="target.table" :relationships="relationships" />
+      </PanelGroup>
+      <PanelGroup
+        :title="t('edit_panel_group_indexes')"
+        :collapsed="isCollapsed('indexes')"
+        testid="group-indexes"
+        @toggle="toggleGroup('indexes')"
+      >
+        <TableIndexes :table="target.table" />
+      </PanelGroup>
+      <PanelGroup
+        :title="t('edit_panel_group_appearance')"
+        :collapsed="isCollapsed('appearance')"
+        testid="group-appearance"
+        @toggle="toggleGroup('appearance')"
+      >
+        <TableAppearance :key="String(target.table.id)" :tables="[target.table]" />
+      </PanelGroup>
+    </template>
+
+    <template v-else-if="target.kind === 'diagram'">
+      <PanelGroup
+        :title="t('edit_panel_group_diagram')"
+        :collapsed="isCollapsed('diagram')"
+        testid="group-diagram"
+        @toggle="toggleGroup('diagram')"
+      >
+        <DiagramEditor :diagram="target.diagram" />
+      </PanelGroup>
     </template>
 
     <template v-else-if="target.kind === 'tables'">
@@ -141,6 +196,17 @@ const EMPTY_KEYS: Record<string, string> = {
         @toggle="toggleGroup('batch')"
       >
         <MultiTableEditor :key="target.tables.map((t) => String(t.id)).join(',')" :tables="target.tables" />
+      </PanelGroup>
+      <PanelGroup
+        :title="t('edit_panel_group_appearance')"
+        :collapsed="isCollapsed('batch-appearance')"
+        testid="group-batch-appearance"
+        @toggle="toggleGroup('batch-appearance')"
+      >
+        <TableAppearance
+          :key="target.tables.map((t) => String(t.id)).join(',')"
+          :tables="target.tables"
+        />
       </PanelGroup>
     </template>
 

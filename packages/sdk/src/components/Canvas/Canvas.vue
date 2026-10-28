@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useCanvasEvents } from "../../composables/use-canvas-events.ts";
+import { useZoomActions } from "../../composables/use-zoom-actions.ts";
 import { useCanvasItems } from "../../composables/use-canvas-items.ts";
 import Area from "./Area.vue";
 import ContextMenu from "./ContextMenu.vue";
@@ -128,14 +129,28 @@ function onCanvasPointerDown(event: PointerEvent): void {
   }
 }
 
+const zoomActions = useZoomActions();
+
+/** Records the visible canvas so the zoom group can fit the diagram. */
+function reportViewport(): void {
+  const rect = svgRef.value?.getBoundingClientRect();
+  zoomActions.setViewport({
+    width: rect?.width ?? props.width,
+    height: rect?.height ?? props.height,
+  });
+}
+
 onMounted(() => {
   if (svgRef.value) {
     canvasEvents.attach(svgRef.value);
   }
+  reportViewport();
+  window.addEventListener("resize", reportViewport);
 });
 
 onBeforeUnmount(() => {
   canvasEvents.detach();
+  window.removeEventListener("resize", reportViewport);
 });
 </script>
 

@@ -171,6 +171,14 @@
   color: var(--ddb-badge-warn-fg, #ffd49f);
 }
 
+/* A selection that mixes object types lists what is selected (design 4.7). */
+.mixed-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+}
+
 .icon-button {
   padding: 2px 6px;
   background: transparent;
@@ -206,5 +214,60 @@
   color: var(--ddb-fg-muted, #808080);
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * One row of the constraint and index groups: the kind badge, the name and
+ * the columns. It wraps instead of scrolling because the rows are short.
+ */
+.constraint-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 0;
+  min-width: 0;
+}
+
+.constraint-name {
+  font-weight: 600;
+}
+
+.constraint-fields {
+  color: var(--ddb-fg-muted, #808080);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.check-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 14px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+/* The source badge of a row (Q19): quiet, next to the row status. */
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.badge-source {
+  padding: 0 4px;
+  border: 1px solid var(--ddb-border, #3c3c3c);
+  border-radius: 3px;
+  color: var(--ddb-fg-muted, #808080);
+  font-size: 10px;
+  line-height: 1.5;
   white-space: nowrap;
 }

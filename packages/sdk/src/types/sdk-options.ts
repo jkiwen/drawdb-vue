@@ -74,10 +74,13 @@ export interface EditorSelection {
 export type ToolbarGroupId =
   | "displayMode"
   | "viewToggles"
+  | "layout"
+  | "align"
   | "viewLayer"
   | "zoom"
   | "undoRedo"
-  | "file";
+  | "file"
+  | "config";
 
 /**
  * Which parts of the editor chrome the host shows (ruling Q13 of the UI

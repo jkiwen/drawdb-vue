@@ -2,12 +2,16 @@
 /**
  * The toolbar of the canvas (plan Task 4, design 6.0): icon buttons with a
  * tooltip (name and shortcut), grouped by theme, with the permanent scope
- * indicator of ruling Q1 on the left. The file group emits the menu keys of
- * the editor-menu protocol, so the host keeps owning New/Open/Save.
+ * indicator of ruling Q1 on the left. The string groups — layout, align, file
+ * and config — emit the menu keys of the editor-menu protocol or act on the
+ * stores directly; the host keeps owning New/Open/Save.
  */
 import { t } from "../../i18n/index.ts";
+import ToolbarAlign from "./ToolbarAlign.vue";
+import ToolbarConfig from "./ToolbarConfig.vue";
 import ToolbarDisplayMode from "./ToolbarDisplayMode.vue";
 import ToolbarFile from "./ToolbarFile.vue";
+import ToolbarLayout from "./ToolbarLayout.vue";
 import ToolbarScopeIndicator from "./ToolbarScopeIndicator.vue";
 import ToolbarUndoRedo from "./ToolbarUndoRedo.vue";
 import ToolbarViewLayer from "./ToolbarViewLayer.vue";
@@ -39,9 +43,14 @@ function shows(group: ToolbarGroupId): boolean {
     <span :class="classes.divider" aria-hidden="true" />
     <template v-if="shows('displayMode')"><ToolbarDisplayMode /></template>
     <template v-if="shows('viewToggles')"><ToolbarViewToggles /></template>
-    <!-- TODO(Task 4 follow-up): the layout group (Grid/Flow/Auto, 6.3) and the
-         alignment group (6.5) land with their commands; they are out of this
-         iteration. -->
+    <template v-if="shows('layout')">
+      <span :class="classes.divider" aria-hidden="true" />
+      <ToolbarLayout />
+    </template>
+    <template v-if="shows('align')">
+      <span :class="classes.divider" aria-hidden="true" />
+      <ToolbarAlign />
+    </template>
     <span :class="classes.divider" aria-hidden="true" />
     <template v-if="shows('viewLayer')"><ToolbarViewLayer /></template>
     <span :class="classes.divider" aria-hidden="true" />
@@ -50,5 +59,9 @@ function shows(group: ToolbarGroupId): boolean {
     <template v-if="shows('undoRedo')"><ToolbarUndoRedo /></template>
     <span :class="classes.divider" aria-hidden="true" />
     <template v-if="shows('file')"><ToolbarFile @menu="(key: string) => emit('menu', key)" /></template>
+    <template v-if="shows('config')">
+      <span :class="classes.divider" aria-hidden="true" />
+      <ToolbarConfig @menu="(key: string) => emit('menu', key)" />
+    </template>
   </div>
 </template>

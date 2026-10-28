@@ -249,4 +249,80 @@ describe("BottomPanel", () => {
     await wrapper.vm.$nextTick();
     assert.equal(notification()?.id, first, "errors stayed, no new toast");
   });
+
+  it("maximizes over the canvas and restores the normal height", async () => {
+    useDiagramStore().setDiagram(seedValid());
+    const settings = useSettingsStore();
+    settings.update({ panelBottomHeight: 200 });
+    const wrapper = mountPanel();
+    await wrapper
+      .find('[data-testid="bottom-panel-maximize"]')
+      .trigger("click");
+    const panel = () => wrapper.find('[data-testid="bottom-panel"]');
+    assert.equal(panel().attributes("data-maximized"), "true");
+    assert.ok(wrapper.find('[data-testid="bottom-panel-body"]').exists());
+    assert.ok(
+      !wrapper.find('[data-testid="bottom-panel-resizer"]').exists(),
+      "the maximized panel does not resize",
+    );
+    assert.equal(
+      settings.settings.panelBottomHeight,
+      200,
+      "maximizing does not touch the persisted height",
+    );
+    const stored = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY)!);
+    assert.equal(stored.maximized, undefined);
+    await wrapper
+      .find('[data-testid="bottom-panel-maximize"]')
+      .trigger("click");
+    assert.equal(panel().attributes("data-maximized"), undefined);
+    assert.ok(wrapper.find('[data-testid="bottom-panel-resizer"]').exists());
+  });
+
+  it("expands a collapsed panel when it is maximized", async () => {
+    useDiagramStore().setDiagram(seedValid());
+    const settings = useSettingsStore();
+    settings.update({ panelBottomCollapsed: true });
+    const wrapper = mountPanel();
+    assert.ok(!wrapper.find('[data-testid="bottom-panel-body"]').exists());
+    await wrapper
+      .find('[data-testid="bottom-panel-maximize"]')
+      .trigger("click");
+    assert.equal(settings.settings.panelBottomCollapsed, false);
+    assert.ok(wrapper.find('[data-testid="bottom-panel-body"]').exists());
+    assert.equal(
+      wrapper.find('[data-testid="bottom-panel"]').attributes("data-maximized"),
+      "true",
+    );
+  });
+
+  it("returns a maximized panel to the collapsed state through the toggle", async () => {
+    useDiagramStore().setDiagram(seedValid());
+    const settings = useSettingsStore();
+    const wrapper = mountPanel();
+    await wrapper
+      .find('[data-testid="bottom-panel-maximize"]')
+      .trigger("click");
+    await wrapper.find('[data-testid="bottom-panel-toggle"]').trigger("click");
+    assert.equal(settings.settings.panelBottomCollapsed, true);
+    assert.ok(!wrapper.find('[data-testid="bottom-panel-body"]').exists());
+    assert.equal(
+      wrapper.find('[data-testid="bottom-panel"]').attributes("data-maximized"),
+      undefined,
+    );
+  });
+
+  it("lists the recent commands in the log tab and clears only the list", async () => {
+    useDiagramStore().setDiagram(seedValid());
+    const history = useHistoryStore();
+    history.execute({ description: "Add table", execute() {}, undo() {} });
+    const wrapper = mountPanel();
+    await wrapper.find('[data-testid="tab-log"]').trigger("click");
+    assert.ok(wrapper.find('[data-testid="log-list"]').exists());
+    assert.ok(wrapper.text().includes("Add table"));
+    const depth = history.depth;
+    await wrapper.find('[data-testid="log-clear"]').trigger("click");
+    assert.ok(wrapper.find('[data-testid="log-empty"]').exists());
+    assert.equal(history.depth, depth, "the undo stack is untouched");
+  });
 });

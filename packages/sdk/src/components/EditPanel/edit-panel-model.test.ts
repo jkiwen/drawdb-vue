@@ -80,9 +80,11 @@ function sampleDiagram(): Diagram {
 }
 
 describe("resolvePanelTarget", () => {
-  it("shows the empty state when nothing is selected", () => {
-    const target = resolvePanelTarget(noSelection(), sampleDiagram());
-    assert.deepEqual(target, { kind: "empty", reason: "none" });
+  it("falls back to the diagram when nothing is selected", () => {
+    const diagram = sampleDiagram();
+    const target = resolvePanelTarget(noSelection(), diagram);
+    assert.equal(target.kind, "diagram");
+    assert.equal(target.kind === "diagram" ? target.diagram : null, diagram);
   });
 
   it("shows the table editor for a single selected table", () => {
@@ -103,12 +105,15 @@ describe("resolvePanelTarget", () => {
     if (target.kind === "tables") assert.equal(target.tables.length, 2);
   });
 
-  it("shows the empty state for a mixed multi selection", () => {
+  it("lists the parts of a mixed multi selection", () => {
     const target = resolvePanelTarget(
       { ...noSelection(), tableIds: ["t_users"], areaIds: ["area1"] },
       sampleDiagram(),
     );
-    assert.deepEqual(target, { kind: "empty", reason: "mixed" });
+    assert.deepEqual(target, {
+      kind: "mixed",
+      counts: { tables: 1, relationships: 0, areas: 1, notes: 0, fields: 0 },
+    });
   });
 
   it("shows the relationship editor with its logical counterpart", () => {

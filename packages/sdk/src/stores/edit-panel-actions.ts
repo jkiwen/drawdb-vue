@@ -83,6 +83,11 @@ export interface TableBatchPatch {
   comment?: string;
   /** The logical description; an empty string clears it. */
   logicalDescription?: string;
+  /** The table colour; an empty string clears it. */
+  color?: string;
+  locked?: boolean;
+  /** Whether the fields of the table show on the canvas. */
+  details?: boolean;
 }
 
 export function editPanelActions(
@@ -139,6 +144,11 @@ export function editPanelActions(
             patch.logicalDescription === "" ? undefined : patch.logicalDescription,
         };
       }
+      if (patch.color !== undefined) {
+        updates.color = patch.color === "" ? undefined : patch.color;
+      }
+      if (patch.locked !== undefined) updates.locked = patch.locked;
+      if (patch.details !== undefined) updates.details = patch.details;
       return new UpdateTableCommand(diagram, table.id, updates);
     });
     history.execute(new CompositeCommand("Update the selected tables", commands));
