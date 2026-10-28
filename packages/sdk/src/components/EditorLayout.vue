@@ -6,8 +6,11 @@ import type { CustomType, DatabaseType } from "@drawdb/core";
 import Canvas from "./Canvas/Canvas.vue";
 import EditorDialogs from "./EditorDialogs.vue";
 import Header from "./Header/Header.vue";
-import SidePanel from "./SidePanel/SidePanel.vue";
+import OutlineTree from "./Outline/OutlineTree.vue";
 import ResizablePanel from "./Layout/ResizablePanel.vue";
+import IssuesTab from "./SidePanel/IssuesTab.vue";
+import { useOutlineIntegration } from "../composables/use-outline-integration.ts";
+import { useUIStore } from "../stores/ui.ts";
 import { useDialogStore } from "../stores/dialogs.ts";
 import type { DrawDBSettings } from "../stores/settings.ts";
 import {
@@ -57,6 +60,19 @@ const dialogs = useDialogStore();
  * (the user global scope of the design discussion, Q5).
  */
 const settings = useSettingsStore();
+
+// The outline-to-canvas wiring lives in a composable so this file stays
+// under the 300 line budget.
+const { focusOutlineNode, assignTableToArea } = useOutlineIntegration();
+
+const ui = useUIStore();
+
+/**
+ * The interim bottom panel: an explicit validation (ui.activeTab "issues")
+ * expands it with the issue list until the full bottom area of Task 6
+ * (alerts / log / trace tabs) lands.
+ */
+const bottomOpen = computed(() => ui.activeTab === "issues");
 
 /** Whether the viewport is too narrow for two expanded panels. */
 function isSmallViewport(): boolean {
@@ -132,7 +148,10 @@ defineExpose({ openDialog, closeDialog });
         :max-width="PANEL_LEFT_MAX_WIDTH"
         :default-width="PANEL_LEFT_DEFAULT_WIDTH"
       >
-        <SidePanel :custom-types="customTypes" />
+        <OutlineTree
+          @focus="handleOutlineFocus"
+          @assign-to-area="handleAssignToArea"
+        />
       </ResizablePanel>
       <div class="ddb-editor__canvas">
         <Canvas />
@@ -154,8 +173,13 @@ defineExpose({ openDialog, closeDialog });
         <div class="ddb-editor__edit-panel" data-testid="edit-panel" />
       </ResizablePanel>
     </div>
-    <div class="ddb-editor__bottom-panel" data-testid="bottom-panel">
+    <div
+      class="ddb-editor__bottom-panel"
+      :class="{ 'ddb-editor__bottom-panel--open': bottomOpen }"
+      data-testid="bottom-panel"
+    >
       <span class="ddb-editor__bottom-panel-title">{{ t("issues") }}</span>
+      <IssuesTab v-if="bottomOpen" class="ddb-editor__bottom-panel-body" />
     </div>
     <EditorDialogs
       v-model:sql-preview-open="dialogs.sqlPreviewOpen"
@@ -216,5 +240,20 @@ defineExpose({ openDialog, closeDialog });
 .ddb-editor__bottom-panel-title {
   font-size: var(--ddb-text-meta, 12px);
   color: var(--ddb-text-muted, #6b7280);
+}
+
+.ddb-editor__bottom-panel--open {
+  flex: 0 0 168px;
+  height: 168px;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: var(--ddb-space-2, 8px) var(--ddb-space-3, 12px);
+}
+
+.ddb-editor__bottom-panel-body {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+  overflow: auto;
 }
 </style>

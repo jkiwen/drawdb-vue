@@ -84,10 +84,10 @@ describe("DrawDBEditor", () => {
     });
   }
 
-  it("renders the canvas and the side panel", () => {
+  it("renders the canvas and the outline tree", () => {
     const wrapper = mountEditor();
     assert.ok(wrapper.find('[data-testid="canvas"]').exists());
-    assert.ok(wrapper.find('[data-testid="side-panel"]').exists());
+    assert.ok(wrapper.find('[data-testid="outline-tree"]').exists());
   });
 
   it("renders the header", () => {
@@ -133,9 +133,9 @@ describe("DrawDBEditor", () => {
     assert.equal(useDiagramStore().tables[0].name, "customers");
   });
 
-  it("hides the side panel in the readonly mode", () => {
+  it("hides the outline tree in the readonly mode", () => {
     const wrapper = mountEditor({ readonly: true });
-    assert.ok(!wrapper.find('[data-testid="side-panel"]').exists());
+    assert.ok(!wrapper.find('[data-testid="outline-tree"]').exists());
   });
 
   it("saves the diagram with the storage adapter and emits save", async () => {
@@ -225,6 +225,6 @@ describe("DrawDBEditor", () => {
     assert.equal(useUIStore().sidebarOpen, true);
     useUIStore().toggleSidebar(false);
     await nextTick();
-    assert.ok(!wrapper.find('[data-testid="side-panel"]').exists());
+    assert.ok(!wrapper.find('[data-testid="outline-tree"]').exists());
   });
 });

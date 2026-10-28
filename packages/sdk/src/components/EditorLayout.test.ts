@@ -68,10 +68,10 @@ describe("EditorLayout", () => {
     return found;
   }
 
-  it("renders the header, the side panel, the canvas and the placeholders", () => {
+  it("renders the header, the outline, the canvas and the placeholders", () => {
     const wrapper = mountLayout();
     assert.ok(wrapper.find('[data-testid="header"]').exists());
-    assert.ok(wrapper.find('[data-testid="side-panel"]').exists());
+    assert.ok(wrapper.find('[data-testid="outline-tree"]').exists());
     assert.ok(wrapper.find('[data-testid="canvas"]').exists());
     assert.ok(wrapper.find('[data-testid="edit-panel"]').exists());
     assert.ok(wrapper.find('[data-testid="bottom-panel"]').exists());
@@ -79,7 +79,7 @@ describe("EditorLayout", () => {
 
   it("hides the left panel when the side panel is not shown", () => {
     const wrapper = mountLayout({ showSidePanel: false });
-    assert.ok(!wrapper.find('[data-testid="side-panel"]').exists());
+    assert.ok(!wrapper.find('[data-testid="outline-tree"]').exists());
     const left = wrapper
       .findAllComponents(ResizablePanel)
       .filter((candidate) => candidate.props("side") === "left");
