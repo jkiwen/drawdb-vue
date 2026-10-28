@@ -132,7 +132,7 @@
 
 ## 执行记录（2026-10-28）
 
-- **Task 1–7 全部完成**。提交序列：`2088f26`（core 视图状态）→ `99baa29`（SDK view-state store）→ `0b29b09`（布局骨架与面板）→ `7d3a094`（面板快捷键）→ `1f56db9`（树型大纲 + 双层画布）→ `c6b8c83`（树接入布局）→ `3a4d591`（工具栏 + 编辑面板 + 底部区）→ `48ee99d`（chrome 可配置 + 焦点滚动修复）→ `5e5ab8e`（51 locale 翻译）→ `ba57911`（CSS Modules 类型声明 + 复数规则）。
+- **Task 1–7 全部完成**。提交序列：`2088f26`（core 视图状态）→ `99baa29`（SDK view-state store）→ `0b29b09`（布局骨架与面板）→ `7d3a094`（面板快捷键）→ `1f56db9`（树型大纲 + 双层画布）→ `c6b8c83`（树接入布局）→ `3a4d591`（工具栏 + 编辑面板 + 底部区）→ `48ee99d`（chrome 可配置 + 焦点滚动修复）→ `5e5ab8e`（51 locale 翻译）→ `ba57911`（CSS Modules 类型声明 + 复数规则）→ `b1e9757`（e2e 跟随新交互）→ `1d5c462`（视图层镜像 + 产物测试）。
 - **偏差**：①Task 4 只落地六组工具栏（显示切换、逐项开关、双层切换、缩放/FullScreen、Undo/Redo、文件组），布局/对齐/配置三组按 UI 文档 §12.1 列为后续（配置组待 P6；布局与对齐未开工）；②打印/PrintPreview 未实现（Q8 形态已裁决，列后续）；③`ka.json` 实为 Kannada（仓库无 Georgian），按文件既有语言翻译；④`type_param.*` 三个 key 属 core 既有缺口，本次一并补入 51 locale，故新 key 总数为 108 而非 105；⑤导入侧 `fieldTypeSource` 用 `imported`（本计划 Task 6 原文写 `mapped`，P1–P4 已按 `imported` 落地）。
 - **验证**：`pnpm typecheck` 五段全绿（core / sdk / app / examples / e2e）；`pnpm test` 1026/1026；`pnpm build` 4/4（需 `NODE_OPTIONS=--max-old-space-size=8192`）；e2e 55/55；百表平移实测 60 fps（179 帧，最差帧 19 ms，探针脚本跑完即删）。
 - **新发现并修复的缺陷**：`View ▸ Toggle view mode` 与 `viewMode` prop 此前只切 `ui.viewMode`，而画布读 `viewState.viewLayer`（真 bug）；现由 ui store 镜像文档视图状态，并补 2 条单测。另有左侧面板两条隐藏路径语义不一致（菜单卸载 / mod+b 收起），记为 UI 文档 §11.1 Q21 待裁决。
