@@ -17,19 +17,26 @@ function codes(diagram: Diagram, options?: Parameters<typeof validateDiagram>[1]
 }
 
 function table(overrides: Partial<Table> & { id: string }): Table {
-  return {
+  const base: Table = {
+    id: overrides.id,
     name: "table",
     x: 0,
     y: 0,
     fields: [],
-    ...overrides,
+    logical: { id: `le-${overrides.id}`, name: "table", attributes: [] },
   };
+  const merged = { ...base, ...overrides };
+  if (overrides.logical === undefined) {
+    merged.logical = { id: `le-${merged.id}`, name: merged.name, attributes: [] };
+  }
+  return merged;
 }
 
 function field(overrides: Partial<Field> & { id: string }): Field {
   return {
     name: "field",
-    type: "INTEGER",
+    fieldType: { type: "INTEGER" },
+    fieldTypeSource: "explicit",
     ...overrides,
   };
 }
@@ -107,7 +114,7 @@ test("validation: reports a field without a name", () => {
 test("validation: reports a field without a type", () => {
   const diagram = createEmptyDiagram();
   diagram.tables.push(
-    table({ id: "t1", name: "users", fields: [field({ id: "f1", type: "" })] }),
+    table({ id: "t1", name: "users", fields: [field({ id: "f1", fieldType: { type: "" } })] }),
   );
 
   assert.ok(codes(diagram).includes("field.no_type"));
@@ -119,7 +126,7 @@ test("validation: reports an enum field without values", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", type: "ENUM", values: [] })],
+      fields: [field({ id: "f1", fieldType: { type: "ENUM" }, values: [] })],
     }),
   );
 
@@ -168,7 +175,7 @@ test("validation: reports a default that does not match the type", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", type: "INTEGER", default: "abc" })],
+      fields: [field({ id: "f1", fieldType: { type: "INTEGER" }, default: "abc" })],
     }),
   );
 
@@ -181,7 +188,7 @@ test("validation: accepts a numeric default for a numeric type", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", type: "INTEGER", default: "42" })],
+      fields: [field({ id: "f1", fieldType: { type: "INTEGER" }, default: "42" })],
     }),
   );
 
@@ -194,7 +201,7 @@ test("validation: accepts a keyword default for a date field", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", type: "TIMESTAMP", default: "CURRENT_TIMESTAMP" })],
+      fields: [field({ id: "f1", fieldType: { type: "TIMESTAMP" }, default: "CURRENT_TIMESTAMP" })],
     }),
   );
 

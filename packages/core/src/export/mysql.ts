@@ -3,6 +3,8 @@ import type { Field } from "../models/field.ts";
 import { getTypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
+  exportLogicalNameComment,
+  fieldSizeSuffix,
   getFkColumnNames,
   parseDefault,
   uniqueConstraintClause,
@@ -14,15 +16,15 @@ function quoteIdentifier(s: string): string {
 }
 
 function parseType(field: Field): string {
-  let res = field.type;
+  let res = field.fieldType.type;
 
-  if (field.type === "SET" || field.type === "ENUM") {
+  if (field.fieldType.type === "SET" || field.fieldType.type === "ENUM") {
     res += `${field.values ? "(" + field.values.map((value) => "'" + escapeQuotes(String(value)) + "'").join(", ") + ")" : ""}`;
   }
 
-  const meta = getTypeMetadata("mysql", field.type);
+  const meta = getTypeMetadata("mysql", field.fieldType.type);
   if (meta?.isSized || meta?.hasPrecision) {
-    res += `${field.size && field.size !== "" ? "(" + field.size + ")" : ""}`;
+    res += fieldSizeSuffix(field.fieldType);
   }
 
   return res;
@@ -35,8 +37,8 @@ function tablesToMySQL(diagram: Diagram): string {
         `CREATE TABLE IF NOT EXISTS ${quoteIdentifier(table.name)} (\n${table.fields
           .map(
             (field) =>
-              `\t${quoteIdentifier(field.name)} ${parseType(field)}${
-                getTypeMetadata("mysql", field.type)?.signed && field.unsigned
+              `${exportLogicalNameComment(table, field)}\t${quoteIdentifier(field.name)} ${parseType(field)}${
+                getTypeMetadata("mysql", field.fieldType.type)?.signed && field.unsigned
                   ? " UNSIGNED"
                   : ""
               }${field.notNull ? " NOT NULL" : ""}${
@@ -48,7 +50,7 @@ function tablesToMySQL(diagram: Diagram): string {
               }${
                 field.check === "" ||
                 field.check == null ||
-                !getTypeMetadata("mysql", field.type)?.hasCheck
+                !getTypeMetadata("mysql", field.fieldType.type)?.hasCheck
                   ? ""
                   : ` CHECK(${field.check})`
               }${field.comment ? ` COMMENT '${escapeQuotes(field.comment)}'` : ""}`,
@@ -66,7 +68,11 @@ function tablesToMySQL(diagram: Diagram): string {
               `\nCREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(
                 i.name,
               )}\nON ${quoteIdentifier(table.name)} (${i.fields
-                .map((f) => quoteIdentifier(f))
+                .map((f) =>
+                  quoteIdentifier(
+                    table.fields.find((fl) => fl.id === f)?.name ?? String(f),
+                  ),
+                )
                 .join(", ")});`,
           )
           .join("")}` : ""}`,

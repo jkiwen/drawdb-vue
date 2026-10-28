@@ -20,12 +20,13 @@ function seed(): Diagram {
         name: "users",
         x: 0,
         y: 0,
+        logical: { id: "l_t1", name: "users", attributes: [] },
         fields: [
-          { id: "f1", name: "", type: "INTEGER" },
-          { id: "f2", name: "email", type: "" },
+          { id: "f1", name: "", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
+          { id: "f2", name: "email", fieldType: { type: "" }, fieldTypeSource: "explicit" },
         ],
       },
-      { id: "t2", name: "orders", x: 300, y: 0, fields: [] },
+      { id: "t2", name: "orders", x: 300, y: 0, logical: { id: "l_t2", name: "orders", attributes: [] }, fields: [] },
     ],
     relationships: [],
     notes: [],
@@ -49,7 +50,16 @@ describe("use-issues", () => {
           name: "users",
           x: 0,
           y: 0,
-          fields: [{ id: "f1", name: "id", type: "INTEGER", primary: true }],
+          logical: {
+            id: "l_t1",
+            name: "users",
+            attributes: [
+              { id: "a_f1", name: "id", logicalType: { family: "integer" }, fieldId: "f1" },
+            ],
+          },
+          fields: [
+            { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          ],
         },
       ],
     });

@@ -428,19 +428,21 @@ class AddTableCommand implements Command {
 ### 8.1 物理视图
 
 - 显示真实表结构
-- 字段显示：名称、类型、长度、约束、默认值、注释
+- 字段显示：物理字段名、物理类型规格（类型 + 长度/精度/标度）、约束、默认值、注释
 - 关系显示：外键连线，基数标注
+- 逻辑/物理双层并存（erwin 式）：物理视图读取 `PhysicalField.name` 与 `PhysicalField.fieldType`；类型规格的来源由 `fieldTypeSource` 标记（`mapped` / `explicit` / `imported`）
 
 ### 8.2 逻辑视图
 
 - 显示业务实体关系
-- 字段显示：名称、业务描述
+- 字段显示：逻辑属性名、逻辑类型（族或域）、业务描述
 - 关系显示：实体关系（1:1, 1:N, N:M）
 - 隐藏技术细节（索引、约束、数据类型）
+- 视图即层：逻辑视图读取 `Table.logical`（`LogicalEntity`/`LogicalAttribute`），物理侧独有对象（View、自定义 Type/Enum）在逻辑视图不显示
 
 ### 8.3 切换机制
 
-- 同一数据源，不同渲染方式
+- 同一数据源（`Table` 内嵌逻辑实体），不同渲染方式
 - 视图模式切换不丢失数据
 - 各视图模式可独立配置显示选项
 

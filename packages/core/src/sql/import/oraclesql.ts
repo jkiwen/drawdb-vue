@@ -113,6 +113,11 @@ export function fromOracleSQL(
     const table: Table = {
       id: createId(),
       name: createTable.name.name,
+      logical: {
+        id: createId(),
+        name: createTable.name.name,
+        attributes: [],
+      },
       x: 0,
       y: 0,
       comment: "",
@@ -154,7 +159,10 @@ function parseColumn(
   const field: Field = {
     id: createId(),
     name: definition.name ?? "",
-    type: canonicalTypeName(diagramDb, ORACLE_TYPE_ALIASES[rawType] ?? rawType),
+    fieldType: {
+      type: canonicalTypeName(diagramDb, ORACLE_TYPE_ALIASES[rawType] ?? rawType),
+    },
+    fieldTypeSource: "imported",
     comment: "",
     check: "",
     default: "",
@@ -170,9 +178,10 @@ function parseColumn(
 
   const resolvedSize = size || precision;
   if (scale && precision) {
-    field.size = `${precision},${scale}`;
+    field.fieldType.precision = Number(precision);
+    field.fieldType.scale = Number(scale);
   } else if (resolvedSize !== undefined && resolvedSize !== null) {
-    field.size = resolvedSize;
+    field.fieldType.length = Number(resolvedSize);
   }
 
   (definition.constraints ?? []).forEach(
@@ -214,7 +223,10 @@ function applyConstraint(
   const constraint = definition.constraint;
 
   if (constraint?.unique === "unique" && Array.isArray(constraint.columns)) {
-    const fields = constraint.columns;
+    const fields = constraint.columns.map(
+      (column: string) =>
+        table.fields.find((f) => f.name === column)?.id ?? column,
+    );
     const name =
       definition.name && Boolean(definition.name.trim())
         ? definition.name

@@ -12,6 +12,7 @@ const emptyTable = (id: string, name: string) => ({
   x: 0,
   y: 0,
   fields: [],
+  logical: { id: `le-${id}`, name, attributes: [] },
 });
 
 describe("command manager", () => {
@@ -103,16 +104,26 @@ describe("command manager", () => {
       name: "users",
       x: 0,
       y: 0,
-      fields: [{ id: "f1", name: "id", type: "INT" }],
+      logical: { id: "le-t1", name: "users", attributes: [] },
+      fields: [
+        {
+          id: "f1",
+          name: "id",
+          fieldType: { type: "INT" },
+          fieldTypeSource: "explicit",
+        },
+      ],
     });
 
     const manager = new CommandManager();
     manager.execute(
-      new UpdateFieldCommand(diagram, "t1", "f1", { type: "BIGINT" }),
+      new UpdateFieldCommand(diagram, "t1", "f1", {
+        fieldType: { type: "BIGINT" },
+      }),
     );
-    assert.equal(diagram.tables[0].fields[0].type, "BIGINT");
+    assert.equal(diagram.tables[0].fields[0].fieldType.type, "BIGINT");
 
     manager.undo();
-    assert.equal(diagram.tables[0].fields[0].type, "INT");
+    assert.equal(diagram.tables[0].fields[0].fieldType.type, "INT");
   });
 });

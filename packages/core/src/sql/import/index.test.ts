@@ -14,8 +14,8 @@ describe("importSQL", () => {
     assert.equal(diagram.tables[0].fields[0].primary, true);
     assert.equal(diagram.tables[0].fields[0].increment, true);
     assert.equal(diagram.tables[0].fields[1].name, "name");
-    assert.equal(diagram.tables[0].fields[1].type, "VARCHAR");
-    assert.equal(diagram.tables[0].fields[1].size, 255);
+    assert.equal(diagram.tables[0].fields[1].fieldType.type, "VARCHAR");
+    assert.equal(diagram.tables[0].fields[1].fieldType.length, 255);
   });
 
   it("returns a diagram with the requested database", () => {
@@ -74,7 +74,12 @@ describe("importSQL", () => {
 
     assert.equal(users.indices?.length, 1);
     assert.equal(users.indices?.[0].name, "idx_email");
-    assert.deepEqual(users.indices?.[0].fields, ["email"]);
+    assert.deepEqual(
+      users.indices?.[0].fields.map(
+        (id) => users.fields.find((f) => f.id === id)?.name,
+      ),
+      ["email"],
+    );
     assert.equal(users.uniqueConstraints?.length, 1);
     assert.equal(users.uniqueConstraints?.[0].name, "uq_email");
   });
@@ -94,8 +99,8 @@ describe("importSQL", () => {
     const diagram = importSQL(sql, "sqlite");
 
     assert.equal(diagram.tables.length, 1);
-    assert.equal(diagram.tables[0].fields[0].type, "INTEGER");
-    assert.equal(diagram.tables[0].fields[1].type, "TEXT");
+    assert.equal(diagram.tables[0].fields[0].fieldType.type, "INTEGER");
+    assert.equal(diagram.tables[0].fields[1].fieldType.type, "TEXT");
   });
 
   it("imports a mariadb create table statement", () => {

@@ -37,12 +37,25 @@ import {
 
 /** A table with the fields of a simple schema. */
 function table(id: string, name: string, fields: Field[] = []): Table {
-  return { id, name, x: 0, y: 0, fields };
+  return {
+    id,
+    name,
+    x: 0,
+    y: 0,
+    fields,
+    logical: { id: `le-${id}`, name, attributes: [] },
+  };
 }
 
 /** A field of a table. */
 function field(id: string, name: string, overrides: Partial<Field> = {}): Field {
-  return { id, name, type: "INTEGER", ...overrides };
+  return {
+    id,
+    name,
+    fieldType: { type: "INTEGER" },
+    fieldTypeSource: "explicit",
+    ...overrides,
+  };
 }
 
 /** A relationship between two tables. */

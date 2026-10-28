@@ -24,16 +24,26 @@ function seed(pinia: Pinia) {
     name: "users",
     x: 40,
     y: 60,
+    logical: {
+      id: "l_users",
+      name: "users",
+      attributes: [
+        { id: "a_users_id", name: "id", logicalType: { family: "integer" }, fieldId: "users_id" },
+        { id: "a_users_name", name: "name", logicalType: { family: "string" }, fieldId: "users_name" },
+        { id: "a_users_email", name: "email", logicalType: { family: "string" }, fieldId: "users_email" },
+      ],
+    },
     fields: [
       {
         id: "users_id",
         name: "id",
-        type: "INTEGER",
+        fieldType: { type: "INTEGER" },
+        fieldTypeSource: "explicit",
         primary: true,
         notNull: true,
       },
-      { id: "users_name", name: "name", type: "VARCHAR", size: 255 },
-      { id: "users_email", name: "email", type: "VARCHAR", size: 255 },
+      { id: "users_name", name: "name", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
+      { id: "users_email", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
     ],
   });
 
@@ -253,7 +263,7 @@ describe("the editing of a table on the canvas", () => {
     setInputValue(wrapper, "field-type-input-users_name", "TEXT");
     await nextTick();
 
-    assert.equal(diagram.tables[0].fields[1].type, "TEXT");
+    assert.equal(diagram.tables[0].fields[1].fieldType.type, "TEXT");
   });
 
   it("the primary key flag of a field is toggled", async () => {

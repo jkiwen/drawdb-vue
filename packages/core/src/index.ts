@@ -23,6 +23,8 @@ export {
   typeTakesSize,
 } from "./types/registry.ts";
 export type { TypeFamily } from "./types/registry.ts";
+export * from "./types/family.ts";
+export { BUILTIN_FAMILIES, BUILTIN_FAMILY_IDS } from "./types/builtin-families.ts";
 export * from "./utils/arrange-tables.ts";
 export * from "./utils/clone.ts";
 export * from "./utils/id.ts";

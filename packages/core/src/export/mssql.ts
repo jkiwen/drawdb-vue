@@ -3,6 +3,8 @@ import type { Field } from "../models/field.ts";
 import { appendViews } from "./views.ts";
 import {
   escapeQuotes,
+  exportLogicalNameComment,
+  fieldSizeSuffix,
   getFkColumnNames,
   uniqueConstraintClause,
 } from "./shared.ts";
@@ -80,7 +82,7 @@ function parseDefault(field: Field): string | number | boolean | undefined {
     return field.default;
   }
 
-  const meta = getTypeMetadata(field.type);
+  const meta = getTypeMetadata(field.fieldType.type);
   if (
     isFunction(field.default) ||
     isKeyword(field.default) ||
@@ -93,11 +95,10 @@ function parseDefault(field: Field): string | number | boolean | undefined {
 }
 
 function parseType(field: Field): string {
-  const meta = getTypeMetadata(field.type);
+  const meta = getTypeMetadata(field.fieldType.type);
   const supportsSize = meta?.isSized || meta?.hasPrecision;
-  const size =
-    field.size && field.size !== "" && supportsSize ? `(${field.size})` : "";
-  return `${field.type}${size}`;
+  const size = supportsSize ? fieldSizeSuffix(field.fieldType) : "";
+  return `${field.fieldType.type}${size}`;
 }
 
 function generateAddExtendedPropertySQL(
@@ -138,8 +139,8 @@ function tablesToMssql(diagram: Diagram): string {
     .map((table) => {
       const fieldsSql = table.fields
         .map((field) => {
-          const meta = getTypeMetadata(field.type);
-          return `\t${quoteIdentifier(field.name)} ${parseType(field)}${
+          const meta = getTypeMetadata(field.fieldType.type);
+          return `${exportLogicalNameComment(table, field)}\t${quoteIdentifier(field.name)} ${parseType(field)}${
             field.notNull ? " NOT NULL" : ""
           }${field.increment ? " IDENTITY" : ""}${
             field.unique ? " UNIQUE" : ""
@@ -186,7 +187,11 @@ function tablesToMssql(diagram: Diagram): string {
             `\nCREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(
               i.name,
             )}\nON ${quoteIdentifier(table.name)} (${i.fields
-              .map((f) => quoteIdentifier(f))
+              .map((f) =>
+                quoteIdentifier(
+                  table.fields.find((fl) => fl.id === f)?.name ?? String(f),
+                ),
+              )
               .join(", ")});\nGO\n`,
         )
         .join("");

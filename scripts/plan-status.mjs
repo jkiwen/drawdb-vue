@@ -21,7 +21,8 @@ const PLAN = resolve(process.env.PLAN ?? "docs/plan.md");
 export function readSections(text) {
   const sections = [];
   let current = null;
-  for (const line of text.split("\n")) {
+  // Tolerate CRLF checkouts (Windows with core.autocrlf=true).
+  for (const line of text.split(/\r?\n/)) {
     const heading = /^## Task (\d+):\s*(.*)$/.exec(line);
     if (heading) {
       current = {

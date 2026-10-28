@@ -2,6 +2,7 @@ import { createEmptyDiagram } from "../models/diagram.ts";
 import type { DatabaseType, Diagram } from "../models/diagram.ts";
 import type { Area } from "../models/area.ts";
 import type { Enum } from "../models/enum.ts";
+import type { FieldId } from "../models/field.ts";
 import type { Note } from "../models/note.ts";
 import type { Relationship } from "../models/relationship.ts";
 import type { Table } from "../models/table.ts";
@@ -134,7 +135,7 @@ export function importDiagramJson(
     );
   }
 
-  const tableList = tables as Table[];
+  const tableList = normalizeFieldReferences(tables as Table[]);
   const relationshipList = (relationships ?? []) as Relationship[];
   const areaList = (subjectAreas ?? []) as Area[];
 
@@ -165,6 +166,35 @@ export function importDiagramJson(
   }
 
   return diagram;
+}
+
+/**
+ * Normalizes the field references of indices and unique constraints to
+ * field ids. Legacy documents stored the field names there; a name that
+ * matches no field id is resolved by name, anything else is kept as is.
+ * The source tables are not mutated.
+ */
+function normalizeFieldReferences(tables: Table[]): Table[] {
+  return tables.map((table) => {
+    const fields = table.fields ?? [];
+    const toId = (ref: FieldId): FieldId => {
+      const byId = fields.find((f) => String(f?.id) === String(ref));
+      if (byId) return byId.id;
+      const byName = fields.find((f) => f?.name === ref);
+      return byName ? byName.id : ref;
+    };
+    return {
+      ...table,
+      indices: table.indices?.map((ix) => ({
+        ...ix,
+        fields: (ix.fields ?? []).map(toId),
+      })),
+      uniqueConstraints: table.uniqueConstraints?.map((uc) => ({
+        ...uc,
+        fields: (uc.fields ?? []).map(toId),
+      })),
+    };
+  });
 }
 
 /**

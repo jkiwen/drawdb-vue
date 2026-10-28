@@ -39,10 +39,18 @@ function mountCanvas(pinia: Pinia) {
 }
 
 function seedTable(diagram: DiagramStore, table: Pick<Table, "id" | "x" | "y">): void {
+  const fieldId = `${table.id}_id`;
   diagram.addTable({
     name: String(table.id),
+    logical: {
+      id: `l_${table.id}`,
+      name: String(table.id),
+      attributes: [
+        { id: `a_${fieldId}`, name: "id", logicalType: { family: "integer" }, fieldId },
+      ],
+    },
     fields: [
-      { id: `${table.id}_id`, name: "id", type: "INTEGER", primary: true },
+      { id: fieldId, name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
     ],
     ...table,
   });

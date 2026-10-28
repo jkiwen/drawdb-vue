@@ -11,11 +11,13 @@ function makeDiagram() {
       name: "users",
       x: 0,
       y: 0,
+      logical: { id: "le-users", name: "users", attributes: [] },
       fields: [
         {
           id: "uid",
           name: "id",
-          type: "INTEGER",
+          fieldType: { type: "INTEGER" },
+          fieldTypeSource: "explicit",
           notNull: true,
           primary: true,
           increment: true,
@@ -23,41 +25,48 @@ function makeDiagram() {
         {
           id: "uname",
           name: "username",
-          type: "VARCHAR",
-          size: 255,
+          fieldType: { type: "VARCHAR", length: 255 },
+          fieldTypeSource: "explicit",
           notNull: true,
           unique: true,
         },
-        { id: "uem", name: "email", type: "VARCHAR", size: 255 },
+        {
+          id: "uem",
+          name: "email",
+          fieldType: { type: "VARCHAR", length: 255 },
+          fieldTypeSource: "explicit",
+        },
         {
           id: "ucredits",
           name: "credits",
-          type: "DECIMAL",
-          size: "10,2",
+          fieldType: { type: "DECIMAL", precision: 10, scale: 2 },
+          fieldTypeSource: "explicit",
           default: 0,
         },
         {
           id: "uactive",
           name: "active",
-          type: "BOOLEAN",
+          fieldType: { type: "BOOLEAN" },
+          fieldTypeSource: "explicit",
           default: "true",
         },
         {
           id: "unote",
           name: "note",
-          type: "TEXT",
+          fieldType: { type: "TEXT" },
+          fieldTypeSource: "explicit",
           check: "LENGTH(note) > 0",
         },
       ],
       comment: "User accounts",
       indices: [
-        { id: "idx_email", name: "idx_email", unique: false, fields: ["email"] },
+        { id: "idx_email", name: "idx_email", unique: false, fields: ["uem"] },
       ],
       uniqueConstraints: [
         {
           id: "uc_username_email",
           name: "uc_username_email",
-          fields: ["username", "email"],
+          fields: ["uname", "uem"],
         },
       ],
     },
@@ -66,11 +75,13 @@ function makeDiagram() {
       name: "posts",
       x: 300,
       y: 0,
+      logical: { id: "le-posts", name: "posts", attributes: [] },
       fields: [
         {
           id: "pid",
           name: "id",
-          type: "INTEGER",
+          fieldType: { type: "INTEGER" },
+          fieldTypeSource: "explicit",
           notNull: true,
           primary: true,
           increment: true,
@@ -78,14 +89,15 @@ function makeDiagram() {
         {
           id: "puid",
           name: "user_id",
-          type: "INTEGER",
+          fieldType: { type: "INTEGER" },
+          fieldTypeSource: "explicit",
           notNull: true,
         },
         {
           id: "ptitle",
           name: "title",
-          type: "VARCHAR",
-          size: 200,
+          fieldType: { type: "VARCHAR", length: 200 },
+          fieldTypeSource: "explicit",
           notNull: true,
         },
       ],
@@ -175,13 +187,73 @@ describe("toGeneric", () => {
       name: "defaults",
       x: 0,
       y: 0,
+      logical: { id: "le-t1", name: "defaults", attributes: [] },
       fields: [
-        { id: "f1", name: "n", type: "INTEGER", default: 42 },
-        { id: "f2", name: "s", type: "VARCHAR", size: 50, default: "hello" },
+        {
+          id: "f1",
+          name: "n",
+          fieldType: { type: "INTEGER" },
+          fieldTypeSource: "explicit",
+          default: 42,
+        },
+        {
+          id: "f2",
+          name: "s",
+          fieldType: { type: "VARCHAR", length: 50 },
+          fieldTypeSource: "explicit",
+          default: "hello",
+        },
       ],
     });
     const sql = toGeneric(diagram);
     assert.match(sql, /"n" INTEGER DEFAULT 42/);
     assert.match(sql, /"s" VARCHAR\(50\) DEFAULT 'hello'/);
+  });
+
+  it("emits the logical attribute name as a comment when it differs", () => {
+    const diagram = createEmptyDiagram({ database: "generic" });
+    diagram.tables.push({
+      id: "t1",
+      name: "accounts",
+      x: 0,
+      y: 0,
+      logical: {
+        id: "le-t1",
+        name: "Account",
+        attributes: [
+          {
+            id: "a1",
+            name: "User Name",
+            logicalType: { family: "string" },
+            fieldId: "f1",
+          },
+          {
+            id: "a2",
+            name: "email",
+            logicalType: { family: "string" },
+            fieldId: "f2",
+          },
+        ],
+      },
+      fields: [
+        {
+          id: "f1",
+          name: "user_name",
+          fieldType: { type: "VARCHAR", length: 50 },
+          fieldTypeSource: "explicit",
+        },
+        {
+          id: "f2",
+          name: "email",
+          fieldType: { type: "VARCHAR", length: 255 },
+          fieldTypeSource: "explicit",
+        },
+      ],
+    });
+    const sql = toGeneric(diagram);
+    // Diverging logical name is exported as a comment (spec Q7).
+    assert.match(sql, /-- User Name\n\t"user_name"/);
+    // Identical names produce no redundant comment.
+    assert.doesNotMatch(sql, /-- email\n/);
   });
 });

@@ -45,7 +45,15 @@ const svgRef = ref<SVGSVGElement | null>(null);
  * origin, instead of crashing the canvas.
  */
 const tableOf = (id: number | string) =>
-  diagram.tableById(id) ?? ({ id: 0, name: "", x: 0, y: 0, fields: [] });
+  diagram.tableById(id) ??
+  ({
+    id: 0,
+    name: "",
+    x: 0,
+    y: 0,
+    fields: [],
+    logical: { id: "l_fallback", name: "", attributes: [] },
+  } as const);
 
 const items = useCanvasItems({
   width: () => props.width,

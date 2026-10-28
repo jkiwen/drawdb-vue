@@ -133,7 +133,16 @@ test("opens the editor of a diagram", async () => {
           name: "invoices",
           x: 0,
           y: 0,
-          fields: [{ id: "f1", name: "id", type: "INTEGER", primary: true }],
+          logical: {
+            id: "l_t1",
+            name: "invoices",
+            attributes: [
+              { id: "a_f1", name: "id", logicalType: { family: "integer" }, fieldId: "f1" },
+            ],
+          },
+          fields: [
+            { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          ],
         },
       ];
       await storage.save(diagram);
@@ -158,14 +167,32 @@ test("arranges the tables and opens the issues of the diagram", async () => {
         name: "users",
         x: 4000,
         y: 3000,
-        fields: [{ id: "f1", name: "id", type: "INTEGER", primary: true }],
+        logical: {
+          id: "l_t1",
+          name: "users",
+          attributes: [
+            { id: "a_f1", name: "id", logicalType: { family: "integer" }, fieldId: "f1" },
+          ],
+        },
+        fields: [
+          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+        ],
       },
       {
         id: "t2",
         name: "invoices",
         x: 9000,
         y: 3000,
-        fields: [{ id: "f2", name: "id", type: "INTEGER", primary: true }],
+        logical: {
+          id: "l_t2",
+          name: "invoices",
+          attributes: [
+            { id: "a_f2", name: "id", logicalType: { family: "integer" }, fieldId: "f2" },
+          ],
+        },
+        fields: [
+          { id: "f2", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+        ],
       },
     ];
     await storage.save(diagram);

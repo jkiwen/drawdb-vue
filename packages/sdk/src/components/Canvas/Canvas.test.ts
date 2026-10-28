@@ -25,9 +25,17 @@ function seed() {
     name: "users",
     x: 40,
     y: 60,
+    logical: {
+      id: "l_users",
+      name: "users",
+      attributes: [
+        { id: "a_users_id", name: "id", logicalType: { family: "integer" }, fieldId: "users_id" },
+        { id: "a_users_name", name: "name", logicalType: { family: "string" }, fieldId: "users_name" },
+      ],
+    },
     fields: [
-      { id: "users_id", name: "id", type: "INTEGER", primary: true, notNull: true },
-      { id: "users_name", name: "name", type: "VARCHAR", size: 255 },
+      { id: "users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, notNull: true },
+      { id: "users_name", name: "name", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
     ],
   });
 
@@ -36,9 +44,17 @@ function seed() {
     name: "posts",
     x: 420,
     y: 60,
+    logical: {
+      id: "l_posts",
+      name: "posts",
+      attributes: [
+        { id: "a_posts_id", name: "id", logicalType: { family: "integer" }, fieldId: "posts_id" },
+        { id: "a_posts_user_id", name: "user_id", logicalType: { family: "integer" }, fieldId: "posts_user_id" },
+      ],
+    },
     fields: [
-      { id: "posts_id", name: "id", type: "INTEGER", primary: true },
-      { id: "posts_user_id", name: "user_id", type: "INTEGER" },
+      { id: "posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+      { id: "posts_user_id", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
     ],
   });
 
@@ -115,6 +131,7 @@ describe("Canvas", () => {
       name: "far_away",
       x: 9000,
       y: 9000,
+      logical: { id: "l_far_away", name: "far_away", attributes: [] },
       fields: [],
     });
 

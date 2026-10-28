@@ -20,12 +20,20 @@ function seed(): Diagram {
         name: "users",
         x: 0,
         y: 0,
+        logical: {
+          id: "l_t1",
+          name: "users",
+          attributes: [
+            { id: "a_f1", name: "id", logicalType: { family: "integer" }, fieldId: "f1" },
+            { id: "a_f2", name: "email", logicalType: { family: "string" }, fieldId: "f2" },
+          ],
+        },
         fields: [
-          { id: "f1", name: "id", type: "INTEGER", primary: true },
-          { id: "f2", name: "email", type: "VARCHAR(255)", notNull: true },
+          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "f2", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit", notNull: true },
         ],
       },
-      { id: "t2", name: "orders", x: 300, y: 0, fields: [] },
+      { id: "t2", name: "orders", x: 300, y: 0, logical: { id: "l_t2", name: "orders", attributes: [] }, fields: [] },
     ],
     relationships: [
       {

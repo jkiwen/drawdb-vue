@@ -1,5 +1,7 @@
 # erwin 类型系统核心（P1–P4）实施计划
 
+> **Status: ✅ 已完成（2026-10-28，分支 `erwin-type-system-core`）**——Task 1–7 全部落地，`pnpm typecheck` / `pnpm test`（828/828）/ `pnpm build` 全绿。提交：`5c42a03`（P1a）、`168a49d`（P1b）、`28b5ded`（P1c）、`e65dc84`（P2）、`d83d452`（P3）、`05bb133`（P4 导出器）、`a4aff15`（P4 sdk/app）、`7465c83`（P4 收尾），另 `4abebe2`（执行前提：CRLF 修复）。执行偏差见文末「执行偏差记录」。
+>
 > **来源**：`sdk-workspace/docs/superpowers/specs/2026-10-26-erwin-type-system-design.md`（spec，Q1–Q33 已裁决，D1–D27）。
 > **范围**：spec §13 的 **P1 模型 → P2 解析器 → P3 lint → P4 导出接入**；P3/P4 可并行。
 > **不在本期**：P2'（索引/约束双名对象化，仅做 P1 约定的「索引字段引用 名字→id」最小改动）、P5 SDK 视图、P6 App 作用域装配、P7 erwin 导入器、P8 DSL。
@@ -147,3 +149,11 @@
 - R3：新 code 默认低 severity，误报降级不删除。
 - R10：平行数组孤儿 → INV 测试 + Map 索引校验。
 - 序列化格式：本期模型变更**不做**旧数据迁移（已裁决）；`serialize/` 只保证新结构往返。
+
+## 执行偏差记录（2026-10-28 执行后补录）
+
+- **Task 6 第 5 项**：导入侧 ieldTypeSource 由计划原文的 "mapped" 改为 "imported"——SQL/DBML 导入携带的是外部权威物理定义，置 mapped 会在映射编辑时被 econcilePhysicalTypes 重算覆盖（与 spec Q8 语义一致）。后续文档/计划引用以 "imported" 为准。
+- **Task 2**：内置族默认值不放 defaultParams，而是写进各映射行（spec §4.1：族默认优先级高于映射自带，放 defaultParams 会让作用域映射覆盖永远无法生效）；守卫测试相应改为断言 defaultParams === undefined 且映射行含默认值。
+- **Task 6 第 1 项**：收敛 genericMetadata 前先在 	ypes/registry.ts 手工补齐 generic 方言差异项（白名单 +INTEGER/+DOUBLE PRECISION、TEXT 改 isSized:false/hasCheck:true、REAL 加 hasPrecision:true），并新增 xport/generic.snapshot.test.ts 快照钉住迁移前后输出字节一致。
+- **执行方式**：Task 3 的 core 编译扫尾与 packages/app + packages/sdk 的夹具/UI 迁移由 Agent Teams 队友（core-sweep / app-sweep）完成，Lead 复验后提交；Task 5/6 按计划在队友工作期间并行推进。
+- **环境**：pnpm build 中 drawdb-vue-app 需要 NODE_OPTIONS=--max-old-space-size=8192（默认堆 exit 134）；Windows 杀软会短暂锁 esbuild 临时文件，重试即可。

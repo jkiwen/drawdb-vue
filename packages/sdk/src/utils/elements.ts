@@ -36,11 +36,13 @@ export function createTable(
   name: string,
   position: { x: number; y: number } = { x: 0, y: 0 },
 ): Table {
+  const id = createId();
   return {
-    id: createId(),
+    id,
     name,
     x: position.x,
     y: position.y,
+    logical: { id: `l_${id}`, name, attributes: [] },
     fields: [],
   };
 }

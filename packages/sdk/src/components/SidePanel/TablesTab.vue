@@ -61,7 +61,7 @@ function resetDrafts(): void {
   if (!table) return;
   nameDraft.value = table.name;
   for (const field of table.fields) {
-    fieldDrafts[String(field.id)] = { name: field.name, type: field.type };
+    fieldDrafts[String(field.id)] = { name: field.name, type: field.fieldType.type };
   }
 }
 
@@ -98,8 +98,11 @@ function commitFieldType(fieldId: string | number, value: string): void {
   const table = selectedTable.value;
   if (!table) return;
   const field = table.fields.find((item) => item.id === fieldId);
-  if (!field || field.type === value) return;
-  diagram.updateField(table.id, fieldId, { type: value });
+  if (!field || field.fieldType.type === value) return;
+  diagram.updateField(table.id, fieldId, {
+    fieldType: { ...field.fieldType, type: value },
+    fieldTypeSource: "explicit",
+  });
 }
 
 function setFieldFlag(
@@ -124,7 +127,12 @@ function addField(): void {
   if (!table) return;
   const id = createId();
   const name = uniqueFieldName(table.fields.map((field) => field.name));
-  diagram.addField(table.id, { id, name, type: "" });
+  diagram.addField(table.id, {
+    id,
+    name,
+    fieldType: { type: "" },
+    fieldTypeSource: "explicit",
+  });
   fieldDrafts[String(id)] = { name, type: "" };
 }
 
@@ -211,7 +219,7 @@ function removeTable(): void {
             @change="commitFieldName(field.id, $event)"
           />
           <NInput
-            :value="fieldDrafts[String(field.id)]?.type ?? field.type"
+            :value="fieldDrafts[String(field.id)]?.type ?? field.fieldType.type"
             size="small"
             placeholder="type"
             :data-testid="`field-type-${field.id}`"

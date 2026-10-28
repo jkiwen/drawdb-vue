@@ -1,5 +1,5 @@
 import type { Diagram } from "../models/diagram.ts";
-import type { Field } from "../models/field.ts";
+import type { Field, FieldId } from "../models/field.ts";
 import type { Relationship } from "../models/relationship.ts";
 import type { Table } from "../models/table.ts";
 import { getTypeMetadata } from "../export/dialect-meta.ts";
@@ -24,7 +24,7 @@ function parseDefaultDbml(field: Field, database: string): string {
 
   if (
     isKeyword(String(field.default)) ||
-    !getTypeMetadata(database as Diagram["database"], field.type)?.hasQuotes
+    !getTypeMetadata(database as Diagram["database"], field.fieldType.type)?.hasQuotes
   ) {
     return String(field.default);
   }
@@ -100,7 +100,7 @@ function inlineEnumBlocks(tables: Table[]): string[] {
 
   for (const table of tables) {
     for (const field of table.fields) {
-      if (!isInlineEnumType(field.type) || !Array.isArray(field.values)) {
+      if (!isInlineEnumType(field.fieldType.type) || !Array.isArray(field.values)) {
         continue;
       }
 
@@ -132,12 +132,14 @@ function indexEntry(
 }
 
 function indexesBlock(table: Table): string {
+  const resolveNames = (ids: FieldId[] | undefined): string[] | undefined =>
+    ids?.map((id) => table.fields.find((f) => f.id === id)?.name ?? String(id));
   const entries = [
     ...(table.indices ?? []).map((index) =>
-      indexEntry(index.fields, index.name, index.unique),
+      indexEntry(resolveNames(index.fields), index.name, index.unique),
     ),
     ...(table.uniqueConstraints ?? []).map((constraint) =>
-      indexEntry(constraint.fields, constraint.name, true),
+      indexEntry(resolveNames(constraint.fields), constraint.name, true),
     ),
   ].filter(Boolean) as string[];
 

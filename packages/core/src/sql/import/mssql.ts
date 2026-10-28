@@ -49,6 +49,11 @@ export function fromMSSQL(
         const table: Table = {
           id: createId(),
           name: statement.table[0].table,
+          logical: {
+            id: createId(),
+            name: statement.table[0].table,
+            attributes: [],
+          },
           x: 0,
           y: 0,
           comment: "",
@@ -79,16 +84,18 @@ export function fromMSSQL(
 
         tables.push(table);
       } else if (statement.keyword === "index") {
-        const index = {
-          name: statement.index,
-          unique: statement.index_type === "unique",
-          fields: (statement.index_columns ?? []).map(
-            (column: ASTNode) => column.column,
-          ),
-        };
-
         const table = tables.find((entry) => entry.name === statement.table.table);
         if (table) {
+          const index = {
+            name: statement.index,
+            unique: statement.index_type === "unique",
+            fields: (statement.index_columns ?? []).map(
+              (column: ASTNode) =>
+                table.fields.find((f) => f.name === column.column)?.id ??
+                column.column,
+            ),
+          };
+
           table.indices = table.indices ?? [];
           table.indices.push(index);
           table.indices.forEach((entry, position) => {
@@ -141,7 +148,10 @@ function parseColumn(definition: ASTNode, diagramDb: DatabaseType): Field {
   const field: Field = {
     id: createId(),
     name: definition.column.column,
-    type: canonicalTypeName(diagramDb, definition.definition.dataType),
+    fieldType: {
+      type: canonicalTypeName(diagramDb, definition.definition.dataType),
+    },
+    fieldTypeSource: "imported",
     comment: "",
     unique: Boolean(definition.unique),
     increment: Boolean(definition.auto_increment),
@@ -157,9 +167,13 @@ function parseColumn(definition: ASTNode, diagramDb: DatabaseType): Field {
 
   const length = definition.definition.length;
   if (length !== undefined && length !== null) {
-    field.size = definition.definition.scale
-      ? `${length},${definition.definition.scale}`
-      : length;
+    const scale = definition.definition.scale;
+    if (scale !== undefined && scale !== null) {
+      field.fieldType.precision = Number(length);
+      field.fieldType.scale = Number(scale);
+    } else {
+      field.fieldType.length = Number(length);
+    }
   }
 
   if (definition.check) {
@@ -200,7 +214,9 @@ function applyConstraint(
 
   if (constraintType.includes("unique")) {
     const fields = (definition.definition ?? []).map(
-      (column: ASTNode) => column.column,
+      (column: ASTNode) =>
+        table.fields.find((f) => f.name === column.column)?.id ??
+        column.column,
     );
     const name =
       definition.constraint ||

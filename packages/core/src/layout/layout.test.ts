@@ -12,11 +12,28 @@ const HEADER_HEIGHT = 50;
 const FIELD_HEIGHT = 36;
 
 function field(overrides: Partial<Field> & { id: string }): Field {
-  return { name: "field", type: "INTEGER", ...overrides };
+  return {
+    name: "field",
+    fieldType: { type: "INTEGER" },
+    fieldTypeSource: "explicit",
+    ...overrides,
+  };
 }
 
 function table(overrides: Partial<Table> & { id: string }): Table {
-  return { name: "table", x: 0, y: 0, fields: [], ...overrides };
+  const base: Table = {
+    name: "table",
+    x: 0,
+    y: 0,
+    fields: [],
+    logical: { id: "le-table", name: "table", attributes: [] },
+    id: overrides.id,
+  };
+  const merged = { ...base, ...overrides };
+  if (!overrides.logical) {
+    merged.logical = { id: `le-${overrides.id}`, name: merged.name, attributes: [] };
+  }
+  return merged;
 }
 
 function relationship(

@@ -19,12 +19,12 @@ describe("fromMariaDB", () => {
 
     const [id, name] = tables[0].fields;
     assert.equal(id.name, "id");
-    assert.equal(id.type, "INTEGER");
+    assert.equal(id.fieldType.type, "INTEGER");
     assert.equal(id.primary, true);
     assert.equal(id.increment, true);
     assert.equal(name.name, "name");
-    assert.equal(name.type, "VARCHAR");
-    assert.equal(name.size, 255);
+    assert.equal(name.fieldType.type, "VARCHAR");
+    assert.equal(name.fieldType.length, 255);
 
     assert.equal(relationships.length, 0);
   });
@@ -86,11 +86,21 @@ describe("fromMariaDB", () => {
 
     assert.equal(users.uniqueConstraints?.length, 1);
     assert.equal(users.uniqueConstraints?.[0].name, "uq_email");
-    assert.deepEqual(users.uniqueConstraints?.[0].fields, ["email"]);
+    assert.deepEqual(
+      users.uniqueConstraints?.[0].fields.map(
+        (id) => users.fields.find((f) => f.id === id)?.name,
+      ),
+      ["email"],
+    );
 
     assert.equal(users.indices?.length, 1);
     assert.equal(users.indices?.[0].name, "idx_email");
-    assert.deepEqual(users.indices?.[0].fields, ["email"]);
+    assert.deepEqual(
+      users.indices?.[0].fields.map(
+        (id) => users.fields.find((f) => f.id === id)?.name,
+      ),
+      ["email"],
+    );
   });
 
   it("imports an alter table add foreign key as a relationship", () => {
@@ -128,10 +138,11 @@ describe("fromMariaDB", () => {
     );
     const { tables } = fromMariaDB(ast);
 
-    assert.equal(tables[0].fields[0].type, "INTEGER");
-    assert.equal(tables[0].fields[1].type, "MEDIUMINT");
-    assert.equal(tables[0].fields[2].type, "JSON");
-    assert.equal(tables[0].fields[3].type, "DECIMAL");
-    assert.equal(tables[0].fields[3].size, "10,2");
+    assert.equal(tables[0].fields[0].fieldType.type, "INTEGER");
+    assert.equal(tables[0].fields[1].fieldType.type, "MEDIUMINT");
+    assert.equal(tables[0].fields[2].fieldType.type, "JSON");
+    assert.equal(tables[0].fields[3].fieldType.type, "DECIMAL");
+    assert.equal(tables[0].fields[3].fieldType.precision, 10);
+    assert.equal(tables[0].fields[3].fieldType.scale, 2);
   });
 });

@@ -28,9 +28,10 @@ function makeTable(overrides: Partial<Table> = {}): Table {
     name: "t1",
     x: 100,
     y: 200,
+    logical: { id: "l_t1", name: "t1", attributes: [] },
     fields: [
-      { id: "f1", name: "id", type: "INTEGER" },
-      { id: "f2", name: "name", type: "VARCHAR" },
+      { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
+      { id: "f2", name: "name", fieldType: { type: "VARCHAR" }, fieldTypeSource: "explicit" },
     ],
     ...overrides,
   };

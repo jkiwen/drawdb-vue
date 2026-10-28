@@ -1,8 +1,26 @@
 import type { Diagram } from "../models/diagram.ts";
 import type { Field } from "../models/field.ts";
+import type { PhysicalSpec } from "../models/physical.ts";
 import type { Relationship } from "../models/relationship.ts";
 import type { Table } from "../models/table.ts";
 import { getTypeMetadata } from "./dialect-meta.ts";
+
+/**
+ * Render the size/precision suffix of a physical type, e.g. `(255)` or
+ * `(10,2)`. Prefers `length`, then `precision`/`scale`. Empty when the
+ * spec carries no size at all.
+ */
+export function fieldSizeSuffix(spec: PhysicalSpec): string {
+  if (spec.length !== undefined && spec.length !== null) {
+    return `(${spec.length})`;
+  }
+  if (spec.precision !== undefined && spec.precision !== null) {
+    return spec.scale !== undefined && spec.scale !== null
+      ? `(${spec.precision},${spec.scale})`
+      : `(${spec.precision})`;
+  }
+  return "";
+}
 
 export interface FkColumnNames {
   startColumns: (string | undefined)[];
@@ -72,7 +90,7 @@ export function parseDefault(
     return field.default;
   }
 
-  const typeInfo = getTypeMetadata(database, field.type);
+  const typeInfo = getTypeMetadata(database, field.fieldType.type);
   if (
     isFunction(field.default) ||
     isKeyword(field.default) ||
@@ -95,6 +113,21 @@ export function exportFieldComment(comment: string): string {
     .join("");
 }
 
+/**
+ * Comment line carrying the logical attribute name when it diverges from the
+ * physical field name (spec Q7). Empty when there is no pairing or the names
+ * are identical, so existing diagrams keep byte-identical output.
+ */
+export function exportLogicalNameComment(table: Table, field: Field): string {
+  const attribute = table.logical?.attributes?.find(
+    (a) => a.fieldId === field.id,
+  );
+  if (!attribute || attribute.name === field.name) {
+    return "";
+  }
+  return `\t-- ${attribute.name}\n`;
+}
+
 export function uniqueConstraintClause(
   table: Table,
   quote: (s: string) => string,
@@ -110,7 +143,9 @@ export function uniqueConstraintClause(
       .map(
         (uc) =>
           `\tCONSTRAINT ${quote(uc.name)} UNIQUE (${uc.fields
-            .map((f) => quote(f))
+            .map((id) =>
+              quote(table.fields.find((f) => f.id === id)?.name ?? String(id)),
+            )
             .join(", ")})`,
       )
       .join(",\n")

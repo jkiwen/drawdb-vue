@@ -23,17 +23,17 @@ describe("fromOracleSQL", () => {
 
     const [id, email, name] = tables[0].fields;
     assert.equal(id.name, "id");
-    assert.equal(id.type, "NUMBER");
+    assert.equal(id.fieldType.type, "NUMBER");
     assert.equal(id.primary, true);
     assert.equal(id.notNull, false);
     assert.equal(email.name, "email");
-    assert.equal(email.type, "VARCHAR2");
-    assert.equal(email.size, 255);
+    assert.equal(email.fieldType.type, "VARCHAR2");
+    assert.equal(email.fieldType.length, 255);
     assert.equal(email.notNull, true);
     assert.equal(email.unique, true);
     assert.equal(name.name, "name");
-    assert.equal(name.type, "VARCHAR2");
-    assert.equal(name.size, 100);
+    assert.equal(name.fieldType.type, "VARCHAR2");
+    assert.equal(name.fieldType.length, 100);
     assert.equal(name.primary, false);
 
     assert.equal(relationships.length, 0);
@@ -105,7 +105,12 @@ describe("fromOracleSQL", () => {
     assert.equal(items.uniqueConstraints?.length, 1);
     assert.equal(items.uniqueConstraints?.[0].name, "uq_items_label");
     assert.equal(items.uniqueConstraints?.[0].id, 0);
-    assert.deepEqual(items.uniqueConstraints?.[0].fields, ["label"]);
+    assert.deepEqual(
+      items.uniqueConstraints?.[0].fields.map(
+        (id) => items.fields.find((f) => f.id === id)?.name,
+      ),
+      ["label"],
+    );
   });
 
   it("uses oracle type canonicalisation and keeps the precision and scale", () => {
@@ -120,11 +125,12 @@ describe("fromOracleSQL", () => {
     const { tables } = fromOracleSQL(ast);
     const fields = tables[0].fields;
 
-    assert.equal(fields[0].type, "INTEGER");
-    assert.equal(fields[1].type, "NUMBER");
-    assert.equal(fields[1].size, "10,2");
-    assert.equal(fields[2].type, "FLOAT");
-    assert.equal(fields[3].type, "INTEGER");
+    assert.equal(fields[0].fieldType.type, "INTEGER");
+    assert.equal(fields[1].fieldType.type, "NUMBER");
+    assert.equal(fields[1].fieldType.precision, 10);
+    assert.equal(fields[1].fieldType.scale, 2);
+    assert.equal(fields[2].fieldType.type, "FLOAT");
+    assert.equal(fields[3].fieldType.type, "INTEGER");
   });
 
   it("maps the oracle type aliases of the React importer", () => {
@@ -139,10 +145,10 @@ describe("fromOracleSQL", () => {
     const { tables } = fromOracleSQL(ast);
     const fields = tables[0].fields;
 
-    assert.equal(fields[0].type, "NUMBER");
-    assert.equal(fields[1].type, "NUMBER");
-    assert.equal(fields[2].type, "INTEGER");
-    assert.equal(fields[3].type, "CHAR");
+    assert.equal(fields[0].fieldType.type, "NUMBER");
+    assert.equal(fields[1].fieldType.type, "NUMBER");
+    assert.equal(fields[2].fieldType.type, "INTEGER");
+    assert.equal(fields[3].fieldType.type, "CHAR");
   });
 
   it("accepts a single statement instead of a list", () => {

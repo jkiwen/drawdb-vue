@@ -1,81 +1,19 @@
 import type { Diagram } from "../models/diagram.ts";
 import type { Field } from "../models/field.ts";
-import type { TypeMetadata } from "./dialect-meta.ts";
+import { getTypeMetadata } from "./dialect-meta.ts";
 import {
   escapeQuotes,
   exportFieldComment,
+  exportLogicalNameComment,
+  fieldSizeSuffix,
   getFkColumnNames,
   uniqueConstraintClause,
 } from "./shared.ts";
 import { appendViews } from "./views.ts";
 
-const genericMetadata: Record<string, TypeMetadata> = {
-  INTEGER: {
-    isSized: false,
-    hasPrecision: false,
-    hasCheck: true,
-    hasQuotes: false,
-  },
-  BIGINT: { isSized: false, hasPrecision: false, hasCheck: true, hasQuotes: false },
-  SMALLINT: {
-    isSized: false,
-    hasPrecision: false,
-    hasCheck: true,
-    hasQuotes: false,
-  },
-  DECIMAL: {
-    isSized: false,
-    hasPrecision: true,
-    hasCheck: true,
-    hasQuotes: false,
-  },
-  NUMERIC: {
-    isSized: false,
-    hasPrecision: true,
-    hasCheck: true,
-    hasQuotes: false,
-  },
-  REAL: { isSized: false, hasPrecision: true, hasCheck: true, hasQuotes: false },
-  "DOUBLE PRECISION": {
-    isSized: false,
-    hasPrecision: true,
-    hasCheck: true,
-    hasQuotes: false,
-  },
-  FLOAT: { isSized: false, hasPrecision: true, hasCheck: true, hasQuotes: false },
-  VARCHAR: {
-    isSized: true,
-    hasPrecision: false,
-    hasCheck: true,
-    hasQuotes: true,
-  },
-  CHAR: { isSized: true, hasPrecision: false, hasCheck: true, hasQuotes: true },
-  TEXT: { isSized: false, hasPrecision: false, hasCheck: true, hasQuotes: true },
-  BOOLEAN: {
-    isSized: false,
-    hasPrecision: false,
-    hasCheck: true,
-    hasQuotes: false,
-  },
-  DATE: { isSized: false, hasPrecision: false, hasCheck: false, hasQuotes: true },
-  TIMESTAMP: {
-    isSized: false,
-    hasPrecision: false,
-    hasCheck: false,
-    hasQuotes: true,
-  },
-  TIME: { isSized: false, hasPrecision: false, hasCheck: false, hasQuotes: true },
-  DATETIME: {
-    isSized: false,
-    hasPrecision: false,
-    hasCheck: false,
-    hasQuotes: true,
-  },
-};
-
-function getGenericTypeMetadata(type: string): TypeMetadata | undefined {
-  return genericMetadata[type.toUpperCase()];
-}
+// The generic dialect reads its type metadata from the shared type registry
+// (spec §9.4-1); the hand-written table was removed in favour of
+// getTypeMetadata("generic", type).
 
 function quoteIdentifier(s: string): string {
   return `"${s}"`;
@@ -103,7 +41,7 @@ function parseDefault(field: Field): string | number | boolean | undefined {
     return field.default;
   }
 
-  const typeInfo = getGenericTypeMetadata(field.type);
+  const typeInfo = getTypeMetadata("generic", field.fieldType.type);
   if (
     isFunction(field.default) ||
     isKeyword(field.default) ||
@@ -116,11 +54,11 @@ function parseDefault(field: Field): string | number | boolean | undefined {
 }
 
 function parseType(field: Field): string {
-  let res = field.type;
+  let res = field.fieldType.type;
 
-  const meta = getGenericTypeMetadata(field.type);
+  const meta = getTypeMetadata("generic", field.fieldType.type);
   if (meta?.isSized || meta?.hasPrecision) {
-    res += `${field.size && field.size !== "" ? `(${field.size})` : ""}`;
+    res += fieldSizeSuffix(field.fieldType);
   }
 
   return res;
@@ -132,7 +70,7 @@ function tablesToGeneric(diagram: Diagram): string {
       const fieldDefinitions = table.fields
         .map(
           (field) =>
-            `${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
+            `${exportLogicalNameComment(table, field)}${exportFieldComment(field.comment ?? "")}\t${quoteIdentifier(
               field.name,
             )} ${parseType(field)}${field.notNull ? " NOT NULL" : ""}${
               field.unique ? " UNIQUE" : ""
@@ -141,7 +79,7 @@ function tablesToGeneric(diagram: Diagram): string {
                 ? ` DEFAULT ${parseDefault(field)}`
                 : ""
             }${
-              field.check && getGenericTypeMetadata(field.type)?.hasCheck
+              field.check && getTypeMetadata("generic", field.fieldType.type)?.hasCheck
                 ? ` CHECK(${field.check})`
                 : ""
             }`,
@@ -174,7 +112,11 @@ function tablesToGeneric(diagram: Diagram): string {
         .map(
           (i) =>
             `CREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(i.name)}\nON ${quoteIdentifier(table.name)} (${i.fields
-              .map((f) => quoteIdentifier(f))
+              .map((f) =>
+                quoteIdentifier(
+                  table.fields.find((fl) => fl.id === f)?.name ?? String(f),
+                ),
+              )
               .join(", ")});`,
         )
         .join("\n");

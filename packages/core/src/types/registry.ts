@@ -9,6 +9,8 @@ import type { DatabaseType } from "../models/diagram.ts";
 export const DATABASE_TYPE_NAMES: Record<DatabaseType, readonly string[]> = {
   generic: [
     "INT",
+    // Hand-curated: the generic dialect accepts both spellings.
+    "INTEGER",
     "SMALLINT",
     "BIGINT",
     "DECIMAL",
@@ -16,6 +18,8 @@ export const DATABASE_TYPE_NAMES: Record<DatabaseType, readonly string[]> = {
     "NUMBER",
     "FLOAT",
     "DOUBLE",
+    // Hand-curated: "DOUBLE" alone is the React table entry.
+    "DOUBLE PRECISION",
     "REAL",
     "CHAR",
     "VARCHAR",
@@ -272,6 +276,9 @@ export const DATABASE_TYPE_METADATA: Record<
 > = {
   generic: {
     "INT": { isSized: false, hasPrecision: false, canIncrement: true, hasCheck: true, defaultKind: "numeric" },
+    // Hand-curated generic entries so the registry stays the single source
+    // of truth for the generic dialect (spec §9.4-1).
+    "INTEGER": { isSized: false, hasPrecision: false, canIncrement: true, hasCheck: true, defaultKind: "numeric" },
     "SMALLINT": { isSized: false, hasPrecision: false, canIncrement: true, hasCheck: true, defaultKind: "numeric" },
     "BIGINT": { isSized: false, hasPrecision: false, canIncrement: true, hasCheck: true, defaultKind: "numeric" },
     "DECIMAL": { isSized: false, hasPrecision: true, hasCheck: true, defaultKind: "numeric" },
@@ -279,11 +286,12 @@ export const DATABASE_TYPE_METADATA: Record<
     "NUMBER": { isSized: false, hasPrecision: true, canIncrement: false, hasCheck: true, defaultKind: "numeric" },
     "FLOAT": { isSized: false, hasPrecision: true, hasCheck: true, defaultKind: "numeric" },
     "DOUBLE": { isSized: false, hasPrecision: true, hasCheck: true, defaultKind: "numeric" },
-    "REAL": { isSized: false, hasPrecision: false, hasCheck: true, defaultKind: "numeric" },
+    "DOUBLE PRECISION": { isSized: false, hasPrecision: true, hasCheck: true, defaultKind: "numeric" },
+    "REAL": { isSized: false, hasPrecision: true, hasCheck: true, defaultKind: "numeric" },
     "CHAR": { isSized: true, hasPrecision: false, hasQuotes: true, hasCheck: true, defaultKind: "text" },
     "VARCHAR": { isSized: true, hasPrecision: false, hasQuotes: true, hasCheck: true, defaultKind: "text" },
     "VARCHAR2": { isSized: true, hasPrecision: false, hasQuotes: true, hasCheck: true, defaultKind: "text" },
-    "TEXT": { isSized: true, hasPrecision: false, hasQuotes: true, hasCheck: false, defaultKind: "text" },
+    "TEXT": { isSized: false, hasPrecision: false, hasQuotes: true, hasCheck: true, defaultKind: "text" },
     "TIME": { isSized: false, hasPrecision: false, hasQuotes: true, hasCheck: false, defaultKind: "date" },
     "TIMESTAMP": { isSized: false, hasPrecision: false, hasQuotes: true, hasCheck: false, defaultKind: "date" },
     "DATE": { isSized: false, hasPrecision: false, hasQuotes: true, hasCheck: false, defaultKind: "date" },

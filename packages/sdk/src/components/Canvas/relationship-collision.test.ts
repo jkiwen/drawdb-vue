@@ -30,8 +30,15 @@ function seed(): Diagram {
         name: "users",
         x: 40,
         y: 60,
+        logical: {
+          id: "l_users",
+          name: "users",
+          attributes: [
+            { id: "a_users_id", name: "id", logicalType: { family: "integer" }, fieldId: "users_id" },
+          ],
+        },
         fields: [
-          { id: "users_id", name: "id", type: "INTEGER", primary: true },
+          { id: "users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
         ],
       },
       {
@@ -39,9 +46,17 @@ function seed(): Diagram {
         name: "posts",
         x: 420,
         y: 60,
+        logical: {
+          id: "l_posts",
+          name: "posts",
+          attributes: [
+            { id: "a_posts_id", name: "id", logicalType: { family: "integer" }, fieldId: "posts_id" },
+            { id: "a_posts_user_id", name: "user_id", logicalType: { family: "integer" }, fieldId: "posts_user_id" },
+          ],
+        },
         fields: [
-          { id: "posts_id", name: "id", type: "INTEGER", primary: true },
-          { id: "posts_user_id", name: "user_id", type: "INTEGER" },
+          { id: "posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "posts_user_id", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
         ],
       },
     ],

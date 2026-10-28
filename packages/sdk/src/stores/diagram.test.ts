@@ -12,13 +12,20 @@ function makeTable(id: string, name: string): Table {
     name,
     x: 0,
     y: 0,
+    logical: { id: `l_${id}`, name, attributes: [] },
     fields: [],
     metadata: {},
   };
 }
 
 function makeField(id: string, name: string): Field {
-  return { id, name, type: "INTEGER", metadata: {} };
+  return {
+    id,
+    name,
+    fieldType: { type: "INTEGER" },
+    fieldTypeSource: "explicit",
+    metadata: {},
+  };
 }
 
 function makeRelationship(id: string, tableId: string): Relationship {
@@ -118,8 +125,10 @@ describe("diagram store", () => {
 
     assert.equal(store.diagram.tables[0].fields.length, 2);
 
-    store.updateField("t1", "f2", { type: "VARCHAR", size: 255 });
-    assert.equal(store.fieldById("t1", "f2")?.type, "VARCHAR");
+    store.updateField("t1", "f2", {
+      fieldType: { type: "VARCHAR", length: 255 },
+    });
+    assert.equal(store.fieldById("t1", "f2")?.fieldType.type, "VARCHAR");
 
     store.removeField("t1", "f1");
     assert.equal(store.diagram.tables[0].fields.length, 1);

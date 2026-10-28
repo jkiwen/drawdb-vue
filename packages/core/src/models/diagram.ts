@@ -1,6 +1,7 @@
 import type { Area } from "./area.ts";
 import type { CustomType } from "./type.ts";
 import type { Enum } from "./enum.ts";
+import type { LogicalRelationship } from "./logical-relationship.ts";
 import type { Metadata } from "./metadata.ts";
 import type { Note } from "./note.ts";
 import type { Relationship } from "./relationship.ts";
@@ -23,6 +24,11 @@ export interface Diagram {
   sqlHeader?: string;
   tables: Table[];
   relationships: Relationship[];
+  /**
+   * Logical relationships (spec section 3.7.4). Linked to `relationships`
+   * by id (INV-6); absent for diagrams that predate the two-layer model.
+   */
+  logicalRelationships?: LogicalRelationship[];
   notes: Note[];
   subjectAreas: Area[];
   areas?: Area[];
@@ -50,6 +56,7 @@ export function createEmptyDiagram(
     sqlHeader: "",
     tables: [],
     relationships: [],
+    logicalRelationships: [],
     notes: [],
     subjectAreas: [],
     types: [],

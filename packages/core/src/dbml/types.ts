@@ -1,5 +1,6 @@
 import type { DatabaseType } from "../models/diagram.ts";
 import type { Field } from "../models/field.ts";
+import { fieldSizeSuffix } from "../export/shared.ts";
 import { typeTakesSize } from "../types/registry.ts";
 
 const IDENT_SAFE_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
@@ -47,11 +48,11 @@ export { typeTakesSize };
  * declared (original) casing, and everything else is lower-cased.
  */
 export function dbmlTypeName(
-  field: Pick<Field, "type">,
+  field: Field,
   enumNamesByUpperCase?: Map<string, string>,
 ): string {
-  const type = String(field.type ?? "");
-  if (isInlineEnumType(type)) return inlineEnumTypeName(field as Field);
+  const type = String(field.fieldType?.type ?? "");
+  if (isInlineEnumType(type)) return inlineEnumTypeName(field);
 
   const declared = enumNamesByUpperCase?.get(type.toUpperCase());
   if (declared) return declared;
@@ -67,12 +68,9 @@ export function dbmlTypeName(
  * Empty when the dialect type takes no size or when the field has none.
  */
 export function dbmlFieldSize(
-  field: Pick<Field, "type" | "size">,
+  field: Field,
   database: DatabaseType,
 ): string {
-  if (!typeTakesSize(field.type, database)) return "";
-  if (field.size === undefined || field.size === null || field.size === "") {
-    return "";
-  }
-  return `(${field.size})`;
+  if (!typeTakesSize(field.fieldType.type, database)) return "";
+  return fieldSizeSuffix(field.fieldType);
 }
