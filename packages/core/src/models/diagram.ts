@@ -6,6 +6,8 @@ import type { Metadata } from "./metadata.ts";
 import type { Note } from "./note.ts";
 import type { Relationship } from "./relationship.ts";
 import type { Table } from "./table.ts";
+import { createDefaultViewState } from "./view-state.ts";
+import type { ViewState } from "./view-state.ts";
 import type { View } from "./view.ts";
 
 export type DatabaseType =
@@ -36,6 +38,12 @@ export interface Diagram {
   enums: Enum[];
   views: View[];
   metadata?: Metadata;
+  /**
+   * The view state of the diagram (UI document section 9.2, ruling Q2):
+   * saved with the diagram, restored on load, never part of the undo stack.
+   * The zoom is session state and is not part of it.
+   */
+  viewState?: ViewState;
   lastModified?: string | Date;
   createdAt?: string | Date;
 }
@@ -63,5 +71,6 @@ export function createEmptyDiagram(
     enums: [],
     views: [],
     metadata: {},
+    viewState: createDefaultViewState(),
   };
 }

@@ -13,4 +13,5 @@ export * from "./physical.ts";
 export * from "./relationship.ts";
 export * from "./table.ts";
 export * from "./type.ts";
+export * from "./view-state.ts";
 export * from "./view.ts";
