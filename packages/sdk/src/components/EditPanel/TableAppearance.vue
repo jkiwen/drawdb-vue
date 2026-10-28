@@ -18,6 +18,7 @@ const store = useDiagramStore();
 
 const values = computed(() => appearanceValues(props.tables));
 const MULTIPLE = "edit_panel_multiple_values";
+const COLOR_PATTERN = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 const color = ref(values.value.color);
 watch(values, (next) => {
@@ -26,7 +27,11 @@ watch(values, (next) => {
 
 function commitColor(): void {
   const next = color.value.trim();
-  if (values.value.colorMultiple || next !== values.value.color) {
+  // An empty field means "no colour"; anything that is not a hex value would
+  // reach the canvas as a background the browser cannot parse, so it is
+  // dropped instead of stored.
+  if (next !== "" && !COLOR_PATTERN.test(next)) return;
+  if (values.value.colorMultiple || next !== (values.value.color ?? "")) {
     apply({ color: next });
   }
 }
@@ -40,13 +45,16 @@ function commitDetails(event: Event): void {
 }
 
 function apply(patch: { color?: string; locked?: boolean; details?: boolean }): void {
+  // An emptied colour field clears the colour rather than storing an empty
+  // string, so a later read cannot tell "no colour" from "colour ''".
+  const next = patch.color === "" ? { ...patch, color: undefined } : patch;
   if (props.tables.length > 1) {
-    store.applyTableBatch(props.tables, patch);
+    store.applyTableBatch(props.tables, next);
     return;
   }
   const table = props.tables[0];
   if (!table) return;
-  store.updateTable(table.id, patch);
+  store.updateTable(table.id, next);
 }
 </script>
 

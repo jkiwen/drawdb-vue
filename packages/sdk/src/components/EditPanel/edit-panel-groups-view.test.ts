@@ -143,6 +143,32 @@ describe("EditPanel appearance group", () => {
 
     assert.equal(table(diagram, "t_users").locked, true);
   });
+
+  it("clears the colour when the field is emptied", async () => {
+    const { wrapper, diagram, ui } = mountPanel();
+    ui.selectTable("t_users");
+    await wrapper.vm.$nextTick();
+
+    const input = wrapper.find('[data-testid="appearance-color"]');
+    await input.setValue("#ff0000");
+    await input.trigger("change");
+    await input.setValue("");
+    await input.trigger("change");
+
+    assert.equal(table(diagram, "t_users").color, undefined);
+  });
+
+  it("ignores a value that is not a colour", async () => {
+    const { wrapper, diagram, ui } = mountPanel();
+    ui.selectTable("t_users");
+    await wrapper.vm.$nextTick();
+
+    const input = wrapper.find('[data-testid="appearance-color"]');
+    await input.setValue("not a colour");
+    await input.trigger("change");
+
+    assert.equal(table(diagram, "t_users").color, undefined);
+  });
 });
 
 describe("EditPanel source badge (Q19)", () => {
