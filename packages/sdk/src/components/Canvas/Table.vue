@@ -6,6 +6,7 @@ import { VueDraggable } from "vue-draggable-plus";
 import { tableRenderModel, type TableFieldRowModel } from "./render-model.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
+import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
 import { useSortable } from "../../composables/use-sortable.ts";
 import { elementBounds, heldByLockedArea } from "../../utils/elements.ts";
 import FieldHandle from "./FieldHandle.vue";
@@ -40,6 +41,7 @@ const emit = defineEmits([
 
 const diagram = useDiagramStore();
 const viewState = useViewStateStore();
+const toolbarScope = useToolbarScopeStore();
 const resizing = ref(false);
 const { sortableOptions, onSort } = useSortable();
 
@@ -71,6 +73,9 @@ const foreignFieldIds = computed(() => {
 const model = computed(() =>
   tableRenderModel(liveTable.value, viewState.viewLayer, viewState.toggles, {
     foreignFieldIds: foreignFieldIds.value,
+    // Ruling Q1: a scoped toolbar change overrides the canvas-wide toggles
+    // for this table only.
+    overrides: toolbarScope.overrideFor(String(liveTable.value.id)),
   }),
 );
 

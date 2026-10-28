@@ -12,6 +12,11 @@ export const PANEL_RIGHT_MIN_WIDTH = 280;
 export const PANEL_RIGHT_MAX_WIDTH = 400;
 export const PANEL_RIGHT_DEFAULT_WIDTH = 320;
 
+/** The bounds and the default of the height of the bottom panel. */
+export const PANEL_BOTTOM_MIN_HEIGHT = 120;
+export const PANEL_BOTTOM_MAX_HEIGHT = 400;
+export const PANEL_BOTTOM_DEFAULT_HEIGHT = 168;
+
 export interface DrawDBSettings {
   theme: ThemeMode;
   language: string;
@@ -37,6 +42,8 @@ export interface DrawDBSettings {
   panelRightCollapsed?: boolean;
   /** Whether the bottom panel of the layout is collapsed. */
   panelBottomCollapsed?: boolean;
+  /** The height of the expanded bottom panel of the layout, in pixels. */
+  panelBottomHeight?: number;
 }
 
 export const SETTINGS_STORAGE_KEY = "drawdb:settings";
@@ -56,6 +63,7 @@ export const DEFAULT_SETTINGS: DrawDBSettings = {
   panelLeftCollapsed: false,
   panelRightCollapsed: false,
   panelBottomCollapsed: false,
+  panelBottomHeight: PANEL_BOTTOM_DEFAULT_HEIGHT,
 };
 
 function storage(): Storage | undefined {

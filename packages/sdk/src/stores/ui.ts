@@ -20,6 +20,12 @@ export type UiTab =
   | "sqlHeader"
   | "issues";
 
+/** A transient message the editor shows once, for example a new error. */
+export interface UiNotification {
+  id: number;
+  text: string;
+}
+
 export interface SelectedField {
   tableId: string;
   fieldId: string;
@@ -66,6 +72,10 @@ export const useUIStore = defineStore("ui", () => {
   const viewMode = ref<ViewMode>("physical");
   const contextMenu = ref<ContextMenuState | null>(null);
   const isFullscreen = ref(false);
+  // The one-time toast of the bottom panel (ruling Q9: new errors never
+  // auto expand the panel, they raise a badge and a single notification).
+  const lastNotification = ref<UiNotification | null>(null);
+  let notificationSeq = 0;
   // The state of the interactions of the canvas. The composables of the
   // canvas keep the behaviour, the store holds the state.
   const linking = ref<LinkingState | null>(null);
@@ -223,6 +233,17 @@ export const useUIStore = defineStore("ui", () => {
     isFullscreen.value = value;
   }
 
+  /** Raises a one-time notification; the newest one replaces the previous. */
+  function notify(text: string): void {
+    notificationSeq += 1;
+    lastNotification.value = { id: notificationSeq, text };
+  }
+
+  /** Dismisses the current notification. */
+  function clearNotification(): void {
+    lastNotification.value = null;
+  }
+
   // Selects the object a problem of the diagram is about and scrolls to it.
   const focusIssue = useFocusIssue();
 
@@ -244,6 +265,7 @@ export const useUIStore = defineStore("ui", () => {
     viewMode,
     contextMenu,
     isFullscreen,
+    lastNotification,
     linking,
     resizing,
     selectionBox,
@@ -269,6 +291,8 @@ export const useUIStore = defineStore("ui", () => {
     openContextMenu,
     closeContextMenu,
     setFullscreen,
+    notify,
+    clearNotification,
     focusIssue,
   };
 });

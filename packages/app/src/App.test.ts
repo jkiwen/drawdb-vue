@@ -209,8 +209,8 @@ test("arranges the tables and opens the issues of the diagram", async () => {
   await wrapper.find('[data-testid="validate-diagram"]').trigger("click");
   await settle();
 
-  assert.ok(wrapper.find('[data-testid="issues-tab"]').exists());
-  assert.ok(wrapper.find('[data-testid="issues-empty"]').exists());
+  assert.ok(wrapper.find('[data-testid="alerts-tab"]').exists());
+  assert.ok(wrapper.find('[data-testid="alerts-empty"]').exists());
 });
 
 test("shows the templates", async () => {

@@ -35,6 +35,7 @@ import { computed, reactive, ref } from "vue";
 import { elementBounds, heldByLockedArea } from "../utils/elements.ts";
 import { useHistoryStore } from "./history.ts";
 import { elementActions } from "./element-actions.ts";
+import { editPanelActions } from "./edit-panel-actions.ts";
 import { sidePanelActions } from "./side-panel-actions.ts";
 import { tableToggles } from "./table-toggles.ts";
 import { viewStateActions } from "./view-state-actions.ts";
@@ -292,6 +293,7 @@ export const useDiagramStore = defineStore("diagram", () => {
     applyRelationships, autoArrange: autoArrangeTables, setImportedDiagram,
     addEntity, removeEntity,
     ...sidePanel, ...elements, ...viewStateActions(diagram, bump),
+    ...editPanelActions(diagram, history, bump),
   };
 });
 

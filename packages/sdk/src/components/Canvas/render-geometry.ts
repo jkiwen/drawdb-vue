@@ -115,9 +115,10 @@ export function renderRelationshipBounds(
   endTable: Table,
   layer: ViewLayer,
   toggles: ViewStateToggles,
+  options?: { start?: TableRenderOptions; end?: TableRenderOptions },
 ): Bounds {
-  const startModel = tableRenderModel(startTable, layer, toggles);
-  const endModel = tableRenderModel(endTable, layer, toggles);
+  const startModel = tableRenderModel(startTable, layer, toggles, options?.start);
+  const endModel = tableRenderModel(endTable, layer, toggles, options?.end);
   const endCenter = {
     x: endTable.x + endModel.width / 2,
     y: endTable.y + endModel.height / 2,
