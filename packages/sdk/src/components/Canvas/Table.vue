@@ -4,6 +4,7 @@ import type { PropType } from "vue";
 import type { Field, Table } from "@drawdb/core";
 import { VueDraggable } from "vue-draggable-plus";
 import { tableRenderModel, type TableFieldRowModel } from "./render-model.ts";
+import { foreignKeyRows } from "./table-sections.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
@@ -14,6 +15,7 @@ import ResizeHandles from "./ResizeHandles.vue";
 import TableField from "./TableField.vue";
 import TableHeader from "./TableHeader.vue";
 import TableDetails from "./TableDetails.vue";
+import TableSections from "./TableSections.vue";
 
 defineOptions({ name: "DrawDBTableNode" });
 
@@ -65,6 +67,15 @@ const foreignFieldIds = computed(() => {
 });
 
 /**
+ * The rows of the foreign key block of the section list: one row per
+ * relationship that leaves this table, `name: field → other.field`
+ * (section 7 of the UI document).
+ */
+const foreignKeys = computed(() =>
+  foreignKeyRows(liveTable.value, diagram.relationships, diagram.tables),
+);
+
+/**
  * The render model of the table: everything the node draws, derived from
  * the view layer and the display toggles. The height comes from the model
  * as well, so the node, the virtualization and the relationship anchors all
@@ -73,6 +84,7 @@ const foreignFieldIds = computed(() => {
 const model = computed(() =>
   tableRenderModel(liveTable.value, viewState.viewLayer, viewState.toggles, {
     foreignFieldIds: foreignFieldIds.value,
+    foreignKeys: foreignKeys.value,
     // Ruling Q1: a scoped toolbar change overrides the canvas-wide toggles
     // for this table only.
     overrides: toolbarScope.overrideFor(String(liveTable.value.id)),
@@ -260,6 +272,13 @@ defineExpose({ resizing });
             />
           </div>
         </div>
+        <TableSections
+          v-if="liveTable.collapsed !== true"
+          :table="liveTable"
+          :model="model"
+          :locked="locked"
+          :editable="editable"
+        />
         <ResizeHandles
           :table-id="table.id"
           :width="width"

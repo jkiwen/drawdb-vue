@@ -1187,6 +1187,98 @@
   pointer-events: none;
 }
 
+/* ------------------------------------------------------- body blocks (section 7) */
+
+/*
+ * The keys, the indices and the description of a table are drawn below the
+ * field list, one block each, separated by a rule. The render model measures
+ * every block (table-sections.ts), so the heights here have to match the
+ * constants of that module: the label line is TABLE_SECTION_LABEL_HEIGHT
+ * (18), a row is TABLE_SECTION_LINE_HEIGHT (16) and the block adds
+ * TABLE_SECTION_PADDING_Y (8) of vertical padding.
+ */
+
+.ddb-table__sections {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0 0 6px 6px;
+}
+
+.ddb-table__section {
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 4px 12px;
+  border-top: 1px solid #9ca3af;
+  background-color: #f4f4f5;
+}
+
+.ddb-table__section-label {
+  margin: 0;
+  height: 18px;
+  overflow: hidden;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 18px;
+  text-transform: uppercase;
+  color: #71717a;
+}
+
+.ddb-table__section-line {
+  margin: 0;
+  height: 16px;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #27272a;
+}
+
+.ddb-table__section--primary .ddb-table__section-line,
+.ddb-table__section--unique .ddb-table__section-line,
+.ddb-table__section--index .ddb-table__section-line {
+  color: #3f3f46;
+}
+
+.ddb-table__section-text {
+  margin: 0;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: pre-wrap;
+  color: #6b7280;
+}
+
+.ddb-table__section-text.is-locked {
+  cursor: not-allowed;
+}
+
+.ddb-table__section-input {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------------ dark */
+
+.ddb-canvas--dark .ddb-table__section {
+  border-color: #52525b;
+  background-color: #27272a;
+}
+
+.ddb-canvas--dark .ddb-table__section-label {
+  color: #a1a1aa;
+}
+
+.ddb-canvas--dark .ddb-table__section-line {
+  color: #d4d4d8;
+}
+
+.ddb-canvas--dark .ddb-table__section-text {
+  color: #a1a1aa;
+}
+
 /* ------------------------------------------------------------------ dark */
 
 .ddb-canvas--dark {

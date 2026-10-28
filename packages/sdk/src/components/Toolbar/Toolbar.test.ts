@@ -123,12 +123,22 @@ test("a toggle with a selected table writes the override, not the canvas", async
   wrapper.unmount();
 });
 
-test("the indexes toggle is rendered but disabled until P2'", () => {
-  const { wrapper } = mountToolbar();
-  const indexes = wrapper.find('[data-testid="toolbar-toggle-indexes"]');
-  assert.ok(indexes.exists());
-  assert.notEqual(indexes.attributes("disabled"), undefined);
-  assert.match(indexes.attributes("title") ?? "", /P2'/);
+test("the indexes toggle flips the index block of the scope", async () => {
+  const { wrapper, diagram, ui, scope, viewState } = mountToolbar();
+  diagram.addTable(makeTable("t1"));
+  ui.selectTable("t1");
+
+  const indexes = () => wrapper.find('[data-testid="toolbar-toggle-indexes"]');
+  assert.ok(indexes().exists());
+  assert.equal(indexes().attributes("disabled"), undefined, "the block exists now");
+
+  await indexes().trigger("click");
+  assert.deepEqual(scope.overrideFor("t1"), { indexes: true }, "scoped to the selection");
+  assert.equal(viewState.toggles.indexes, false, "canvas default untouched");
+
+  ui.clearSelection();
+  await indexes().trigger("click");
+  assert.equal(viewState.toggles.indexes, true, "with no selection the canvas default flips");
   wrapper.unmount();
 });
 

@@ -2,8 +2,11 @@
 /**
  * The per-table view toggles (design 6.2). A click flips the effective state
  * of the scope: the per-table override when a selection exists, the canvas
- * default otherwise. The indexes toggle ships disabled — the index entries
- * of the table are a P2' feature.
+ * default otherwise.
+ *
+ * The four toggles are the four blocks of the node: the description, the
+ * field list, the key blocks (PK, FK, UK) and the index block, drawn in that
+ * order below the title bar (table-sections.ts).
  */
 import { computed } from "vue";
 import type { ViewStateToggles } from "@drawdb/core";
@@ -57,7 +60,6 @@ function flip(key: keyof ViewStateToggles): void {
       :title="t(entry.titleKey)"
       :testid="entry.testid"
       :active="effective[entry.key]"
-      :disabled="entry.key === 'indexes'"
       @click="flip(entry.key)"
     />
   </div>

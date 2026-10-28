@@ -12,7 +12,6 @@ import {
   tableRenderBounds,
 } from "./render-geometry.ts";
 import {
-  descriptionHeight,
   descriptionLineCount,
   logicalTypeLabel,
   tableDescription,
@@ -148,21 +147,15 @@ describe("tableDescription", () => {
   });
 });
 
-describe("description lines and height", () => {
+describe("description lines", () => {
   it("wraps the text at the width of the table", () => {
     // A 220px table fits about 32 characters a line ((220 - 28) / 6).
     const text = "x".repeat(70);
     assert.equal(descriptionLineCount(text, 220), 3);
-    assert.equal(
-      descriptionHeight(text, 220),
-      3 * 16 + 12,
-    );
   });
 
-  it("caps the text at five lines and counts empty text as nothing", () => {
-    assert.equal(descriptionLineCount("x".repeat(1000), 220), 5);
+  it("counts empty text as nothing", () => {
     assert.equal(descriptionLineCount("", 220), 0);
-    assert.equal(descriptionHeight("", 220), 0);
   });
 });
 
@@ -230,28 +223,28 @@ describe("tableRenderModel display modes", () => {
       togglesForDisplayMode("entity"),
     );
     assert.equal(model.title, "users");
-    assert.equal(model.showDescription, false);
     assert.equal(model.showFields, false);
     assert.equal(model.showKeyMarks, false);
     assert.equal(model.rows.length, 0);
+    assert.deepEqual(model.sections, []);
     assert.equal(model.headerHeight, TABLE_HEADER_HEIGHT);
     assert.equal(model.height, TABLE_HEADER_HEIGHT);
   });
 
-  it("definition mode adds the description but no fields", () => {
+  it("definition mode adds the description block but no fields", () => {
     const model = tableRenderModel(
       table,
       "physical",
       togglesForDisplayMode("definition"),
     );
-    assert.equal(model.showDescription, true);
     assert.equal(model.description, "the people table");
     assert.equal(model.rows.length, 0);
-    assert.equal(
-      model.headerHeight,
-      TABLE_HEADER_HEIGHT + descriptionHeight("the people table", 220),
+    assert.equal(model.headerHeight, TABLE_HEADER_HEIGHT);
+    assert.deepEqual(
+      model.sections.map((section) => section.kind),
+      ["description"],
     );
-    assert.equal(model.height, model.headerHeight);
+    assert.equal(model.height, TABLE_HEADER_HEIGHT + model.sectionsHeight);
   });
 
   it("attributes mode shows the fields without the description", () => {
@@ -260,27 +253,28 @@ describe("tableRenderModel display modes", () => {
       "physical",
       togglesForDisplayMode("attributes"),
     );
-    assert.equal(model.showDescription, false);
     assert.equal(model.showFields, true);
     assert.equal(model.rows.length, 3);
+    assert.deepEqual(model.sections, []);
     assert.equal(
       model.height,
       TABLE_HEADER_HEIGHT + 3 * TABLE_FIELD_HEIGHT,
     );
   });
 
-  it("all mode shows everything, including the key marks", () => {
+  it("all mode shows everything, including the key marks and the blocks", () => {
     const model = tableRenderModel(
       table,
       "physical",
       togglesForDisplayMode("all"),
     );
-    assert.equal(model.showDescription, true);
     assert.equal(model.showFields, true);
     assert.equal(model.showKeyMarks, true);
+    assert.ok(model.sections.some((section) => section.kind === "primary"));
+    assert.ok(model.sections.some((section) => section.kind === "description"));
     assert.equal(
       model.height,
-      model.headerHeight + 3 * TABLE_FIELD_HEIGHT,
+      model.headerHeight + 3 * TABLE_FIELD_HEIGHT + model.sectionsHeight,
     );
   });
 
@@ -325,15 +319,26 @@ describe("tableRenderModel display modes", () => {
     assert.equal(model.height, model.headerHeight);
   });
 
-  it("ignores the indexes toggle for now (placeholder of P2')", () => {
+  it("draws the index block when the indexes toggle is on", () => {
     const withIndexes: ViewStateToggles = {
       description: false,
       fields: true,
       pkUkFk: false,
       indexes: true,
     };
-    const model = tableRenderModel(table, "physical", withIndexes);
+    const model = tableRenderModel(
+      makeTable({
+        indices: [{ id: "i1", name: "idx_email", unique: false, fields: ["f2"] }],
+      } as never),
+      "physical",
+      withIndexes,
+    );
     assert.equal(model.rows.length, 3);
+    assert.deepEqual(
+      model.sections.map((section) => section.kind),
+      ["index"],
+    );
+    assert.deepEqual(model.sections[0]?.lines, ["idx_email (email)"]);
   });
 });
 

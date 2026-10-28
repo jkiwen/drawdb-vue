@@ -15,16 +15,17 @@ defineOptions({ name: "DrawDBTableHeader" });
  *
  * The header draws the title of the render model: the name of the layer the
  * canvas shows, with a pale badge when the physical name stands in for a
- * missing logical name (ruling of section 6.4), and the description of the
- * layer when the display toggles ask for it. Only the physical layer is
- * editable on the canvas (TODO: the inline editing of the logical names).
+ * missing logical name (ruling of section 6.4). The description of the layer
+ * is not drawn here any more — it is the last block of the body
+ * (TableSections.vue). Only the physical layer is editable on the canvas
+ * (TODO: the inline editing of the logical names).
  */
 const props = defineProps({
   table: { type: Object as PropType<Table>, required: true },
   model: { type: Object as PropType<TableRenderModel>, required: true },
   selected: { type: Boolean, default: false },
   locked: { type: Boolean, default: false },
-  /** Whether the name and the description can be edited on the canvas. */
+  /** Whether the name can be edited on the canvas. */
   editable: { type: Boolean, default: false },
 });
 
@@ -37,13 +38,6 @@ const {
   draft: nameDraft,
   start: startName,
   commit: commitName,
-} = useInlineEdit();
-
-const {
-  editing: editingComment,
-  draft: commentDraft,
-  start: startComment,
-  commit: commitComment,
 } = useInlineEdit();
 
 function onStartName(event: Event): void {
@@ -62,25 +56,6 @@ function onCommitName(): void {
   const value = commitName(props.table.name);
   if (value !== undefined) {
     diagram.updateTable(props.table.id, { name: value });
-  }
-}
-
-function onStartComment(event: Event): void {
-  event.stopPropagation();
-  if (props.locked || !props.editable) {
-    return;
-  }
-  startComment(props.table.comment ?? "");
-}
-
-function onCommentInput(value: string): void {
-  commentDraft.value = value;
-}
-
-function onCommitComment(): void {
-  const value = commitComment(props.table.comment ?? "");
-  if (value !== undefined) {
-    diagram.updateTable(props.table.id, { comment: value });
   }
 }
 
@@ -136,26 +111,6 @@ function onToggleLock(event: Event): void {
           {{ t("table_no_logical_name") }}
         </span>
       </template>
-
-      <NInput
-        v-if="editingComment"
-        class="ddb-table__comment-input"
-        size="tiny"
-        :value="commentDraft"
-        :data-testid="`table-comment-input-${table.id}`"
-        @update:value="onCommentInput"
-        @blur="onCommitComment"
-        @keyup.enter="onCommitComment"
-      />
-      <span
-        v-else-if="model.showDescription"
-        class="ddb-table__comment ddb-table__comment--multiline"
-        :class="{ 'is-locked': locked }"
-        :data-testid="`table-comment-${table.id}`"
-        @dblclick="onStartComment"
-      >
-        {{ model.description }}
-      </span>
 
       <button
         type="button"

@@ -15,11 +15,10 @@ import {
 } from "./geometry.ts";
 import { tableDetailsHeight } from "./table-details-geometry.ts";
 import {
-  TABLE_COMMENT_INSET,
-  TABLE_COMMENT_LINE_HEIGHT,
-  TABLE_COMMENT_MAX_LINES,
-  TABLE_COMMENT_PADDING_BOTTOM,
-} from "./table-comment.ts";
+  tableSections,
+  tableSectionsHeight,
+  type TableSectionModel,
+} from "./table-sections.ts";
 
 /**
  * The render model of a table node (UI document sections 6.1, 6.2 and 6.4).
@@ -53,6 +52,12 @@ export interface TableRenderOptions {
   overrides?: TableDisplayOverrides;
   /** The ids of the physical fields a foreign key points from. */
   foreignFieldIds?: ReadonlySet<string>;
+  /**
+   * The rows of the foreign key block of the physical layer. The caller is
+   * the one that sees the relationships and the names of the other tables,
+   * so it passes the finished rows here.
+   */
+  foreignKeys?: readonly string[];
 }
 
 /** The label of a logical type reference. */
@@ -141,29 +146,13 @@ export function tableDescription(
 
 /**
  * The number of lines a description takes, wrapped at the width of the
- * table — the same measure the comment of the header uses.
+ * table.
+ *
+ * The description is drawn as the last block of the body, so its measure
+ * lives with the other blocks (table-sections.ts); this stays as the
+ * convenience the render model and its callers share.
  */
-export function descriptionLineCount(text: string, width: number): number {
-  if (!text) {
-    return 0;
-  }
-  const usable = Math.max(1, width - TABLE_COMMENT_INSET);
-  // A character takes about 6px in the font of the description.
-  const perLine = Math.max(1, Math.floor(usable / 6));
-  const lines = text.split("\n").reduce((total, paragraph) => {
-    return total + Math.max(1, Math.ceil(paragraph.length / perLine));
-  }, 0);
-  return Math.min(lines, TABLE_COMMENT_MAX_LINES);
-}
-
-/** The height a description adds to the header of its table. */
-export function descriptionHeight(text: string, width: number): number {
-  const lines = descriptionLineCount(text, width);
-  if (lines === 0) {
-    return 0;
-  }
-  return lines * TABLE_COMMENT_LINE_HEIGHT + TABLE_COMMENT_PADDING_BOTTOM;
-}
+export { sectionDescriptionLines as descriptionLineCount } from "./table-sections.ts";
 
 /**
  * The rows of the field list of a table.
@@ -223,12 +212,14 @@ export interface TableRenderModel {
   title: string;
   titleFallback: boolean;
   description: string | null;
-  showDescription: boolean;
-  descriptionHeight: number;
   headerHeight: number;
   rows: TableFieldRowModel[];
   showFields: boolean;
   showKeyMarks: boolean;
+  /** The blocks below the field list: the keys, the indices, the description. */
+  sections: TableSectionModel[];
+  /** The height the blocks add to the table. */
+  sectionsHeight: number;
   width: number;
   height: number;
 }
@@ -237,10 +228,10 @@ export interface TableRenderModel {
  * Derives what a table node draws from the table, the view layer and the
  * display toggles.
  *
- * The toggles decide the content: `description` adds the description of the
- * layer to the header (the "definition" mode), `fields` lists the fields or
- * attributes (the "attributes" mode), `pkUkFk` shows the key marks on the
- * rows (the "all" mode). Every toggle off is the "entity" mode: the title
+ * The toggles decide the content: `fields` lists the fields or attributes
+ * (the "attributes" mode), `pkUkFk` and `indexes` add the key and the index
+ * blocks below the list, `description` adds the description block at the end
+ * (the "definition" mode). Every toggle off is the "entity" mode: the title
  * bar alone.
  */
 export function tableRenderModel(
@@ -253,26 +244,35 @@ export function tableRenderModel(
   const width = tableWidth(table);
   const title = tableTitle(table, layer);
   const description = tableDescription(table, layer) ?? null;
-  const showDescription = effective.description && Boolean(description?.trim());
-  const descriptionRows = showDescription && description
-    ? descriptionHeight(description, width)
-    : 0;
-  const headerHeight = TABLE_HEADER_HEIGHT + descriptionRows;
+  const headerHeight = TABLE_HEADER_HEIGHT;
   const rows = effective.fields ? tableFieldRows(table, layer, options) : [];
+  const sections = table.collapsed
+    ? []
+    : tableSections({
+        table,
+        layer,
+        toggles: effective,
+        width,
+        foreignKeys: options?.foreignKeys,
+      });
+  const sectionsHeight = tableSectionsHeight(sections);
   const height = table.collapsed
     ? headerHeight
-    : headerHeight + rows.length * TABLE_FIELD_HEIGHT + tableDetailsHeight(table);
+    : headerHeight +
+      rows.length * TABLE_FIELD_HEIGHT +
+      sectionsHeight +
+      tableDetailsHeight(table);
   return {
     layer,
     title: title.text,
     titleFallback: title.fallback,
     description,
-    showDescription,
-    descriptionHeight: descriptionRows,
     headerHeight,
     rows,
     showFields: effective.fields,
     showKeyMarks: effective.pkUkFk,
+    sections,
+    sectionsHeight,
     width,
     height,
   };
