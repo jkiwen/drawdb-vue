@@ -1332,3 +1332,23 @@
   fill: #a1a1aa;
   stroke: #18181b;
 }
+/* A key row selects the object it stands for (review issue 5); it reads as
+   the text it shows, with only the cursor and a hover underline telling a
+   reader that it can be clicked. */
+.ddb-table__section-line--pickable {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ddb-table__section-line--pickable:hover,
+.ddb-table__section-line--pickable:focus-visible {
+  color: var(--ddb-accent);
+  text-decoration: underline;
+}

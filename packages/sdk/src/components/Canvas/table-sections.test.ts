@@ -326,4 +326,19 @@ describe("foreignKeyRows", () => {
     );
     assert.deepEqual(rows, ["fk_org: org_id → organisations.id"]);
   });
-});
+it("carries the object each key line stands for (issue 5)", () => {
+    const table = makeTable();
+    const sections = tableSections({
+      table,
+      layer: "physical",
+      toggles,
+      width: 220,
+      foreignKeys: ["fk_posts_user: org_id → organisations.id"],
+      foreignKeyRefs: ["r1"],
+    });
+    const refs = (kind: string) => sections.find((section) => section.kind === kind)?.refs;
+    assert.deepEqual(refs("primary"), [{ fieldId: "f1" }]);
+    assert.deepEqual(refs("foreign"), [{ relationshipId: "r1" }]);
+    assert.deepEqual(refs("unique"), [{ fieldId: "f2" }]);
+    assert.deepEqual(refs("index"), [{ fieldId: "f2" }, { fieldId: "f3" }]);
+  });});

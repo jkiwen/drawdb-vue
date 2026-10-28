@@ -3,8 +3,10 @@ import type { PropType } from "vue";
 import type { Table } from "@drawdb/core";
 import { NInput } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import { useUIStore } from "../../stores/ui.ts";
 import { useInlineEdit } from "../../composables/use-inline-edit.ts";
 import type { TableRenderModel } from "./render-model.ts";
+import type { SectionRef } from "./table-sections.ts";
 
 defineOptions({ name: "DrawDBTableSections" });
 
@@ -29,6 +31,27 @@ const props = defineProps({
 });
 
 const diagram = useDiagramStore();
+const ui = useUIStore();
+
+/**
+ * A key row is an object of its own (review issue 5): a click on the row of
+ * the canvas selects the field of the key, or the relationship of a foreign
+ * key, so the panel and the outline agree with what the canvas draws.
+ */
+function hasRef(ref: SectionRef | undefined): boolean {
+  if (!ref) return false;
+  if ("relationshipId" in ref) return true;
+  return String(ref.fieldId) !== "";
+}
+
+function selectRef(ref: SectionRef | undefined): void {
+  if (!hasRef(ref) || !ref) return;
+  if ("relationshipId" in ref) {
+    ui.selectRelationship(String(ref.relationshipId));
+    return;
+  }
+  ui.selectField(String(props.table.id), String(ref.fieldId));
+}
 
 const {
   editing: editingComment,
@@ -74,14 +97,19 @@ function onCommitComment(): void {
       <p v-if="section.label" class="ddb-table__section-label">
         {{ section.label }}
       </p>
-      <p
-        v-for="(line, position) in section.lines"
-        :key="`${section.kind}-${position}`"
-        class="ddb-table__section-line"
-        :title="line"
-      >
-        {{ line }}
-      </p>
+      <template v-for="(line, position) in section.lines" :key="`${section.kind}-${position}`">
+        <button
+          v-if="hasRef(section.refs[position])"
+          type="button"
+          class="ddb-table__section-line ddb-table__section-line--pickable"
+          :title="line"
+          :data-testid="`table-section-${section.kind}-line-${table.id}-${position}`"
+          @click.stop="selectRef(section.refs[position])"
+        >
+          {{ line }}
+        </button>
+        <p v-else class="ddb-table__section-line" :title="line">{{ line }}</p>
+      </template>
       <template v-if="section.kind === 'description'">
         <NInput
           v-if="editingComment"

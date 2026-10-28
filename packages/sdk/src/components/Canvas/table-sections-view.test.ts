@@ -4,6 +4,7 @@ import { createPinia, setActivePinia, type Pinia } from "pinia";
 import { mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import { useUIStore } from "../../stores/ui.ts";
 import Table from "./Table.vue";
 import { naive } from "../../../../../scripts/naive-ui-mock.mjs";
 
@@ -155,4 +156,47 @@ describe("the description block of a table", () => {
       "the logical description is untouched",
     );
   });
-});
+describe("a key row of a table", () => {
+  it("selects the field of the primary key when it is clicked (issue 5)", async () => {
+    const pinia = freshPinia();
+    seed(pinia);
+    showDescription(pinia, "physical");
+    const wrapper = mountTable(pinia);
+    const row = wrapper.find('[data-testid="table-section-primary-line-users-0"]');
+    assert.ok(row.exists(), "the primary key row is pickable");
+    await row.trigger("click");
+    const ui = useUIStore(pinia);
+    assert.deepEqual(ui.selectedFields, [{ tableId: "users", fieldId: "users_id" }]);
+  });
+
+  it("selects the relationship of a foreign key when it is clicked", async () => {
+    const pinia = freshPinia();
+    const diagram = seed(pinia);
+    diagram.addTable({
+      id: "orgs",
+      name: "organisations",
+      x: 400,
+      y: 60,
+      fields: [
+        { id: "orgs_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
+      ],
+      logical: { id: "l_orgs", name: "organisation", attributes: [] },
+    });
+    diagram
+      .addRelationship({
+        id: "r1",
+        name: "fk_users_org",
+        startTableId: "users",
+        startFieldId: "users_id",
+        endTableId: "orgs",
+        endFieldId: "orgs_id",
+      });
+    showDescription(pinia, "physical");
+    const wrapper = mountTable(pinia);
+    const row = wrapper.find('[data-testid="table-section-foreign-line-users-0"]');
+    assert.ok(row.exists(), "the foreign key row is pickable");
+    await row.trigger("click");
+    const ui = useUIStore(pinia);
+    assert.deepEqual(ui.selectedRelationshipIds, ["r1"]);
+  });
+});});

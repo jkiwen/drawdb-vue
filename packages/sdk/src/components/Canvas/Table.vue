@@ -5,6 +5,7 @@ import type { Field, Table } from "@drawdb/core";
 import { VueDraggable } from "vue-draggable-plus";
 import { tableRenderModel, type TableFieldRowModel } from "./render-model.ts";
 import { foreignKeyRows } from "./table-sections.ts";
+import { foreignKeyRefs } from "./table-foreign-keys.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
@@ -74,6 +75,9 @@ const foreignFieldIds = computed(() => {
 const foreignKeys = computed(() =>
   foreignKeyRows(liveTable.value, diagram.relationships, diagram.tables),
 );
+const foreignKeyRefsOfTable = computed(() =>
+  foreignKeyRefs(liveTable.value, diagram.relationships),
+);
 
 /**
  * The render model of the table: everything the node draws, derived from
@@ -85,6 +89,7 @@ const model = computed(() =>
   tableRenderModel(liveTable.value, viewState.viewLayer, viewState.toggles, {
     foreignFieldIds: foreignFieldIds.value,
     foreignKeys: foreignKeys.value,
+  foreignKeyRefs: foreignKeyRefsOfTable.value,
     // Ruling Q1: a scoped toolbar change overrides the canvas-wide toggles
     // for this table only.
     overrides: toolbarScope.overrideFor(String(liveTable.value.id)),

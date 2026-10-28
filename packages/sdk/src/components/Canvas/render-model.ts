@@ -58,6 +58,8 @@ export interface TableRenderOptions {
    * so it passes the finished rows here.
    */
   foreignKeys?: readonly string[];
+  /** The relationship of each foreign key row, in the same order. */
+  foreignKeyRefs?: readonly (string | number)[];
 }
 
 /** The label of a logical type reference. */
@@ -254,6 +256,7 @@ export function tableRenderModel(
         toggles: effective,
         width,
         foreignKeys: options?.foreignKeys,
+      foreignKeyRefs: options?.foreignKeyRefs,
       });
   const sectionsHeight = tableSectionsHeight(sections);
   const height = table.collapsed
