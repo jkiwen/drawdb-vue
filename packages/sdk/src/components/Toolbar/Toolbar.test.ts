@@ -41,16 +41,21 @@ function mountToolbar() {
 
 // —— Structure ——
 
-test("renders the six groups and the scope indicator", () => {
+test("renders the nine groups and the scope indicator", () => {
   const { wrapper } = mountToolbar();
   for (const testid of [
     "toolbar-scope",
+    "toolbar-create",
     "toolbar-display-mode",
     "toolbar-view-toggles",
+    "toolbar-layout",
+    "toolbar-align",
     "toolbar-view-layer",
     "toolbar-zoom",
-    "toolbar-undo",
+    "toolbar-canvas-view",
+    "undo-btn",
     "toolbar-file-new",
+    "toolbar-config-group",
   ]) {
     assert.ok(wrapper.find(`[data-testid="${testid}"]`).exists(), testid);
   }
@@ -200,12 +205,12 @@ test("zoom in and out step the zoom and the field shows the percentage", async (
     wrapper.find('[data-testid="toolbar-zoom-input"]').element as HTMLInputElement;
   assert.equal(field().value, "100");
 
-  await wrapper.find('[data-testid="toolbar-zoom-in"]').trigger("click");
+  await wrapper.find('[data-testid="zoom-in-btn"]').trigger("click");
   assert.equal(ui.zoom, 1.1);
   assert.equal(field().value, "110");
 
-  await wrapper.find('[data-testid="toolbar-zoom-out"]').trigger("click");
-  await wrapper.find('[data-testid="toolbar-zoom-out"]').trigger("click");
+  await wrapper.find('[data-testid="zoom-out-btn"]').trigger("click");
+  await wrapper.find('[data-testid="zoom-out-btn"]').trigger("click");
   assert.equal(ui.zoom, 0.9);
   assert.equal(field().value, "90");
   wrapper.unmount();
@@ -241,14 +246,14 @@ test("the zoom buttons disable at the bounds", async () => {
   ui.setZoom(MAX_ZOOM);
   await wrapper.vm.$nextTick();
   assert.notEqual(
-    wrapper.find('[data-testid="toolbar-zoom-in"]').attributes("disabled"),
+    wrapper.find('[data-testid="zoom-in-btn"]').attributes("disabled"),
     undefined,
   );
 
   ui.setZoom(MIN_ZOOM);
   await wrapper.vm.$nextTick();
   assert.notEqual(
-    wrapper.find('[data-testid="toolbar-zoom-out"]').attributes("disabled"),
+    wrapper.find('[data-testid="zoom-out-btn"]').attributes("disabled"),
     undefined,
   );
   wrapper.unmount();
@@ -267,8 +272,8 @@ test("full screen is disabled with a reason when the API is missing", () => {
 
 test("undo and redo are grey while the history is empty, with the reason", () => {
   const { wrapper } = mountToolbar();
-  const undo = wrapper.find('[data-testid="toolbar-undo"]');
-  const redo = wrapper.find('[data-testid="toolbar-redo"]');
+  const undo = wrapper.find('[data-testid="undo-btn"]');
+  const redo = wrapper.find('[data-testid="redo-btn"]');
   assert.notEqual(undo.attributes("disabled"), undefined);
   assert.notEqual(redo.attributes("disabled"), undefined);
   assert.match(undo.attributes("title") ?? "", /nothing to undo/i);
@@ -280,7 +285,7 @@ test("undo carries the command description and applies the undo", async () => {
   diagram.addTable(makeTable("customers"));
   await wrapper.vm.$nextTick();
 
-  const undo = wrapper.find('[data-testid="toolbar-undo"]');
+  const undo = wrapper.find('[data-testid="undo-btn"]');
   assert.equal(undo.attributes("disabled"), undefined);
   const title = undo.attributes("title") ?? "";
   assert.ok(history.undoDescription, "a description exists");
@@ -292,7 +297,7 @@ test("undo carries the command description and applies the undo", async () => {
   await undo.trigger("click");
   assert.equal(diagram.diagram.tables.length, 0);
 
-  const redo = wrapper.find('[data-testid="toolbar-redo"]');
+  const redo = wrapper.find('[data-testid="redo-btn"]');
   assert.equal(redo.attributes("disabled"), undefined);
   await redo.trigger("click");
   assert.equal(diagram.diagram.tables.length, 1);

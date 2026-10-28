@@ -8,7 +8,9 @@
  */
 import { t } from "../../i18n/index.ts";
 import ToolbarAlign from "./ToolbarAlign.vue";
+import ToolbarCanvasView from "./ToolbarCanvasView.vue";
 import ToolbarConfig from "./ToolbarConfig.vue";
+import ToolbarCreate from "./ToolbarCreate.vue";
 import ToolbarDisplayMode from "./ToolbarDisplayMode.vue";
 import ToolbarFile from "./ToolbarFile.vue";
 import ToolbarLayout from "./ToolbarLayout.vue";
@@ -41,6 +43,10 @@ function shows(group: ToolbarGroupId): boolean {
   <div :class="classes.toolbar" role="toolbar" :aria-label="t('toolbar_canvas')" data-testid="canvas-toolbar">
     <ToolbarScopeIndicator />
     <span :class="classes.divider" aria-hidden="true" />
+    <template v-if="shows('create')">
+      <ToolbarCreate />
+      <span :class="classes.divider" aria-hidden="true" />
+    </template>
     <template v-if="shows('displayMode')"><ToolbarDisplayMode /></template>
     <template v-if="shows('viewToggles')"><ToolbarViewToggles /></template>
     <template v-if="shows('layout')">
@@ -55,6 +61,10 @@ function shows(group: ToolbarGroupId): boolean {
     <template v-if="shows('viewLayer')"><ToolbarViewLayer /></template>
     <span :class="classes.divider" aria-hidden="true" />
     <template v-if="shows('zoom')"><ToolbarZoom /></template>
+    <template v-if="shows('canvasView')">
+      <span :class="classes.divider" aria-hidden="true" />
+      <ToolbarCanvasView />
+    </template>
     <span :class="classes.divider" aria-hidden="true" />
     <template v-if="shows('undoRedo')"><ToolbarUndoRedo /></template>
     <span :class="classes.divider" aria-hidden="true" />

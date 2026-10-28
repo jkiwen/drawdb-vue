@@ -61,8 +61,11 @@ export function useOutlineIntegration(): {
       ui.selectNote(String(payload.id));
     }
     if (element) {
-      ui.scrollX = element.x;
-      ui.scrollY = element.y;
+      // The node has to land in the middle of the canvas, not under its top
+      // left corner (the tree is a navigation, not a scrollbar).
+      const width = (element as { width?: number }).width ?? 0;
+      const height = (element as { height?: number }).height ?? 0;
+      ui.centerOn(element.x + width / 2, element.y + height / 2);
     }
   }
 

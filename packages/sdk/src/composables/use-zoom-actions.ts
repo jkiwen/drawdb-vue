@@ -7,27 +7,17 @@
  * The viewport is set once by the canvas and is module level, because the
  * canvas is the only component that knows the visible size.
  */
-import { ref } from "vue";
 import { useDiagramStore } from "../stores/diagram.ts";
 import { MAX_ZOOM, MIN_ZOOM, useUIStore } from "../stores/ui.ts";
-import {
-  contentBounds,
-  fitScroll,
-  fitZoom,
-  type ViewportSize,
-} from "./zoom-actions.ts";
-
-/** The visible canvas, in screen pixels; set by the canvas component. */
-const viewport = ref<ViewportSize>({ width: 0, height: 0 });
+import { useCanvasViewport } from "./canvas-viewport.ts";
+import { contentBounds, fitScroll, fitZoom } from "./zoom-actions.ts";
 
 export function useZoomActions() {
   const ui = useUIStore();
   const diagram = useDiagramStore();
 
   /** Records the visible size of the canvas (called on mount and resize). */
-  function setViewport(size: ViewportSize): void {
-    viewport.value = size;
-  }
+  const { viewport, setViewportSize } = useCanvasViewport();
 
   /** Fits the whole diagram into the canvas. */
   function fitToContent(): boolean {
@@ -75,7 +65,7 @@ export function useZoomActions() {
     zoom: () => ui.zoom,
     minZoom: MIN_ZOOM,
     maxZoom: MAX_ZOOM,
-    setViewport,
+    setViewport: setViewportSize,
     fitToContent,
     fitToSelection,
     zoomToPercent,

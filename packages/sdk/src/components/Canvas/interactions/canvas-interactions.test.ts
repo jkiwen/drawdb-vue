@@ -348,6 +348,64 @@ describe("the canvas of the interactions", () => {
     assert.equal(ui.contextMenu.target.kind, "table");
   });
 
+  it("closes the menu of the right button on Escape", async () => {
+    const pinia = freshPinia();
+    seed(pinia);
+    const ui = useUIStore(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    fire(wrapper.find('[data-testid="table-users"]').element, "contextmenu", {
+      clientX: 30,
+      clientY: 40,
+    });
+    await nextTick();
+    assert.ok(ui.contextMenu);
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    await nextTick();
+
+    assert.equal(ui.contextMenu, null);
+  });
+
+  it("closes the menu when the viewport moves", async () => {
+    const pinia = freshPinia();
+    seed(pinia);
+    const ui = useUIStore(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    fire(wrapper.find('[data-testid="table-users"]').element, "contextmenu", {
+      clientX: 30,
+      clientY: 40,
+    });
+    await nextTick();
+    assert.ok(ui.contextMenu);
+
+    ui.scrollX += 40;
+    await nextTick();
+
+    assert.equal(ui.contextMenu, null);
+  });
+
+  it("closes the menu once its command has run", async () => {
+    const pinia = freshPinia();
+    seed(pinia);
+    const ui = useUIStore(pinia);
+    const wrapper = mountCanvas(pinia);
+    const table = wrapper.find('[data-testid="table-users"]').element;
+
+    fire(table, "contextmenu", { clientX: 30, clientY: 40 });
+    await nextTick();
+    assert.ok(ui.contextMenu);
+
+    wrapper.findComponent({ name: "DrawDBContextMenu" }).vm.$emit(
+      "command",
+      "table:toggle-lock",
+    );
+    await nextTick();
+
+    assert.equal(ui.contextMenu, null);
+  });
+
   it("selects the tables the rectangle touches", async () => {
     const pinia = freshPinia();
     seed(pinia);

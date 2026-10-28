@@ -90,3 +90,21 @@ export function fitScroll(
     scrollY: box.y - (viewport.height / zoom - box.height) / 2,
   };
 }
+
+/**
+ * The scroll that puts a point of the canvas in the middle of the viewport.
+ *
+ * The outline uses it when the user clicks a node: the object has to land in
+ * the middle of what the canvas shows, not under the top left corner. Until
+ * the canvas is measured the point itself is the scroll.
+ */
+export function centerScroll(
+  point: { x: number; y: number },
+  viewport: ViewportSize,
+  zoom: number,
+): { scrollX: number; scrollY: number } {
+  if (viewport.width <= 0 || viewport.height <= 0 || zoom <= 0) {
+    return { scrollX: point.x, scrollY: point.y };
+  }
+  return fitScroll({ x: point.x, y: point.y, width: 0, height: 0 }, viewport, zoom);
+}

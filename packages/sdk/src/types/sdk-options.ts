@@ -72,12 +72,14 @@ export interface EditorSelection {
 
 /** A group of the canvas toolbar. */
 export type ToolbarGroupId =
+  | "create"
   | "displayMode"
   | "viewToggles"
   | "layout"
   | "align"
   | "viewLayer"
   | "zoom"
+  | "canvasView"
   | "undoRedo"
   | "file"
   | "config";

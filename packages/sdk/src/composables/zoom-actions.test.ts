@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { Table } from "@drawdb/core";
 import {
+  centerScroll,
   contentBounds,
   fitScroll,
   fitZoom,
@@ -64,6 +65,32 @@ describe("fitScroll", () => {
     assert.deepEqual(fitScroll(bounds, viewport, 2), {
       scrollX: bounds.x,
       scrollY: bounds.y - (viewport.height - bounds.height * 2) / (2 * 2),
+    });
+  });
+});
+
+describe("centerScroll", () => {
+  it("puts the point in the middle of the canvas", () => {
+    // 800/2 = 400 screen pixels from the left, which is 400 canvas units at
+    // zoom 1: 500 - 400 = 100.
+    assert.deepEqual(centerScroll({ x: 500, y: 300 }, { width: 800, height: 600 }, 1), {
+      scrollX: 100,
+      scrollY: 0,
+    });
+  });
+
+  it("divides the half viewport by the zoom", () => {
+    // 400 / 2 = 200 canvas units from the left edge: 500 - 200 = 300.
+    assert.deepEqual(centerScroll({ x: 500, y: 300 }, { width: 800, height: 600 }, 2), {
+      scrollX: 300,
+      scrollY: 150,
+    });
+  });
+
+  it("keeps the point when the canvas has not been measured yet", () => {
+    assert.deepEqual(centerScroll({ x: 120, y: 240 }, { width: 0, height: 0 }, 1), {
+      scrollX: 120,
+      scrollY: 240,
     });
   });
 });

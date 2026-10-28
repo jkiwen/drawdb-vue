@@ -6,6 +6,7 @@ import type {
   FieldId,
   LogicalAttribute,
   LogicalRelationship,
+  Note,
   PhysicalSpec,
   Relationship,
   Table,
@@ -53,7 +54,8 @@ export type PanelTarget =
       relationship: Relationship;
       logical?: LogicalRelationship;
     }
-  | { kind: "area"; area: Area };
+  | { kind: "area"; area: Area }
+  | { kind: "note"; note: Note };
 
 function byId<T extends { id: string | number }>(
   items: readonly T[],
@@ -115,7 +117,10 @@ export function resolvePanelTarget(
     const area = byId(areas, areaIds[0]!);
     return area ? { kind: "area", area } : { kind: "empty", reason: "none" };
   }
-  if (noteIds.length === 1) return { kind: "empty", reason: "note" };
+  if (noteIds.length === 1) {
+    const note = byId(diagram.notes, noteIds[0]!);
+    return note ? { kind: "note", note } : { kind: "empty", reason: "none" };
+  }
 
   const fieldSelection = fields[0]!;
   const table = byId(diagram.tables, fieldSelection.tableId);

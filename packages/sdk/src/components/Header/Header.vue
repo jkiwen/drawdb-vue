@@ -4,13 +4,11 @@ import { computed, ref, watch } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useSaveStore } from "../../stores/save.ts";
 import MenuBar from "./MenuBar.vue";
-import Toolbar from "./Toolbar.vue";
-import UndoRedoButtons from "./UndoRedoButtons.vue";
 
 /**
  * The header of the editor.
  *
- * It brings the menu bar, the toolbar and the undo/redo buttons together and
+ * It brings the menu bar, the title, the database and the save state together
  * shows the properties of the diagram that belong to the whole document: its
  * title, the database it is written for and the state of the last save.
  */
@@ -112,10 +110,6 @@ function saveDiagram(): void {
           @update:value="changeDatabase"
         />
       </div>
-    </div>
-
-    <div class="header__row header__row--tools">
-      <Toolbar />
 
       <NSpace :size="8" align="center" class="header__actions">
         <NTag
@@ -137,7 +131,6 @@ function saveDiagram(): void {
         >
           Save
         </NButton>
-        <UndoRedoButtons />
       </NSpace>
     </div>
   </header>

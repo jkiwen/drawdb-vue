@@ -1,10 +1,9 @@
 import type {
   Diagram,
-  LogicalRelationship,
-  Relationship,
   Table,
 } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
+import { constraintNodes } from "./outline-constraints.ts";
 
 /**
  * The node vocabulary and the per-element node builders of the outline
@@ -38,6 +37,7 @@ export type OutlineCategoryKey =
 export type OutlineNodeKind =
   | "category"
   | "table"
+  | "constraint"
   | "field"
   | "relationship"
   | "area"
@@ -135,18 +135,21 @@ function fieldLabels(
     : { label: physical, altLabel: attribute ? logical : undefined };
 }
 
+
 /**
- * The table node with its field children; `undefined` when an active
- * filter matches neither the table nor any of its fields.
+ * The table node with its key and field children; `undefined` when an active
+ * filter matches neither the table nor any of its children.
  */
 export function buildTableNode(
   table: Table,
   viewLayer: OutlineViewLayer,
   query: string,
+  diagram?: Diagram,
 ): OutlineNode | undefined {
   const label = tableLabel(table, viewLayer);
   const altLabel = tableAltLabel(table, viewLayer);
   const tableHit = matchesNode(label, altLabel, query);
+  const keys = diagram ? constraintNodes(table, diagram, viewLayer, query) : [];
   const fields: OutlineNode[] = [];
   for (const field of table.fields) {
     const labels = fieldLabels(table, String(field.id), viewLayer);
@@ -164,7 +167,9 @@ export function buildTableNode(
       children: [],
     });
   }
-  if (query !== "" && !tableHit && fields.length === 0) return undefined;
+  if (query !== "" && !tableHit && keys.length === 0 && fields.length === 0) {
+    return undefined;
+  }
   return {
     id: `table:${table.id}`,
     kind: "table",
@@ -173,37 +178,12 @@ export function buildTableNode(
     category: "tables",
     refId: table.id,
     matched: tableHit,
-    children: fields,
+    children: [...keys, ...fields],
   };
 }
 
-/**
- * The two layer names of a relationship. The relationship's own name leads
- * on both layers — a relationship is a constraint with one name, and the
- * tree should name it whatever the view layer is — with the other layer's
- * name on the secondary label. A relationship with no name at all falls back
- * to the pair of its table names on the layer in question.
- */
-export function relationshipLabels(
-  relationship: Relationship,
-  logical: LogicalRelationship | undefined,
-  diagram: Diagram,
-  viewLayer: OutlineViewLayer,
-): { label: string; altLabel?: string } {
-  const tableName = (id: string | number, layer: OutlineViewLayer) => {
-    const table = diagram.tables.find((item) => item.id === id);
-    return table ? tableLabel(table, layer) : String(id);
-  };
-  const fallback = (layer: OutlineViewLayer) =>
-    `${tableName(relationship.startTableId, layer)} → ${tableName(relationship.endTableId, layer)}`;
-  const physical = relationship.name?.trim() ?? "";
-  const logicalName = logical?.name?.trim() ?? "";
-  const label = physical || logicalName || fallback(viewLayer);
-  return {
-    label,
-    altLabel: logicalName !== "" && logicalName !== label ? logicalName : undefined,
-  };
-}
+export { relationshipLabels } from "./outline-labels.ts";
+
 
 /** The first-level category node with its count badge. */
 export function buildCategory(

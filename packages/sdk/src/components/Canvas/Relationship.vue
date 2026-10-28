@@ -3,6 +3,7 @@ import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Relationship, Table } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
 import {
   areaHoldsElement,
@@ -34,6 +35,7 @@ const props = defineProps({
 
 const diagram = useDiagramStore();
 const viewState = useViewStateStore();
+const toolbarScope = useToolbarScopeStore();
 
 /**
  * The render models of the two tables.
@@ -42,11 +44,17 @@ const viewState = useViewStateStore();
  * the obstacles are measured with the render model of the current layer and
  * the display toggles (render-model.ts).
  */
+// A table the toolbar collapsed on its own (ruling Q1) is measured with its
+// own toggles, so the anchor follows the node the canvas actually draws.
 const startModel = computed(() =>
-  tableRenderModel(props.startTable, viewState.viewLayer, viewState.toggles),
+  tableRenderModel(props.startTable, viewState.viewLayer, viewState.toggles, {
+    overrides: toolbarScope.overrideFor(String(props.startTable.id)),
+  }),
 );
 const endModel = computed(() =>
-  tableRenderModel(props.endTable, viewState.viewLayer, viewState.toggles),
+  tableRenderModel(props.endTable, viewState.viewLayer, viewState.toggles, {
+    overrides: toolbarScope.overrideFor(String(props.endTable.id)),
+  }),
 );
 
 function modelCenter(model: { width: number; height: number }, table: Table) {

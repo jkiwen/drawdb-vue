@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted } from "vue";
 import type { PropType } from "vue";
 import { NDropdown } from "naive-ui";
 import type { DropdownOption } from "naive-ui";
@@ -11,7 +11,7 @@ const props = defineProps({
   state: { type: Object as PropType<CanvasContextMenuState | null>, default: null },
 });
 
-const emit = defineEmits(["command"]);
+const emit = defineEmits(["command", "close"]);
 
 /** The entries of the menu, according to the object it was opened on. */
 const options = computed<DropdownOption[]>(() => {
@@ -45,6 +45,25 @@ const options = computed<DropdownOption[]>(() => {
 function onSelect(key: string): void {
   emit("command", key);
 }
+
+/**
+ * The menu of the right button is opened by the canvas, which also owns the
+ * pointer handling, so a click anywhere else closes it (issue 9: before, the
+ * menu stayed on the screen until a command was chosen).
+ */
+function onOutside(): void {
+  emit("close");
+}
+
+function onKeydown(event: KeyboardEvent): void {
+  if (event.key === "Escape") {
+    emit("close");
+  }
+}
+
+onMounted(() => window.addEventListener("keydown", onKeydown));
+
+onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 </script>
 
 <template>
@@ -56,6 +75,7 @@ function onSelect(key: string): void {
     :y="state.y"
     :options="options"
     :show="true"
+    :on-clickoutside="onOutside"
     data-testid="context-menu"
     @select="onSelect"
   />

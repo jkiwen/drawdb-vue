@@ -29,14 +29,14 @@ const redoTitle = computed(() =>
     <ToolbarButton
       icon="undo"
       :title="undoTitle"
-      testid="toolbar-undo"
+      testid="undo-btn"
       :disabled="!history.canUndo"
       @click="history.undo()"
     />
     <ToolbarButton
       icon="redo"
       :title="redoTitle"
-      testid="toolbar-redo"
+      testid="redo-btn"
       :disabled="!history.canRedo"
       @click="history.redo()"
     />

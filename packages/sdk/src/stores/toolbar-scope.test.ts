@@ -226,3 +226,26 @@ test("resetOverrides clears the overrides of the document", () => {
   assert.deepEqual(diagram.diagram.viewState?.overrides, {});
   assert.deepEqual(scope.overrides, {});
 });
+
+// —— Issue 2: a change of the canvas reaches every table ——
+
+test("a canvas change clears the overrides a scoped change left behind", () => {
+  const { diagram, ui, viewState, scope } = setup();
+  diagram.addTable(makeTable("t1"));
+  diagram.addTable(makeTable("t2"));
+  ui.selectTable("t1");
+  scope.setScopedDisplayMode("entity");
+  assert.deepEqual(scope.overrides, {
+    t1: togglesForDisplayMode("entity"),
+  });
+
+  ui.clearSelection();
+  scope.setScopedDisplayMode("all");
+
+  assert.equal(viewState.displayMode, "all");
+  assert.deepEqual(
+    scope.overrides,
+    {},
+    "a canvas change has to reach every table, including the ones with an override",
+  );
+});

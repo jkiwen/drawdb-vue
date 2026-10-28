@@ -135,7 +135,7 @@ describe("tableSections", () => {
 
   it("lists the primary key, the foreign keys, the unique keys and the indices", () => {
     const table = makeTable();
-    assert.deepEqual(sectionOf(table, "primary")?.lines, ["id"]);
+    assert.deepEqual(sectionOf(table, "primary")?.lines, ["PRIMARY (id)"]);
     assert.deepEqual(sectionOf(table, "foreign")?.lines, [
       "fk_posts_user: org_id → organisations.id",
     ]);
@@ -212,7 +212,7 @@ describe("tableSections", () => {
       "unique",
       "description",
     ]);
-    assert.deepEqual(sections[0]?.lines, ["identifier"]);
+    assert.deepEqual(sections[0]?.lines, ["PRIMARY (identifier)"]);
     assert.deepEqual(sections[2]?.lines, ["email address"]);
   });
 

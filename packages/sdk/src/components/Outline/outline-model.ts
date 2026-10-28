@@ -57,7 +57,7 @@ export function buildOutlineTree(
   );
 
   const tables = diagram.tables
-    .map((table) => buildTableNode(table, viewLayer, query))
+    .map((table) => buildTableNode(table, viewLayer, query, diagram))
     .filter((node): node is NonNullable<typeof node> => node !== undefined);
 
   const relationships = diagram.relationships

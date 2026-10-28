@@ -86,4 +86,15 @@ export const TOOLBAR_ICONS: Record<string, string> = {
   // Scope indicator.
   scope:
     '<circle cx="12" cy="12" r="7"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/>',
+  // Create (issue 11: the row of the header moved into this toolbar).
+  "add-table":
+    '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/><path d="M12 13v5"/><path d="M9.5 15.5h5"/>',
+  "add-note":
+    '<path d="M5 3h14v12l-5 5H5z"/><path d="M14 20v-5h5"/><path d="M8 8h8"/><path d="M8 12h5"/>',
+  "add-area":
+    '<path d="M4 8V4h4"/><path d="M16 4h4v4"/><path d="M20 16v4h-4"/><path d="M8 20H4v-4"/><path d="M12 8v8"/><path d="M8 12h8"/>',
+  // Canvas view (issue 11).
+  grid: '<path d="M4 4h4v4H4z"/><path d="M10 4h4v4h-4z"/><path d="M16 4h4v4h-4z"/><path d="M4 10h4v4H4z"/><path d="M10 10h4v4h-4z"/><path d="M16 10h4v4h-4z"/><path d="M4 16h4v4H4z"/><path d="M10 16h4v4h-4z"/><path d="M16 16h4v4h-4z"/>',
+  panel:
+    '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',
 };

@@ -137,16 +137,21 @@ function select(node: OutlineNode): void {
     toggle(node.id);
     return;
   }
-  if (node.kind === "table" || node.kind === "area-table") ui.selectTable(String(node.refId));
+  if (node.kind === "constraint") {
+    // A key belongs to its table; a foreign key also selects the relationship (issue 8).
+    ui.selectTable(String(node.parentRefId));
+    if (node.id.includes(":foreign:")) ui.selectRelationship(String(node.refId));
+  } else if (node.kind === "table" || node.kind === "area-table") ui.selectTable(String(node.refId));
   else if (node.kind === "field")
     ui.selectField(String(node.parentRefId), String(node.refId));
   else if (node.kind === "relationship") ui.selectRelationship(String(node.refId));
   else if (node.kind === "note") ui.selectNote(String(node.refId));
   else if (node.kind === "area") ui.selectArea(String(node.refId));
   // Views, enums and types have no ui-store selection yet; they only focus.
+  const focused = node.kind === "area-table" || node.kind === "constraint" ? "table" : node.kind;
   emit("focus", {
-    kind: node.kind === "area-table" ? "table" : node.kind,
-    id: node.refId!,
+    kind: focused,
+    id: node.kind === "constraint" ? node.parentRefId! : node.refId!,
     ...(node.kind === "field" ? { tableId: node.parentRefId! } : {}),
   });
 }

@@ -92,14 +92,18 @@ describe("EditPanel constraint and index groups", () => {
     ui.selectTable("t_users");
     await wrapper.vm.$nextTick();
 
-    const constraints = rows(wrapper, "constraint-row");
-    assert.equal(constraints.length, 3);
-    // The badge already says which kind it is; a primary key has no name of its own.
-    assert.match(constraints[0]!, /Primary key/);
-    assert.doesNotMatch(constraints[0]!, /PRIMARY/);
-    assert.match(constraints[0]!, /id/);
-    assert.match(constraints[1]!, /uq_name/);
-    assert.match(constraints[2]!, /fk_orders_user/);
+    // Issues 5 to 7: every key of the table is editable from the panel, the
+    // primary one under the name SQL gives it.
+    const primary = rows(wrapper, "constraint-name-primary");
+    assert.deepEqual(primary, ["PRIMARY"]);
+    assert.deepEqual(rows(wrapper, "constraint-field-primary"), ["id×"]);
+    const uniqueNames = wrapper.findAll('[data-testid="constraint-name-unique-0"]');
+    assert.equal(uniqueNames.length, 1);
+    assert.equal((uniqueNames[0]!.element as HTMLInputElement).value, "uq_name");
+    assert.match(rows(wrapper, "constraint-unique-field")[0] ?? "", /name/);
+    const foreignNames = wrapper.findAll('[data-testid="constraint-name-foreign-0"]');
+    assert.equal(foreignNames.length, 1);
+    assert.equal((foreignNames[0]!.element as HTMLInputElement).value, "fk_orders_user");
   });
 
   it("lists the indexes with their columns", async () => {

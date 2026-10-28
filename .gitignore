@@ -11,3 +11,7 @@ pnpm-store
 .turbo
 test-results
 .tmp
+# scratch probes and screenshots of the working sessions
+.tmp-shots/
+.tmp-i18n/
+.tmp-e2e/

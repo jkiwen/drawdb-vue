@@ -271,3 +271,74 @@
   line-height: 1.5;
   white-space: nowrap;
 }
+
+/* One block per key kind (issues 5 to 7): the block carries the badge of the
+   kind, the editable name and the ordered list of its columns. */
+.constraint-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 0;
+}
+.constraint-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.constraint-head .input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* A field pair is a card (review issue 1): one summary line that stays
+   readable at any panel width, and the four editable values on two lines
+   underneath. The card folds when the table grows long. */
+.field-card {
+  border: 1px solid var(--ddb-border, #e4e4e7);
+  border-radius: 4px;
+  background: var(--n-color, #ffffff);
+  overflow: hidden;
+}
+.field-card + .field-card {
+  margin-top: 6px;
+}
+.field-card-focused {
+  border-color: var(--ddb-accent);
+}
+.field-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+.field-card-caret {
+  width: 10px;
+  color: var(--ddb-fg-muted);
+}
+.field-card-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.field-card-type {
+  color: var(--ddb-fg-muted);
+  font-family: var(--ddb-font-mono);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.field-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  padding: 2px 8px 8px 24px;
+  border-top: 1px solid var(--ddb-border, #e4e4e7);
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}

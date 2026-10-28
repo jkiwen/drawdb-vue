@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import { useUIStore } from "../../stores/ui.ts";
 import { useCanvasEvents } from "../../composables/use-canvas-events.ts";
 import { useZoomActions } from "../../composables/use-zoom-actions.ts";
 import { useCanvasItems } from "../../composables/use-canvas-items.ts";
@@ -131,6 +132,26 @@ function onCanvasPointerDown(event: PointerEvent): void {
 
 const zoomActions = useZoomActions();
 
+const ui = useUIStore();
+
+/**
+ * The menu of the right button is a transient popup: a command, a click
+ * outside, Escape or a move of the viewport all dismiss it (issue 9).
+ */
+function onMenuCommand(key: string): void {
+  canvas.runMenuCommand(key);
+  ui.closeContextMenu();
+}
+
+watch(
+  () => [ui.scrollX, ui.scrollY, ui.zoom],
+  () => {
+    if (ui.contextMenu) {
+      ui.closeContextMenu();
+    }
+  },
+);
+
 /** Records the visible canvas so the zoom group can fit the diagram. */
 function reportViewport(): void {
   const rect = svgRef.value?.getBoundingClientRect();
@@ -140,9 +161,16 @@ function reportViewport(): void {
   });
 }
 
+/** A layout change of the host (panels, toolbar) resizes the canvas too. */
+let viewportObserver: ResizeObserver | null = null;
+
 onMounted(() => {
   if (svgRef.value) {
     canvasEvents.attach(svgRef.value);
+    if (typeof ResizeObserver !== "undefined") {
+      viewportObserver = new ResizeObserver(() => reportViewport());
+      viewportObserver.observe(svgRef.value);
+    }
   }
   reportViewport();
   window.addEventListener("resize", reportViewport);
@@ -150,6 +178,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   canvasEvents.detach();
+  viewportObserver?.disconnect();
+  viewportObserver = null;
   window.removeEventListener("resize", reportViewport);
 });
 </script>
@@ -242,6 +272,7 @@ onBeforeUnmount(() => {
   </svg>
   <ContextMenu
     :state="canvas.menu.value"
-    @command="canvas.runMenuCommand"
+    @command="onMenuCommand"
+    @close="ui.closeContextMenu()"
   />
 </template>

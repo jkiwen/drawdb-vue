@@ -89,12 +89,24 @@ export const useToolbarScopeStore = defineStore("toolbar-scope", () => {
     diagramStore.updateViewState({ overrides: next });
   }
 
+  /**
+   * A change of the canvas has to reach every table (issue 2), so it also
+   * drops the overrides a scoped change left behind — otherwise the tables
+   * the user collapsed one by one would keep their own toggles.
+   */
+  function clearOverridesForCanvas(): void {
+    if (Object.keys(overrides.value).length > 0) {
+      resetOverrides();
+    }
+  }
+
   function setScopedToggle(
     key: keyof ViewStateToggles,
     value: boolean,
   ): void {
     if (scopeKind.value === "canvas") {
       viewState.setToggle(key, value);
+      clearOverridesForCanvas();
       return;
     }
     writeScoped({ [key]: value });
@@ -103,6 +115,7 @@ export const useToolbarScopeStore = defineStore("toolbar-scope", () => {
   function setScopedDisplayMode(mode: Exclude<DisplayMode, "custom">): void {
     if (scopeKind.value === "canvas") {
       viewState.setDisplayMode(mode);
+      clearOverridesForCanvas();
       return;
     }
     writeScoped({ ...togglesForDisplayMode(mode) });

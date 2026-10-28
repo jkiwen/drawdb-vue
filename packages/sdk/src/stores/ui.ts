@@ -6,6 +6,9 @@ import type {
   ResizeState,
   SelectionBox,
 } from "../components/Canvas/interactions/interaction-state.ts";
+import { useCanvasViewport } from "../composables/canvas-viewport.ts";
+import { useTableFocusSize } from "../composables/use-focus-measure.ts";
+import { centerScroll } from "../composables/zoom-actions.ts";
 import { useFocusIssue } from "./selection-actions.ts";
 import { useSettingsStore } from "./settings.ts";
 import { useViewStateStore } from "./view-state.ts";
@@ -49,22 +52,16 @@ export const MIN_ZOOM = 0.1;
 export const MAX_ZOOM = 4;
 export const ZOOM_STEP = 0.1;
 
-/**
- * Ephemeral editor state: selection, viewport and panel visibility.
- *
- * Nothing in this store is persisted; it only describes what the user is
- * currently looking at.
- */
+/** Ephemeral editor state: selection, viewport, panels, interactions. */
 export const useUIStore = defineStore("ui", () => {
   const selectedTableIds = ref<string[]>([]);
   const selectedRelationshipIds = ref<string[]>([]);
-  const selectedNoteIds = ref<string[]>([]);
-  const selectedAreaIds = ref<string[]>([]);
+  const selectedNoteIds = ref<string[]>([]), selectedAreaIds = ref<string[]>([]);
   const selectedFields = ref<SelectedField[]>([]);
 
   const zoom = ref(1);
-  const scrollX = ref(0);
-  const scrollY = ref(0);
+  const scrollX = ref(0), scrollY = ref(0);
+  const { viewport } = useCanvasViewport();
 
   const activeTab = ref<UiTab>("tables");
   // Q21: the panel collapse is the only mechanism, this flag mirrors it.
@@ -77,12 +74,10 @@ export const useUIStore = defineStore("ui", () => {
   const viewMode = computed<ViewMode>(() => useViewStateStore().viewLayer);
   const contextMenu = ref<ContextMenuState | null>(null);
   const isFullscreen = ref(false);
-  // The one-time toast of the bottom panel (ruling Q9: new errors never
-  // auto expand the panel, they raise a badge and a single notification).
+  // The Q9 toast: new errors raise a badge and one notification, no expand.
   const lastNotification = ref<UiNotification | null>(null);
   let notificationSeq = 0;
-  // The state of the interactions of the canvas. The composables of the
-  // canvas keep the behaviour, the store holds the state.
+  // Canvas interactions: the composables keep the behaviour, this the state.
   const linking = ref<LinkingState | null>(null);
   const resizing = ref<ResizeState | null>(null);
   const selectionBox = ref<SelectionBox | null>(null);
@@ -250,12 +245,15 @@ export const useUIStore = defineStore("ui", () => {
     lastNotification.value = null;
   }
 
-  // Selects the object a problem of the diagram is about and scrolls to it.
-  // The callback keeps the viewport of this store in step with the move.
-  const focusIssue = useFocusIssue((x, y) => {
-    scrollX.value = x;
-    scrollY.value = y;
-  });
+  /** Puts a point of the canvas in the middle of the visible area. */
+  function centerOn(x: number, y: number): void {
+    const scroll = centerScroll({ x, y }, viewport.value, zoom.value);
+    scrollX.value = scroll.scrollX;
+    scrollY.value = scroll.scrollY;
+  }
+
+  // Selects the object of a problem and centres it; see selection-actions.
+  const focusIssue = useFocusIssue(centerOn, useTableFocusSize());
 
   return {
     selectedTableIds,
@@ -294,6 +292,7 @@ export const useUIStore = defineStore("ui", () => {
     notify,
     clearNotification,
     focusIssue,
+    centerOn,
   };
 });
 

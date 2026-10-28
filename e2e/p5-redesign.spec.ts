@@ -47,12 +47,23 @@ function canvasTable(page: Page, id: string | number) {
 }
 
 /**
- * The transform of the content of the canvas after it scrolled to (x, y)
- * with the initial zoom (use-canvas-items builds
- * `translate(-scrollX * zoom -scrollY * zoom) scale(zoom)`).
+ * The object of a focus lands in the middle of the canvas viewport
+ * (review issue 3): the scroll is derived from the measured size of the
+ * node, so the assertion measures the rendered boxes instead of naming a
+ * scroll offset that the next layout change would invalidate.
  */
-function focusTransform(x: number, y: number): string {
-  return `translate(${-x} ${-y}) scale(1)`;
+async function expectCentred(page: Page, id: string | number): Promise<void> {
+  const viewport = await page.getByTestId("canvas").boundingBox();
+  const node = await page.getByTestId(`table-${id}`).boundingBox();
+  expect(viewport).not.toBeNull();
+  expect(node).not.toBeNull();
+  const tolerance = 24;
+  expect(
+    Math.abs(node!.x + node!.width / 2 - (viewport!.x + viewport!.width / 2)),
+  ).toBeLessThan(tolerance);
+  expect(
+    Math.abs(node!.y + node!.height / 2 - (viewport!.y + viewport!.height / 2)),
+  ).toBeLessThan(tolerance);
 }
 
 test.describe("the shell of the P5 redesign", () => {
@@ -70,10 +81,7 @@ test.describe("the shell of the P5 redesign", () => {
     await page.getByTestId(`outline-row-table:${first.id}`).click();
 
     await expect(canvasTable(page, first.id)).toHaveClass(/is-selected/);
-    await expect(page.getByTestId("canvas-content")).toHaveAttribute(
-      "transform",
-      focusTransform(first.x, first.y),
-    );
+    await expectCentred(page, first.id);
   });
 
   test("the edit panel edits the paired fields and the canvas follows", async ({
@@ -158,9 +166,6 @@ test.describe("the shell of the P5 redesign", () => {
     const tables = await bridgeTables(page);
     const duplicate = tables[1];
     await expect(canvasTable(page, duplicate.id)).toHaveClass(/is-selected/);
-    await expect(page.getByTestId("canvas-content")).toHaveAttribute(
-      "transform",
-      focusTransform(duplicate.x, duplicate.y),
-    );
+    await expectCentred(page, duplicate.id);
   });
 });

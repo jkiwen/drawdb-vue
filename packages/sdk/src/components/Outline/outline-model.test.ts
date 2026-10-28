@@ -72,6 +72,8 @@ function sampleDiagram(): Diagram {
     },
   ];
 
+  users.fields[0]!.primary = true;
+  users.uniqueConstraints = [{ id: "uk1", name: "uq_name", fields: ["f_name"] }];
   diagram.tables = [users, orders];
   diagram.relationships = [
     {
@@ -133,7 +135,7 @@ describe("buildOutlineTree", () => {
     assert.equal(users.id, "table:t_users");
     assert.equal(users.label, "users");
     assert.deepEqual(
-      users.children.map((field) => field.label),
+      users.children.filter((node) => node.kind === "field").map((node) => node.label),
       ["id", "user_name"],
     );
     assert.equal(category(tree, "cat:relationships").count, 2);
@@ -145,18 +147,18 @@ describe("buildOutlineTree", () => {
     const usersPhysical = category(physical, "cat:tables").children[0];
     assert.equal(usersPhysical.label, "users");
     assert.equal(usersPhysical.altLabel, "User");
-    assert.equal(usersPhysical.children[1].label, "user_name");
-    assert.equal(usersPhysical.children[1].altLabel, "User Name");
+    assert.equal(usersPhysical.children.find((node) => node.kind === "field" && node.label === "user_name")?.altLabel, "User Name");
+    assert.equal(usersPhysical.children.find((node) => node.id === "field:t_users:f_name")?.altLabel, "User Name");
 
     const logical = buildOutlineTree(sampleDiagram(), "logical");
     const usersLogical = category(logical, "cat:tables").children[0];
     assert.equal(usersLogical.label, "User");
     assert.equal(usersLogical.altLabel, "users");
     assert.deepEqual(
-      usersLogical.children.map((field) => field.label),
+      usersLogical.children.filter((node) => node.kind === "field").map((node) => node.label),
       ["Identifier", "User Name"],
     );
-    assert.equal(usersLogical.children[0].altLabel, "id");
+    assert.equal(usersLogical.children.find((node) => node.id === "field:t_users:f_id")?.altLabel, "id");
   });
 
   it("hides the physical-only categories in the logical view (Q15)", () => {
@@ -184,6 +186,41 @@ describe("buildOutlineTree", () => {
     assert.equal(logicalRelationships.children[1].label, "User → User");
   });
 
+  it("nests the keys of a table above its fields (issue 8)", () => {
+    const tree = buildOutlineTree(sampleDiagram(), "physical");
+    const users = category(tree, "cat:tables").children[0];
+    assert.deepEqual(
+      users.children.map((node) => node.id),
+      [
+        "constraint:t_users:primary",
+        "constraint:t_users:unique:uk1",
+        "constraint:t_users:foreign:r1",
+        "constraint:t_users:foreign:r2",
+        "field:t_users:f_id",
+        "field:t_users:f_name",
+      ],
+    );
+    assert.deepEqual(
+      users.children.slice(0, 3).map((node) => node.label),
+      ["PK PRIMARY", "UK uq_name", "FK fk_orders_users"],
+    );
+    // The columns of a key live in the tooltip, not in the tree.
+    assert.equal(users.children[0].altLabel, "PRIMARY (id)");
+    assert.equal(users.children[1].altLabel, "uq_name (user_name)");
+    // The logical layer names the same constraint the same way.
+    const logical = buildOutlineTree(sampleDiagram(), "logical");
+    const usersLogical = category(logical, "cat:tables").children[0];
+    assert.equal(usersLogical.children[1].label, "UK uq_name");
+  });
+
+  it("finds a key by its name through the filter", () => {
+    const tree = buildOutlineTree(sampleDiagram(), "physical", "uq_name");
+    const users = category(tree, "cat:tables").children[0];
+    assert.deepEqual(
+      users.children.map((node) => node.id),
+      ["constraint:t_users:unique:uk1"],
+    );
+  });
   it("nests the tables an area holds under the area", () => {
     const tree = buildOutlineTree(sampleDiagram(), "physical");
     const areas = category(tree, "cat:areas");
@@ -220,7 +257,7 @@ describe("buildOutlineTree", () => {
     const tree = buildOutlineTree(sampleDiagram(), "physical", "users");
     const tables = category(tree, "cat:tables");
     assert.equal(tables.children.length, 1);
-    assert.equal(tables.children[0].children.length, 2);
+    assert.equal(tables.children[0].children.length, 4);
     assert.equal(tables.children[0].matched, true);
   });
 
@@ -242,7 +279,7 @@ describe("buildOutlineTree", () => {
     );
     // The fields sort inside their table too.
     assert.deepEqual(
-      category(byName, "cat:tables").children[1].children.map((n) => n.label),
+      category(byName, "cat:tables").children[1].children.filter((n) => n.kind === "field").map((n) => n.label),
       ["id", "user_name"],
     );
   });
@@ -265,6 +302,10 @@ describe("flattenOutlineTree", () => {
       [
         "cat:tables",
         "table:t_users",
+        "constraint:t_users:primary",
+        "constraint:t_users:unique:uk1",
+        "constraint:t_users:foreign:r1",
+        "constraint:t_users:foreign:r2",
         "field:t_users:f_id",
         "field:t_users:f_name",
         "table:t_orders",

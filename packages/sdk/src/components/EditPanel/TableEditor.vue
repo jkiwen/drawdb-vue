@@ -45,14 +45,6 @@ function onRemove(row: (typeof rows.value)[number]): void {
       {{ overview.text }}
     </div>
     <div :class="styles.scroll" data-testid="field-grid">
-      <div :class="styles['row-header']">
-        <span>{{ t("edit_panel_logical_attribute") }}</span>
-        <span>{{ t("edit_panel_logical_type") }}</span>
-        <span>{{ t("edit_panel_physical_column") }}</span>
-        <span>{{ t("edit_panel_physical_type") }}</span>
-        <span>{{ t("edit_panel_status") }}</span>
-        <span />
-      </div>
       <div :class="styles.rows" data-testid="field-rows">
         <FieldPairRow
           v-for="row in rows"

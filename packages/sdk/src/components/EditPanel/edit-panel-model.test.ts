@@ -156,12 +156,12 @@ describe("resolvePanelTarget", () => {
     if (target.kind === "area") assert.equal(target.area.name, "Sales");
   });
 
-  it("shows the empty state for a single selected note", () => {
-    const target = resolvePanelTarget(
-      { ...noSelection(), noteIds: ["n1"] },
-      sampleDiagram(),
-    );
-    assert.deepEqual(target, { kind: "empty", reason: "note" });
+  it("shows the editor of a single selected note", () => {
+    const diagram = sampleDiagram();
+    diagram.notes = [{ id: "n1", x: 10, y: 20, title: "", content: "hi" }];
+    const target = resolvePanelTarget({ ...noSelection(), noteIds: ["n1"] }, diagram);
+    assert.equal(target.kind, "note");
+    assert.equal(target.kind === "note" ? target.note.id : null, "n1");
   });
 
   it("shows the table of a single selected field with the row highlighted", () => {

@@ -112,12 +112,12 @@ function primarySection(table: Table, layer: ViewLayer): TableSectionModel | nul
     const names = (table.logical?.attributes ?? [])
       .filter((attribute) => attribute.keyRole === "primary")
       .map((attribute) => attribute.name);
-    return keySection("primary", "PK", names.length > 0 ? [names.join(", ")] : []);
+    return keySection("primary", "PK", names.length > 0 ? [`PRIMARY (${names.join(", ")})`] : []);
   }
   const names = table.fields
     .filter((field) => field.primary === true)
     .map((field) => field.name);
-  return keySection("primary", "PK", names.length > 0 ? [names.join(", ")] : []);
+  return keySection("primary", "PK", names.length > 0 ? [`PRIMARY (${names.join(", ")})`] : []);
 }
 
 function foreignSection(

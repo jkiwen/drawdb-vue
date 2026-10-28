@@ -4,9 +4,12 @@ import { createPinia, setActivePinia } from "pinia";
 import type { Diagram } from "@drawdb/core";
 import { setLocale } from "../i18n/index.ts";
 import { useDiagramStore } from "../stores/diagram.ts";
+import { useUIStore } from "../stores/ui.ts";
 import { useSelectionStore } from "../stores/selection.ts";
 import { useFocusIssue } from "../stores/selection-actions.ts";
 import { useIssues } from "./use-issues.ts";
+import { useCanvasViewport } from "./canvas-viewport.ts";
+import { useOutlineIntegration } from "./use-outline-integration.ts";
 
 /** A diagram with a warning and an error, so that both groups are covered. */
 function seed(): Diagram {
@@ -157,5 +160,40 @@ describe("use-issues", () => {
     focusIssue({ tableId: "missing" });
     assert.equal(selection.scrollX, 900);
     assert.equal(selection.scrollY, 900);
+  });
+});
+
+describe("centring the object of an outline click", () => {
+  it("puts the node in the middle of the visible canvas", () => {
+    setActivePinia(createPinia());
+    setLocale("en");
+    const diagram = useDiagramStore();
+    diagram.setDiagram(seed());
+    const ui = useUIStore();
+    const { setViewportSize } = useCanvasViewport();
+    setViewportSize({ width: 800, height: 600 });
+
+    // The table sits at (0,0) and is 220x122 (header plus two rows): its
+    // centre is (110, 61), so the scroll is 110 - 400 and 61 - 300.
+    ui.focusIssue({ tableId: "t1" });
+
+    assert.equal(ui.scrollX, -290);
+    assert.equal(ui.scrollY, -239);
+  });
+
+  it("centres an area on its own bounds", () => {
+    setActivePinia(createPinia());
+    setLocale("en");
+    const diagram = useDiagramStore();
+    diagram.setDiagram(seed());
+    diagram.addArea({ id: "area1", name: "Group", x: 100, y: 100, width: 400, height: 200 });
+    const ui = useUIStore();
+    const { setViewportSize } = useCanvasViewport();
+    setViewportSize({ width: 800, height: 600 });
+
+    useOutlineIntegration().focusOutlineNode({ kind: "area", id: "area1" });
+
+    assert.equal(ui.scrollX, -100);
+    assert.equal(ui.scrollY, -100);
   });
 });

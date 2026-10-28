@@ -56,7 +56,7 @@ const hasSelection = computed(() => ui.selectedTableIds.length > 0);
     <ToolbarButton
       icon="zoom-out"
       :title="t('zoom_out_title')"
-      testid="toolbar-zoom-out"
+      testid="zoom-out-btn"
       :disabled="ui.zoom <= MIN_ZOOM"
       @click="ui.zoomOut()"
     />
@@ -73,7 +73,7 @@ const hasSelection = computed(() => ui.selectedTableIds.length > 0);
     <ToolbarButton
       icon="zoom-in"
       :title="t('zoom_in_title')"
-      testid="toolbar-zoom-in"
+      testid="zoom-in-btn"
       :disabled="ui.zoom >= MAX_ZOOM"
       @click="ui.zoomIn()"
     />

@@ -11,6 +11,7 @@ import type { PanelTarget, SelectionSnapshot } from "./edit-panel-model.ts";
 import AreaEditor from "./AreaEditor.vue";
 import DiagramEditor from "./DiagramEditor.vue";
 import MultiTableEditor from "./MultiTableEditor.vue";
+import NoteEditor from "./NoteEditor.vue";
 import PanelGroup from "./PanelGroup.vue";
 import RelationshipEditor from "./RelationshipEditor.vue";
 import TableAppearance from "./TableAppearance.vue";
@@ -174,6 +175,17 @@ const EMPTY_KEYS: Record<string, string> = {
         @toggle="toggleGroup('appearance')"
       >
         <TableAppearance :key="String(target.table.id)" :tables="[target.table]" />
+      </PanelGroup>
+    </template>
+
+    <template v-else-if="target.kind === 'note'">
+      <PanelGroup
+        :title="t('edit_panel_group_appearance')"
+        :collapsed="isCollapsed('note-appearance')"
+        testid="group-note"
+        @toggle="toggleGroup('note-appearance')"
+      >
+        <NoteEditor :key="String(target.note.id)" :note="target.note" />
       </PanelGroup>
     </template>
 
