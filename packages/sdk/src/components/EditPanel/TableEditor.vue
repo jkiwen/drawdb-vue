@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Table } from "@drawdb/core";
+import type { DatabaseType, FieldId, Table } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import styles from "./edit-panel.module.css";
@@ -24,9 +24,9 @@ import FieldPairRow from "./FieldPairRow.vue";
  */
 const props = defineProps<{
   table: Table;
-  database: string;
+  database: DatabaseType;
   logicalView: boolean;
-  focusFieldId?: string;
+  focusFieldId?: FieldId;
 }>();
 
 const store = useDiagramStore();
@@ -65,7 +65,7 @@ function onRemove(row: (typeof rows.value)[number]): void {
         :row="row"
         :database="props.database"
         :logical-view="props.logicalView"
-        :focused="row.field?.id !== undefined && String(row.field.id) === props.focusFieldId"
+        :focused="row.field?.id !== undefined && String(row.field.id) === String(props.focusFieldId)"
         @commit-logical-name="(id, value) => commitLogicalName(store, props.table, id, value)"
         @commit-logical-family="(id, family) => commitLogicalFamily(store, props.table, id, family)"
         @commit-physical-name="(id, value) => commitPhysicalName(store, props.table, id, value)"

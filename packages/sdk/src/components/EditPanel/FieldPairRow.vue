@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { BUILTIN_FAMILIES } from "@drawdb/core";
-import type { Table } from "@drawdb/core";
+import type { DatabaseType, Table } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import styles from "./edit-panel.module.css";
 import type { FieldPairRow as RowModel } from "./edit-panel-model.ts";
@@ -17,7 +17,7 @@ import TypeCombobox from "./TypeCombobox.vue";
 const props = defineProps<{
   table: Table;
   row: RowModel;
-  database: string;
+  database: DatabaseType;
   logicalView: boolean;
   focused?: boolean;
 }>();
@@ -49,7 +49,7 @@ watch(
 const family = computed(() => {
   const ref = props.row.attribute?.logicalType;
   if (!ref) return "";
-  return "family" in ref ? ref.family : `domain:${ref.domainId}`;
+  return "family" in ref ? (ref.family ?? "") : `domain:${ref.domainId}`;
 });
 
 const badge = computed(() => {

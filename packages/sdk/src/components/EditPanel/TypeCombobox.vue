@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import type { PhysicalSpec } from "@drawdb/core";
+import type { DatabaseType, PhysicalSpec } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import styles from "./edit-panel.module.css";
 import { filterTypeOptions, typeParamVisibility } from "./edit-panel-model.ts";
@@ -13,7 +13,7 @@ import { filterTypeOptions, typeParamVisibility } from "./edit-panel-model.ts";
  * type (isSized → length, hasPrecision → precision/scale).
  */
 const props = defineProps<{
-  database: string;
+  database: DatabaseType;
   spec: PhysicalSpec;
   testid?: string;
 }>();

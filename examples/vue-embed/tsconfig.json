@@ -10,5 +10,10 @@
       "oracle-sql-parser": ["../../packages/core/src/types/oracle-sql-parser.d.ts"]
     }
   },
-  "include": ["src", "vite.config.ts", "../../packages/app/src/types/vue-shim.d.ts"]
+  "include": [
+    "src",
+    "vite.config.ts",
+    "../../packages/app/src/types/vue-shim.d.ts",
+    "../../packages/sdk/src/types/vue-shim.d.ts"
+  ]
 }
