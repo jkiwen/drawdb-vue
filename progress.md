@@ -589,3 +589,11 @@ per element already on the canvas, selected and centred in the viewport.
 **The reset button also resets a scrolled canvas.** It was disabled at 100% zoom, which
 left a canvas scrolled far from the origin with no way back; it is now enabled unless the
 zoom is 100% and both scroll offsets are zero.
+
+## The keys became objects of the document (2026-10-30)
+
+- A key is a two-name object of the table (`primaryKey`, `uniqueKeys`, `foreignKeys`, `indices`), not a list of column names: the name survives a column rename, a uniqueness rule can be named, and every key operation is one step of the undo history (`SetTableKeysCommand` keeps only the channels it touched).
+- Names are generated the way the design asked (`PK_`/`UK_`/`FK_`/`Idx_` + table, `_2`/`_3` on a collision, generated once and never rewritten when the table is renamed). The generated name is a suggestion: the panel asks for the name and the rules only warn.
+- Loading a document is where the old shapes die: `normalizeDiagramKeys` turns `field.primary`, `uniqueConstraints` and name-based index columns into the key objects once, and the serialized form carries the objects from then on.
+- The canvas and the outline read the same objects as the panel, so a key is called the same thing in the block, the tree and the card. The index block prints column direction; renaming a foreign key moves the key object and its relationship in one step.
+- Verification: `run-tests.mjs` 1263/1263, five typecheck programs clean, e2e 55 passed, turbo build 4/4 (8 GB heap). Commits 63eb2a2, 6edd059, c1e5b06, 4b4a09a, 039654c, d99149a, 622b8b7.

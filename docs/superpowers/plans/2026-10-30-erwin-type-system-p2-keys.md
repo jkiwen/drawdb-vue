@@ -1,6 +1,6 @@
 # P2' — 键与约束对象化实施计划
 
-**Status:** 执行中（2026-10-30）
+**Status:** 执行中（2026-10-30）——Task 1–7 已交付；Task 8 剩「删除旧属性」一步
 **Spec:** [`docs/superpowers/specs/2026-10-26-erwin-type-system-design.md`](../specs/2026-10-26-erwin-type-system-design.md) §3.8.3（裁决 1/2/3/5/6/7）、§3.5（INV-8/9/10）、§7.1（条目区）、§8（诊断通道）
 **前置:** P1–P4（双层模型、解析器、lint、导出接入）与 P5（编辑器 UI）均已合并
 
@@ -108,5 +108,8 @@
 ## 执行偏差记录
 
 （执行中追加）
+
+- Task 8 的「删除旧属性」尚未做：`Index.fields`、`table.uniqueConstraints`、`field.primary` 仍留在公共类型上，但产品代码已改为优先读键对象、只在旧文档里回退读它们。删除它们要同时改约 20 个测试夹具，单独一步做，避免和上面的键对象迁移混在一个提交里。
+- Task 7 的 FK 双名做成了「一次命令同时改键对象与关系名」，因为画布与树当前仍从关系读名字；等旧属性删除时再决定关系名是否还需要存在。
 - Task 6 的 FK 卡片仍以 `relationship.name` 作为约束名（`table.foreignKeys[]` 已由载入器与关系命令生成，但面板还没写它）；`comment` 字段的输入框尚未加到卡片；这两项留给 Task 7/8 之前补。
 - Task 6 的双名输入用两个新键 `edit_panel_key_logical_name` / `edit_panel_key_physical_name`；`KeyCard` 的标题只显示物理名，逻辑名在卡体内。
