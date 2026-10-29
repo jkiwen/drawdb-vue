@@ -528,3 +528,24 @@ growing three copies.
   the tree.
 - Each row has its own 16x16 glyph (OutlineIcon), drawn inline so the tree
   still has no icon dependency and currentColor follows the row state.
+
+## The seventh pass: areas, the diagram and the menu (2026-10-29)
+
+An area carries the areas it **nests**, not the ones it overlaps (bug report:
+two overlapping areas could never be pulled apart). Tables and notes keep the
+overlap rule, because a table drawn over the edge of an area still belongs to
+it; areas switched to containment, and identical rectangles count as siblings
+so that two areas of the same size can still be separated.
+
+The property panel of an area now edits what the model calls a property
+(description, colour, opacity, size, lock), and the diagram panel edits the
+database instead of showing it read-only. Both the header and the panel read
+the languages from `utils/database-options.ts` so the two places cannot drift.
+
+The menu of the right button had two readers of one state: it was drawn from
+the canvas reference and closed through the UI store. It is now closed where it
+is drawn, through a pointerdown listener in the capture phase, because the mask
+of a dialog swallows the press before Naive UI sees it.
+
+A diagram gained a description, next to its title: model, JSON round trip and
+the update command all carry it, so it survives save and undo.

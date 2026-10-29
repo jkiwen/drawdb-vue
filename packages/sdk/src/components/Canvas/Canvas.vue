@@ -273,6 +273,6 @@ onBeforeUnmount(() => {
   <ContextMenu
     :state="canvas.menu.value"
     @command="onMenuCommand"
-    @close="ui.closeContextMenu()"
+    @close="canvas.closeMenu()"
   />
 </template>

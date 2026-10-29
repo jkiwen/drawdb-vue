@@ -406,6 +406,30 @@ describe("the canvas of the interactions", () => {
     assert.equal(ui.contextMenu, null);
   });
 
+  it("closes the menu when a dialog takes the press", async () => {
+    // The mask of a dialog swallows the press before the dropdown of Naive UI
+    // sees it, so the menu used to stay on top of the dialog (bug report of
+    // 2026-10-29). A press anywhere but on the menu closes it now.
+    const pinia = freshPinia();
+    seed(pinia);
+    const ui = useUIStore(pinia);
+    const wrapper = mountCanvas(pinia);
+
+    fire(wrapper.find('[data-testid="table-users"]').element, "contextmenu", {
+      clientX: 30,
+      clientY: 40,
+    });
+    await nextTick();
+    assert.ok(ui.contextMenu);
+
+    document.body.dispatchEvent(
+      new PointerEvent("pointerdown", { bubbles: true, composed: true }),
+    );
+    await nextTick();
+
+    assert.equal(ui.contextMenu, null);
+  });
+
   it("selects the tables the rectangle touches", async () => {
     const pinia = freshPinia();
     seed(pinia);

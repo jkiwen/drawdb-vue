@@ -64,7 +64,7 @@ function apply(patch: { color?: string; locked?: boolean; details?: boolean }): 
       <span :class="styles.label">{{ t("edit_panel_appearance_color") }}</span>
       <input
         v-model="color"
-        :class="styles.input"
+        :class="[styles.input, styles['color-input']]"
         :placeholder="values.colorMultiple ? t(MULTIPLE) : '#rrggbb'"
         data-testid="appearance-color"
         @change="commitColor"

@@ -9,6 +9,7 @@ import type { DatabaseType, Diagram } from "../models/diagram.ts";
  */
 export interface DiagramProperties {
   title?: string;
+  description?: string;
   database?: DatabaseType;
   sqlHeader?: string;
 }

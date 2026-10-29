@@ -22,6 +22,11 @@ export type DatabaseType =
 export interface Diagram {
   id?: string;
   title?: string;
+  /**
+   * What the diagram is for, in the words of whoever drew it (feature request
+   * of 2026-10-29). A note on the drawing rather than on one of its tables.
+   */
+  description?: string;
   database: DatabaseType;
   sqlHeader?: string;
   tables: Table[];

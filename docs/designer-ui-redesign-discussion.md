@@ -615,3 +615,12 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 
 新增 3 个文案键（`outline_group_unique`/`outline_group_foreign`/`outline_group_indexes`），51 个 locale 均为 564 键。
 
+## 12.6 第七轮改动（2026-10-29，bug 修复与 diagram 备注）
+
+| 反馈 | 落地 |
+|---|---|
+| 两个 area 重叠时拖不开 | `areaNests(area, other)` 让 area 只带走**完全在它内部**的 area（`utils/elements.ts`）；table/note 仍按相交判定，所以表挂在区域边上依旧跟随。同级兄弟（含完全相同的矩形）互不携带。 |
+| area 属性表缺内容 | `AreaEditor.vue` 补齐 name / color / opacity / width / height / locked / description，尺寸下限复用 `MIN_AREA_WIDTH`(80)、`MIN_AREA_HEIGHT`(60)，opacity 收敛到 0–1。 |
+| diagram 无法改数据库类型 | `DiagramEditor.vue` 的 Database 由禁用的输入框改为下拉，选项来自 SDK 的 `utils/database-options.ts`（页头也改用它，两个入口同一份清单），写入走 `updateDiagram({ database })`。 |
+| dialog 打开后右键菜单不消失 | 菜单的「画的东西」和「公开状态」原本是两个来源：渲染读 canvas 的 ref，关闭却写 ui store。现在 canvas 自己关（`closeMenu`），`ContextMenu.vue` 用 document 捕获阶段的 pointerdown 关（dialog 的 mask 会先吞掉冒泡事件），Escape 与命令执行同样关闭。 |
+| diagram 增加备注字段 | core `Diagram.description` + `DiagramJson.description`（`serialize/export|import`）+ `DiagramProperties.description`（命令可改）+ 面板里的 Description 文本域。 |

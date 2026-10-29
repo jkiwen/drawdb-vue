@@ -213,6 +213,36 @@ export function areaHoldsElement(
   return areaHolds(area, elementBounds(element));
 }
 
+/**
+ * Whether one area nests another one.
+ *
+ * Two areas overlap for many reasons — a reader drags one across the other, or
+ * a diagram lays them side by side — so an area only carries another one along
+ * when that one lies wholly inside it. Rectangles that are exactly the same are
+ * siblings too: neither of them could ever be dragged away from the other.
+ */
+export function areaNests(
+  area: { x: number; y: number; width: number; height: number },
+  other: { x: number; y: number; width?: number; height?: number },
+): boolean {
+  const width = other.width ?? 0;
+  const height = other.height ?? 0;
+  const same =
+    other.x === area.x &&
+    other.y === area.y &&
+    width === area.width &&
+    height === area.height;
+  if (same) {
+    return false;
+  }
+  return (
+    other.x >= area.x &&
+    other.y >= area.y &&
+    other.x + width <= area.x + area.width &&
+    other.y + height <= area.y + area.height
+  );
+}
+
 /** The opacity of the background fill of an area that does not set one. */
 export const DEFAULT_AREA_OPACITY = 0.08;
 

@@ -64,6 +64,8 @@ export interface CanvasHandlersApi {
   linkPath: ComputedRef<string>;
   selectionRect: ComputedRef<SelectionRect | null>;
   menu: Ref<CanvasContextMenuState | null>;
+  /** Closes the menu of the right button. */
+  closeMenu(): void;
   onTableDragStart(payload: { id: string; event: PointerEvent }): void;
   onAreaDragStart(payload: {
     areaId: string | number;
@@ -279,6 +281,7 @@ export function useCanvasHandlers(
     linkPath,
     selectionRect,
     menu: contextMenu.menu,
+    closeMenu: contextMenu.close,
     onTableDragStart: elementDrag.onTableDragStart,
     onAreaDragStart: elementDrag.onAreaDragStart,
     onNoteDragStart: elementDrag.onNoteDragStart,

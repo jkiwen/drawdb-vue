@@ -258,7 +258,12 @@ test.describe("the editor", () => {
     await openEditor(page, "editor-database");
 
     await page.getByTestId("database-select").click();
-    await page.getByText("PostgreSQL", { exact: true }).click();
+    // The panel of the diagram shows the same languages in a plain select, so
+    // the click is scoped to the dropdown the header opened.
+    await page
+      .locator(".n-base-select-option", { hasText: "PostgreSQL" })
+      .first()
+      .click();
 
     const database = await page.evaluate(() => {
       const bridge = (

@@ -6,6 +6,7 @@ import type { MoveRequest } from "../../../stores/element-actions.ts";
 import type { useSelection } from "../../../composables/use-selection.ts";
 import {
   areaHoldsElement,
+  areaNests,
   elementBounds,
   heldByLockedArea,
 } from "../../../utils/elements.ts";
@@ -137,7 +138,10 @@ export function useCanvasDrag(options: CanvasDragOptions): CanvasDrag {
     }): boolean => areaHoldsElement(area, element);
     const ids = diagram.tables.filter(inside).map((table) => String(table.id));
     for (const other of diagram.areas) {
-      if (String(other.id) !== String(area.id) && inside(other)) {
+      // An area carries the areas it nests, not the ones it merely overlaps:
+      // two overlapping areas would otherwise drag each other for ever
+      // (bug report of 2026-10-29).
+      if (String(other.id) !== String(area.id) && areaNests(area, other)) {
         ids.push(String(other.id));
       }
     }

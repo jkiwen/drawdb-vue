@@ -61,9 +61,35 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-onMounted(() => window.addEventListener("keydown", onKeydown));
+/**
+ * A press anywhere but on the menu itself closes it.
+ *
+ * The dropdown of Naive UI answers a press outside of it, but a dialog covers
+ * the page with a mask that swallows the press before the dropdown sees it, so
+ * the menu of the canvas stayed on top of the dialog (bug report of
+ * 2026-10-29). The press is watched in the capture phase, before the mask of
+ * the dialog can stop it.
+ */
+function onPointerDown(event: PointerEvent): void {
+  if (!props.state) {
+    return;
+  }
+  const target = event.target;
+  if (target instanceof Element && target.closest(".n-dropdown, [data-testid='context-menu']")) {
+    return;
+  }
+  emit("close");
+}
 
-onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
+onMounted(() => {
+  window.addEventListener("keydown", onKeydown);
+  document.addEventListener("pointerdown", onPointerDown, true);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", onKeydown);
+  document.removeEventListener("pointerdown", onPointerDown, true);
+});
 </script>
 
 <template>

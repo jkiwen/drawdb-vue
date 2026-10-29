@@ -71,6 +71,11 @@
   font: inherit;
 }
 
+.color-input {
+  width: 72px;
+  padding: 2px;
+}
+
 .input:focus,
 .select:focus,
 .textarea:focus {

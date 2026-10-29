@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
+
 /** The dialogs the editor can open. */
 export type EditorDialogName =
   | "sqlPreview"

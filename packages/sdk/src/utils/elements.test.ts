@@ -2,6 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  areaNests,
   createArea,
   elementBounds,
   heldByCollapsedArea,
@@ -191,5 +192,39 @@ describe("withOpacity", () => {
 
   it("passes a color it cannot soften through", () => {
     assert.equal(withOpacity("red", 0.5), "red");
+  });
+});
+
+describe("areaNests", () => {
+  const outer = { x: 0, y: 0, width: 400, height: 300 };
+
+  it("nests an area that lies wholly inside another one", () => {
+    assert.equal(
+      areaNests(outer, { x: 40, y: 40, width: 120, height: 80 }),
+      true,
+    );
+  });
+
+  it("does not nest two areas that merely overlap", () => {
+    // Two areas that share a corner are siblings, not parent and child: dragging
+    // one of them must not carry the other along (bug report of 2026-10-29).
+    assert.equal(
+      areaNests(outer, { x: 300, y: 220, width: 200, height: 160 }),
+      false,
+    );
+  });
+
+  it("does not nest an area that contains the other one", () => {
+    assert.equal(
+      areaNests(outer, { x: -20, y: -20, width: 500, height: 400 }),
+      false,
+    );
+  });
+
+  it("does not nest an area that covers exactly the same rectangle", () => {
+    assert.equal(
+      areaNests(outer, { x: 0, y: 0, width: 400, height: 300 }),
+      false,
+    );
   });
 });

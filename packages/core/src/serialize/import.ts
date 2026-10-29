@@ -149,6 +149,11 @@ export function importDiagramJson(
     database,
   });
 
+  const description = property(record, "description");
+  if (typeof description === "string") {
+    diagram.description = description;
+  }
+
   const sqlHeader = property(record, "sqlHeader");
   if (typeof sqlHeader === "string") {
     diagram.sqlHeader = sqlHeader;

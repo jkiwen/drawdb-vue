@@ -19,6 +19,7 @@ export function exportDiagramJson(
   const value: DiagramJson = {
     id: diagram.id,
     title: diagram.title,
+    description: diagram.description,
     database: diagram.database,
     sqlHeader: diagram.sqlHeader,
     tables: diagram.tables ?? [],

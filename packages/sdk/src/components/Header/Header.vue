@@ -4,6 +4,7 @@ import { computed, ref, watch } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useSaveStore } from "../../stores/save.ts";
 import MenuBar from "./MenuBar.vue";
+import { DATABASE_OPTIONS } from "../../utils/database-options.ts";
 
 /**
  * The header of the editor.
@@ -19,16 +20,6 @@ const emit = defineEmits<{
   (event: "save"): void;
   (event: "menu", key: string): void;
 }>();
-
-const DATABASE_OPTIONS = [
-  { label: "MySQL", value: "mysql" },
-  { label: "PostgreSQL", value: "postgres" },
-  { label: "SQLite", value: "sqlite" },
-  { label: "MariaDB", value: "mariadb" },
-  { label: "Microsoft SQL Server", value: "mssql" },
-  { label: "Oracle SQL", value: "oraclesql" },
-  { label: "Generic", value: "generic" },
-];
 
 const titleDraft = ref(diagram.diagram.title ?? "");
 

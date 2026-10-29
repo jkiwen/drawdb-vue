@@ -17,6 +17,7 @@ import type { View } from "../models/view.ts";
 export interface DiagramJson {
   id?: string;
   title?: string;
+  description?: string;
   database: DatabaseType;
   sqlHeader?: string;
   tables: Table[];
