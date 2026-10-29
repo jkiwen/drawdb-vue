@@ -6,7 +6,31 @@ import type { Diagram } from "./diagram.ts";
 import type { Table } from "./table.ts";
 import type { PhysicalField } from "./physical.ts";
 
-function field(id: string, name: string, primary = false): PhysicalField {
+/**
+ * The old document shape this test pins down: the legacy members are declared
+ * here, not on the public model any more.
+ */
+type LegacyField = PhysicalField & { primary?: boolean };
+type LegacyIndex = {
+  id?: string;
+  logicalName?: string;
+  name: string;
+  unique: boolean;
+  fields?: string[];
+  columns?: Array<{ fieldId: string; order?: "asc" | "desc" }>;
+};
+type LegacyUniqueConstraint = { id?: string; name: string; fields?: string[] };
+type LegacyTable = Omit<Table, "fields" | "indices" | "uniqueKeys"> & {
+  fields: LegacyField[];
+  indices?: LegacyIndex[];
+  uniqueConstraints?: LegacyUniqueConstraint[];
+};
+
+function normalizeLegacy(table: LegacyTable): Table {
+  return normalizeTableKeys(table as unknown as Table);
+}
+
+function field(id: string, name: string, primary = false): LegacyField {
   return {
     id,
     name,
@@ -16,7 +40,7 @@ function field(id: string, name: string, primary = false): PhysicalField {
   };
 }
 
-function table(fields: PhysicalField[], logicalName = "user"): Table {
+function table(fields: LegacyField[], logicalName = "user"): LegacyTable {
   return {
     id: "t_users",
     name: "users",
@@ -34,7 +58,7 @@ describe("key migration (P2' task 2)", () => {
       indices: [{ name: "idx_email", unique: false, fields: ["f_email"] }],
     };
 
-    const normalized = normalizeTableKeys(source);
+    const normalized = normalizeLegacy(source);
     const index = normalized.indices?.[0];
 
     assert.deepEqual(index?.columns, [{ fieldId: "f_email" }]);
@@ -57,7 +81,7 @@ describe("key migration (P2' task 2)", () => {
       ],
     };
 
-    const normalized = normalizeTableKeys(source);
+    const normalized = normalizeLegacy(source);
 
     assert.deepEqual(normalized.indices?.[0]?.columns, [
       { fieldId: "f_b", order: "desc" },
@@ -73,7 +97,7 @@ describe("key migration (P2' task 2)", () => {
       field("f_email", "email"),
     ]);
 
-    const primaryKey = normalizeTableKeys(source).primaryKey;
+    const primaryKey = normalizeLegacy(source).primaryKey;
 
     assert.deepEqual(primaryKey?.columns, [{ fieldId: "f_id" }, { fieldId: "f_tenant" }]);
     assert.equal(primaryKey?.name, "PK_users");
@@ -81,7 +105,7 @@ describe("key migration (P2' task 2)", () => {
   });
 
   it("declares no primary key when no field is primary", () => {
-    const normalized = normalizeTableKeys(table([field("f_id", "id")]));
+    const normalized = normalizeLegacy(table([field("f_id", "id")]));
 
     assert.equal(normalized.primaryKey, undefined);
   });
@@ -92,7 +116,7 @@ describe("key migration (P2' task 2)", () => {
       uniqueConstraints: [{ id: "uq_1", name: "uq_email", fields: ["f_email"] }],
     };
 
-    const uniqueKeys = normalizeTableKeys(source).uniqueKeys;
+    const uniqueKeys = normalizeLegacy(source).uniqueKeys;
 
     assert.equal(uniqueKeys?.length, 1);
     assert.deepEqual(uniqueKeys?.[0]?.columns, [{ fieldId: "f_email" }]);
@@ -112,7 +136,7 @@ describe("key migration (P2' task 2)", () => {
       id: "t_posts",
       name: "posts",
     };
-    diagram.tables = [parent, child];
+    diagram.tables = [parent, child] as unknown as Table[];
     diagram.relationships = [
       {
         id: "r_1",
@@ -144,7 +168,7 @@ describe("key migration (P2' task 2)", () => {
       uniqueConstraints: [{ name: "", fields: ["f_email"] }],
     };
 
-    assert.equal(normalizeTableKeys(source).uniqueKeys?.[0]?.name, "UK_users");
+    assert.equal(normalizeLegacy(source).uniqueKeys?.[0]?.name, "UK_users");
   });
 
   it("is idempotent and leaves its input untouched", () => {
@@ -154,8 +178,8 @@ describe("key migration (P2' task 2)", () => {
     };
     const snapshot = JSON.parse(JSON.stringify(source));
 
-    const once = normalizeTableKeys(source);
-    const twice = normalizeTableKeys(once);
+    const once = normalizeLegacy(source);
+    const twice = normalizeLegacy(once as unknown as LegacyTable);
 
     assert.deepEqual(twice, once);
     assert.deepEqual(source, snapshot, "the source table is not mutated");

@@ -24,7 +24,6 @@ function sampleDiagram(): Diagram {
           name: "id",
           fieldType: { type: "INTEGER" },
           fieldTypeSource: "explicit",
-          primary: true,
         },
         {
           id: "f2",
@@ -33,6 +32,12 @@ function sampleDiagram(): Diagram {
           fieldTypeSource: "explicit",
         },
       ],
+      primaryKey: {
+        id: "pk-t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     },
     {
       id: "t2",
@@ -46,7 +51,6 @@ function sampleDiagram(): Diagram {
           name: "id",
           fieldType: { type: "INTEGER" },
           fieldTypeSource: "explicit",
-          primary: true,
         },
         {
           id: "f4",
@@ -55,6 +59,12 @@ function sampleDiagram(): Diagram {
           fieldTypeSource: "explicit",
         },
       ],
+      primaryKey: {
+        id: "pk-t2",
+        name: "PK_posts",
+        logicalName: "PK_posts",
+        columns: [{ fieldId: "f3" }],
+      },
     },
   ];
   diagram.relationships = [

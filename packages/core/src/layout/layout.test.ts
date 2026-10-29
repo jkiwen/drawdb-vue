@@ -177,7 +177,13 @@ test("layout: infers a relationship from a user_id field", () => {
   const users = table({
     id: "t1",
     name: "users",
-    fields: [field({ id: "u1", name: "id", primary: true })],
+    fields: [field({ id: "u1", name: "id" })],
+    primaryKey: {
+      id: "pk_t1",
+      name: "PK_users",
+      logicalName: "PK_users",
+      columns: [{ fieldId: "u1" }],
+    },
   });
   const posts = table({
     id: "t2",
@@ -199,7 +205,13 @@ test("layout: infers a relationship from a users_id field", () => {
   const users = table({
     id: "t1",
     name: "users",
-    fields: [field({ id: "u1", name: "id", primary: true })],
+    fields: [field({ id: "u1", name: "id" })],
+    primaryKey: {
+      id: "pk_t1",
+      name: "PK_users",
+      logicalName: "PK_users",
+      columns: [{ fieldId: "u1" }],
+    },
   });
   const posts = table({
     id: "t2",
@@ -218,7 +230,13 @@ test("layout: skips a field pair that already has a relationship", () => {
   const users = table({
     id: "t1",
     name: "users",
-    fields: [field({ id: "u1", name: "id", primary: true })],
+    fields: [field({ id: "u1", name: "id" })],
+    primaryKey: {
+      id: "pk_t1",
+      name: "PK_users",
+      logicalName: "PK_users",
+      columns: [{ fieldId: "u1" }],
+    },
   });
   const posts = table({
     id: "t2",
@@ -245,9 +263,15 @@ test("layout: skips a self reference", () => {
     id: "t1",
     name: "categories",
     fields: [
-      field({ id: "c1", name: "id", primary: true }),
+      field({ id: "c1", name: "id" }),
       field({ id: "c2", name: "parent_id" }),
     ],
+    primaryKey: {
+      id: "pk_t1",
+      name: "PK_categories",
+      logicalName: "PK_categories",
+      columns: [{ fieldId: "c1" }],
+    },
   });
 
   const candidates = inferRelationships([categories], []);
@@ -259,7 +283,13 @@ test("layout: marks the cardinality one_to_one when the child field is unique", 
   const users = table({
     id: "t1",
     name: "users",
-    fields: [field({ id: "u1", name: "id", primary: true })],
+    fields: [field({ id: "u1", name: "id" })],
+    primaryKey: {
+      id: "pk_t1",
+      name: "PK_users",
+      logicalName: "PK_users",
+      columns: [{ fieldId: "u1" }],
+    },
   });
   const posts = table({
     id: "t2",
@@ -277,7 +307,13 @@ test("layout: does not modify the input tables or relationships", () => {
   const users = table({
     id: "t1",
     name: "users",
-    fields: [field({ id: "u1", name: "id", primary: true })],
+    fields: [field({ id: "u1", name: "id" })],
+    primaryKey: {
+      id: "pk_t1",
+      name: "PK_users",
+      logicalName: "PK_users",
+      columns: [{ fieldId: "u1" }],
+    },
   });
   const posts = table({
     id: "t2",

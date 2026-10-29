@@ -49,8 +49,14 @@ describe("fromMSSQL", () => {
     );
     const id = diagram.tables[0].fields.find((field) => field.name === "id");
     const code = diagram.tables[0].fields.find((field) => field.name === "code");
-    assert.equal(id?.primary, true);
-    assert.equal(code?.primary, false);
+    assert.deepEqual(diagram.tables[0].primaryKey?.columns, [
+      { fieldId: id?.id },
+    ]);
+    assert.ok(
+      !diagram.tables[0].primaryKey?.columns.some(
+        (column) => column.fieldId === code?.id,
+      ),
+    );
   });
 
   it("imports a table level foreign key as a relationship", () => {
@@ -195,11 +201,12 @@ describe("fromMSSQL", () => {
     );
 
     const users = diagram.tables[0];
-    assert.equal(users.uniqueConstraints?.length, 1);
-    assert.equal(users.uniqueConstraints?.[0].name, "uq_users_email");
+    assert.equal(users.uniqueKeys?.length, 1);
+    assert.equal(users.uniqueKeys?.[0].name, "uq_users_email");
+    assert.equal(users.uniqueKeys?.[0].logicalName, "uq_users_email");
     assert.deepEqual(
-      users.uniqueConstraints?.[0].fields.map(
-        (id) => users.fields.find((f) => f.id === id)?.name,
+      users.uniqueKeys?.[0].columns.map(
+        (column) => users.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["email"],
     );
@@ -207,8 +214,8 @@ describe("fromMSSQL", () => {
     assert.equal(users.indices?.[0].name, "ix_users_email");
     assert.equal(users.indices?.[0].unique, true);
     assert.deepEqual(
-      (users.indices?.[0].fields ?? []).map(
-        (id) => users.fields.find((f) => f.id === id)?.name,
+      users.indices?.[0].columns.map(
+        (column) => users.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["email"],
     );

@@ -95,7 +95,13 @@ test("validation: does not report a table with a primary key", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
 
@@ -155,14 +161,26 @@ test("validation: does not report the same field name in two tables", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", name: "id", primary: true })],
+      fields: [field({ id: "f1", name: "id" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.tables.push(
     table({
       id: "t2",
       name: "posts",
-      fields: [field({ id: "f2", name: "id", primary: true })],
+      fields: [field({ id: "f2", name: "id" })],
+      primaryKey: {
+        id: "pk_t2",
+        name: "PK_posts",
+        logicalName: "PK_posts",
+        columns: [{ fieldId: "f2" }],
+      },
     }),
   );
 
@@ -215,8 +233,14 @@ test("validation: reports a field that is not null and nullable", () => {
       id: "t1",
       name: "users",
       fields: [
-        field({ id: "f1", primary: true, notNull: true, nullable: true }),
+        field({ id: "f1", notNull: true, nullable: true }),
       ],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
 
@@ -236,7 +260,13 @@ test("validation: reports a relationship whose field is missing", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.tables.push(
@@ -255,7 +285,13 @@ test("validation: reports a duplicate relationship name", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.tables.push(
@@ -275,14 +311,26 @@ test("validation: reports a circular relationship once", () => {
     table({
       id: "t1",
       name: "a",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_a",
+        logicalName: "PK_a",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.tables.push(
     table({
       id: "t2",
       name: "b",
-      fields: [field({ id: "f2", primary: true })],
+      fields: [field({ id: "f2" })],
+      primaryKey: {
+        id: "pk_t2",
+        name: "PK_b",
+        logicalName: "PK_b",
+        columns: [{ fieldId: "f2" }],
+      },
     }),
   );
   diagram.relationships.push(
@@ -323,7 +371,13 @@ test("validation: reports a view whose name clashes with a table", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.views.push({
@@ -358,7 +412,13 @@ test("validation: reports a join without a table", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.views.push({
@@ -379,7 +439,13 @@ test("validation: reports a join without a condition", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.views.push({
@@ -400,14 +466,26 @@ test("validation: reports a join that is out of order", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.tables.push(
     table({
       id: "t2",
       name: "posts",
-      fields: [field({ id: "f2", primary: true })],
+      fields: [field({ id: "f2" })],
+      primaryKey: {
+        id: "pk_t2",
+        name: "PK_posts",
+        logicalName: "PK_posts",
+        columns: [{ fieldId: "f2" }],
+      },
     }),
   );
   diagram.views.push({
@@ -434,7 +512,13 @@ test("validation: reports a view column without a field", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.views.push({
@@ -455,7 +539,13 @@ test("validation: reports a duplicate view column name", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
   diagram.views.push({
@@ -479,8 +569,14 @@ test("validation: reports an index without a name", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
-      indices: [{ name: "", unique: false, fields: ["f1"] }],
+      fields: [field({ id: "f1" })],
+      indices: [{ name: "", unique: false, columns: [{ fieldId: "f1" }] }],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
 
@@ -493,8 +589,14 @@ test("validation: reports an index without fields", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
-      indices: [{ name: "idx", unique: false, fields: [] }],
+      fields: [field({ id: "f1" })],
+      indices: [{ name: "idx", unique: false, columns: [] }],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
 
@@ -507,11 +609,17 @@ test("validation: reports a duplicate index name", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
+      fields: [field({ id: "f1" })],
       indices: [
-        { name: "idx", unique: false, fields: ["f1"] },
-        { name: "idx", unique: false, fields: ["f1"] },
+        { name: "idx", unique: false, columns: [{ fieldId: "f1" }] },
+        { name: "idx", unique: false, columns: [{ fieldId: "f1" }] },
       ],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
 
@@ -524,8 +632,16 @@ test("validation: reports a unique constraint without fields", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
-      uniqueConstraints: [{ name: "uq", fields: [] }],
+      fields: [field({ id: "f1" })],
+      uniqueKeys: [
+        { id: "uk_t1_1", logicalName: "uq", name: "uq", columns: [] },
+      ],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
 
@@ -538,11 +654,17 @@ test("validation: reports a duplicate unique constraint name", () => {
     table({
       id: "t1",
       name: "users",
-      fields: [field({ id: "f1", primary: true })],
-      uniqueConstraints: [
-        { name: "uq", fields: ["f1"] },
-        { name: "uq", fields: ["f1"] },
+      fields: [field({ id: "f1" })],
+      uniqueKeys: [
+        { id: "uk_t1_1", logicalName: "uq", name: "uq", columns: [{ fieldId: "f1" }] },
+        { id: "uk_t1_2", logicalName: "uq", name: "uq", columns: [{ fieldId: "f1" }] },
       ],
+      primaryKey: {
+        id: "pk_t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
     }),
   );
 
@@ -635,7 +757,13 @@ test("validation: filters by severity", () => {
     table({
       id: "t2",
       name: "posts",
-      fields: [field({ id: "f2", name: "", primary: true })],
+      fields: [field({ id: "f2", name: "" })],
+      primaryKey: {
+        id: "pk_t2",
+        name: "PK_posts",
+        logicalName: "PK_posts",
+        columns: [{ fieldId: "f2" }],
+      },
     }),
   );
 

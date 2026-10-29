@@ -77,8 +77,24 @@ function relationship(
 function sample(): Diagram {
   const diagram = createEmptyDiagram({ database: "mysql" });
   diagram.tables = [
-    table("t1", "users", [field("f1", "id", { primary: true })]),
-    table("t2", "posts", [field("f2", "id", { primary: true })]),
+    {
+      ...table("t1", "users", [field("f1", "id")]),
+      primaryKey: {
+        id: "pk-t1",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "f1" }],
+      },
+    },
+    {
+      ...table("t2", "posts", [field("f2", "id")]),
+      primaryKey: {
+        id: "pk-t2",
+        name: "PK_posts",
+        logicalName: "PK_posts",
+        columns: [{ fieldId: "f2" }],
+      },
+    },
   ];
   diagram.relationships = [relationship("r1")];
   return diagram;

@@ -1,5 +1,6 @@
 import type { Diagram } from "../models/diagram.ts";
 import type { Field, FieldId } from "../models/field.ts";
+import { keyColumns } from "../models/keys.ts";
 import type { Relationship } from "../models/relationship.ts";
 import type { Table } from "../models/table.ts";
 import { getTypeMetadata } from "../export/dialect-meta.ts";
@@ -47,9 +48,13 @@ function columnComment(field: Field): string {
   return `note: ${processComment(field.comment)}`;
 }
 
-function columnSettings(field: Field, database: string): string {
+function columnSettings(
+  field: Field,
+  database: string,
+  isPrimaryKey: boolean,
+): string {
   const constraints = [
-    field.primary && "pk",
+    isPrimaryKey && "pk",
     field.increment && "increment",
     field.notNull && "not null",
     field.unique && "unique",
@@ -132,14 +137,18 @@ function indexEntry(
 }
 
 function indexesBlock(table: Table): string {
-  const resolveNames = (ids: FieldId[] | undefined): string[] | undefined =>
-    ids?.map((id) => table.fields.find((f) => f.id === id)?.name ?? String(id));
+  const resolveNames = (columns: { fieldId: FieldId }[]): string[] =>
+    columns.map(
+      (column) =>
+        table.fields.find((f) => String(f.id) === String(column.fieldId))
+          ?.name ?? String(column.fieldId),
+    );
   const entries = [
     ...(table.indices ?? []).map((index) =>
-      indexEntry(resolveNames(index.fields), index.name, index.unique),
+      indexEntry(resolveNames(keyColumns(index)), index.name, index.unique),
     ),
-    ...(table.uniqueConstraints ?? []).map((constraint) =>
-      indexEntry(resolveNames(constraint.fields), constraint.name, true),
+    ...(table.uniqueKeys ?? []).map((key) =>
+      indexEntry(resolveNames(keyColumns(key)), key.name, true),
     ),
   ].filter(Boolean) as string[];
 
@@ -154,12 +163,15 @@ function tableBlock(
   enumNames: Map<string, string>,
 ): string {
   const headerColor = table.color ? ` [headercolor: ${table.color}]` : "";
+  const pkIds = new Set(
+    (table.primaryKey?.columns ?? []).map((column) => String(column.fieldId)),
+  );
   const fields = table.fields
     .map(
       (field) =>
         `\t${quoteIdentifier(field.name)} ${quoteIdentifier(
           dbmlTypeName(field, enumNames),
-        )}${dbmlFieldSize(field, database as Diagram["database"])}${columnSettings(field, database)}`,
+        )}${dbmlFieldSize(field, database as Diagram["database"])}${columnSettings(field, database, pkIds.has(String(field.id)))}`,
     )
     .join("\n");
   const comment =

@@ -1,12 +1,18 @@
 import { isKeyword } from "../export/shared.ts";
 import type { DatabaseType } from "../models/diagram.ts";
 import type { Enum } from "../models/enum.ts";
-import type { Field, FieldId } from "../models/field.ts";
+import type { Field } from "../models/field.ts";
+import type {
+  Index,
+  IndexColumn,
+  PrimaryKey,
+  UniqueKey,
+} from "../models/keys.ts";
 import type {
   Relationship,
   RelationshipFieldPair,
 } from "../models/relationship.ts";
-import type { Index, Table, UniqueConstraint } from "../models/table.ts";
+import type { Table } from "../models/table.ts";
 import { arrangeTables } from "../utils/arrange-tables.ts";
 import { createId } from "../utils/id.ts";
 import type {
@@ -134,7 +140,6 @@ function createField(parsed: ParsedDBMLField): Field {
     fieldTypeSource: "imported",
     default: parsed.default,
     check: "",
-    primary: parsed.primary,
     unique: parsed.unique,
     notNull: parsed.notNull,
     increment: parsed.increment,
@@ -158,7 +163,6 @@ function mergeField(
     name: parsed.name,
     fieldType: { ...base.fieldType, type },
     default: resolveDefault(parsed, base),
-    primary: parsed.primary,
     unique: parsed.unique,
     notNull: parsed.notNull,
     increment: parsed.increment,
@@ -190,61 +194,115 @@ function reconcileFields(
   });
 }
 
+function sameColumns(
+  a: IndexColumn[] | undefined,
+  b: IndexColumn[],
+): boolean {
+  if (!Array.isArray(a) || a.length !== b.length) return false;
+  return a.every(
+    (column, i) =>
+      String(column.fieldId) === String(b[i].fieldId) &&
+      (column.order ?? "") === (b[i].order ?? "") &&
+      (column.expression ?? "") === (b[i].expression ?? ""),
+  );
+}
+
+function mergeColumns(
+  base: IndexColumn[] | undefined,
+  resolved: IndexColumn[],
+): IndexColumn[] {
+  return sameColumns(base, resolved) ? (base as IndexColumn[]) : resolved;
+}
+
 function mergeIndexEntry(
   parsed: ParsedDBMLIndex,
-  base: Index | UniqueConstraint | undefined,
+  base: Index | undefined,
   position: number,
-  resolvedFields: FieldId[],
-): Index & UniqueConstraint {
+  resolvedColumns: IndexColumn[],
+): Index {
   return {
     ...(base ?? {}),
-    id: position,
+    id: base?.id ?? position,
     name: parsed.name,
-    fields:
-      base && sameList(base.fields, resolvedFields)
-        ? base.fields
-        : resolvedFields,
-  } as Index & UniqueConstraint;
+    columns: mergeColumns(base?.columns, resolvedColumns),
+    unique: parsed.unique,
+  };
+}
+
+function mergeUniqueKeyEntry(
+  parsed: ParsedDBMLIndex,
+  base: UniqueKey | undefined,
+  resolvedColumns: IndexColumn[],
+): UniqueKey {
+  return {
+    ...(base ?? {}),
+    id: base?.id ?? createId(),
+    logicalName: base?.logicalName ?? parsed.name,
+    name: parsed.name,
+    columns: mergeColumns(base?.columns, resolvedColumns),
+  };
 }
 
 function reconcileIndexes(
   parsedIndexes: ParsedDBMLIndex[],
   baseTable: Table,
   fields: Field[],
-): { indices: NonNullable<Table["indices"]>; uniqueConstraints: NonNullable<Table["uniqueConstraints"]> } {
+): { indices: Index[]; uniqueKeys: UniqueKey[] } {
   const baseIndices = baseTable.indices ?? [];
-  const baseConstraints = baseTable.uniqueConstraints ?? [];
-  const constraintNames = new Set(
-    baseConstraints.filter((c) => c.name).map((c) => c.name),
+  const baseUniqueKeys = baseTable.uniqueKeys ?? [];
+  const uniqueNames = new Set(
+    baseUniqueKeys.filter((key) => key.name).map((key) => key.name),
   );
 
-  const indices: NonNullable<Table["indices"]> = [];
-  const uniqueConstraints: NonNullable<Table["uniqueConstraints"]> = [];
+  const indices: Index[] = [];
+  const uniqueKeys: UniqueKey[] = [];
 
   for (const parsed of parsedIndexes) {
     // Parsed DBML references fields by name; the model stores field ids.
-    const resolvedFields = parsed.fields.map(
-      (name) => fields.find((f) => f.name === name)?.id ?? name,
-    );
-    if (parsed.unique && constraintNames.has(parsed.name)) {
-      const base = baseConstraints.find((c) => c.name === parsed.name);
-      uniqueConstraints.push({
-        ...mergeIndexEntry(parsed, base, uniqueConstraints.length, resolvedFields),
-        name: parsed.name,
-        fields: base?.fields ?? resolvedFields,
-      });
+    const resolvedColumns: IndexColumn[] = parsed.fields.map((name) => ({
+      fieldId: fields.find((f) => f.name === name)?.id ?? name,
+    }));
+    if (parsed.unique && uniqueNames.has(parsed.name)) {
+      const base = baseUniqueKeys.find((key) => key.name === parsed.name);
+      uniqueKeys.push(mergeUniqueKeyEntry(parsed, base, resolvedColumns));
     } else {
       const base =
         baseIndices.find((index) => index.name === parsed.name) ??
         baseIndices[indices.length];
-      indices.push({
-        ...mergeIndexEntry(parsed, base, indices.length, resolvedFields),
-        unique: parsed.unique,
-      });
+      indices.push(mergeIndexEntry(parsed, base, indices.length, resolvedColumns));
     }
   }
 
-  return { indices, uniqueConstraints };
+  return { indices, uniqueKeys };
+}
+
+/**
+ * Build the primary key of a table from the `[pk]` markers of the parsed DBML
+ * fields. The base key is reused when it still covers exactly the same
+ * columns, so a re-import keeps its identity.
+ */
+function primaryKeyOfTable(
+  parsedFields: ParsedDBMLField[],
+  fields: Field[],
+  baseKey: PrimaryKey | undefined,
+  tableName: string,
+): PrimaryKey | undefined {
+  const columns: IndexColumn[] = [];
+  parsedFields.forEach((parsed, i) => {
+    const field = fields[i];
+    if (parsed.primary && field) columns.push({ fieldId: field.id });
+  });
+  if (columns.length === 0) return undefined;
+
+  if (baseKey && sameColumns(baseKey.columns, columns)) return baseKey;
+
+  const name = baseKey?.name ?? `PK_${tableName}`;
+  return {
+    id: baseKey?.id ?? createId(),
+    logicalName: baseKey?.logicalName ?? name,
+    name,
+    columns,
+  };
 }
 
 function mergeTable(
@@ -259,6 +317,12 @@ function mergeTable(
     comment: parsed.comment,
     color: parsed.color ?? base.color,
     fields,
+    primaryKey: primaryKeyOfTable(
+      parsed.fields,
+      fields,
+      base.primaryKey,
+      parsed.name,
+    ),
     ...reconcileIndexes(parsed.indices, base, fields),
   };
 }
@@ -274,15 +338,15 @@ function createTable(parsed: ParsedDBMLTable): Table {
     x: 0,
     y: 0,
     fields,
+    primaryKey: primaryKeyOfTable(parsed.fields, fields, undefined, parsed.name),
     indices: parsed.indices.map((index, i) => ({
       id: i,
       name: index.name,
-      fields: index.fields.map(
-        (name) => fields.find((f) => f.name === name)?.id ?? name,
-      ),
+      columns: index.fields.map((name) => ({
+        fieldId: fields.find((f) => f.name === name)?.id ?? name,
+      })),
       unique: index.unique,
     })),
-    uniqueConstraints: [],
     locked: false,
     collapsed: false,
   };

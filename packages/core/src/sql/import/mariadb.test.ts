@@ -20,7 +20,7 @@ describe("fromMariaDB", () => {
     const [id, name] = tables[0].fields;
     assert.equal(id.name, "id");
     assert.equal(id.fieldType.type, "INTEGER");
-    assert.equal(id.primary, true);
+    assert.deepEqual(tables[0].primaryKey?.columns, [{ fieldId: id.id }]);
     assert.equal(id.increment, true);
     assert.equal(name.name, "name");
     assert.equal(name.fieldType.type, "VARCHAR");
@@ -84,11 +84,12 @@ describe("fromMariaDB", () => {
     const { tables } = fromMariaDB(ast);
     const users = tables[0];
 
-    assert.equal(users.uniqueConstraints?.length, 1);
-    assert.equal(users.uniqueConstraints?.[0].name, "uq_email");
+    assert.equal(users.uniqueKeys?.length, 1);
+    assert.equal(users.uniqueKeys?.[0].name, "uq_email");
+    assert.equal(users.uniqueKeys?.[0].logicalName, "uq_email");
     assert.deepEqual(
-      users.uniqueConstraints?.[0].fields.map(
-        (id) => users.fields.find((f) => f.id === id)?.name,
+      users.uniqueKeys?.[0].columns.map(
+        (column) => users.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["email"],
     );
@@ -96,8 +97,8 @@ describe("fromMariaDB", () => {
     assert.equal(users.indices?.length, 1);
     assert.equal(users.indices?.[0].name, "idx_email");
     assert.deepEqual(
-      (users.indices?.[0].fields ?? []).map(
-        (id) => users.fields.find((f) => f.id === id)?.name,
+      users.indices?.[0].columns.map(
+        (column) => users.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["email"],
     );
@@ -128,8 +129,9 @@ describe("fromMariaDB", () => {
     );
     const { tables } = fromMariaDB(ast);
 
-    assert.equal(tables[0].fields[0].primary, true);
-    assert.equal(tables[0].fields[1].primary, false);
+    assert.deepEqual(tables[0].primaryKey?.columns, [
+      { fieldId: tables[0].fields[0].id },
+    ]);
   });
 
   it("uses mariadb type canonicalisation", () => {

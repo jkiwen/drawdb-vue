@@ -9,7 +9,8 @@ const TABLE_KEYS = [
   "comment",
   "color",
   "indices",
-  "uniqueConstraints",
+  "primaryKey",
+  "uniqueKeys",
 ] as const;
 
 const FIELD_KEYS = [
@@ -17,7 +18,6 @@ const FIELD_KEYS = [
   "type",
   "size",
   "default",
-  "primary",
   "unique",
   "notNull",
   "increment",

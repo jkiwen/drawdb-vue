@@ -11,7 +11,9 @@ describe("importSQL", () => {
     assert.equal(diagram.tables[0].name, "users");
     assert.equal(diagram.tables[0].fields.length, 2);
     assert.equal(diagram.tables[0].fields[0].name, "id");
-    assert.equal(diagram.tables[0].fields[0].primary, true);
+    assert.deepEqual(diagram.tables[0].primaryKey?.columns, [
+      { fieldId: diagram.tables[0].fields[0].id },
+    ]);
     assert.equal(diagram.tables[0].fields[0].increment, true);
     assert.equal(diagram.tables[0].fields[1].name, "name");
     assert.equal(diagram.tables[0].fields[1].fieldType.type, "VARCHAR");
@@ -75,13 +77,14 @@ describe("importSQL", () => {
     assert.equal(users.indices?.length, 1);
     assert.equal(users.indices?.[0].name, "idx_email");
     assert.deepEqual(
-      (users.indices?.[0].fields ?? []).map(
-        (id) => users.fields.find((f) => f.id === id)?.name,
+      users.indices?.[0].columns.map(
+        (column) => users.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["email"],
     );
-    assert.equal(users.uniqueConstraints?.length, 1);
-    assert.equal(users.uniqueConstraints?.[0].name, "uq_email");
+    assert.equal(users.uniqueKeys?.length, 1);
+    assert.equal(users.uniqueKeys?.[0].name, "uq_email");
+    assert.equal(users.uniqueKeys?.[0].logicalName, "uq_email");
   });
 
   it("imports a postgres create table statement", () => {
@@ -90,7 +93,9 @@ describe("importSQL", () => {
 
     assert.equal(diagram.tables.length, 1);
     assert.equal(diagram.tables[0].name, "users");
-    assert.equal(diagram.tables[0].fields[0].primary, true);
+    assert.deepEqual(diagram.tables[0].primaryKey?.columns, [
+      { fieldId: diagram.tables[0].fields[0].id },
+    ]);
     assert.equal(diagram.tables[0].fields[1].notNull, true);
   });
 

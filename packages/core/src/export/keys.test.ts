@@ -36,8 +36,15 @@ describe("the exporters print the names of the keys (P2' task 5)", () => {
     assert.match(toGeneric(target), /CONSTRAINT "PK_users" PRIMARY KEY\("id"\)/);
   });
 
-  it("keeps the unnamed primary key of a document that has no key objects", () => {
-    const target = diagram("generic", { fields: [field("f_id", "id", { primary: true })] });
+  it("prints a primary key that carries no name without a CONSTRAINT", () => {
+    const target = diagram("generic", {
+      primaryKey: {
+        id: "p1",
+        name: "",
+        logicalName: "",
+        columns: [{ fieldId: "f_id" }],
+      },
+    });
 
     assert.match(toGeneric(target), /PRIMARY KEY\("id"\)/);
     assert.doesNotMatch(toGeneric(target), /CONSTRAINT/);
@@ -61,14 +68,13 @@ describe("the exporters print the names of the keys (P2' task 5)", () => {
     assert.match(toPostgres(target), /CONSTRAINT "UK_email" UNIQUE \("email"\)/);
   });
 
-  it("takes the key columns from the objects when both shapes are there", () => {
+  it("prints each unique key once", () => {
     const target = diagram("generic", {
       uniqueKeys: [{ id: "u1", name: "UK_email", logicalName: "UK_email", columns: [{ fieldId: "f_email" }] }],
-      uniqueConstraints: [{ id: "old", name: "old_key", fields: ["f_email"] }],
-    } as Partial<Table>);
+    });
 
     const sql = toGeneric(target);
-    assert.match(sql, /UK_email/);
-    assert.doesNotMatch(sql, /old_key/, "the deprecated list is not printed twice");
+    assert.equal(sql.match(/UK_email/g)?.length, 1);
+    assert.match(sql, /CONSTRAINT "UK_email" UNIQUE \("email"\)/);
   });
 });

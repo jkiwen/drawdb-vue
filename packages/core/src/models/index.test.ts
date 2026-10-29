@@ -47,11 +47,18 @@ describe("createEmptyDiagram", () => {
               fieldType: { type: "bigint" },
               fieldTypeSource: "explicit",
               nullable: false,
-              primary: true,
               metadata: { owner: "platform" },
             },
           ],
-          indices: [{ name: "pk_users", unique: true, fields: ["f1"] }],
+          primaryKey: {
+            id: "p1",
+            name: "PK_users",
+            logicalName: "PK_users",
+            columns: [{ fieldId: "f1" }],
+          },
+          indices: [
+            { name: "idx_users", unique: true, columns: [{ fieldId: "f1" }] },
+          ],
         },
       ],
       relationships: [

@@ -32,7 +32,7 @@ describe("fromSQLite", () => {
 
     const [id, email, age, name] = table.fields;
     assert.equal(id.fieldType.type, "INTEGER");
-    assert.equal(id.primary, true);
+    assert.deepEqual(table.primaryKey?.columns, [{ fieldId: id.id }]);
     assert.equal(id.increment, true);
     assert.equal(id.notNull, false);
 
@@ -60,18 +60,18 @@ describe("fromSQLite", () => {
     const { tables } = fromSQLite(ast);
     const table = tables[0];
 
-    assert.equal(table.fields[0].primary, true);
-    assert.equal(table.fields[1].primary, false);
+    assert.deepEqual(table.primaryKey?.columns, [{ fieldId: table.fields[0].id }]);
 
-    assert.equal(table.uniqueConstraints?.length, 1);
-    assert.equal(table.uniqueConstraints?.[0].name, "uq_accounts_email");
+    assert.equal(table.uniqueKeys?.length, 1);
+    assert.equal(table.uniqueKeys?.[0].name, "uq_accounts_email");
+    assert.equal(table.uniqueKeys?.[0].logicalName, "uq_accounts_email");
     assert.deepEqual(
-      table.uniqueConstraints?.[0].fields.map(
-        (id) => table.fields.find((f) => f.id === id)?.name,
+      table.uniqueKeys?.[0].columns.map(
+        (column) => table.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["email"],
     );
-    assert.equal(table.uniqueConstraints?.[0].id, 0);
+    assert.equal(typeof table.uniqueKeys?.[0].id, "string");
   });
 
   it("creates a relationship for a foreign key constraint", () => {
@@ -151,8 +151,8 @@ describe("fromSQLite", () => {
     assert.equal(table.indices?.[0].name, "idx_posts_title");
     assert.equal(table.indices?.[0].unique, false);
     assert.deepEqual(
-      (table.indices?.[0].fields ?? []).map(
-        (id) => table.fields.find((f) => f.id === id)?.name,
+      table.indices?.[0].columns.map(
+        (column) => table.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["title"],
     );
@@ -161,8 +161,8 @@ describe("fromSQLite", () => {
     assert.equal(table.indices?.[1].name, "uq_posts_title_id");
     assert.equal(table.indices?.[1].unique, true);
     assert.deepEqual(
-      (table.indices?.[1].fields ?? []).map(
-        (id) => table.fields.find((f) => f.id === id)?.name,
+      table.indices?.[1].columns.map(
+        (column) => table.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["title", "id"],
     );

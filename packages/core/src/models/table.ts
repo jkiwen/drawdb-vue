@@ -1,4 +1,3 @@
-import type { FieldId } from "./field.ts";
 import type { ForeignKey, Index, PrimaryKey, UniqueKey } from "./keys.ts";
 import type { LogicalEntity } from "./logical.ts";
 import type { Metadata } from "./metadata.ts";
@@ -7,14 +6,6 @@ import type { PhysicalField } from "./physical.ts";
 export type TableId = string | number;
 
 export type { ForeignKey, Index, IndexColumn, IndexType, PrimaryKey, UniqueKey } from "./keys.ts";
-
-/** @deprecated superseded by UniqueKey (P2'); the loader rewrites it. */
-export interface UniqueConstraint {
-  id?: TableId;
-  name: string;
-  /** Field ids (see Index.fields). */
-  fields: FieldId[];
-}
 
 export interface Table {
   id: TableId;
@@ -43,8 +34,6 @@ export interface Table {
   uniqueKeys?: UniqueKey[];
   /** The foreign keys this table holds as the child side of a relationship (INV-10). */
   foreignKeys?: ForeignKey[];
-  /** @deprecated the loader turns each entry into a UniqueKey (P2'). */
-  uniqueConstraints?: UniqueConstraint[];
   color?: string;
   inherits?: string[];
   metadata?: Metadata;

@@ -10,8 +10,11 @@ import { canonicalTypeName } from "../../types/registry.ts";
 import { createId } from "../../utils/id.ts";
 import type { ASTNode, ImportedDiagramFragment } from "./shared.ts";
 import {
+  addPrimaryKeyColumns,
+  addUniqueKey,
   buildSQLFromAST,
   capitalize,
+  fieldIdsOf,
   findFieldByName,
   findReferencedTable,
   readDefaultValue,
@@ -49,13 +52,13 @@ export function fromSQLite(
           color: SQLITE_TABLE_COLOR,
           fields: [],
           indices: [],
-          uniqueConstraints: [],
         };
 
         (statement.create_definitions ?? []).forEach((definition: ASTNode) => {
           if (definition.resource === "column") {
             const field = parseColumn(definition, diagramDb);
             table.fields.push(field);
+            if (definition.primary_key) addPrimaryKeyColumns(table, [field.id]);
 
             // Inline column level foreign key: `col INTEGER REFERENCES t(id)`.
             if (definition.reference_definition) {
@@ -79,11 +82,11 @@ export function fromSQLite(
           const index = {
             name: readIndexName(statement.index),
             unique: statement.index_type === "unique",
-            fields: (statement.index_columns ?? []).map(
-              (column: ASTNode) =>
+            columns: (statement.index_columns ?? []).map((column: ASTNode) => ({
+              fieldId:
                 table.fields.find((f) => f.name === column.column)?.id ??
                 column.column,
-            ),
+            })),
           };
 
           table.indices = table.indices ?? [];
@@ -141,7 +144,6 @@ function parseColumn(definition: ASTNode, diagramDb: DatabaseType): Field {
     unique: Boolean(definition.unique),
     increment: Boolean(definition.auto_increment),
     notNull: Boolean(definition.nullable),
-    primary: Boolean(definition.primary_key),
     default: "",
   };
 
@@ -182,13 +184,10 @@ function applyConstraint(
   const constraintType = String(definition.constraint_type ?? "").toLowerCase();
 
   if (constraintType === "primary key") {
-    (definition.definition ?? []).forEach((column: ASTNode) => {
-      table.fields.forEach((field) => {
-        if (field.name === column.column && !field.primary) {
-          field.primary = true;
-        }
-      });
-    });
+    const names = (definition.definition ?? []).map(
+      (column: ASTNode) => column.column,
+    );
+    addPrimaryKeyColumns(table, fieldIdsOf(table, names));
     return;
   }
 
@@ -204,20 +203,15 @@ function applyConstraint(
   }
 
   if (constraintType.includes("unique")) {
-    const fields = (definition.definition ?? []).map(
-      (column: ASTNode) =>
-        table.fields.find((f) => f.name === column.column)?.id ??
-        column.column,
+    const names = (definition.definition ?? []).map(
+      (column: ASTNode) => column.column,
     );
+    const fieldIds = fieldIdsOf(table, names);
     const name =
       definition.constraint ||
       definition.index ||
-      `${table.name}_unique_${(table.uniqueConstraints ?? []).length}`;
-    table.uniqueConstraints = table.uniqueConstraints ?? [];
-    table.uniqueConstraints.push({ name, fields });
-    table.uniqueConstraints.forEach((constraint, index) => {
-      constraint.id = index;
-    });
+      `${table.name}_unique_${(table.uniqueKeys ?? []).length}`;
+    addUniqueKey(table, name, fieldIds);
   }
 }
 

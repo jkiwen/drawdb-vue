@@ -12,7 +12,10 @@ import { canonicalTypeName } from "../../types/registry.ts";
 import { createId } from "../../utils/id.ts";
 import type { ASTNode } from "./shared.ts";
 import {
+  addPrimaryKeyColumns,
+  addUniqueKey,
   capitalize,
+  fieldIdsOf,
   findFieldByName,
   findReferencedTable,
   quoteColumn,
@@ -100,7 +103,6 @@ export function fromPostgres(
           color: POSTGRES_TABLE_COLOR,
           fields: [],
           indices: [],
-          uniqueConstraints: [],
         };
 
         (statement.create_definitions ?? []).forEach((definition: ASTNode) => {
@@ -111,6 +113,7 @@ export function fromPostgres(
               dataType: String(definition.definition?.dataType ?? ""),
             });
             table.fields.push(field);
+            if (definition.primary_key) addPrimaryKeyColumns(table, [field.id]);
 
             if (definition.reference_definition) {
               pendingForeignKeys.push(
@@ -131,11 +134,11 @@ export function fromPostgres(
           const index = {
             name: statement.index,
             unique: statement.index_type === "unique",
-            fields: (statement.index_columns ?? []).map(
-              (column: ASTNode) =>
+            columns: (statement.index_columns ?? []).map((column: ASTNode) => ({
+              fieldId:
                 table.fields.find((f) => f.name === readColumnRefName(column))
                   ?.id ?? readColumnRefName(column),
-            ),
+            })),
           };
 
           table.indices = table.indices ?? [];
@@ -343,7 +346,6 @@ function parseColumn(definition: ASTNode, diagramDb: DatabaseType): Field {
     unique: Boolean(definition.unique),
     increment: Boolean(definition.auto_increment),
     notNull: Boolean(definition.nullable),
-    primary: Boolean(definition.primary_key),
     default: "",
   };
 
@@ -408,14 +410,10 @@ function applyConstraint(
   const constraintType = String(definition.constraint_type ?? "").toLowerCase();
 
   if (constraintType === "primary key") {
-    (definition.definition ?? []).forEach((column: ASTNode) => {
-      const columnName = readColumnRefName(column);
-      table.fields.forEach((field) => {
-        if (field.name === columnName && !field.primary) {
-          field.primary = true;
-        }
-      });
-    });
+    const names = (definition.definition ?? []).map((column: ASTNode) =>
+      readColumnRefName(column),
+    );
+    addPrimaryKeyColumns(table, fieldIdsOf(table, names));
     return;
   }
 
@@ -434,20 +432,15 @@ function applyConstraint(
   }
 
   if (constraintType.includes("unique")) {
-    const fields = (definition.definition ?? []).map(
-      (column: ASTNode) =>
-        table.fields.find((f) => f.name === readColumnRefName(column))?.id ??
-        readColumnRefName(column),
+    const names = (definition.definition ?? []).map((column: ASTNode) =>
+      readColumnRefName(column),
     );
+    const fieldIds = fieldIdsOf(table, names);
     const name =
       definition.constraint ||
       definition.index ||
-      `${table.name}_unique_${(table.uniqueConstraints ?? []).length}`;
-    table.uniqueConstraints = table.uniqueConstraints ?? [];
-    table.uniqueConstraints.push({ name, fields });
-    table.uniqueConstraints.forEach((constraint, index) => {
-      constraint.id = index;
-    });
+      `${table.name}_unique_${(table.uniqueKeys ?? []).length}`;
+    addUniqueKey(table, name, fieldIds);
   }
 }
 

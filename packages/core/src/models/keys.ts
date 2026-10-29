@@ -25,10 +25,8 @@ export interface IndexColumn {
  * (spec section 3.8.3). It has two names — one the readers of the model use,
  * one the database does — and its columns are ordered.
  *
- * `id`, `logicalName` and `columns` are the shape the model is moving to; while
- * the call sites are migrated they stay optional and the loader fills them from
- * `fields` (`normalizeTableKeys`). Once every reader uses `columns` they become
- * required and `fields` goes away (P2' task 8).
+ * The loader fills `id`, `logicalName` and `columns` for a document that still
+ * carries the old shape (`normalizeTableKeys`), so a reader always sees them.
  */
 export interface Index {
   id?: FieldId;
@@ -37,9 +35,7 @@ export interface Index {
   /** The name the database reads: "Idx_" plus the physical table name by default. */
   name: string;
   /** The covered columns, in index order. */
-  columns?: IndexColumn[];
-  /** @deprecated field ids from before P2'; only the migration reads them. */
-  fields?: FieldId[];
+  columns: IndexColumn[];
   unique: boolean;
   type?: IndexType;
   /** The predicate of a partial index, in SQL. */
@@ -94,25 +90,15 @@ export interface KeyChannel {
 
 /**
  * The columns of a key, in its order; a foreign key has none of its own.
- *
- * An index that still carries `fields` is read as columns of that order: the
- * migration has not touched it yet, and a reader that ignored it would draw an
- * index without columns.
  */
 export function keyColumns(
   key: PrimaryKey | UniqueKey | ForeignKey | Index,
 ): IndexColumn[] {
-  if ("columns" in key && key.columns) return [...key.columns];
-  if ("fields" in key && key.fields) {
-    return key.fields.map((fieldId) => ({ fieldId }));
-  }
-  return [];
+  return "columns" in key ? [...key.columns] : [];
 }
 
 /**
- * The field ids an index covers, in its order. An index that still carries its
- * ids in `fields` is read the same way, so the readers can move before the
- * migration does.
+ * The field ids an index covers, in its order.
  */
 export function indexFields(index: Index): FieldId[] {
   return keyColumns(index).map((column) => column.fieldId);

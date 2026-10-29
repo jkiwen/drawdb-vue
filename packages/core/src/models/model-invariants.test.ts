@@ -287,11 +287,17 @@ describe("cross-layer atomic delete (spec section 3.5.2)", () => {
         attribute("a2", "name", "f2"),
       ],
     });
-    t.indices = [{ name: "idx", unique: false, fields: ["f1", "f2"] }];
+    t.indices = [
+      {
+        name: "idx",
+        unique: false,
+        columns: [{ fieldId: "f1" }, { fieldId: "f2" }],
+      },
+    ];
     const next = removeFieldAtomic(t, "f1");
     assert.equal(next.fields.length, 1);
     assert.equal(next.logical.attributes.length, 1);
-    assert.deepEqual(next.indices?.[0]?.fields, ["f2"]);
+    assert.deepEqual(next.indices?.[0]?.columns, [{ fieldId: "f2" }]);
     assert.equal(validateTableInvariants(next).length, 0);
   });
 

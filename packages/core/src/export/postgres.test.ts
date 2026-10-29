@@ -33,7 +33,6 @@ function makeDiagram() {
           fieldType: { type: "INTEGER" },
           fieldTypeSource: "explicit",
           notNull: true,
-          primary: true,
           increment: true,
         },
         {
@@ -72,15 +71,22 @@ function makeDiagram() {
           default: "true",
         },
       ],
+      primaryKey: {
+        id: "pk_users",
+        name: "PK_users",
+        logicalName: "PK_users",
+        columns: [{ fieldId: "uid" }],
+      },
       comment: "User accounts",
       indices: [
-        { id: "idx_email", name: "idx_email", unique: false, fields: ["uem"] },
+        { id: "idx_email", name: "idx_email", unique: false, columns: [{ fieldId: "uem" }] },
       ],
-      uniqueConstraints: [
+            uniqueKeys: [
         {
           id: "uc_username_email",
+          logicalName: "uc_username_email",
           name: "uc_username_email",
-          fields: ["uname", "uem"],
+          columns: [{ fieldId: "uname" }, { fieldId: "uem" }],
         },
       ],
     },
@@ -97,7 +103,6 @@ function makeDiagram() {
           fieldType: { type: "BIGINT" },
           fieldTypeSource: "explicit",
           notNull: true,
-          primary: true,
           increment: true,
         },
         {
@@ -115,6 +120,12 @@ function makeDiagram() {
           notNull: true,
         },
       ],
+      primaryKey: {
+        id: "pk_posts",
+        name: "PK_posts",
+        logicalName: "PK_posts",
+        columns: [{ fieldId: "pid" }],
+      },
     },
   );
   diagram.relationships.push({

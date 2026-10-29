@@ -10,7 +10,10 @@ import { canonicalTypeName } from "../../types/registry.ts";
 import { createId } from "../../utils/id.ts";
 import type { ASTNode } from "./shared.ts";
 import {
+  addPrimaryKeyColumns,
+  addUniqueKey,
   capitalize,
+  fieldIdsOf,
   findFieldByName,
   findReferencedTable,
 } from "./shared.ts";
@@ -124,13 +127,16 @@ export function fromOracleSQL(
       color: ORACLE_TABLE_COLOR,
       fields: [],
       indices: [],
-      uniqueConstraints: [],
     };
 
     (createTable.table?.relational_properties ?? []).forEach(
       (property: OracleRelationalProperty) => {
         if (property.resource === "column") {
-          table.fields.push(parseColumn(property, diagramDb));
+          const field = parseColumn(property, diagramDb);
+          table.fields.push(field);
+          if (hasPrimaryKeyConstraint(property)) {
+            addPrimaryKeyColumns(table, [field.id]);
+          }
         } else if (property.resource === "constraint") {
           applyConstraint(property, table, tables, relationships);
         }
@@ -169,7 +175,6 @@ function parseColumn(
     unique: false,
     increment: false,
     notNull: false,
-    primary: false,
   };
 
   const precision = definition.type?.precision;
@@ -186,9 +191,6 @@ function parseColumn(
 
   (definition.constraints ?? []).forEach(
     (constraint: OracleColumnConstraint) => {
-      if (constraint.constraint?.primary_key === "primary key") {
-        field.primary = true;
-      }
       if (constraint.constraint?.not_null === "not null") {
         field.notNull = true;
       }
@@ -210,6 +212,16 @@ function parseColumn(
   return field;
 }
 
+/** Whether an Oracle column definition declares an inline primary key. */
+function hasPrimaryKeyConstraint(
+  definition: OracleRelationalProperty,
+): boolean {
+  return (definition.constraints ?? []).some(
+    (constraint: OracleColumnConstraint) =>
+      constraint.constraint?.primary_key === "primary key",
+  );
+}
+
 /**
  * Apply a table level constraint: either a unique constraint or a foreign key
  * that becomes a relationship.
@@ -223,19 +235,12 @@ function applyConstraint(
   const constraint = definition.constraint;
 
   if (constraint?.unique === "unique" && Array.isArray(constraint.columns)) {
-    const fields = constraint.columns.map(
-      (column: string) =>
-        table.fields.find((f) => f.name === column)?.id ?? column,
-    );
+    const fieldIds = fieldIdsOf(table, constraint.columns as string[]);
     const name =
       definition.name && Boolean(definition.name.trim())
         ? definition.name
-        : `${table.name}_unique_${(table.uniqueConstraints ?? []).length}`;
-    table.uniqueConstraints = table.uniqueConstraints ?? [];
-    table.uniqueConstraints.push({ name, fields });
-    table.uniqueConstraints.forEach((entry, index) => {
-      entry.id = index;
-    });
+        : `${table.name}_unique_${(table.uniqueKeys ?? []).length}`;
+    addUniqueKey(table, name, fieldIds);
     return;
   }
 

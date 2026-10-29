@@ -51,7 +51,6 @@ export interface PhysicalField {
   /** Initial value; may be a function. */
   default?: string | number | boolean;
   check?: string;
-  primary?: boolean;
   unique?: boolean;
   nullable?: boolean;
   notNull?: boolean;

@@ -24,7 +24,7 @@ describe("fromOracleSQL", () => {
     const [id, email, name] = tables[0].fields;
     assert.equal(id.name, "id");
     assert.equal(id.fieldType.type, "NUMBER");
-    assert.equal(id.primary, true);
+    assert.deepEqual(tables[0].primaryKey?.columns, [{ fieldId: id.id }]);
     assert.equal(id.notNull, false);
     assert.equal(email.name, "email");
     assert.equal(email.fieldType.type, "VARCHAR2");
@@ -34,7 +34,7 @@ describe("fromOracleSQL", () => {
     assert.equal(name.name, "name");
     assert.equal(name.fieldType.type, "VARCHAR2");
     assert.equal(name.fieldType.length, 100);
-    assert.equal(name.primary, false);
+    assert.equal(tables[0].primaryKey?.columns.length, 1);
 
     assert.equal(relationships.length, 0);
   });
@@ -102,12 +102,13 @@ describe("fromOracleSQL", () => {
     assert.equal(items.fields[1].increment, false);
     assert.equal(items.fields[2].default, "5");
 
-    assert.equal(items.uniqueConstraints?.length, 1);
-    assert.equal(items.uniqueConstraints?.[0].name, "uq_items_label");
-    assert.equal(items.uniqueConstraints?.[0].id, 0);
+    assert.equal(items.uniqueKeys?.length, 1);
+    assert.equal(items.uniqueKeys?.[0].name, "uq_items_label");
+    assert.equal(items.uniqueKeys?.[0].logicalName, "uq_items_label");
+    assert.equal(typeof items.uniqueKeys?.[0].id, "string");
     assert.deepEqual(
-      items.uniqueConstraints?.[0].fields.map(
-        (id) => items.fields.find((f) => f.id === id)?.name,
+      items.uniqueKeys?.[0].columns.map(
+        (column) => items.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["label"],
     );

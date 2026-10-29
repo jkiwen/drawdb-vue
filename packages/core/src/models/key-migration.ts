@@ -1,9 +1,10 @@
 import type { Diagram } from "./diagram.ts";
+import type { FieldId } from "./field.ts";
 import type { IndexColumn, Index, ForeignKey, PrimaryKey, UniqueKey } from "./keys.ts";
-import { keyColumns } from "./keys.ts";
 import { nextKeyName } from "./key-names.ts";
 import type { KeyKind } from "./key-names.ts";
-import type { Table } from "./table.ts";
+import type { PhysicalField } from "./physical.ts";
+import type { Table, TableId } from "./table.ts";
 
 /**
  * Moves a diagram from the old shape of its keys to the new one (spec section
@@ -14,19 +15,49 @@ import type { Table } from "./table.ts";
  * id, two names and ordered columns. Loading rewrites the old shape once, so
  * every reader afterwards sees one shape only.
  *
- * The rewrite is additive: the old properties stay in place until the readers
- * are migrated (P2' tasks 5 and 6) and the model drops them (task 8). It is
- * idempotent — running it on a normalized diagram changes nothing — and it
- * never mutates its input.
+ * This module is the only place that understands the old shape: the public
+ * model does not carry it any more (`Index.fields`, `Table.uniqueConstraints`
+ * and `PhysicalField.primary` are gone, P2' task 8). The rewrite is idempotent
+ * — running it on a normalized diagram changes nothing — and it never mutates
+ * its input.
  */
 
+/**
+ * The old shape of the key members. It lives here only: the loader reads a
+ * document written before P2', and no other module may know these names.
+ */
+type LegacyIndex = Omit<Index, "columns"> & {
+  columns?: IndexColumn[];
+  /** @deprecated field ids from before P2'. */
+  fields?: FieldId[];
+};
+
+type LegacyField = PhysicalField & {
+  /** @deprecated the primary key is `Table.primaryKey` now. */
+  primary?: boolean;
+};
+
+type LegacyUniqueConstraint = {
+  id?: TableId;
+  name: string;
+  fields?: FieldId[];
+};
+
+type LegacyTable = Omit<Table, "indices" | "uniqueKeys" | "fields"> & {
+  indices?: LegacyIndex[];
+  uniqueKeys?: UniqueKey[];
+  /** @deprecated superseded by `uniqueKeys`. */
+  uniqueConstraints?: LegacyUniqueConstraint[];
+  fields: LegacyField[];
+};
+
 /** The name a physical reader sees. */
-function physicalName(table: Table): string {
+function physicalName(table: LegacyTable): string {
   return table.name ?? String(table.id ?? "");
 }
 
 /** The name a logical reader sees. */
-function logicalName(table: Table): string {
+function logicalName(table: LegacyTable): string {
   return table.logical?.name ?? physicalName(table);
 }
 
@@ -34,7 +65,7 @@ function logicalName(table: Table): string {
  * Every name the table already spends, so that an automatically named key does
  * not take one of them.
  */
-function takenNames(table: Table): string[] {
+function takenNames(table: LegacyTable): string[] {
   const names: (string | undefined)[] = [
     table.primaryKey?.name,
     ...(table.uniqueKeys ?? []).map((key) => key.name),
@@ -46,8 +77,9 @@ function takenNames(table: Table): string[] {
 }
 
 /** The columns of an index, copied, whether it carries columns or field ids. */
-function copiedColumns(index: Index): IndexColumn[] {
-  return keyColumns(index).map((column) => ({ ...column }));
+function copiedColumns(index: LegacyIndex): IndexColumn[] {
+  if (index.columns) return index.columns.map((column) => ({ ...column }));
+  return (index.fields ?? []).map((fieldId) => ({ fieldId }));
 }
 
 /**
@@ -55,7 +87,7 @@ function copiedColumns(index: Index): IndexColumn[] {
  * undefined when no field is primary. The flag is read in field order, which is
  * the order the columns of the key had before.
  */
-function primaryKeyOf(table: Table, taken: string[]): PrimaryKey | undefined {
+function primaryKeyOf(table: LegacyTable, taken: string[]): PrimaryKey | undefined {
   if (table.primaryKey) {
     return {
       ...table.primaryKey,
@@ -73,7 +105,7 @@ function primaryKeyOf(table: Table, taken: string[]): PrimaryKey | undefined {
 }
 
 /** The unique keys of a table: the new list, or the old constraints rewritten. */
-function uniqueKeysOf(table: Table, taken: string[]): UniqueKey[] | undefined {
+function uniqueKeysOf(table: LegacyTable, taken: string[]): UniqueKey[] | undefined {
   if (table.uniqueKeys) {
     return table.uniqueKeys.map((key) => ({
       ...key,
@@ -103,20 +135,28 @@ function uniqueKeysOf(table: Table, taken: string[]): UniqueKey[] | undefined {
   });
 }
 
-/** The keys of one table in the shape the model is moving to. */
+/** The keys of one table in the shape the model holds now. */
 export function normalizeTableKeys(table: Table): Table {
-  const taken = takenNames(table);
-  const indices = table.indices?.map((index, at) => ({
-    ...index,
-    id: index.id ?? `idx_${physicalName(table)}_${at + 1}`,
-    logicalName:
-      index.logicalName ?? nextKeyName("index", logicalName(table), undefined, taken),
-    columns: copiedColumns(index),
-  }));
+  const legacy = table as LegacyTable;
+  const taken = takenNames(legacy);
+  const indices = legacy.indices?.map((index, at) => {
+    const { fields: _fields, ...rest } = index;
+    return {
+      ...rest,
+      id: index.id ?? `idx_${physicalName(legacy)}_${at + 1}`,
+      logicalName:
+        index.logicalName ?? nextKeyName("index", logicalName(legacy), undefined, taken),
+      columns: copiedColumns(index),
+    };
+  });
+  const { uniqueConstraints: _uniqueConstraints, ...rest } = legacy;
   return {
-    ...table,
-    primaryKey: primaryKeyOf(table, taken),
-    uniqueKeys: uniqueKeysOf(table, taken),
+    ...rest,
+    // The flag is a member of the old shape; the primary key object above
+    // carries the membership now, so the field does not keep a copy of it.
+    fields: rest.fields.map(({ primary: _primary, ...field }) => field),
+    primaryKey: primaryKeyOf(legacy, taken),
+    uniqueKeys: uniqueKeysOf(legacy, taken),
     indices,
   };
 }
@@ -130,7 +170,7 @@ export function normalizeTableKeys(table: Table): Table {
  * holds the key: the parent side is what it points at.
  */
 function foreignKeysOf(
-  table: Table,
+  table: LegacyTable,
   diagram: Diagram,
   taken: string[],
 ): ForeignKey[] | undefined {
@@ -148,12 +188,12 @@ function foreignKeysOf(
     const logical = nextKeyName(
       kind,
       logicalName(table),
-      parent ? logicalName(parent) : undefined,
+      parent ? logicalName(parent as LegacyTable) : undefined,
       used,
     );
     const name =
       relationship.name ||
-      nextKeyName(kind, physicalName(table), parent ? physicalName(parent) : undefined, used);
+      nextKeyName(kind, physicalName(table), parent ? physicalName(parent as LegacyTable) : undefined, used);
     used.push(logical, name);
     return {
       id: `fk_${relationship.id}`,
@@ -164,12 +204,12 @@ function foreignKeysOf(
   });
 }
 
-/** The whole diagram in the shape the model is moving to. */
+/** The whole diagram in the shape the model holds now. */
 export function normalizeDiagramKeys(diagram: Diagram): Diagram {
   const tables = diagram.tables.map((table) => normalizeTableKeys(table));
   const keyed = tables.map((table) => ({
     ...table,
-    foreignKeys: foreignKeysOf(table, { ...diagram, tables }, takenNames(table)),
+    foreignKeys: foreignKeysOf(table as LegacyTable, { ...diagram, tables }, takenNames(table as LegacyTable)),
   }));
   return { ...diagram, tables: keyed };
 }

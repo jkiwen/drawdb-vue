@@ -217,7 +217,7 @@ export function checkPrimaryKeys(diagram: Diagram): DiagramIssue[] {
   for (const table of tablesOf(diagram)) {
     const fields = table?.fields ?? [];
     if (fields.length === 0) continue;
-    if (fields.some((field) => field?.primary)) continue;
+    if (table?.primaryKey) continue;
     found.push(
       issue(
         "table.no_primary_key",
@@ -346,10 +346,10 @@ export function checkIndices(diagram: Diagram): DiagramIssue[] {
       }
     }
 
-    const constraints = table?.uniqueConstraints ?? [];
+    const uniqueKeys = table?.uniqueKeys ?? [];
     const seenConstraints = new Map<string, number>();
-    for (const constraint of constraints) {
-      if (!(constraint?.fields?.length > 0)) {
+    for (const constraint of uniqueKeys) {
+      if (!(keyColumns(constraint).length > 0)) {
         found.push(
           issue(
             "unique_constraint.no_fields",

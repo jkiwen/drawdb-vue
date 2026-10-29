@@ -189,13 +189,25 @@ export function importDiagramJson(
 }
 
 /**
+ * The old key members of a document, read here only to resolve the field names
+ * they store. `key-migration.ts` rewrites the shapes afterwards.
+ */
+type LegacyIndex = { fields?: FieldId[] };
+type LegacyUniqueConstraint = { fields?: FieldId[] };
+type LegacyTable = Omit<Table, "indices"> & {
+  indices?: LegacyIndex[];
+  uniqueConstraints?: LegacyUniqueConstraint[];
+};
+
+/**
  * Normalizes the field references of indices and unique constraints to
  * field ids. Legacy documents stored the field names there; a name that
  * matches no field id is resolved by name, anything else is kept as is.
  * The source tables are not mutated.
  */
 function normalizeFieldReferences(tables: Table[]): Table[] {
-  return tables.map((table) => {
+  return tables.map((entry) => {
+    const table = entry as unknown as LegacyTable;
     const fields = table.fields ?? [];
     const toId = (ref: FieldId): FieldId => {
       const byId = fields.find((f) => String(f?.id) === String(ref));
@@ -213,7 +225,7 @@ function normalizeFieldReferences(tables: Table[]): Table[] {
         ...uc,
         fields: (uc.fields ?? []).map(toId),
       })),
-    };
+    } as unknown as Table;
   });
 }
 

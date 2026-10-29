@@ -1,5 +1,6 @@
 import type { DatabaseType } from "../../models/diagram.ts";
-import type { Field } from "../../models/field.ts";
+import type { Field, FieldId } from "../../models/field.ts";
+import type { PrimaryKey, UniqueKey } from "../../models/keys.ts";
 import type { Relationship } from "../../models/relationship.ts";
 import type { Table } from "../../models/table.ts";
 
@@ -142,4 +143,58 @@ export function findFieldByName(
   name: string,
 ): Field | undefined {
   return fields.find((field) => field.name === name);
+}
+
+/** Resolve parsed column names to the ids of the fields they name. */
+export function fieldIdsOf(table: Table, names: string[]): FieldId[] {
+  const ids: FieldId[] = [];
+  for (const name of names) {
+    const id = findFieldByName(table.fields, name)?.id;
+    if (id !== undefined) ids.push(id);
+  }
+  return ids;
+}
+
+/** The primary key of an imported table, named after the table. */
+export function primaryKeyOf(table: Table, fieldIds: FieldId[]): PrimaryKey {
+  return {
+    id: `pk_${table.name}`,
+    logicalName: `PK_${table.name}`,
+    name: `PK_${table.name}`,
+    columns: fieldIds.map((fieldId) => ({ fieldId })),
+  };
+}
+
+/** Add columns to the primary key of a table while it is being imported. */
+export function addPrimaryKeyColumns(table: Table, fieldIds: FieldId[]): void {
+  if (fieldIds.length === 0) return;
+  if (!table.primaryKey) {
+    table.primaryKey = primaryKeyOf(table, fieldIds);
+    return;
+  }
+  const present = new Set(
+    table.primaryKey.columns.map((column) => String(column.fieldId)),
+  );
+  for (const fieldId of fieldIds) {
+    if (present.has(String(fieldId))) continue;
+    table.primaryKey.columns.push({ fieldId });
+    present.add(String(fieldId));
+  }
+}
+
+/** A unique key of an imported table, named after its constraint. */
+export function addUniqueKey(
+  table: Table,
+  name: string,
+  fieldIds: FieldId[],
+): UniqueKey {
+  table.uniqueKeys = table.uniqueKeys ?? [];
+  const key: UniqueKey = {
+    id: `uk_${table.name}_${table.uniqueKeys.length + 1}`,
+    logicalName: name,
+    name,
+    columns: fieldIds.map((fieldId) => ({ fieldId })),
+  };
+  table.uniqueKeys.push(key);
+  return key;
 }

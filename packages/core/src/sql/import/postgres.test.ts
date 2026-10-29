@@ -19,7 +19,7 @@ test("imports a table with a serial primary key, not null and a varchar size", (
   const id = users.fields[0];
   assert.equal(id.name, "id");
   assert.equal(id.fieldType.type, "SERIAL");
-  assert.equal(id.primary, true);
+  assert.deepEqual(users.primaryKey?.columns, [{ fieldId: id.id }]);
   // React parity: `notNull` is only raised by an explicit NOT NULL, the
   // PostgreSQL grammar does not mark the primary key as such.
   assert.equal(id.notNull, false);
@@ -29,7 +29,7 @@ test("imports a table with a serial primary key, not null and a varchar size", (
   assert.equal(name.fieldType.type, "VARCHAR");
   assert.equal(name.fieldType.length, 255);
   assert.equal(name.notNull, true);
-  assert.equal(name.primary, false);
+  assert.equal(users.primaryKey?.columns.length, 1);
 
   assert.equal(relationships.length, 0);
 });
@@ -108,11 +108,11 @@ test("imports unique constraints and indices", () => {
   const { tables } = fromPostgres(ast);
   const users = tables[0];
 
-  assert.equal(users.uniqueConstraints?.length, 1);
-  assert.equal(users.uniqueConstraints?.[0].name, "uq_users_email");
+  assert.equal(users.uniqueKeys?.length, 1);
+  assert.equal(users.uniqueKeys?.[0].name, "uq_users_email");
   assert.deepEqual(
-    users.uniqueConstraints?.[0].fields.map(
-      (id) => users.fields.find((f) => f.id === id)?.name,
+    users.uniqueKeys?.[0].columns.map(
+      (column) => users.fields.find((f) => f.id === column.fieldId)?.name,
     ),
     ["email"],
   );
@@ -121,16 +121,16 @@ test("imports unique constraints and indices", () => {
   assert.equal(users.indices?.[0].name, "idx_users_name");
   assert.equal(users.indices?.[0].unique, true);
   assert.deepEqual(
-    (users.indices?.[0].fields ?? []).map(
-      (id) => users.fields.find((f) => f.id === id)?.name,
+    users.indices?.[0].columns.map(
+      (column) => users.fields.find((f) => f.id === column.fieldId)?.name,
     ),
     ["name"],
   );
   assert.equal(users.indices?.[1].name, "idx_users_id_name");
   assert.equal(users.indices?.[1].unique, false);
   assert.deepEqual(
-    (users.indices?.[1].fields ?? []).map(
-      (id) => users.fields.find((f) => f.id === id)?.name,
+    users.indices?.[1].columns.map(
+      (column) => users.fields.find((f) => f.id === column.fieldId)?.name,
     ),
     ["id", "name"],
   );

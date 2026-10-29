@@ -78,7 +78,14 @@ export function inferRelationships(
   const candidates: Relationship[] = [];
 
   for (const parentTable of tables_) {
-    const pkFields = (parentTable?.fields ?? []).filter((field) => field?.primary);
+    const pkIds = new Set(
+      (parentTable?.primaryKey?.columns ?? []).map((column) =>
+        String(column.fieldId),
+      ),
+    );
+    const pkFields = (parentTable?.fields ?? []).filter((field) =>
+      pkIds.has(String(field?.id)),
+    );
     if (pkFields.length === 0) continue;
 
     const tableName = String(parentTable.name ?? "").trim().toLowerCase();

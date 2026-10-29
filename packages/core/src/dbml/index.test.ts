@@ -64,7 +64,7 @@ describe("parseDBML", () => {
     const email = users.fields.find((f) => f.name === "email");
 
     assert.equal(id?.fieldType.type, "INTEGER");
-    assert.equal(id?.primary, true);
+    assert.deepEqual(users.primaryKey?.columns, [{ fieldId: id?.id }]);
     assert.equal(id?.increment, true);
     assert.equal(email?.fieldType.type, "VARCHAR");
     assert.equal(email?.fieldType.length, 255);
@@ -84,8 +84,8 @@ describe("parseDBML", () => {
     assert.equal(posts.indices?.length, 1);
     assert.equal(posts.indices?.[0].name, "idx_posts_user");
     assert.deepEqual(
-      (posts.indices?.[0].fields ?? []).map(
-        (id) => posts.fields.find((f) => f.id === id)?.name,
+      posts.indices?.[0].columns.map(
+        (column) => posts.fields.find((f) => f.id === column.fieldId)?.name,
       ),
       ["user_id"],
     );
@@ -127,8 +127,13 @@ describe("parseDBML", () => {
 }
 `);
     const pair = tableByName(diagram, "pair");
-    assert.equal(pair.fields.find((f) => f.name === "a")?.primary, true);
-    assert.equal(pair.fields.find((f) => f.name === "b")?.primary, true);
+    assert.equal(pair.primaryKey?.name, "PK_pair");
+    assert.deepEqual(
+      pair.primaryKey?.columns.map(
+        (column) => pair.fields.find((f) => f.id === column.fieldId)?.name,
+      ),
+      ["a", "b"],
+    );
   });
 
   it("folds an inline enum back into the field", () => {
