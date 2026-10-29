@@ -74,7 +74,8 @@ function writePairs(relationship: Relationship, pairs: RelationshipFieldPair[]):
 }
 
 function rename(relationship: Relationship, name: string): void {
-  diagram.updateRelationship(relationship.id, { name });
+  // The key object and the relationship carry one name (plan Task 7).
+  diagram.renameForeignKey(props.table.id, relationship.id, { name });
 }
 
 function changeTarget(relationship: Relationship, tableId: string): void {

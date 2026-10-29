@@ -342,3 +342,59 @@ it("carries the object each key line stands for (issue 5)", () => {
     assert.deepEqual(refs("unique"), [{ fieldId: "f2" }]);
     assert.deepEqual(refs("index"), [{ fieldId: "f2" }, { fieldId: "f3" }]);
   });});
+
+describe("tableSections with the key objects (P2')", () => {
+  it("names the primary key block after the key object", () => {
+    const table = makeTable({
+      fields: makeTable().fields.map((field) => ({ ...field, primary: false })),
+      primaryKey: {
+        id: "pk1",
+        logicalName: "PK_user",
+        name: "PK_users",
+        columns: [{ fieldId: "f1" }, { fieldId: "f3" }],
+      },
+    });
+    assert.deepEqual(sectionOf(table, "primary")?.lines, ["PK_users (id, org_id)"]);
+  });
+
+  it("lists the unique keys of the key objects", () => {
+    const table = makeTable({
+      uniqueConstraints: [],
+      fields: makeTable().fields.map((field) => ({ ...field, unique: false })),
+      uniqueKeys: [
+        {
+          id: "uk1",
+          logicalName: "UK_user_email",
+          name: "UK_users_email",
+          columns: [{ fieldId: "f2" }],
+        },
+      ],
+    });
+    assert.deepEqual(sectionOf(table, "unique")?.lines, ["UK_users_email (email)"]);
+  });
+
+  it("lists the columns of an index in their order", () => {
+    const table = makeTable({
+      indices: [
+        {
+          id: "i1",
+          name: "idx_mix",
+          unique: false,
+          columns: [{ fieldId: "f3", order: "desc" }, { fieldId: "f2" }],
+        },
+      ],
+    });
+    assert.deepEqual(sectionOf(table, "index")?.lines, ["idx_mix (org_id DESC, email)"]);
+  });
+
+  it("keeps the index block off when the toggle is off", () => {
+    const table = makeTable();
+    const sections = tableSections({
+      table,
+      layer: "physical",
+      toggles: { ...toggles, indexes: false },
+      width: 220,
+    });
+    assert.equal(sections.some((section) => section.kind === "index"), false);
+  });
+});

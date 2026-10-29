@@ -467,3 +467,26 @@ describe("renderRelationshipBounds", () => {
     assert.ok(bounds.maxY <= 200 + TABLE_HEADER_HEIGHT + 3 * TABLE_FIELD_HEIGHT);
   });
 });
+
+describe("the primary key marks of the canvas (P2')", () => {
+  it("marks the fields of the primary key object, not the stale flags", () => {
+    const table = makeTable({
+      primaryKey: {
+        id: "pk1",
+        logicalName: "PK_users",
+        name: "PK_users",
+        columns: [{ fieldId: "f2" }],
+      },
+    });
+    const rows = tableRenderModel(table, "physical", {
+      description: true,
+      fields: true,
+      pkUkFk: true,
+      indexes: true,
+    }).rows;
+    assert.deepEqual(
+      rows.map((row) => row.primary),
+      [false, true, false],
+    );
+  });
+});

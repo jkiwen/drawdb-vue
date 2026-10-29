@@ -1,4 +1,4 @@
-import { indexFields } from "@drawdb/core";
+import { indexFields, keyColumns } from "@drawdb/core";
 import type { Diagram, Table } from "@drawdb/core";
 import type { OutlineNode, OutlineViewLayer } from "./outline-nodes.ts";
 import { matchesNode } from "./outline-nodes.ts";
@@ -56,21 +56,38 @@ export function keyNodes(
     };
   };
 
-  const primary = table.fields.filter((field) => field.primary === true);
+  const primaryKey = table.primaryKey;
+  const primaryIds =
+    primaryKey === undefined
+      ? table.fields.filter((field) => field.primary === true).map((field) => field.id)
+      : keyColumns(primaryKey).map((column) => column.fieldId);
+  const primaryName = primaryKey?.name ?? "PRIMARY";
   const primaryNodes =
-    primary.length > 0
+    primaryIds.length > 0
       ? [
           key(
             "primary",
             "primary",
-            "PK PRIMARY",
-            `PRIMARY (${fieldNames(primary.map((field) => field.id))})`,
+            `PK ${primaryName}`,
+            `${primaryName} (${fieldNames(primaryIds)})`,
           ),
         ].filter((node): node is OutlineNode => node !== undefined)
       : [];
 
   const uniqueNodes: OutlineNode[] = [];
-  for (const [index, constraint] of (table.uniqueConstraints ?? []).entries()) {
+  for (const [index, constraint] of (table.uniqueKeys ?? []).entries()) {
+    const ids = keyColumns(constraint).map((column) => column.fieldId);
+    if (ids.length === 0) continue;
+    const node = key(
+      `unique:${String(constraint.id ?? index)}`,
+      String(constraint.id ?? index),
+      `UK ${constraint.name}`,
+      `${constraint.name} (${fieldNames(ids)})`,
+    );
+    if (node) uniqueNodes.push(node);
+  }
+  const legacyUnique = table.uniqueKeys === undefined ? table.uniqueConstraints ?? [] : [];
+  for (const [index, constraint] of legacyUnique.entries()) {
     const refId = String(constraint.id ?? `uk${index}`);
     const node = key(
       `unique:${refId}`,
@@ -82,7 +99,16 @@ export function keyNodes(
   }
 
   const foreignNodes: OutlineNode[] = [];
-  for (const relationship of diagram.relationships) {
+  for (const foreignKey of table.foreignKeys ?? []) {
+    const node = key(
+      `foreign:${foreignKey.relationshipId}`,
+      String(foreignKey.relationshipId),
+      `FK ${foreignKey.name}`,
+      foreignKey.name,
+    );
+    if (node) foreignNodes.push(node);
+  }
+  for (const relationship of table.foreignKeys === undefined ? diagram.relationships : []) {
     if (String(relationship.startTableId) !== String(table.id)) continue;
     const logical = diagram.logicalRelationships?.find(
       (item) => String(item.id) === String(relationship.id),

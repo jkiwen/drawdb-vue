@@ -1,4 +1,4 @@
-import { BUILTIN_FAMILIES } from "@drawdb/core";
+import { BUILTIN_FAMILIES, keyColumns } from "@drawdb/core";
 import type {
   LogicalDomain,
   LogicalTypeRef,
@@ -194,6 +194,11 @@ export function tableFieldRows(
       };
     });
   }
+  const keyMembers = new Set(
+    (table.primaryKey === undefined ? [] : keyColumns(table.primaryKey)).map((column) =>
+      String(column.fieldId),
+    ),
+  );
   return table.fields.map((field) => ({
     rowId: field.id,
     fieldId: field.id,
@@ -201,7 +206,9 @@ export function tableFieldRows(
     nameFallback: false,
     typeLabel: fieldLabel(field),
     typePlaceholder: false,
-    primary: field.primary === true,
+    // The key object wins over the stale flag, so the canvas and the panel
+    // agree on which columns are the primary key (plan Task 7).
+    primary: keyMembers.size > 0 ? keyMembers.has(String(field.id)) : field.primary === true,
     unique: field.unique === true,
     notNull: field.notNull === true,
     foreign: options?.foreignFieldIds?.has(String(field.id)) === true,

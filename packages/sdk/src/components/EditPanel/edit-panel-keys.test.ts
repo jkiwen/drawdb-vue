@@ -6,6 +6,7 @@ import { createEmptyDiagram, createTable } from "@drawdb/core";
 import type { Diagram, Table } from "@drawdb/core";
 import EditPanel from "./EditPanel.vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
+import { useHistoryStore } from "../../stores/history.ts";
 import { useUIStore } from "../../stores/ui.ts";
 
 /**
@@ -203,5 +204,27 @@ describe("creating an index", () => {
     assert.equal(usersOf(diagram).indices?.[0]?.unique, true);
     await wrapper.find('[data-testid="index-remove-0"]').trigger("click");
     assert.deepEqual(usersOf(diagram).indices ?? [], []);
+  });
+});
+
+describe("the foreign key names of the key objects (P2')", () => {
+  it("moves the relationship name and the key name in one step", () => {
+    const { diagram: store } = mountPanel();
+    const orders = store.diagram.tables.find((table) => table.id === "t_orders");
+    assert.ok(orders);
+    orders.foreignKeys = [
+      {
+        id: "fk1",
+        logicalName: "FK_orders_user",
+        name: "FK_orders_user",
+        relationshipId: "r1",
+      },
+    ];
+    store.renameForeignKey("t_orders", "r1", { name: "FK_orders_buyer" });
+    assert.equal(orders.foreignKeys?.[0]?.name, "FK_orders_buyer");
+    assert.equal(store.diagram.relationships[0]?.name, "FK_orders_buyer");
+    useHistoryStore().undo();
+    assert.equal(orders.foreignKeys?.[0]?.name, "FK_orders_user");
+    assert.equal(store.diagram.relationships[0]?.name, "fk_orders_user");
   });
 });

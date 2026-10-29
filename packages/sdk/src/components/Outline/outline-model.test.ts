@@ -387,3 +387,63 @@ describe("windowOutlineRows", () => {
     assert.equal(tail.at(-1)?.index, rows.length - 1);
   });
 });
+
+describe("the key nodes of the outline (P2')", () => {
+  it("names every key after the key object", () => {
+    const diagram = sampleDiagram();
+    const users = diagram.tables[0]!;
+    users.primaryKey = {
+      id: "pk1",
+      logicalName: "PK_User",
+      name: "PK_users",
+      columns: [{ fieldId: "f_id" }],
+    };
+    users.uniqueKeys = [
+      {
+        id: "uk1",
+        logicalName: "UK_User_Name",
+        name: "UK_users_name",
+        columns: [{ fieldId: "f_name" }],
+      },
+    ];
+    users.foreignKeys = [
+      {
+        id: "fk1",
+        logicalName: "FK_User_Order",
+        name: "FK_users_orders",
+        relationshipId: "r1",
+      },
+    ];
+    users.indices = [
+      {
+        id: "idx1",
+        logicalName: "Idx_User_Name",
+        name: "Idx_users_name",
+        unique: false,
+        columns: [{ fieldId: "f_name" }],
+      },
+    ];
+    const tables = buildOutlineTree(diagram, "physical", "").find(
+      (node) => node.kind === "category" && node.id === "cat:tables",
+    );
+    assert.ok(tables);
+    const userNode = tables.children.find((node) => node.id === "table:t_users");
+    assert.ok(userNode);
+    assert.deepEqual(
+      groupOf(userNode, "primary").map((node) => node.label),
+      ["PK PK_users"],
+    );
+    assert.deepEqual(
+      groupOf(userNode, "unique").map((node) => node.label),
+      ["UK UK_users_name"],
+    );
+    assert.deepEqual(
+      groupOf(userNode, "foreign").map((node) => node.label),
+      ["FK FK_users_orders"],
+    );
+    assert.deepEqual(
+      groupOf(userNode, "indexes").map((node) => node.label),
+      ["INDEX Idx_users_name"],
+    );
+  });
+});

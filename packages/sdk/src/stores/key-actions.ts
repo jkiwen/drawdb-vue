@@ -1,4 +1,13 @@
-import { addTableKey, nextKeyName, removeTableKey, renameTableKey, setKeyColumns } from "@drawdb/core";
+import {
+  addTableKey,
+  CompositeCommand,
+  nextKeyName,
+  removeTableKey,
+  renameTableKey,
+  setKeyColumns,
+  SetTableKeysCommand,
+  UpdateRelationshipCommand,
+} from "@drawdb/core";
 import type {
   Command,
   Diagram,
@@ -6,6 +15,7 @@ import type {
   Index,
   IndexColumn,
   PrimaryKey,
+  RelationshipId,
   Table,
   TableId,
   UniqueKey,
@@ -91,6 +101,11 @@ export interface KeyActions {
   removeIndex: (tableId: TableId, keyId: string) => void;
   setIndexColumns: (tableId: TableId, keyId: string, columns: IndexColumn[]) => void;
   setPrimaryColumns: (tableId: TableId, columns: IndexColumn[], name?: string) => void;
+  renameForeignKey: (
+    tableId: TableId,
+    relationshipId: RelationshipId,
+    names: { name: string; logicalName?: string },
+  ) => void;
 }
 
 export function keyActions(diagram: Diagram, history: History, bump: () => void): KeyActions {
@@ -123,6 +138,24 @@ export function keyActions(diagram: Diagram, history: History, bump: () => void)
     },
     setIndexColumns(tableId, keyId, columns) {
       run(setKeyColumns(diagram, String(tableId), "index", keyId, columns));
+    },
+    renameForeignKey(tableId, relationshipId, names) {
+      const table = diagram.tables.find((item) => String(item.id) === String(tableId));
+      if (table === undefined) return;
+      const keys = (table.foreignKeys ?? []).map((key) =>
+        String(key.relationshipId) === String(relationshipId)
+          ? { ...key, name: names.name, logicalName: names.logicalName ?? key.logicalName }
+          : key,
+      );
+      // The key object and the relationship carry one name (plan Task 7):
+      // the relationship is what the canvas and the outline read today, so
+      // the two move in one step of the history.
+      run(
+        new CompositeCommand("Rename the foreign key", [
+          new SetTableKeysCommand(diagram, String(tableId), { foreignKeys: keys }, "Rename the foreign key"),
+          new UpdateRelationshipCommand(diagram, relationshipId, { name: names.name }),
+        ]),
+      );
     },
     setPrimaryColumns(tableId, columns, name) {
       run(new SetPrimaryKeyCommand(diagram, tableId, columns, name));
