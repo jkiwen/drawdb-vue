@@ -31,6 +31,7 @@ const emit = defineEmits<{
   commitLogicalFamily: [attributeId: string, family: string];
   commitPhysicalName: [fieldId: string, value: string];
   commitPhysicalType: [fieldId: string, spec: import("@drawdb/core").PhysicalSpec];
+  commitPrimary: [fieldId: string, on: boolean];
   remove: [];
 }>();
 
@@ -113,6 +114,18 @@ function commitPhysicalName(): void {
 function commitType(spec: import("@drawdb/core").PhysicalSpec): void {
   if (!props.row.field) return;
   emit("commitPhysicalType", String(props.row.field.id), spec);
+}
+
+/**
+ * Whether the column is part of the primary key. The flag lives on the
+ * physical field, so the logical view layer shows it read-only, the way it
+ * shows the other physical values.
+ */
+const primary = computed(() => props.row.field?.primary === true);
+
+function commitPrimary(event: Event): void {
+  if (!props.row.field) return;
+  emit("commitPrimary", String(props.row.field.id), (event.target as HTMLInputElement).checked);
 }
 </script>
 
@@ -208,6 +221,21 @@ function commitType(spec: import("@drawdb/core").PhysicalSpec): void {
         </template>
         <span v-else :class="styles['readonly-value']" data-testid="physical-type-readonly">
           {{ props.row.field?.fieldType.type ?? "—" }}
+        </span>
+      </label>
+      <label :class="[styles.field, styles['field-wide']]">
+        <span :class="styles.label">{{ t("primary_key") }}</span>
+        <input
+          v-if="!props.logicalView"
+          type="checkbox"
+          :class="styles.check"
+          :checked="primary"
+          :disabled="!props.row.field"
+          :data-testid="props.row.field ? `field-primary-${String(props.row.field.id)}` : undefined"
+          @change="commitPrimary"
+        />
+        <span v-else :class="styles['readonly-value']" data-testid="field-primary-readonly">
+          {{ primary ? "✓" : "—" }}
         </span>
       </label>
     </div>

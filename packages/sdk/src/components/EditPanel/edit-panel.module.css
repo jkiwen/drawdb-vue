@@ -342,3 +342,44 @@
   gap: 2px;
   min-width: 0;
 }
+/* The primary key toggle spans the two columns of the card body: it is a
+   single fact about the column, not a value that pairs with anything. */
+.field-wide {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+/* The create forms of the keys (review 2026-10-29): a name, a target table
+   and the column pairs of a foreign key, or the name of a unique key and an
+   index. */
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.pair-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 4px;
+}
+
+.pair-arrow {
+  color: var(--ddb-text-muted, #71717a);
+}

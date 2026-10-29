@@ -113,8 +113,10 @@ describe("EditPanel constraint and index groups", () => {
 
     const indexes = rows(wrapper, "index-row");
     assert.equal(indexes.length, 1);
-    assert.match(indexes[0]!, /idx_name/);
     assert.match(indexes[0]!, /name/);
+    const name = wrapper.find('[data-testid="index-name-0"]');
+    assert.ok(name.exists(), "the index row edits its name");
+    assert.equal((name.element as HTMLInputElement).value, "idx_name");
   });
 
   it("says so when a table has no index", async () => {

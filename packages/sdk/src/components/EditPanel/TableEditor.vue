@@ -58,6 +58,7 @@ function onRemove(row: (typeof rows.value)[number]): void {
           @commit-logical-family="(id, family) => commitLogicalFamily(store, props.table, id, family)"
           @commit-physical-name="(id, value) => commitPhysicalName(store, props.table, id, value)"
           @commit-physical-type="(id, spec) => commitPhysicalType(store, props.table, id, spec)"
+          @commit-primary="(id, on) => store.updateField(props.table.id, id, { primary: on })"
           @remove="onRemove(row)"
         />
       </div>

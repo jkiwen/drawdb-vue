@@ -158,7 +158,7 @@ const EMPTY_KEYS: Record<string, string> = {
         testid="group-constraints"
         @toggle="toggleGroup('constraints')"
       >
-        <TableConstraints :table="target.table" :relationships="relationships" />
+        <TableConstraints :table="target.table" :tables="diagramStore.diagram.tables" :relationships="relationships" />
       </PanelGroup>
       <PanelGroup
         :title="t('edit_panel_group_indexes')"

@@ -489,3 +489,26 @@ a description block (no refs) and a missing column never become a dead button.
 The foreign key rows and their relationship ids moved to
 `components/Canvas/table-foreign-keys.ts` when `table-sections.ts` crossed the
 300-line guard.
+
+## The keys became objects (2026-10-29)
+
+A key is now created, not only read. The primary key gained a checkbox on
+every field card, so a column joins the key where the user already is; the
+unique keys, the foreign keys and the indexes each got a create form that
+asks for the name first. The panel used to name a key silently
+(`uk_<table>_<n>`), which read like something the user chose -- now the form
+opens with that default prefilled and the user confirms it or replaces it.
+
+The column pairs of a foreign key live in `PairRows.vue` as a pure view:
+each change is written at once through `updateRelationship`, and
+`syncPairs()` mirrors the first pair back into `startFieldId`/`endFieldId`
+because the canvas and the exporters still read the relationship through
+those four ids. Keeping the pairs in component state instead would have let
+the view drift from the document on undo -- the one thing the editor must
+never do.
+
+An index writes the whole list through `updateTable({ indices })`, so adding
+one index and reordering three columns is one undo step rather than four.
+The naming rules and the pair validation live in `constraint-forms.ts`
+as pure functions, which is why the three panels share them instead of
+growing three copies.

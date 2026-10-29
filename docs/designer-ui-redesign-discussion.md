@@ -590,3 +590,17 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 | 12 Note 无法编辑显示属性 | `EditPanel/NoteEditor.vue`：颜色、宽高、锁定，写入 `diagram.updateNote()`；`PanelTarget` 增 `{kind:"note"}` |
 
 一条实现经验写在 `progress.md`：居中定位必须用**当下**量到的节点尺寸与视口尺寸——harness 的画布只有一百多像素高，挂载时测的视口是旧的，于是对象落在偏离中心 144px 的位置；`ResizeObserver` 让 `reportViewport()` 跟上布局变化后，e2e 里改成直接断言「对象中心 ≈ 视口中心」，不再依赖某个具体的 scroll 数值。
+### 12.4 第五轮改动（2026-10-29，键的创建与索引编辑）
+
+这一轮把「键」从只读展示变成可创建、可编辑的对象。四条反馈与落地位置：
+
+| 反馈 | 落地 |
+|---|---|
+| 字段卡片里加 PK 复选框 | `components/EditPanel/FieldPairRow.vue` 的卡片正文末尾加一行跨两列的 `Primary key` 复选框（`field-primary-<fieldId>`），提交走 `store.updateField(..., { primary })`；逻辑层按既有规则降为只读 |
+| Constraints 允许新增 UK/FK，新增时输入 name | `UniqueKeysPanel.vue` / `ForeignKeysPanel.vue`：`＋ Add` 先打开表单（`unique-create-name` 默认 `uk_<table>_<n>`、`foreign-create-name` 默认 `fk_<child>_<parent>`），确认后才写模型；取消不留痕 |
+| UK 的编辑与 PK 相同 | 同一个面板里改名、从下拉加字段、↑/↓ 调序、× 删字段、删整键；写入走 `updateTable({ uniqueConstraints })` |
+| FK 支持两表字段映射、多字段、调序 | `PairRows.vue`：每行「本表列 → 引用表列」，可增行、↑/↓ 调序、删行；`ForeignKeysPanel.vue` 在编辑已有 FK 时可换目标表并把已配对的引用列清空重选。`constraint-forms.ts` 的 `syncPairs()` 把第一对镜像回 `startFieldId`/`endFieldId`/`fields`，保证画布与导出仍按四 id 读取 |
+| Indexes 允许新增、多字段、调序、unique | `TableIndexes.vue` 改写为可编辑：`index-create-open` 表单取名字与 unique，每行可改名、勾 unique、加字段、↑/↓ 调序、删字段、删索引；写入走 `updateTable({ indices })`，整份列表一次 undo |
+
+新增的纯函数集中在 `components/EditPanel/constraint-forms.ts`（下一批名字、可加入的字段、pair 的读写与校验），因此三个面板不必各写一遍命名与校验规则。新增文案 4 个键：`index`、`edit_panel_foreign_target`、`edit_panel_foreign_local`、`edit_panel_foreign_referenced`。
+

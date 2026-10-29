@@ -105,12 +105,15 @@ describe("the constraints editor", () => {
     assert.equal(table(diagram, "t_users").uniqueConstraints?.[0]?.name, "uq_email_name");
   });
 
-  it("adds a unique key and gives it a name the canvas would accept", async () => {
+  it("adds a unique key under the name the form asks for", async () => {
     const { wrapper, diagram } = mountPanel();
     await wrapper.find('[data-testid="constraint-add-unique"]').trigger("click");
+    const name = wrapper.find('[data-testid="unique-create-name"]');
+    await name.setValue("uq_name");
+    await wrapper.find('[data-testid="unique-create-confirm"]').trigger("click");
     const keys = table(diagram, "t_users").uniqueConstraints ?? [];
     assert.equal(keys.length, 2);
-    assert.equal(keys[1]?.name, "uk_users_2");
+    assert.equal(keys[1]?.name, "uq_name");
     assert.deepEqual(keys[1]?.fields, []);
   });
 
