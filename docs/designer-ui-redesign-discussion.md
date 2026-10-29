@@ -604,3 +604,14 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 
 新增的纯函数集中在 `components/EditPanel/constraint-forms.ts`（下一批名字、可加入的字段、pair 的读写与校验），因此三个面板不必各写一遍命名与校验规则。新增文案 4 个键：`index`、`edit_panel_foreign_target`、`edit_panel_foreign_local`、`edit_panel_foreign_referenced`。
 
+### 12.5 第六轮改动（2026-10-29，键的卡片与树的图标分组）
+
+| 反馈 | 落地 |
+|---|---|
+| PK/UK/FK 也用卡片编辑 | `packages/sdk/src/components/EditPanel/KeyCard.vue`：摘要行（徽标 + 名字 + 列清单 + 动作）+ 展开正文，与字段卡片同一套形制；PK、每个 UK、每个 FK、每个索引各一张卡（`constraint-primary`、`constraint-unique-<i>`、`constraint-foreign-<i>`、`index-<i>`），收起时仍可读摘要。 |
+| 面板按钮统一为超级链接 | `edit-panel.module.css` 的 `.link-button`（无边框无底色、强调色文字、hover 下划线、禁用灰）与 `.link-button--muted`（图标类）；字段卡、键卡、批量编辑与 `PairRows` 全部改用它，旧的 `.add-button`/`.icon-button` 删除。 |
+| 导航用不同矢量图标 | `packages/sdk/src/components/Outline/OutlineIcon.vue` + `outline-icons.ts`（`iconOf(node)`）：表、字段、键（PK/UK/FK/索引各一）、关系、区域、便笺、视图/枚举/类型与七个类目各有独立 16×16 路径，颜色走 `currentColor`。 |
+| 表下按元素类型分组 | `outline-constraints.ts` 的 `keyNodes()` + `outline-nodes.ts` 的 `groupNode()`：表节点下依次是 Fields / Primary key / Unique keys / Foreign keys / Indexes 五个组（空组不出现、带数量徽标），与属性面板的分组同序；过滤命中字段时带上父表与所在组，命中表名时整表保留。 |
+
+新增 3 个文案键（`outline_group_unique`/`outline_group_foreign`/`outline_group_indexes`），51 个 locale 均为 564 键。
+

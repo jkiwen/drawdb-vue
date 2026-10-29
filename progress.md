@@ -512,3 +512,19 @@ one index and reordering three columns is one undo step rather than four.
 The naming rules and the pair validation live in `constraint-forms.ts`
 as pure functions, which is why the three panels share them instead of
 growing three copies.
+
+## The keys and the tree got their cards and groups (2026-10-29)
+
+- A key, a unique constraint, a foreign key and an index now share the card
+  shape of a field: a summary line that survives being collapsed, and a body
+  of labelled controls. The panel had grown one long block per kind; the card
+  shell (KeyCard.vue) keeps the four kinds from drifting apart.
+- Every action in the panel became a link (.link-button): the panel is a
+  form, not a toolbar, so a border around "Add" competed with the inputs.
+- The outline carries the same grouping the panel does - fields, the primary
+  key, the unique keys, the foreign keys and the indexes - because a reader
+  who learns one order should not learn a second one in the tree. The keys of
+  a table are leaves; their columns stay in the tooltip rather than growing
+  the tree.
+- Each row has its own 16x16 glyph (OutlineIcon), drawn inline so the tree
+  still has no icon dependency and currentColor follows the row state.
