@@ -7,6 +7,7 @@ import {
   fieldSizeSuffix,
   getFkColumnNames,
   indexColumnList,
+  primaryKeyFragment,
   uniqueConstraintClause,
 } from "./shared.ts";
 
@@ -158,18 +159,11 @@ function tablesToMssql(diagram: Diagram): string {
           }`;
         })
         .join(",\n");
-
-      const primaryKeys = table.fields.filter((f) => f.primary);
-      const primaryKeySql =
-        primaryKeys.length > 0
-          ? `,\n\tPRIMARY KEY(${primaryKeys
-              .map((f) => quoteIdentifier(f.name))
-              .join(", ")})`
-          : "";
+      const primaryKeyClause = primaryKeyFragment(table, quoteIdentifier);
 
       const uniqueSql = uniqueConstraintClause(table, quoteIdentifier);
 
-      const createTableSql = `CREATE TABLE ${quoteIdentifier(table.name)} (\n${fieldsSql}${primaryKeySql}${uniqueSql}\n);\nGO\n`;
+      const createTableSql = `CREATE TABLE ${quoteIdentifier(table.name)} (\n${fieldsSql}${primaryKeyClause}${uniqueSql}\n);\nGO\n`;
 
       const tableCommentSql = generateAddExtendedPropertySQL(
         table.comment,

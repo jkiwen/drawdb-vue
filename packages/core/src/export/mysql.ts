@@ -8,6 +8,7 @@ import {
   getFkColumnNames,
   indexColumnList,
   parseDefault,
+  primaryKeyFragment,
   uniqueConstraintClause,
 } from "./shared.ts";
 import { appendViews } from "./views.ts";
@@ -56,14 +57,7 @@ function tablesToMySQL(diagram: Diagram): string {
                   : ` CHECK(${field.check})`
               }${field.comment ? ` COMMENT '${escapeQuotes(field.comment)}'` : ""}`,
           )
-          .join(",\n")}${
-          table.fields.filter((f) => f.primary).length > 0
-            ? `,\n\tPRIMARY KEY(${table.fields
-                .filter((f) => f.primary)
-                .map((f) => quoteIdentifier(f.name))
-                .join(", ")})`
-            : ""
-        }${uniqueConstraintClause(table, quoteIdentifier)}\n)${table.comment ? ` COMMENT='${escapeQuotes(table.comment)}'` : ""};\n${table.indices?.length ? `\n${table.indices
+          .join(",\n")}${primaryKeyFragment(table, quoteIdentifier)}${uniqueConstraintClause(table, quoteIdentifier)}\n)${table.comment ? ` COMMENT='${escapeQuotes(table.comment)}'` : ""};\n${table.indices?.length ? `\n${table.indices
           .map(
             (i) =>
               `\nCREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(

@@ -7,6 +7,7 @@ import {
   exportLogicalNameComment,
   getInlineFK,
   indexColumnList,
+  primaryKeyFragment,
   uniqueConstraintClause,
 } from "./shared.ts";
 import { appendViews } from "./views.ts";
@@ -92,14 +93,7 @@ function tablesToSqlite(diagram: Diagram): string {
                 : ` CHECK(${field.check})`
             }`,
         )
-        .join(",\n")}${
-        table.fields.filter((f) => f.primary).length > 0
-          ? `,\n\tPRIMARY KEY(${table.fields
-              .filter((f) => f.primary)
-              .map((f) => quoteIdentifier(f.name))
-              .join(", ")})`
-          : ""
-      }${inlineFK !== "" ? ",\n" : ""}${inlineFK}${uniqueConstraintClause(
+        .join(",\n")}${primaryKeyFragment(table, quoteIdentifier)}${inlineFK !== "" ? ",\n" : ""}${inlineFK}${uniqueConstraintClause(
         table,
         quoteIdentifier,
       )}\n);\n${(table.indices ?? [])

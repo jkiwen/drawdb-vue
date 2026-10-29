@@ -8,6 +8,7 @@ import {
   fieldSizeSuffix,
   getFkColumnNames,
   indexColumnList,
+  primaryKeyFragment,
   uniqueConstraintClause,
 } from "./shared.ts";
 import { appendViews } from "./views.ts";
@@ -233,12 +234,7 @@ function tablesToPostgres(diagram: Diagram): string {
         )
         .join(",\n");
 
-      const primaryKeyClause = table.fields.some((f) => f.primary)
-        ? `,\n\tPRIMARY KEY(${table.fields
-            .filter((f) => f.primary)
-            .map((f) => quoteIdentifier(f.name))
-            .join(", ")})`
-        : "";
+      const primaryKeyClause = primaryKeyFragment(table, quoteIdentifier);
 
       const uniqueClause = uniqueConstraintClause(table, quoteIdentifier);
 

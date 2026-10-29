@@ -151,28 +151,65 @@ export function indexColumnList(
     .join(", ");
 }
 
+/**
+ * The primary key of a table, read from its key object when the document has
+ * one and from the field flags of the older shape otherwise.
+ *
+ * The name is printed when it is known: a named constraint is what an erwin
+ * document carries and what a DBA looks for in a script.
+ */
+export function primaryKeyFragment(
+  table: Table,
+  quote: (s: string) => string,
+): string {
+  const key = table.primaryKey;
+  const columns = key
+    ? keyColumns(key)
+        .map((column) => table.fields.find((f) => String(f.id) === String(column.fieldId))?.name)
+        .filter((name): name is string => Boolean(name))
+    : table.fields.filter((field) => field.primary).map((field) => field.name);
+  if (columns.length === 0) return "";
+
+  const name = String(key?.name ?? "").trim();
+  const constraint = name ? `CONSTRAINT ${quote(name)} ` : "";
+  return `,
+	${constraint}PRIMARY KEY(${columns.map((column) => quote(column)).join(", ")})`;
+}
+
 export function uniqueConstraintClause(
   table: Table,
   quote: (s: string) => string,
 ): string {
+  const namesOf = (key: { columns?: unknown[]; fields?: unknown[] }): string[] =>
+    keyColumns(key as never)
+      .map((column) => table.fields.find((f) => String(f.id) === String(column.fieldId))?.name)
+      .filter((name): name is string => Boolean(name));
+
+  // The objects win over the older list of unique constraints, so a key
+  // whose name the document knows is printed with that name once.
+  const keys = (table.uniqueKeys || []).filter((key) => namesOf(key).length > 0);
+  if (keys.length > 0) {
+    const rows = keys.map(
+      (key) =>
+        `\tCONSTRAINT ${quote(String(key.name ?? ""))} UNIQUE (${namesOf(key)
+          .map((name) => quote(name))
+          .join(", ")})`,
+    );
+    return "," + "\n" + rows.join("," + "\n");
+  }
+
   const constraints = (table.uniqueConstraints || []).filter(
     (uc) => Array.isArray(uc.fields) && uc.fields.length > 0,
   );
   if (constraints.length === 0) return "";
 
-  return (
-    ",\n" +
-    constraints
-      .map(
-        (uc) =>
-          `\tCONSTRAINT ${quote(uc.name)} UNIQUE (${uc.fields
-            .map((id) =>
-              quote(table.fields.find((f) => f.id === id)?.name ?? String(id)),
-            )
-            .join(", ")})`,
-      )
-      .join(",\n")
+  const rows = constraints.map(
+    (uc) =>
+      `\tCONSTRAINT ${quote(uc.name)} UNIQUE (${uc.fields
+        .map((id) => quote(table.fields.find((f) => f.id === id)?.name ?? String(id)))
+        .join(", ")})`,
   );
+  return "," + "\n" + rows.join("," + "\n");
 }
 
 export function getInlineFK(

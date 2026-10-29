@@ -7,6 +7,7 @@ import {
   fieldSizeSuffix,
   getFkColumnNames,
   indexColumnList,
+  primaryKeyFragment,
   uniqueConstraintClause,
 } from "./shared.ts";
 import { appendViews } from "./views.ts";
@@ -119,14 +120,7 @@ function tablesToOracleSQL(diagram: Diagram): string {
                   : ` CHECK(${field.check})`
               }`,
           )
-          .join(",\n")}${
-          table.fields.filter((f) => f.primary).length > 0
-            ? `,\n\tPRIMARY KEY(${table.fields
-                .filter((f) => f.primary)
-                .map((f) => quoteIdentifier(f.name))
-                .join(", ")})`
-            : ""
-        }${uniqueConstraintClause(table, quoteIdentifier)}\n);\n${
+          .join(",\n")}${primaryKeyFragment(table, quoteIdentifier)}${uniqueConstraintClause(table, quoteIdentifier)}\n);\n${
           table.indices?.length
             ? `\n${table.indices
                 .map(
