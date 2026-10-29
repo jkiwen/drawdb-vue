@@ -597,3 +597,26 @@ zoom is 100% and both scroll offsets are zero.
 - Loading a document is where the old shapes die: `normalizeDiagramKeys` turns `field.primary`, `uniqueConstraints` and name-based index columns into the key objects once, and the serialized form carries the objects from then on.
 - The canvas and the outline read the same objects as the panel, so a key is called the same thing in the block, the tree and the card. The index block prints column direction; renaming a foreign key moves the key object and its relationship in one step.
 - Verification: `run-tests.mjs` 1263/1263, five typecheck programs clean, e2e 55 passed, turbo build 4/4 (8 GB heap). Commits 63eb2a2, 6edd059, c1e5b06, 4b4a09a, 039654c, d99149a, 622b8b7.
+
+## The type system left the editor (2026-10-30)
+
+P6 moved the two things that had no home yet — the mapping of the logical types
+onto the dialects and the printing of the sheet — into the places the design asked for.
+
+- The scope of the type system lives in the SDK (stores/type-scope.ts). An application
+  layer and a workspace layer persist under drawdb:type-scope; the diagram layer stays
+  inside the document. The three scopes merge far-to-near, so a mapping of the
+  application is overridden by the same mapping of the workspace. registerDomain keys
+  the domains by their name (the contract of @drawdb/core), which is why a rename is a
+  remove and an add rather than a write.
+- The mapping grid is a table of the eleven builtin families against the seven dialects.
+  Every cell writes through updateMapping, so a change reaches resolveType on the next
+  render; not-mapped is a state the grid shows rather than a hole it hides.
+- The application owns the two screens the SDK cannot own: the preferences dialog
+  (theme, default database, auto-save) and the types page. Both write the settings store
+  of the SDK, so the editor and the screens agree without a second source of truth.
+- Printing is a paginated sheet, not the canvas at a smaller zoom
+  (components/Print/print-layout.ts): tables flow in reading order, wrap at the width of
+  an A4 at 96 dpi and start the next page when the height is spent.
+- Verification: run-tests.mjs 1286 pass, pnpm typecheck five programs clean, e2e 55 pass,
+  turbo run build 4/4.

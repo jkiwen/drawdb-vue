@@ -645,3 +645,14 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 | 画布详情框的颜色 | 保留（只读态随锁定禁用） | 画布上快速改色是高频道动作，全部赶到右栏会多一次定位 |
 | 工具栏「实际大小」按钮 | 条件由「缩放=100%」放宽为「缩放=100% 且未滚动」 | 面板/列表把画布滚到很远处时，用户需要一键回到原点，这与缩放无关 |
 | 新元素的位置 | 视口中心 + 每个已存在元素再级联 24px | 「中心」让新元素一定可见；级联避免连续新建叠在同一处；两者相乘在 100 表批量脚本里会漂很远，故 e2e 先网格布局再断言虚拟滚动 |
+
+## 12.8 第九轮改动（2026-10-30，P6：类型系统与打印）
+
+| 需求 | 落地的位置 | 说明 |
+| --- | --- | --- |
+| 数据类型的作用域（Q16/§5） | packages/sdk/src/stores/type-scope.ts | 应用层与工作区层存在本地（drawdb:type-scope），图层的覆盖随文档走；撞名返回诊断且不落库 |
+| DSM 映射管理界面（Q16） | packages/sdk/src/components/TypeSystem/ | 族 × 方言的映射网格、域的增删改；宿主传 onOpenDsm 就交回宿主自己的页面 |
+| 独立首选项（Q7） | packages/app/src/components/PreferencesDialog.vue | 主题、默认数据库、自动保存与间隔；应用级作用域 |
+| 独立的类型页 | packages/app/src/views/TypesView.vue + /types 路由 | 整页挂同一份 DSM，关闭回到首页 |
+| 打印与预览（Q8） | packages/sdk/src/components/Print/ | 分页的 A4 纸面（print-layout.ts 的 printPages），文件组带两个入口，window.print 交给浏览器 |
+
