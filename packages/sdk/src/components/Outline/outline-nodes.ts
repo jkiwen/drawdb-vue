@@ -3,7 +3,7 @@ import type {
   Table,
 } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
-import { constraintNodes } from "./outline-constraints.ts";
+import { keyNodes } from "./outline-constraints.ts";
 
 /**
  * The node vocabulary and the per-element node builders of the outline
@@ -20,6 +20,9 @@ import { constraintNodes } from "./outline-constraints.ts";
  *   kept on `altLabel` for the tooltip.
  * - The filter matches both layer names; a hit field brings its parent
  *   table along.
+ * - The children of a table group by what they are (review of 2026-10-29,
+ *   item 4): fields, the primary key, the unique keys, the foreign keys and
+ *   the indexes, in that order, the way the edit panel groups them.
  */
 
 export type OutlineViewLayer = "logical" | "physical";
@@ -37,6 +40,7 @@ export type OutlineCategoryKey =
 export type OutlineNodeKind =
   | "category"
   | "table"
+  | "group"
   | "constraint"
   | "field"
   | "relationship"
@@ -46,6 +50,9 @@ export type OutlineNodeKind =
   | "view"
   | "enum"
   | "type";
+
+/** The groups a table node holds its children in (review item 4). */
+export type OutlineGroupKey = "fields" | "primary" | "unique" | "foreign" | "indexes";
 
 export interface OutlineNode {
   /** The stable key, e.g. `cat:tables`, `table:<id>`, `field:<tableId>:<fieldId>`. */
@@ -57,6 +64,8 @@ export interface OutlineNode {
   altLabel?: string;
   /** The category a leaf belongs to. */
   category?: OutlineCategoryKey;
+  /** The group a node belongs to, for the rows under a table. */
+  group?: OutlineGroupKey;
   /** The id of the underlying element (table, field, relationship, ...). */
   refId?: string | number;
   /** The table of a field, the area of an area-table. */
@@ -82,6 +91,14 @@ export const CATEGORY_LABEL_KEYS: Record<OutlineCategoryKey, string> = {
   views: "outline_category_views",
   enums: "outline_category_enums",
   types: "outline_category_types",
+};
+
+export const GROUP_LABEL_KEYS: Record<OutlineGroupKey, string> = {
+  fields: "fields",
+  primary: "primary_key",
+  unique: "outline_group_unique",
+  foreign: "outline_group_foreign",
+  indexes: "outline_group_indexes",
 };
 
 /** The categories of one layer, in their fixed order (Q15). */
@@ -135,9 +152,28 @@ function fieldLabels(
     : { label: physical, altLabel: attribute ? logical : undefined };
 }
 
+/** The group row that holds the children of one kind under a table. */
+function groupNode(
+  table: Table,
+  key: OutlineGroupKey,
+  children: OutlineNode[],
+): OutlineNode | undefined {
+  if (children.length === 0) return undefined;
+  return {
+    id: `group:${table.id}:${key}`,
+    kind: "group",
+    label: t(GROUP_LABEL_KEYS[key]),
+    category: "tables",
+    group: key,
+    parentRefId: table.id,
+    count: children.length,
+    matched: false,
+    children,
+  };
+}
 
 /**
- * The table node with its key and field children; `undefined` when an active
+ * The table node with its grouped children; `undefined` when an active
  * filter matches neither the table nor any of its children.
  */
 export function buildTableNode(
@@ -149,7 +185,9 @@ export function buildTableNode(
   const label = tableLabel(table, viewLayer);
   const altLabel = tableAltLabel(table, viewLayer);
   const tableHit = matchesNode(label, altLabel, query);
-  const keys = diagram ? constraintNodes(table, diagram, viewLayer, query) : [];
+  const keys = diagram
+    ? keyNodes(table, diagram, viewLayer, query, tableHit)
+    : { primary: [], unique: [], foreign: [], indexes: [] };
   const fields: OutlineNode[] = [];
   for (const field of table.fields) {
     const labels = fieldLabels(table, String(field.id), viewLayer);
@@ -161,15 +199,23 @@ export function buildTableNode(
       label: labels.label,
       altLabel: labels.altLabel,
       category: "tables",
+      group: "fields",
       refId: field.id,
       parentRefId: table.id,
       matched: fieldHit,
       children: [],
     });
   }
-  if (query !== "" && !tableHit && keys.length === 0 && fields.length === 0) {
-    return undefined;
-  }
+
+  const groups = [
+    groupNode(table, "fields", fields),
+    groupNode(table, "primary", keys.primary),
+    groupNode(table, "unique", keys.unique),
+    groupNode(table, "foreign", keys.foreign),
+    groupNode(table, "indexes", keys.indexes),
+  ].filter((node): node is OutlineNode => node !== undefined);
+
+  if (query !== "" && !tableHit && groups.length === 0) return undefined;
   return {
     id: `table:${table.id}`,
     kind: "table",
@@ -178,7 +224,7 @@ export function buildTableNode(
     category: "tables",
     refId: table.id,
     matched: tableHit,
-    children: [...keys, ...fields],
+    children: groups,
   };
 }
 

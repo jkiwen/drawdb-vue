@@ -66,7 +66,7 @@ function onRemove(row: (typeof rows.value)[number]): void {
     <div style="padding: 6px 0">
       <button
         type="button"
-        :class="styles['add-button']"
+        :class="styles['link-button']"
         data-testid="add-field"
         @click="addFieldPair(store, props.table)"
       >

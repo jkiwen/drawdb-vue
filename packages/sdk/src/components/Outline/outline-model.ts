@@ -29,6 +29,7 @@ import type {
 
 export type {
   OutlineCategoryKey,
+  OutlineGroupKey,
   OutlineNode,
   OutlineNodeKind,
   OutlineRow,

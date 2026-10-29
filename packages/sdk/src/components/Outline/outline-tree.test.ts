@@ -132,6 +132,33 @@ describe("OutlineTree", () => {
     assert.deepEqual(labels(), ["orders", "users"]);
   });
 
+  it("groups the children of a table and marks the rows with icons", async () => {
+    const wrapper = mountTree();
+    // The tables start closed; opening one shows its groups.
+    await wrapper.find('[data-testid="outline-toggle-table:t_users"]').trigger("click");
+    assert.ok(wrapper.find('[data-testid="outline-row-group:t_users:fields"]').exists());
+    assert.ok(wrapper.find('[data-testid="outline-row-field:t_users:f_id"]').exists());
+    assert.ok(wrapper.find('[data-testid="outline-icon-table:t_users"]').exists());
+    assert.ok(wrapper.find('[data-testid="outline-icon-group:t_users:fields"]').exists());
+    assert.ok(wrapper.find('[data-testid="outline-icon-field:t_users:f_id"]').exists());
+    // The badge of a group says how many rows it holds.
+    assert.equal(
+      wrapper.find('[data-testid="outline-badge-group:t_users:fields"]').text(),
+      "1",
+    );
+  });
+
+  it("lets a group row toggle itself instead of selecting an element", async () => {
+    const wrapper = mountTree();
+    await wrapper.find('[data-testid="outline-toggle-table:t_users"]').trigger("click");
+    useUIStore().clearSelection();
+    await nextTick();
+    await wrapper.find('[data-testid="outline-row-group:t_users:fields"]').trigger("click");
+    assert.deepEqual(useUIStore().selectedTableIds, []);
+    // The click closed the group, so its field row is gone.
+    assert.ok(!wrapper.find('[data-testid="outline-row-field:t_users:f_id"]').exists());
+  });
+
   it("reveals the node the ui store selects", async () => {
     const wrapper = mountTree();
     // The tables start collapsed; a selection from the canvas expands the

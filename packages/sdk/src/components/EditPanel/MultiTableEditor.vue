@@ -83,7 +83,7 @@ const MULTIPLE = "edit_panel_multiple_values";
     <div style="grid-column: 1 / -1; display: flex; gap: 8px; align-items: center">
       <button
         type="button"
-        :class="styles['add-button']"
+        :class="styles['link-button']"
         data-testid="batch-apply"
         @click="apply"
       >

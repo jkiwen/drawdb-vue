@@ -179,30 +179,87 @@
   margin: 8px 0 0;
 }
 
-.icon-button {
-  padding: 2px 6px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 3px;
+/* Every action of the panel is a link (review of 2026-10-29, item 2): the
+   panel is a reading surface first, so the buttons read as text that can be
+   clicked instead of as controls that compete with the fields. */
+.link-button {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--ddb-accent, #4d9fff);
+  font: inherit;
+  font-size: 11px;
+  line-height: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.link-button:disabled {
   color: var(--ddb-fg-muted, #808080);
-  font: inherit;
-  cursor: pointer;
+  text-decoration: none;
+  cursor: default;
 }
 
-.icon-button:hover {
-  color: inherit;
-  border-color: var(--ddb-border, #3c3c3c);
+.link-button--muted {
+  color: var(--ddb-fg-muted, #808080);
 }
 
-.add-button {
-  align-self: flex-start;
-  padding: 3px 10px;
-  background: transparent;
-  border: 1px solid var(--ddb-border, #3c3c3c);
-  border-radius: 3px;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
+.link-button--muted:hover {
+  color: var(--ddb-fg, #d4d4d4);
+}
+
+/* A key of the constraints group is a card like a field (review item 1). */
+.key-card {
+  border: 1px solid var(--ddb-border, #e4e4e7);
+  border-radius: 4px;
+  background: var(--n-color, #ffffff);
+  overflow: hidden;
+}
+
+.key-card + .key-card {
+  margin-top: 6px;
+}
+
+.key-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+}
+
+.key-card-caret {
+  width: 10px;
+}
+
+.key-card-title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.key-card-summary {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ddb-fg-muted, #808080);
+  font-family: var(--ddb-font-mono, monospace);
+  font-size: 11px;
+}
+
+.key-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px 8px 8px 24px;
 }
 
 .error {

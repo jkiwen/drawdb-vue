@@ -6,12 +6,13 @@ import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { nextIndexName } from "./constraint-forms.ts";
 import styles from "./edit-panel.module.css";
+import KeyCard from "./KeyCard.vue";
 
 /**
- * The indexes of the selected table (review of 2026-10-29): an index is
- * created by naming it, then takes several columns that can be ordered,
- * removed and marked unique. The write goes through `updateTable`, so the
- * whole list lands on the undo stack as one step.
+ * The indexes of the selected table: an index is created by naming it, then
+ * takes several columns that can be ordered, removed and marked unique. Each
+ * index is a card (review of 2026-10-29). The write goes through
+ * `updateTable`, so the whole list lands on the undo stack as one step.
  */
 const props = defineProps<{ table: Table }>();
 
@@ -25,6 +26,12 @@ const draftUnique = ref(false);
 
 const fieldName = (id: FieldId): string =>
   props.table.fields.find((field) => String(field.id) === String(id))?.name ?? String(id);
+
+function summaryOf(item: Index): string {
+  const columns = item.fields.map(fieldName).join(", ");
+  if (columns === "") return item.unique ? t("unique") : "";
+  return `(${columns})${item.unique ? ` ${t("unique")}` : ""}`;
+}
 
 function freeFields(taken: readonly FieldId[]) {
   const used = new Set(taken.map(String));
@@ -99,10 +106,10 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
       <button
         v-if="!creating"
         type="button"
-        :class="styles['add-button']"
+        :class="styles['link-button']"
         data-testid="index-create-open"
         @click="openCreate"
-      >＋ {{ t("add") }}</button>
+      >{{ t("add") }}</button>
     </header>
 
     <div v-if="creating" :class="styles['create-form']" data-testid="index-create">
@@ -122,13 +129,13 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
       <div :class="styles['form-actions']">
         <button
           type="button"
-          :class="styles['add-button']"
+          :class="styles['link-button']"
           data-testid="index-create-confirm"
           @click="confirmCreate"
         >{{ t("create") }}</button>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           data-testid="index-create-cancel"
           @click="cancelCreate"
         >{{ t("cancel") }}</button>
@@ -139,13 +146,25 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
       {{ t("edit_panel_indexes_empty") }}
     </p>
 
-    <div
+    <KeyCard
       v-for="(item, index) in indexes"
       :key="String(item.id ?? index)"
-      :class="styles['constraint-block']"
-      data-testid="index-row"
+      :testid="`index-${index}`"
+      badge="INDEX"
+      :title="item.name"
+      :summary="summaryOf(item)"
     >
-      <div :class="styles['constraint-head']">
+      <template #actions>
+        <button
+          type="button"
+          :class="[styles['link-button'], styles['link-button--muted']]"
+          :title="t('delete')"
+          :data-testid="`index-remove-${index}`"
+          @click="remove(index)"
+        >×</button>
+      </template>
+      <label :class="styles.field">
+        <span :class="styles.label">{{ t("name") }}</span>
         <input
           :class="styles.input"
           :value="item.name"
@@ -153,24 +172,17 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
           :data-testid="`index-name-${index}`"
           @change="(event) => rename(index, (event.target as HTMLInputElement).value)"
         />
-        <label :class="styles['field-inline']">
-          <input
-            type="checkbox"
-            :class="styles.check"
-            :checked="item.unique"
-            :data-testid="`index-unique-${index}`"
-            @change="setUnique(index, ($event.target as HTMLInputElement).checked)"
-          />
-          <span :class="styles.label">{{ t("unique") }}</span>
-        </label>
-        <button
-          type="button"
-          :class="styles['icon-button']"
-          :title="t('delete')"
-          :data-testid="`index-remove-${index}`"
-          @click="remove(index)"
-        >×</button>
-      </div>
+      </label>
+      <label :class="[styles.field, styles['field-inline']]">
+        <input
+          type="checkbox"
+          :class="styles.check"
+          :checked="item.unique"
+          :data-testid="`index-unique-${index}`"
+          @change="setUnique(index, ($event.target as HTMLInputElement).checked)"
+        />
+        <span :class="styles.label">{{ t("unique") }}</span>
+      </label>
       <div
         v-for="(fieldId, at) in item.fields"
         :key="`${String(fieldId)}-${at}`"
@@ -180,21 +192,21 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
         <span :class="styles['constraint-fields']">{{ fieldName(fieldId) }}</span>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           title="↑"
           :data-testid="`index-field-up-${index}-${at}`"
           @click="moveField(index, at, -1)"
         >↑</button>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           title="↓"
           :data-testid="`index-field-down-${index}-${at}`"
           @click="moveField(index, at, 1)"
         >↓</button>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           :title="t('delete')"
           :data-testid="`index-remove-field-${index}-${at}`"
           @click="removeField(index, at)"
@@ -213,6 +225,6 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
           :value="String(field.id)"
         >{{ field.name }}</option>
       </select>
-    </div>
+    </KeyCard>
   </div>
 </template>

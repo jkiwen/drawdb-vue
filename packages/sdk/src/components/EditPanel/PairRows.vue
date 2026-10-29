@@ -138,21 +138,21 @@ function targetField(idLike: unknown): PhysicalField | undefined {
       </select>
       <button
         type="button"
-        :class="styles['icon-button']"
+        :class="[styles['link-button'], styles['link-button--muted']]"
         title="↑"
         :data-testid="id('up', index)"
         @click="move(index, -1)"
       >↑</button>
       <button
         type="button"
-        :class="styles['icon-button']"
+        :class="[styles['link-button'], styles['link-button--muted']]"
         title="↓"
         :data-testid="id('down', index)"
         @click="move(index, 1)"
       >↓</button>
       <button
         type="button"
-        :class="styles['icon-button']"
+        :class="[styles['link-button'], styles['link-button--muted']]"
         :title="t('delete')"
         :data-testid="id('remove', index)"
         @click="remove(index)"
@@ -160,7 +160,7 @@ function targetField(idLike: unknown): PhysicalField | undefined {
     </div>
     <button
       type="button"
-      :class="styles['add-button']"
+      :class="styles['link-button']"
       :data-testid="`${prefix}-add-pair`"
       @click="add"
     >

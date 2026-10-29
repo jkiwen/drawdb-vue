@@ -5,12 +5,14 @@ import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import styles from "./edit-panel.module.css";
 import ForeignKeysPanel from "./ForeignKeysPanel.vue";
+import KeyCard from "./KeyCard.vue";
 import UniqueKeysPanel from "./UniqueKeysPanel.vue";
 
 /**
- * The constraints group of the edit panel: the primary key (inline, it has no
- * name of its own), the unique keys and the foreign keys (each in its own
- * panel, because a key is created by naming it first — review of 2026-10-29).
+ * The constraints group of the edit panel: the primary key (it has no name of
+ * its own), the unique keys and the foreign keys. Every key is a card
+ * (review of 2026-10-29): a closed card summarises the key, an open one edits
+ * it the way the fields group edits the columns of the table.
  */
 const props = defineProps<{
   table: Table;
@@ -26,7 +28,12 @@ const primaryFields = computed(() =>
   props.table.fields.filter((field) => field.primary === true),
 );
 
-/** The fields a constraint could still gain, by role. */
+const primarySummary = computed(() => {
+  const names = primaryFields.value.map((field) => field.name);
+  return names.length > 0 ? `(${names.join(", ")})` : t("edit_panel_constraints_empty");
+});
+
+/** The fields a constraint could still gain. */
 function freeFields(taken: readonly FieldId[]) {
   const used = new Set(taken.map(String));
   return props.table.fields.filter((field) => !used.has(String(field.id)));
@@ -39,16 +46,7 @@ function togglePrimary(fieldId: FieldId, on: boolean): void {
 
 <template>
   <div :class="styles.rows" data-testid="table-constraints">
-    <section :class="styles['constraint-block']" data-testid="constraint-primary">
-      <header :class="styles['constraint-head']">
-        <span :class="[styles.badge, styles['badge-info']]">{{ t("primary_key") }}</span>
-        <span :class="styles['constraint-name']" data-testid="constraint-name-primary">
-          {{ PRIMARY_NAME }}
-        </span>
-      </header>
-      <p v-if="primaryFields.length === 0" :class="styles.label" data-testid="constraints-empty">
-        {{ t("edit_panel_constraints_empty") }}
-      </p>
+    <KeyCard testid="constraint-primary" badge="PK" title-testid="constraint-name-primary" :title="PRIMARY_NAME" :summary="primarySummary">
       <div
         v-for="field in primaryFields"
         :key="String(field.id)"
@@ -58,13 +56,13 @@ function togglePrimary(fieldId: FieldId, on: boolean): void {
         <span :class="styles['constraint-fields']">{{ field.name }}</span>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           :title="t('delete')"
           data-testid="constraint-remove-field-primary"
           @click="togglePrimary(field.id, false)"
         >×</button>
       </div>
-      <label v-if="freeFields(primaryFields.map((field) => field.id)).length > 0" :class="styles.row">
+      <label v-if="freeFields(primaryFields.map((field) => field.id)).length > 0" :class="styles.field">
         <select
           :class="styles.select"
           data-testid="constraint-add-field-primary"
@@ -82,7 +80,7 @@ function togglePrimary(fieldId: FieldId, on: boolean): void {
           >{{ field.name }}</option>
         </select>
       </label>
-    </section>
+    </KeyCard>
 
     <UniqueKeysPanel :table="props.table" />
     <ForeignKeysPanel

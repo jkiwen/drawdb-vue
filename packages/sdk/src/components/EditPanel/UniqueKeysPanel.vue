@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { createId } from "@drawdb/core";
 import type { FieldId, Table, UniqueConstraint } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { nextUniqueName } from "./constraint-forms.ts";
 import styles from "./edit-panel.module.css";
-import { ref } from "vue";
+import KeyCard from "./KeyCard.vue";
 
 /**
- * The unique keys of the selected table (review of 2026-10-29): a key is
- * created by naming it first, then edited the way the primary key is —
- * columns are added from a picker, ordered and removed.
+ * The unique keys of the selected table: a key is created by naming it, then
+ * edited the way the primary key is — columns are added from a picker,
+ * ordered and removed. Each key is a card (review of 2026-10-29).
  */
 const props = defineProps<{ table: Table }>();
 
@@ -24,6 +24,10 @@ const draftName = ref("");
 
 const fieldName = (id: FieldId): string =>
   props.table.fields.find((field) => String(field.id) === String(id))?.name ?? String(id);
+
+function summaryOf(key: UniqueConstraint): string {
+  return key.fields.length > 0 ? `(${key.fields.map(fieldName).join(", ")})` : "";
+}
 
 function freeFields(taken: readonly string[]) {
   const used = new Set(taken.map(String));
@@ -84,6 +88,7 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
   fields.splice(to, 0, moved!);
   write(keys.value.map((item, position) => (position === index ? { ...item, fields } : item)));
 }
+
 </script>
 
 <template>
@@ -93,10 +98,10 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
       <button
         v-if="!creating"
         type="button"
-        :class="styles['add-button']"
+        :class="styles['link-button']"
         data-testid="constraint-add-unique"
         @click="openCreate"
-      >＋ {{ t("add") }}</button>
+      >{{ t("add") }}</button>
     </header>
 
     <div v-if="creating" :class="styles['create-form']" data-testid="unique-create">
@@ -112,13 +117,13 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
       <div :class="styles['form-actions']">
         <button
           type="button"
-          :class="styles['add-button']"
+          :class="styles['link-button']"
           data-testid="unique-create-confirm"
           @click="confirmCreate"
         >{{ t("create") }}</button>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           data-testid="unique-create-cancel"
           @click="cancelCreate"
         >{{ t("cancel") }}</button>
@@ -129,13 +134,25 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
       {{ t("edit_panel_constraints_empty") }}
     </p>
 
-    <div
+    <KeyCard
       v-for="(key, index) in keys"
       :key="String(key.id ?? index)"
-      :class="styles['constraint-block']"
-      data-testid="constraint-unique-row"
+      :testid="`constraint-unique-${index}`"
+      badge="UK"
+      :title="key.name"
+      :summary="summaryOf(key)"
     >
-      <div :class="styles['constraint-head']">
+      <template #actions>
+        <button
+          type="button"
+          :class="[styles['link-button'], styles['link-button--muted']]"
+          :title="t('delete')"
+          :data-testid="`constraint-remove-unique-${index}`"
+          @click="remove(index)"
+        >×</button>
+      </template>
+      <label :class="styles.field">
+        <span :class="styles.label">{{ t("name") }}</span>
         <input
           :class="styles.input"
           :value="key.name"
@@ -143,14 +160,7 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
           :data-testid="`constraint-name-unique-${index}`"
           @change="(event) => rename(index, (event.target as HTMLInputElement).value)"
         />
-        <button
-          type="button"
-          :class="styles['icon-button']"
-          :title="t('delete')"
-          :data-testid="`constraint-remove-unique-${index}`"
-          @click="remove(index)"
-        >×</button>
-      </div>
+      </label>
       <div
         v-for="(fieldId, at) in key.fields"
         :key="`${String(fieldId)}-${at}`"
@@ -160,21 +170,21 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
         <span :class="styles['constraint-fields']">{{ fieldName(fieldId) }}</span>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           title="↑"
           :data-testid="`constraint-field-up-${index}-${at}`"
           @click="moveField(index, at, -1)"
         >↑</button>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           title="↓"
           :data-testid="`constraint-field-down-${index}-${at}`"
           @click="moveField(index, at, 1)"
         >↓</button>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           :title="t('delete')"
           :data-testid="`constraint-remove-field-${index}-${at}`"
           @click="removeField(index, at)"
@@ -193,6 +203,6 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
           :value="String(field.id)"
         >{{ field.name }}</option>
       </select>
-    </div>
+    </KeyCard>
   </div>
 </template>

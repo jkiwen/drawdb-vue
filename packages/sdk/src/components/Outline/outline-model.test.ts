@@ -8,8 +8,14 @@ import {
   outlineBranchIds,
   outlineNodePath,
   windowOutlineRows,
+  type OutlineGroupKey,
   type OutlineNode,
 } from "./outline-model.ts";
+
+/** The children of one group of a table node (review item 4). */
+function groupOf(table: OutlineNode, key: OutlineGroupKey): OutlineNode[] {
+  return table.children.find((node) => node.group === key)?.children ?? [];
+}
 
 /**
  * The pure derivation of the outline tree (plan Task 2): the hierarchy, the
@@ -135,9 +141,20 @@ describe("buildOutlineTree", () => {
     assert.equal(users.id, "table:t_users");
     assert.equal(users.label, "users");
     assert.deepEqual(
-      users.children.filter((node) => node.kind === "field").map((node) => node.label),
+      groupOf(users, "fields").map((node) => node.label),
       ["id", "user_name"],
     );
+    // The fields hang under a named group, the way the panel groups them.
+    assert.deepEqual(
+      users.children.map((node) => node.id),
+      [
+        "group:t_users:fields",
+        "group:t_users:primary",
+        "group:t_users:unique",
+        "group:t_users:foreign",
+      ],
+    );
+    assert.equal(users.children[0].label, "Fields");
     assert.equal(category(tree, "cat:relationships").count, 2);
     assert.equal(category(tree, "cat:notes").count, 1);
   });
@@ -147,18 +164,17 @@ describe("buildOutlineTree", () => {
     const usersPhysical = category(physical, "cat:tables").children[0];
     assert.equal(usersPhysical.label, "users");
     assert.equal(usersPhysical.altLabel, "User");
-    assert.equal(usersPhysical.children.find((node) => node.kind === "field" && node.label === "user_name")?.altLabel, "User Name");
-    assert.equal(usersPhysical.children.find((node) => node.id === "field:t_users:f_name")?.altLabel, "User Name");
+    assert.equal(groupOf(usersPhysical, "fields").find((node) => node.id === "field:t_users:f_name")?.altLabel, "User Name");
 
     const logical = buildOutlineTree(sampleDiagram(), "logical");
     const usersLogical = category(logical, "cat:tables").children[0];
     assert.equal(usersLogical.label, "User");
     assert.equal(usersLogical.altLabel, "users");
     assert.deepEqual(
-      usersLogical.children.filter((node) => node.kind === "field").map((node) => node.label),
+      groupOf(usersLogical, "fields").map((node) => node.label),
       ["Identifier", "User Name"],
     );
-    assert.equal(usersLogical.children.find((node) => node.id === "field:t_users:f_id")?.altLabel, "id");
+    assert.equal(groupOf(usersLogical, "fields").find((node) => node.id === "field:t_users:f_id")?.altLabel, "id");
   });
 
   it("hides the physical-only categories in the logical view (Q15)", () => {
@@ -189,28 +205,26 @@ describe("buildOutlineTree", () => {
   it("nests the keys of a table above its fields (issue 8)", () => {
     const tree = buildOutlineTree(sampleDiagram(), "physical");
     const users = category(tree, "cat:tables").children[0];
+    // The keys sit under their own group rows, in the panel's order.
     assert.deepEqual(
-      users.children.map((node) => node.id),
-      [
-        "constraint:t_users:primary",
-        "constraint:t_users:unique:uk1",
-        "constraint:t_users:foreign:r1",
-        "constraint:t_users:foreign:r2",
-        "field:t_users:f_id",
-        "field:t_users:f_name",
-      ],
+      groupOf(users, "primary").map((node) => node.label),
+      ["PK PRIMARY"],
     );
     assert.deepEqual(
-      users.children.slice(0, 3).map((node) => node.label),
-      ["PK PRIMARY", "UK uq_name", "FK fk_orders_users"],
+      groupOf(users, "unique").map((node) => node.label),
+      ["UK uq_name"],
+    );
+    assert.deepEqual(
+      groupOf(users, "foreign").map((node) => node.label),
+      ["FK fk_orders_users", "FK users → users"],
     );
     // The columns of a key live in the tooltip, not in the tree.
-    assert.equal(users.children[0].altLabel, "PRIMARY (id)");
-    assert.equal(users.children[1].altLabel, "uq_name (user_name)");
+    assert.equal(groupOf(users, "primary")[0]!.altLabel, "PRIMARY (id)");
+    assert.equal(groupOf(users, "unique")[0]!.altLabel, "uq_name (user_name)");
     // The logical layer names the same constraint the same way.
     const logical = buildOutlineTree(sampleDiagram(), "logical");
     const usersLogical = category(logical, "cat:tables").children[0];
-    assert.equal(usersLogical.children[1].label, "UK uq_name");
+    assert.equal(groupOf(usersLogical, "unique")[0]!.label, "UK uq_name");
   });
 
   it("finds a key by its name through the filter", () => {
@@ -218,6 +232,10 @@ describe("buildOutlineTree", () => {
     const users = category(tree, "cat:tables").children[0];
     assert.deepEqual(
       users.children.map((node) => node.id),
+      ["group:t_users:unique"],
+    );
+    assert.deepEqual(
+      groupOf(users, "unique").map((node) => node.id),
       ["constraint:t_users:unique:uk1"],
     );
   });
@@ -246,10 +264,14 @@ describe("buildOutlineTree", () => {
     const users = tables.children[0];
     assert.equal(users.id, "table:t_users");
     assert.deepEqual(
-      users.children.map((field) => field.id),
+      users.children.map((node) => node.id),
+      ["group:t_users:fields"],
+    );
+    assert.deepEqual(
+      groupOf(users, "fields").map((node) => node.id),
       ["field:t_users:f_id"],
     );
-    assert.equal(users.children[0].matched, true);
+    assert.equal(groupOf(users, "fields")[0]!.matched, true);
     assert.equal(users.matched, false);
   });
 
@@ -257,6 +279,7 @@ describe("buildOutlineTree", () => {
     const tree = buildOutlineTree(sampleDiagram(), "physical", "users");
     const tables = category(tree, "cat:tables");
     assert.equal(tables.children.length, 1);
+    // Fields, the primary key, the unique key and two foreign keys.
     assert.equal(tables.children[0].children.length, 4);
     assert.equal(tables.children[0].matched, true);
   });
@@ -277,9 +300,9 @@ describe("buildOutlineTree", () => {
       category(byName, "cat:tables").children.map((node) => node.label),
       ["orders", "users"],
     );
-    // The fields sort inside their table too.
+    // The fields sort inside their group too.
     assert.deepEqual(
-      category(byName, "cat:tables").children[1].children.filter((n) => n.kind === "field").map((n) => n.label),
+      groupOf(category(byName, "cat:tables").children[1], "fields").map((n) => n.label),
       ["id", "user_name"],
     );
   });
@@ -295,19 +318,19 @@ describe("buildOutlineTree", () => {
 describe("flattenOutlineTree", () => {
   it("lists the expanded branches in depth order", () => {
     const tree = buildOutlineTree(sampleDiagram(), "physical");
-    const expanded = new Set(["cat:tables", "table:t_users"]);
-    const rows = flattenOutlineTree(tree, expanded);
+    const expded = new Set(["cat:tables", "table:t_users", "group:t_users:fields"]);
+    const rows = flattenOutlineTree(tree, expded);
     assert.deepEqual(
       rows.map((row) => row.node.id),
       [
         "cat:tables",
         "table:t_users",
-        "constraint:t_users:primary",
-        "constraint:t_users:unique:uk1",
-        "constraint:t_users:foreign:r1",
-        "constraint:t_users:foreign:r2",
+        "group:t_users:fields",
         "field:t_users:f_id",
         "field:t_users:f_name",
+        "group:t_users:primary",
+        "group:t_users:unique",
+        "group:t_users:foreign",
         "table:t_orders",
         "cat:relationships",
         "cat:areas",
@@ -320,7 +343,8 @@ describe("flattenOutlineTree", () => {
     assert.equal(rows[0].depth, 0);
     assert.equal(rows[2].depth, 2);
     assert.equal(rows[1].hasChildren, true);
-    assert.equal(rows[2].hasChildren, false);
+    assert.equal(rows[2].hasChildren, true);
+    assert.equal(rows[3].hasChildren, false);
   });
 });
 
@@ -330,7 +354,7 @@ describe("outlineNodePath", () => {
     const path = outlineNodePath(tree, "field:t_users:f_name");
     assert.deepEqual(
       path?.map((node) => node.id),
-      ["cat:tables", "table:t_users", "field:t_users:f_name"],
+      ["cat:tables", "table:t_users", "group:t_users:fields", "field:t_users:f_name"],
     );
     assert.equal(outlineNodePath(tree, "field:nope:nada"), undefined);
   });

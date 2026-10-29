@@ -88,6 +88,14 @@
   text-overflow: ellipsis;
 }
 
+.icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  margin-right: 5px;
+  color: var(--outline-icon, #6b7280);
+}
+
 .badge {
   margin-left: auto;
   padding: 0 6px;

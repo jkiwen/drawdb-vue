@@ -54,12 +54,15 @@ const tree = computed(() =>
   ),
 );
 
-// The expansion defaults: the categories and the areas start open, the
-// tables start closed; an explicit toggle always wins.
+// The expansion defaults: the categories, the areas and the groups of a table
+// start open, the tables start closed; an explicit toggle always wins.
 const expanded = ref(new Set<string>());
 const decided = new Set<string>();
 watchEffect(() => {
-  for (const id of outlineBranchIds(tree.value, (node) => node.kind !== "table")) {
+  for (const id of outlineBranchIds(
+    tree.value,
+    (node) => node.kind === "group" || (node.kind !== "table" && node.kind !== "field"),
+  )) {
     if (!decided.has(id)) {
       decided.add(id);
       expanded.value.add(id);
@@ -133,7 +136,7 @@ function toggle(id: string): void {
 }
 
 function select(node: OutlineNode): void {
-  if (node.kind === "category") {
+  if (node.kind === "category" || node.kind === "group") {
     toggle(node.id);
     return;
   }

@@ -155,7 +155,7 @@ function commitPrimary(event: Event): void {
       </span>
       <button
         type="button"
-        :class="styles['icon-button']"
+        :class="[styles['link-button'], styles['link-button--muted']]"
         :title="t('edit_panel_remove_field')"
         data-testid="remove-field"
         @click.stop="emit('remove')"

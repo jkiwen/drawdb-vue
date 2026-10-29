@@ -4,17 +4,26 @@ import { matchesNode } from "./outline-nodes.ts";
 import { relationshipLabels } from "./outline-labels.ts";
 
 /**
- * The keys of a table, as the outline shows them (issue 8): the primary key
- * under the SQL name it has, then the unique keys and the foreign keys under
- * the names they carry. A key is a leaf — its columns are shown in the tooltip
- * and edited in the panel, not in the tree.
+ * The keys of a table, as the outline shows them (issue 8): the primary key,
+ * the unique keys, the foreign keys and the indexes, each under the name it
+ * carries. A key is a leaf — its columns are shown in the tooltip and edited
+ * in the panel, not in the tree. The groups that hold them are assembled by
+ * `buildTableNode`, so this module only decides what a key is called.
  */
-export function constraintNodes(
+export interface TableKeyNodes {
+  primary: OutlineNode[];
+  unique: OutlineNode[];
+  foreign: OutlineNode[];
+  indexes: OutlineNode[];
+}
+
+export function keyNodes(
   table: Table,
   diagram: Diagram,
   viewLayer: OutlineViewLayer,
   query: string,
-): OutlineNode[] {
+  keepAll = false,
+): TableKeyNodes {
   const fieldNames = (ids: readonly (string | number)[]): string =>
     ids
       .map(
@@ -23,11 +32,17 @@ export function constraintNodes(
           String(id),
       )
       .join(", ");
-  const nodes: OutlineNode[] = [];
-  const push = (kind: string, refId: string, label: string, altLabel: string) => {
+  const key = (
+    kind: string,
+    refId: string,
+    label: string,
+    altLabel: string,
+  ): OutlineNode | undefined => {
     const hit = matchesNode(label, altLabel, query);
-    if (query !== "" && !hit) return;
-    nodes.push({
+    // A table whose own name matched keeps all of its keys, the way it keeps
+    // all of its fields.
+    if (!keepAll && query !== "" && !hit) return undefined;
+    return {
       id: `constraint:${table.id}:${kind}`,
       kind: "constraint",
       label,
@@ -37,39 +52,61 @@ export function constraintNodes(
       parentRefId: table.id,
       matched: hit,
       children: [],
-    });
+    };
   };
 
   const primary = table.fields.filter((field) => field.primary === true);
-  if (primary.length > 0) {
-    push(
-      "primary",
-      "primary",
-      "PK PRIMARY",
-      `PRIMARY (${fieldNames(primary.map((field) => field.id))})`,
-    );
-  }
-  for (const [index, key] of (table.uniqueConstraints ?? []).entries()) {
-    const refId = String(key.id ?? `uk${index}`);
-    push(
+  const primaryNodes =
+    primary.length > 0
+      ? [
+          key(
+            "primary",
+            "primary",
+            "PK PRIMARY",
+            `PRIMARY (${fieldNames(primary.map((field) => field.id))})`,
+          ),
+        ].filter((node): node is OutlineNode => node !== undefined)
+      : [];
+
+  const uniqueNodes: OutlineNode[] = [];
+  for (const [index, constraint] of (table.uniqueConstraints ?? []).entries()) {
+    const refId = String(constraint.id ?? `uk${index}`);
+    const node = key(
       `unique:${refId}`,
       refId,
-      `UK ${key.name}`,
-      `${key.name} (${fieldNames(key.fields)})`,
+      `UK ${constraint.name}`,
+      `${constraint.name} (${fieldNames(constraint.fields)})`,
     );
+    if (node) uniqueNodes.push(node);
   }
+
+  const foreignNodes: OutlineNode[] = [];
   for (const relationship of diagram.relationships) {
     if (String(relationship.startTableId) !== String(table.id)) continue;
     const logical = diagram.logicalRelationships?.find(
       (item) => String(item.id) === String(relationship.id),
     );
     const names = relationshipLabels(relationship, logical, diagram, viewLayer);
-    push(
+    const node = key(
       `foreign:${relationship.id}`,
       String(relationship.id),
       `FK ${names.label}`,
       names.altLabel ?? names.label,
     );
+    if (node) foreignNodes.push(node);
   }
-  return nodes;
+
+  const indexNodes: OutlineNode[] = [];
+  for (const [index, item] of (table.indices ?? []).entries()) {
+    const refId = String(item.id ?? `idx${index}`);
+    const node = key(
+      `index:${refId}`,
+      refId,
+      `INDEX ${item.name}`,
+      `${item.name} (${fieldNames(item.fields)})`,
+    );
+    if (node) indexNodes.push(node);
+  }
+
+  return { primary: primaryNodes, unique: uniqueNodes, foreign: foreignNodes, indexes: indexNodes };
 }

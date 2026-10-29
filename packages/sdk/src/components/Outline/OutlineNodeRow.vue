@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import type { OutlineRow } from "./outline-model.ts";
+import { iconOf } from "./outline-icons.ts";
+import OutlineIcon from "./OutlineIcon.vue";
 import classes from "./outline-tree.module.css";
 
 /**
@@ -70,6 +72,11 @@ function commit(): void {
       {{ expanded ? "▾" : "▸" }}
     </button>
     <span v-else :class="classes.toggleSpacer" />
+    <OutlineIcon
+      :name="iconOf(row.node)"
+      :class="classes.icon"
+      :data-testid="`outline-icon-${row.node.id}`"
+    />
     <input
       v-if="renaming"
       ref="inputRef"

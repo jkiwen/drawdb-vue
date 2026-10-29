@@ -12,15 +12,16 @@ import {
   syncPairs,
 } from "./constraint-forms.ts";
 import styles from "./edit-panel.module.css";
+import KeyCard from "./KeyCard.vue";
 import PairRows from "./PairRows.vue";
 
 /**
- * The foreign keys of the selected table (review of 2026-10-29): a key is
- * created by naming it, choosing the table it points at and pairing its
- * columns, and an existing key edits the same pairs in place. A foreign key
- * is a relationship of the child table in the model, so every write goes
- * through `addRelationship` / `updateRelationship` / `removeRelationship`
- * and lands on the undo stack like any canvas edit.
+ * The foreign keys of the selected table: a key is created by naming it,
+ * choosing the table it points at and pairing its columns, and an existing
+ * key edits the same pairs in place. Each key is a card (review of
+ * 2026-10-29); its header states both ends, its body edits them. A foreign
+ * key is a relationship of the child table in the model, so every write goes
+ * through `addRelationship` / `updateRelationship` / `removeRelationship`.
  */
 const props = defineProps<{
   table: Table;
@@ -45,14 +46,27 @@ function tableById(id: unknown): Table | undefined {
   return props.tables.find((table) => String(table.id) === String(id));
 }
 
-const expanded = ref<Record<string, boolean>>({});
-function togglePairs(relationship: Relationship): void {
-  const key = String(relationship.id);
-  expanded.value = { ...expanded.value, [key]: !expanded.value[key] };
+function tableName(id: unknown): string {
+  return tableById(id)?.name ?? String(id);
 }
 
 function pairsOfRelationship(relationship: Relationship): RelationshipFieldPair[] {
   return pairsOf(relationship);
+}
+
+function fieldName(table: Table | undefined, id: unknown): string {
+  return table?.fields.find((field) => String(field.id) === String(id))?.name ?? String(id);
+}
+
+/** "orders.user_id → users.id" for the card header. */
+function summaryOf(relationship: Relationship): string {
+  const target = tableById(relationship.endTableId);
+  return pairsOfRelationship(relationship)
+    .map(
+      (pair) =>
+        `${fieldName(props.table, pair.startFieldId)} → ${fieldName(target, pair.endFieldId)}`,
+    )
+    .join(", ");
 }
 
 function writePairs(relationship: Relationship, pairs: RelationshipFieldPair[]): void {
@@ -137,10 +151,10 @@ function create(): void {
       <button
         v-if="!creating"
         type="button"
-        :class="styles['add-button']"
+        :class="styles['link-button']"
         data-testid="constraint-add-foreign"
         @click="openCreate"
-      >＋ {{ t("add") }}</button>
+      >{{ t("add") }}</button>
     </header>
 
     <div v-if="creating" :class="styles['create-form']" data-testid="foreign-create">
@@ -175,14 +189,14 @@ function create(): void {
       <div :class="styles['form-actions']">
         <button
           type="button"
-          :class="styles['add-button']"
+          :class="styles['link-button']"
           :disabled="!canCreate"
           data-testid="foreign-create-confirm"
           @click="create"
         >{{ t("create") }}</button>
         <button
           type="button"
-          :class="styles['icon-button']"
+          :class="[styles['link-button'], styles['link-button--muted']]"
           data-testid="foreign-create-cancel"
           @click="cancelCreate"
         >{{ t("cancel") }}</button>
@@ -193,13 +207,32 @@ function create(): void {
       {{ t("edit_panel_constraints_empty") }}
     </p>
 
-    <div
+    <KeyCard
       v-for="(relationship, index) in foreignKeys"
       :key="String(relationship.id)"
-      :class="styles['constraint-block']"
-      data-testid="constraint-foreign-row"
+      :testid="`constraint-foreign-${index}`"
+      badge="FK"
+      :title="relationship.name ?? ''"
+      :summary="`→ ${tableName(relationship.endTableId)}: ${summaryOf(relationship)}`"
     >
-      <div :class="styles['constraint-head']">
+      <template #actions>
+        <button
+          type="button"
+          :class="styles['link-button']"
+          :title="t('open')"
+          :data-testid="`constraint-open-foreign-${index}`"
+          @click="open(relationship)"
+        >{{ t("open") }}</button>
+        <button
+          type="button"
+          :class="[styles['link-button'], styles['link-button--muted']]"
+          :title="t('delete')"
+          :data-testid="`constraint-remove-foreign-${index}`"
+          @click="remove(relationship)"
+        >×</button>
+      </template>
+      <label :class="styles.field">
+        <span :class="styles.label">{{ t("name") }}</span>
         <input
           :class="styles.input"
           :value="relationship.name ?? ''"
@@ -207,50 +240,27 @@ function create(): void {
           :data-testid="`constraint-name-foreign-${index}`"
           @change="(event) => rename(relationship, (event.target as HTMLInputElement).value)"
         />
-        <button
-          type="button"
-          :class="styles['icon-button']"
-          :title="t('edit')"
-          :data-testid="`constraint-pairs-foreign-${index}`"
-          @click="togglePairs(relationship)"
-        >{{ expanded[String(relationship.id)] ? "▾" : "▸" }}</button>
-        <button
-          type="button"
-          :class="styles['add-button']"
-          :title="t('open')"
-          :data-testid="`constraint-open-foreign-${index}`"
-          @click="open(relationship)"
-        >{{ t("open") }}</button>
-        <button
-          type="button"
-          :class="styles['icon-button']"
-          :title="t('delete')"
-          :data-testid="`constraint-remove-foreign-${index}`"
-          @click="remove(relationship)"
-        >×</button>
-      </div>
-      <template v-if="expanded[String(relationship.id)]">
-        <label :class="styles.field">
-          <span :class="styles.label">{{ t("edit_panel_foreign_target") }}</span>
-          <select
-            :class="styles.select"
-            :value="String(relationship.endTableId)"
-            :data-testid="`constraint-target-foreign-${index}`"
-            @change="(event) => changeTarget(relationship, (event.target as HTMLSelectElement).value)"
-          >
-            <option v-for="table in otherTables" :key="String(table.id)" :value="String(table.id)">
-              {{ table.name }}
-            </option>
-          </select>
-        </label>
-        <PairRows
-          :table="table"
-          :target-table="tableById(relationship.endTableId)"
-          :pairs="pairsOfRelationship(relationship)"
-          :prefix="`foreign-${index}`"
-          @update:pairs="(pairs) => writePairs(relationship, pairs)"
-        />
-      </template>
-    </div>
+      </label>
+      <label :class="styles.field">
+        <span :class="styles.label">{{ t("edit_panel_foreign_target") }}</span>
+        <select
+          :class="styles.select"
+          :value="String(relationship.endTableId)"
+          :data-testid="`constraint-target-foreign-${index}`"
+          @change="(event) => changeTarget(relationship, (event.target as HTMLSelectElement).value)"
+        >
+          <option v-for="table in otherTables" :key="String(table.id)" :value="String(table.id)">
+            {{ table.name }}
+          </option>
+        </select>
+      </label>
+      <PairRows
+        :table="table"
+        :target-table="tableById(relationship.endTableId)"
+        :pairs="pairsOfRelationship(relationship)"
+        :prefix="`foreign-${index}`"
+        @update:pairs="(pairs) => writePairs(relationship, pairs)"
+      />
+    </KeyCard>
   </div>
 </template>

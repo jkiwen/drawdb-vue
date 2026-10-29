@@ -125,7 +125,6 @@ describe("creating a foreign key", () => {
 describe("editing the pairs of an existing foreign key", () => {
   it("adds, orders and removes the column pairs", async () => {
     const { wrapper, diagram } = mountPanel();
-    await wrapper.find('[data-testid="constraint-pairs-foreign-0"]').trigger("click");
     await wrapper.find('[data-testid="foreign-0-add-pair"]').trigger("click");
     await wrapper.find('[data-testid="foreign-0-local-1"]').setValue("f_email");
     await wrapper.find('[data-testid="foreign-0-ref-1"]').setValue("o_email");
