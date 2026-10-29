@@ -11,6 +11,7 @@ import {
   checkTypes,
   checkViews,
 } from "./rules.ts";
+import { checkKeys } from "./key-rules.ts";
 import type { DiagramIssue, ValidationOptions } from "./types.ts";
 
 export { isDefaultValid, resolveDefaultKind } from "./rules.ts";
@@ -20,6 +21,13 @@ export type {
   IssueSeverity,
   ValidationOptions,
 } from "./types.ts";
+
+/** The order of the severities, used by the `severity` option of a run. */
+const SEVERITY_RANK: Record<"error" | "warning" | "info", number> = {
+  error: 2,
+  warning: 1,
+  info: 0,
+};
 
 /** The code of the issue that reports a failure of the validation itself. */
 const INTERNAL_ERROR = "validation.internal_error";
@@ -53,7 +61,8 @@ export function validateDiagram(
   }
 
   if (options.severity) {
-    issues = issues.filter((issue) => issue.severity === options.severity);
+    const floor = SEVERITY_RANK[options.severity];
+    issues = issues.filter((issue) => SEVERITY_RANK[issue.severity] >= floor);
   }
 
   return issues;
@@ -77,6 +86,7 @@ function collect(
     ...checkDefaultValues(diagram, database),
     ...checkInheritedFields(diagram),
     ...checkIndices(diagram),
+    ...checkKeys(diagram),
     ...checkTypes(diagram),
     ...checkEnums(diagram),
     ...checkViews(diagram),

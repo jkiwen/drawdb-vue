@@ -1,7 +1,13 @@
 import type { DatabaseType } from "../models/diagram.ts";
 
-/** How serious an issue is. */
-export type IssueSeverity = "error" | "warning";
+/**
+ * How serious an issue is.
+ *
+ * `"info"` is for a hint a database administrator expects to see but which is
+ * not wrong on its own: a relationship without an index, a foreign key that a
+ * relationship has not grown yet.
+ */
+export type IssueSeverity = "error" | "warning" | "info";
 
 /**
  * The kind of value a type accepts as a default.
