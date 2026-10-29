@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "فقط فیزیکی",
   "edit_panel_batch_locked": "تغییر گروهی اعمال نشد: حداقل یکی از جدول‌های انتخاب‌شده قفل است.",
   "edit_panel_child_role": "نقش فرزند",
+  "edit_panel_color_custom": "رنگ سفارشی",
+  "edit_panel_color_default": "رنگ پیش‌فرض",
   "edit_panel_constraint_foreign": "کلید خارجی",
   "edit_panel_constraint_primary": "کلید اصلی",
   "edit_panel_constraint_unique": "یگانه",

@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "پەقەت فىزىكىلىق",
   "edit_panel_batch_locked": "توپ ئۆزگەرتىش قوللىنىلمىدى: تاللانغان جەدۋەللەردىن كەم دېگەندە بىرى قۇلۇپلانغان.",
   "edit_panel_child_role": "بالا رولى",
+  "edit_panel_color_custom": "ئىختىيارى رەڭ",
+  "edit_panel_color_default": "سۈكۈتتىكى رەڭ",
   "edit_panel_constraint_foreign": "تاشقى ئاچقۇچ",
   "edit_panel_constraint_primary": "ئاساسىي ئاچقۇچ",
   "edit_panel_constraint_unique": "يەككە",

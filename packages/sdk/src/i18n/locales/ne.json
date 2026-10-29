@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "भौतिक मात्र",
   "edit_panel_batch_locked": "ब्याच परिवर्तन लागू भएन: कम्तीमा एउटा चयन गरिएको टेबल लक छ।",
   "edit_panel_child_role": "सन्तान भूमिका",
+  "edit_panel_color_custom": "कस्टम रङ",
+  "edit_panel_color_default": "डिफल्ट रङ",
   "edit_panel_constraint_foreign": "फरेन कुञ्जी",
   "edit_panel_constraint_primary": "प्राथमिक कुञ्जी",
   "edit_panel_constraint_unique": "युनिक",

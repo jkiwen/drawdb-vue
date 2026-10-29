@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "เฉพาะกายภาพ",
   "edit_panel_batch_locked": "ไม่ได้ใช้การเปลี่ยนแปลงแบบกลุ่ม: มีตารางที่เลือกอย่างน้อยหนึ่งตารางถูกล็อก",
   "edit_panel_child_role": "บทบาทลูก",
+  "edit_panel_color_custom": "สีที่กำหนดเอง",
+  "edit_panel_color_default": "สีเริ่มต้น",
   "edit_panel_constraint_foreign": "คีย์ต่างประเทศ",
   "edit_panel_constraint_primary": "คีย์หลัก",
   "edit_panel_constraint_unique": "ไม่ซ้ำ",

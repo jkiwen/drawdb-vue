@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "फक्त फिजिकल",
   "edit_panel_batch_locked": "बॅच बदल लागू झाला नाही: निवडलेले किमान एक टेबल लॉक आहे.",
   "edit_panel_child_role": "चाइल्ड भूमिका",
+  "edit_panel_color_custom": "कस्टम रंग",
+  "edit_panel_color_default": "डिफ़ॉल्ट रंग",
   "edit_panel_constraint_foreign": "फॉरेन की",
   "edit_panel_constraint_primary": "प्राथमिक की",
   "edit_panel_constraint_unique": "युनिक",

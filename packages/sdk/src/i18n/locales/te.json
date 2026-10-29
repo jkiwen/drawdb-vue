@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "ఫిజికల్ మాత్రమే",
   "edit_panel_batch_locked": "బ్యాచ్ మార్పు వర్తించలేదు: ఎంచుకున్న పట్టికల్లో కనీసం ఒకటి లాక్ చేయబడింది.",
   "edit_panel_child_role": "చైల్డ్ పాత్ర",
+  "edit_panel_color_custom": "కస్టమ్ రంగు",
+  "edit_panel_color_default": "డిఫాల్ట్ రంగు",
   "edit_panel_constraint_foreign": "ఫారెన్ కీ",
   "edit_panel_constraint_primary": "ప్రాధమిక కీ",
   "edit_panel_constraint_unique": "అద్వితీయ",

@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "物理のみ",
   "edit_panel_batch_locked": "一括変更は適用されませんでした。選択したテーブルの少なくとも 1 つがロックされています。",
   "edit_panel_child_role": "子のロール",
+  "edit_panel_color_custom": "カスタム色",
+  "edit_panel_color_default": "デフォルト色",
   "edit_panel_constraint_foreign": "外部キー",
   "edit_panel_constraint_primary": "主キー",
   "edit_panel_constraint_unique": "ユニーク",

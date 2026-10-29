@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "فيزيائي فقط",
   "edit_panel_batch_locked": "لم يُطبَّق التغيير الجماعي: جدول واحد على الأقل من الجداول المحددة مقفل.",
   "edit_panel_child_role": "دور الابن",
+  "edit_panel_color_custom": "لون مخصص",
+  "edit_panel_color_default": "اللون الافتراضي",
   "edit_panel_constraint_foreign": "المفتاح الخارجي",
   "edit_panel_constraint_primary": "المفتاح الأساسي",
   "edit_panel_constraint_unique": "فريد",

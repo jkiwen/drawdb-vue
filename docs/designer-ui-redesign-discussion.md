@@ -624,3 +624,24 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 | diagram 无法改数据库类型 | `DiagramEditor.vue` 的 Database 由禁用的输入框改为下拉，选项来自 SDK 的 `utils/database-options.ts`（页头也改用它，两个入口同一份清单），写入走 `updateDiagram({ database })`。 |
 | dialog 打开后右键菜单不消失 | 菜单的「画的东西」和「公开状态」原本是两个来源：渲染读 canvas 的 ref，关闭却写 ui store。现在 canvas 自己关（`closeMenu`），`ContextMenu.vue` 用 document 捕获阶段的 pointerdown 关（dialog 的 mask 会先吞掉冒泡事件），Escape 与命令执行同样关闭。 |
 | diagram 增加备注字段 | core `Diagram.description` + `DiagramJson.description`（`serialize/export|import`）+ `DiagramProperties.description`（命令可改）+ 面板里的 Description 文本域。 |
+
+## 12.7 第八轮改动（2026-10-29，颜色与放置）
+
+| 反馈 | 落地 | 决定 |
+|---|---|---|
+| table 顶部颜色没有默认应用 | `packages/sdk/src/components/Canvas/TableHeader.vue` 的色带改无条件渲染，`background: table.color ?? DEFAULT_TABLE_COLOR` | 「没有颜色」和「默认颜色」在屏幕上必须能区分，所以默认给定一个可画的浅灰 `#cbd5e1` |
+| 颜色在属性表格内无法修改 | 新增 `packages/sdk/src/components/EditPanel/ColorPicker.vue`（10 个预设 + 原生取色井 + 默认色块），`TableAppearance.vue` 改用它 | 不要求读者手写 `#rrggbb`；预设放在 `packages/sdk/src/utils/color-palette.ts`，与宿主换成同一组令牌 |
+| 颜色支持多选修改 | `ColorPicker` 的 `multiple` 态不标记任何色块，`TableAppearance` 多选时走 `applyTableBatch`（一次`CompositeCommand`，Q12） | 混合选择时「没有一个为真」，这与面板其他多值字段的表现一致 |
+| 颜色选择器增加约 10 个预定义色 | `TABLE_COLOR_PRESETS` 十条（slate/steel/sky/teal/green/lime/amber/orange/rose/violet） | 取自画布现有令牌的色相，避免与关系色、告警色冲突 |
+| table 内的编辑移除索引与 UK | `TableDetails.vue` 只留颜色一行；`tableDetailsHeight()` 相应简化为「内边距 + 一行」 | 键是有名字、有列序的对象（P2'），画布上再放一个窄编辑器会有第二套规则 |
+| 右键选择操作后菜单仍存在 | `Canvas.vue` 的 `onMenuCommand` 改调 `canvas.closeMenu()`（菜单由画布的引用绘制） | 关闭必须发生在绘制它的地方；只清 UI store 会留下可见的菜单 |
+| 新建元素应落在可视区域并选中定位 | 新增 `packages/sdk/src/utils/placement.ts`（`centreOfViewport`/`placeAt`/`cascadeShift`），`ToolbarCreate.vue` 用视口中心 + 每类元素的 24px 级联落点，创建后选中并居中 | 落点由「当下量到的视口」决定，与导航定位共用同一条数学；级联避免同名元素完全重叠 |
+
+### 12.7A 第八轮的补充决定（2026-10-29 复核后）
+
+| 事项 | 决定 | 依据 |
+|---|---|---|
+| 取色器在混合选择时 | 不标记任何色块 | 混合选择没有共同的「当前颜色」，标记会误导；改由属性面板的分组标题说明是批量编辑 |
+| 画布详情框的颜色 | 保留（只读态随锁定禁用） | 画布上快速改色是高频道动作，全部赶到右栏会多一次定位 |
+| 工具栏「实际大小」按钮 | 条件由「缩放=100%」放宽为「缩放=100% 且未滚动」 | 面板/列表把画布滚到很远处时，用户需要一键回到原点，这与缩放无关 |
+| 新元素的位置 | 视口中心 + 每个已存在元素再级联 24px | 「中心」让新元素一定可见；级联避免连续新建叠在同一处；两者相乘在 100 表批量脚本里会漂很远，故 e2e 先网格布局再断言虚拟滚动 |

@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "միայն ֆիզիկական",
   "edit_panel_batch_locked": "Խմբային փոփոխությունը չկիրառվեց՝ ընտրված աղյուսակներից առնվազն մեկը կողպված է։",
   "edit_panel_child_role": "Ենթակա դեր",
+  "edit_panel_color_custom": "Հատուկ գույն",
+  "edit_panel_color_default": "Լռելյայն գույն",
   "edit_panel_constraint_foreign": "Արտաքին բանալի",
   "edit_panel_constraint_primary": "Հիմնական բանալի",
   "edit_panel_constraint_unique": "Եզակի",

@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "ഫിസിക്കൽ മാത്രം",
   "edit_panel_batch_locked": "ബാച്ച് മാറ്റം പ്രയോഗിച്ചില്ല: തിരഞ്ഞെടുത്ത ടേബിളുകളിൽ കുറഞ്ഞത് ഒന്നെങ്കിലും ലോക്ക് ചെയ്തിരിക്കുന്നു.",
   "edit_panel_child_role": "ചൈൽഡ് റോൾ",
+  "edit_panel_color_custom": "കസ്റ്റം നിറം",
+  "edit_panel_color_default": "ഡിഫോൾട് നിറം",
   "edit_panel_constraint_foreign": "ഫോറിൻ കീ",
   "edit_panel_constraint_primary": "പ്രൈമറി കീ",
   "edit_panel_constraint_unique": "യൂണിക്",

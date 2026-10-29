@@ -6,7 +6,7 @@ import type {
   ResizeState,
   SelectionBox,
 } from "../components/Canvas/interactions/interaction-state.ts";
-import { useCanvasViewport } from "../composables/canvas-viewport.ts";
+import { measureViewport } from "../composables/canvas-viewport.ts";
 import { useTableFocusSize } from "../composables/use-focus-measure.ts";
 import { centerScroll } from "../composables/zoom-actions.ts";
 import { useFocusIssue } from "./selection-actions.ts";
@@ -61,7 +61,6 @@ export const useUIStore = defineStore("ui", () => {
 
   const zoom = ref(1);
   const scrollX = ref(0), scrollY = ref(0);
-  const { viewport } = useCanvasViewport();
 
   const activeTab = ref<UiTab>("tables");
   // Q21: the panel collapse is the only mechanism, this flag mirrors it.
@@ -247,7 +246,7 @@ export const useUIStore = defineStore("ui", () => {
 
   /** Puts a point of the canvas in the middle of the visible area. */
   function centerOn(x: number, y: number): void {
-    const scroll = centerScroll({ x, y }, viewport.value, zoom.value);
+    const scroll = centerScroll({ x, y }, measureViewport(), zoom.value);
     scrollX.value = scroll.scrollX;
     scrollY.value = scroll.scrollY;
   }

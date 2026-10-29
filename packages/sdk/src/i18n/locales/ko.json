@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "물리만",
   "edit_panel_batch_locked": "일괄 변경이 적용되지 않았습니다. 선택한 테이블 중 하나 이상이 잠겨 있습니다.",
   "edit_panel_child_role": "자식 역할",
+  "edit_panel_color_custom": "사용자 정의 색상",
+  "edit_panel_color_default": "기본 색상",
   "edit_panel_constraint_foreign": "외래 키",
   "edit_panel_constraint_primary": "기본 키",
   "edit_panel_constraint_unique": "고유",

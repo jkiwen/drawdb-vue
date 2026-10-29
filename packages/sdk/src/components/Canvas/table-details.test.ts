@@ -82,7 +82,9 @@ test("the height of a table grows with the details it shows", () => {
     uniqueConstraints: [{ name: "uq_email", fields: ["email"] }],
   });
   assert.equal(tableDetailsHeight(closed), 0);
-  assert.equal(tableDetailsHeight(open), 148 + 2 * 28);
+  // The index and constraint editors left the details; only the colour row
+  // and the padding are left (review of 2026-10-29).
+  assert.equal(tableDetailsHeight(open), 8 * 2 + 28);
   assert.equal(tableHeight(closed), tableHeaderHeight(closed) + 2 * TABLE_FIELD_HEIGHT);
   assert.equal(
     tableHeight(open),
@@ -120,15 +122,25 @@ test("the table grows to fit its details", async () => {
   assert.ok(after > before, "the table did not grow when its details opened");
 });
 
-test("the inputs of the details share the edit style of the canvas", async () => {
+test("the details keep the style controls and nothing else", async () => {
   const { wrapper } = setup();
   await wrapper.find('[data-testid="table-details-toggle-users"]').trigger("click");
   await nextTick();
-  const nameInput = wrapper.find('[data-testid="table-index-name-users-0"]');
-  assert.ok(nameInput.exists(), "the index name input is not rendered");
   assert.ok(
-    nameInput.classes().includes("ddb-table__details-input"),
-    "the inputs of the details do not carry the edit style of the canvas",
+    wrapper.find('[data-testid="table-color-users-preset-teal"]').exists(),
+    "the colour presets of the details are not rendered",
+  );
+  // The keys are objects of the panel now, so the canvas must not offer a
+  // second, narrower editor for them (review of 2026-10-29, issue 5).
+  assert.equal(
+    wrapper.find('[data-testid="table-index-name-users-0"]').exists(),
+    false,
+    "the details still edit the index name",
+  );
+  assert.equal(
+    wrapper.find('[data-testid="table-add-unique-users"]').exists(),
+    false,
+    "the details still add a unique constraint",
   );
 });
 
@@ -136,19 +148,18 @@ test("choosing a colour in the details paints the colour strip of the table", as
   const { diagram, wrapper } = setup();
   await wrapper.find('[data-testid="table-details-toggle-users"]').trigger("click");
   await nextTick();
-  const color = wrapper.find('[data-testid="table-color-users"]');
-  assert.ok(color.exists(), "the colour input is not rendered");
-  (color.element as HTMLInputElement).value = "#ff0000";
-  await color.trigger("change");
+  const preset = wrapper.find('[data-testid="table-color-users-preset-rose"]');
+  assert.ok(preset.exists(), "the colour presets are not rendered");
+  await preset.trigger("click");
   await nextTick();
   const table = diagram.tableById("users");
   assert.ok(table);
-  assert.equal(table.color, "#ff0000", "the colour never reached the state");
+  assert.equal(table.color, "#e11d48", "the colour never reached the state");
   const strip = wrapper.find(".ddb-table__color-strip");
   assert.ok(strip.exists(), "the colour strip is not rendered");
   const background = (strip.element as HTMLElement).style.background;
   assert.ok(
-    background.includes("rgb(255, 0, 0)") || background.includes("#ff0000"),
+    background.includes("rgb(225, 29, 72)") || background.includes("#e11d48"),
     `the colour strip does not show the colour of the table (background: "${background}")`,
   );
 });
@@ -161,9 +172,9 @@ test("a locked table can show its details but cannot change them", async () => {
   await nextTick();
   const details = wrapper.find('[data-testid="table-details-users"]');
   assert.ok(details.exists(), "a locked table cannot show its details");
-  const color = wrapper.find('[data-testid="table-color-users"]');
+  const preset = wrapper.find('[data-testid="table-color-users-preset-rose"]');
   assert.equal(
-    (color.element as HTMLInputElement).disabled,
+    (preset.element as HTMLButtonElement).disabled,
     true,
     "the colour of a locked table stays editable",
   );

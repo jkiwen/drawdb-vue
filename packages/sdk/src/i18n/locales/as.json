@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "ফিজিকেল মাত্ৰ",
   "edit_panel_batch_locked": "বেটচ পৰিৱৰ্তন প্ৰয়োগ নহ'ল: বাছনি কৰা টেবুলসমূহৰ অন্ততঃ এটাত লক আছে।",
   "edit_panel_child_role": "চাইল্ড ভূমিকা",
+  "edit_panel_color_custom": "কাষ্টম ৰং",
+  "edit_panel_color_default": "ডিফল্ট ৰং",
   "edit_panel_constraint_foreign": "ফৰেইন কী",
   "edit_panel_constraint_primary": "প্ৰায়মাৰী কী",
   "edit_panel_constraint_unique": "একক",

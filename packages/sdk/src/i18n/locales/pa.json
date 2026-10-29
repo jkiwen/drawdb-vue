@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "ਸਿਰਫ਼ ਫਿਜ਼ੀਕਲ",
   "edit_panel_batch_locked": "ਬੈਚ ਬਦਲਾਅ ਲਾਗੂ ਨਹੀਂ ਹੋਇਆ: ਚੁਣੇ ਗਏ ਘੱਟੋ-ਘੱਟ ਇੱਕ ਟੇਬਲ 'ਤੇ ਲੌਕ ਹੈ।",
   "edit_panel_child_role": "ਚਾਈਲਡ ਭੂਮਿਕਾ",
+  "edit_panel_color_custom": "ਕਸਟਮ ਰੰਗ",
+  "edit_panel_color_default": "ਡਿਫਾਲਟ ਰੰਗ",
   "edit_panel_constraint_foreign": "ਵਿਦੇਸ਼ੀ ਕੁੰਜੀ",
   "edit_panel_constraint_primary": "ਪ੍ਰਾਈਮਰੀ ਕੁੰਜੀ",
   "edit_panel_constraint_unique": "ਅਨੋਖਾ",

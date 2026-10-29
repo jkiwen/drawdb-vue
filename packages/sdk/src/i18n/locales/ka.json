@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "ಕೇವಲ ಭೌತಿಕ",
   "edit_panel_batch_locked": "ಬ್ಯಾಚ್ ಬದಲಾವಣೆ ಅನ್ವಯವಾಗಲಿಲ್ಲ: ಆಯ್ಕೆಯಾದ ಕನಿಷ್ಠ ಒಂದು ಕೋಷ್ಟಕ ಲಾಕ್ ಆಗಿದೆ.",
   "edit_panel_child_role": "ಮಗುವಿನ ಪಾತ್ರ",
+  "edit_panel_color_custom": "ಕಸ್ಟಮ್ ಬಣ್ಣ",
+  "edit_panel_color_default": "ಡೀಫಾಲ್ಟ್ ಬಣ್ಣ",
   "edit_panel_constraint_foreign": "ಫಾರಿನ್ ಕೀ",
   "edit_panel_constraint_primary": "ಪ್ರಾಥಮಿಕ ಕೀ",
   "edit_panel_constraint_unique": "ಅನನ್ಯ",

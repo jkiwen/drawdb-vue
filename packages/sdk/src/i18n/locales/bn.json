@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "শুধু ফিজিক্যাল",
   "edit_panel_batch_locked": "ব্যাচ পরিবর্তন প্রয়োগ হয়নি: নির্বাচিত অন্তত একটি টেবিল লক করা আছে।",
   "edit_panel_child_role": "চাইল্ড ভূমিকা",
+  "edit_panel_color_custom": "কাস্টম রঙ",
+  "edit_panel_color_default": "ডিফল্ট রঙ",
   "edit_panel_constraint_foreign": "ফরেন কী",
   "edit_panel_constraint_primary": "প্রাইমারি কী",
   "edit_panel_constraint_unique": "ইউনিক",

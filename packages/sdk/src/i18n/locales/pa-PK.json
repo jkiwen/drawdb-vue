@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "صرف فزیکل",
   "edit_panel_batch_locked": "بیچ تبدیلی لاگو نئیں ہوئی: چنے گئے گھٹو گھٹ اک ٹیبل تے تالا اے۔",
   "edit_panel_child_role": "چائلڈ کردار",
+  "edit_panel_color_custom": "کسٹم رنگ",
+  "edit_panel_color_default": "ڈیفالٹ رنگ",
   "edit_panel_constraint_foreign": "فارن کی",
   "edit_panel_constraint_primary": "پرائمری کی",
   "edit_panel_constraint_unique": "یونیک",

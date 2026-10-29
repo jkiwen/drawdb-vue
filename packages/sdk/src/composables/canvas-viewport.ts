@@ -1,25 +1,52 @@
-import { ref } from "vue";
-import type { ViewportSize } from "./zoom-actions.ts";
-
 /**
- * The size of the visible canvas, in screen pixels.
+ * The size of the canvas, as the layout measured it.
  *
- * The canvas measures itself and writes the size here; the store that moves
- * the viewport (centring an object the outline points at) reads it. It is
- * module level because the canvas is the only component that knows the size
- * and every reader wants the same one.
+ * The viewport is measured by the canvas itself (a `ResizeObserver` on the
+ * element that holds the diagram) and kept here so that the outline, the
+ * toolbar and the zoom actions can turn a point of the diagram into the
+ * centre of what the reader sees.
+ *
+ * Two callers may ask for the size in a row while the layout is still
+ * settling (a panel opens, a dialog closes); a measurement taken on demand
+ * keeps them consistent, so a new element lands exactly where the next
+ * centring expects it and repeated adds do not drift.
  */
-const viewport = ref<ViewportSize>({ width: 0, height: 0 });
+import { ref } from "vue";
 
-/** Records the size of the visible canvas. */
-export function setViewportSize(size: ViewportSize): void {
+export interface CanvasViewportSize {
+  width: number;
+  height: number;
+}
+
+const viewport = ref<CanvasViewportSize>({ width: 0, height: 0 });
+
+let measurer: (() => CanvasViewportSize | null) | null = null;
+
+/** Records the size the canvas last measured. */
+export function setViewportSize(size: CanvasViewportSize): void {
   viewport.value = size;
 }
 
-/** The size of the visible canvas, as the canvas last measured it. */
-export function useCanvasViewport(): {
-  viewport: typeof viewport;
-  setViewportSize: typeof setViewportSize;
-} {
-  return { viewport, setViewportSize };
+/**
+ * Lets the canvas hand in a measurement it can repeat on demand. The canvas
+ * registers it while it is mounted and clears it when it goes away.
+ */
+export function setViewportMeasurer(
+  next: (() => CanvasViewportSize | null) | null,
+): void {
+  measurer = next;
+}
+
+/** The size of the canvas right now, measured again when it is possible. */
+export function measureViewport(): CanvasViewportSize {
+  const measured = measurer?.();
+  if (measured && measured.width > 0 && measured.height > 0) {
+    viewport.value = measured;
+  }
+  return viewport.value;
+}
+
+/** The shared viewport of the canvas. */
+export function useCanvasViewport() {
+  return { viewport, setViewportSize, measureViewport };
 }

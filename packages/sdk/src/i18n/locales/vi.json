@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "chỉ vật lý",
   "edit_panel_batch_locked": "Thay đổi hàng loạt không được áp dụng: ít nhất một bảng đã chọn đang bị khóa.",
   "edit_panel_child_role": "Vai trò con",
+  "edit_panel_color_custom": "Màu tùy chỉnh",
+  "edit_panel_color_default": "Màu mặc định",
   "edit_panel_constraint_foreign": "Khóa ngoại",
   "edit_panel_constraint_primary": "Khóa chính",
   "edit_panel_constraint_unique": "Duy nhất",

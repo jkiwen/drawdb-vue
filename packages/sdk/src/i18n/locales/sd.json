@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "رڳو طبعي",
   "edit_panel_batch_locked": "بيچ تبديلي لاڳو نه ٿي: چونڊيل ٽيبلن مان گهٽ ۾ گهٽ هڪ لاڪ ٿيل آهي.",
   "edit_panel_child_role": "ٻار جو ڪردار",
+  "edit_panel_color_custom": "ڪسٽم رنگ",
+  "edit_panel_color_default": "ڊفالٽ رنگ",
   "edit_panel_constraint_foreign": "فارن ڪي",
   "edit_panel_constraint_primary": "پرائمري ڪي",
   "edit_panel_constraint_unique": "يونڪ",

@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "endast fysisk",
   "edit_panel_batch_locked": "Massändringen tillämpades inte: minst en markerad tabell är låst.",
   "edit_panel_child_role": "Barnroll",
+  "edit_panel_color_custom": "Anpassad färg",
+  "edit_panel_color_default": "Standardfärg",
   "edit_panel_constraint_foreign": "Främmande nyckel",
   "edit_panel_constraint_primary": "Primärnyckel",
   "edit_panel_constraint_unique": "Unik",

@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "alleen fysiek",
   "edit_panel_batch_locked": "De bulkwijziging is niet toegepast: minstens één geselecteerde tabel is vergrendeld.",
   "edit_panel_child_role": "Kindrol",
+  "edit_panel_color_custom": "Aangepaste kleur",
+  "edit_panel_color_default": "Standaardkleur",
   "edit_panel_constraint_foreign": "Vreemde sleutel",
   "edit_panel_constraint_primary": "Primaire sleutel",
   "edit_panel_constraint_unique": "Uniek",

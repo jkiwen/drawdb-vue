@@ -113,3 +113,29 @@ test("the grid and the side panel can be toggled", async () => {
   assert.equal(useSettingsStore().settings.panelLeftCollapsed, true);
   wrapper.unmount();
 });
+
+
+test("a new element lands in the middle of the visible canvas (issue 7)", async () => {
+  const { wrapper, diagram, ui } = mountToolbar();
+  const { setViewportSize } = await import("../../composables/canvas-viewport.ts");
+  setViewportSize({ width: 800, height: 600 });
+  ui.scrollX = 0;
+  ui.scrollY = 0;
+  ui.setZoom(1);
+
+  await wrapper.find('[data-testid="add-table-btn"]').trigger("click");
+  await nextTick();
+
+  const table = diagram.tables[0];
+  assert.ok(table);
+  // The table is 220 wide and shows only its header before it has fields, so
+  // its centre lands on the centre of the viewport.
+  assert.equal(table.x + 220 / 2, 400);
+  assert.equal(table.y + 50 / 2, 300);
+  assert.deepEqual(ui.selectedTableIds, [String(table.id)]);
+  // The table is already centred where the reader looks, so centring it
+  // leaves the scroll at the origin of that centre.
+  assert.equal((table.x + 220 / 2 - ui.scrollX) * ui.zoom, 400);
+  assert.equal((table.y + 50 / 2 - ui.scrollY) * ui.zoom, 300);
+  wrapper.unmount();
+});

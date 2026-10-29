@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "solo fisico",
   "edit_panel_batch_locked": "La modifica in blocco non è stata applicata: almeno una tabella selezionata è bloccata.",
   "edit_panel_child_role": "Ruolo figlio",
+  "edit_panel_color_custom": "Colore personalizzato",
+  "edit_panel_color_default": "Colore predefinito",
   "edit_panel_constraint_foreign": "Chiave esterna",
   "edit_panel_constraint_primary": "Chiave primaria",
   "edit_panel_constraint_unique": "Unico",

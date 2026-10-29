@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "лише фіз.",
   "edit_panel_batch_locked": "Групову зміну не застосовано: принаймні одна вибрана таблиця заблокована.",
   "edit_panel_child_role": "Роль дочірньої сторони",
+  "edit_panel_color_custom": "Власний колір",
+  "edit_panel_color_default": "Колір за замовчуванням",
   "edit_panel_constraint_foreign": "Зовнішній ключ",
   "edit_panel_constraint_primary": "Первинний ключ",
   "edit_panel_constraint_unique": "Унікальний",

@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "bare fysisk",
   "edit_panel_batch_locked": "Masseendringen ble ikke brukt: minst én valgt tabell er låst.",
   "edit_panel_child_role": "Barnrolle",
+  "edit_panel_color_custom": "Egendefinert farge",
+  "edit_panel_color_default": "Standardfarge",
   "edit_panel_constraint_foreign": "Fremmednøkkel",
   "edit_panel_constraint_primary": "Primærnøkkel",
   "edit_panel_constraint_unique": "Unik",

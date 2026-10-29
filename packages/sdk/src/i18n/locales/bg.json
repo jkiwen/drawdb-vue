@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "само физ.",
   "edit_panel_batch_locked": "Груповата промяна не е приложена: поне една избрана таблица е заключена.",
   "edit_panel_child_role": "Роля на дъщерната страна",
+  "edit_panel_color_custom": "Потребителски цвят",
+  "edit_panel_color_default": "Цвят по подразбиране",
   "edit_panel_constraint_foreign": "Външен ключ",
   "edit_panel_constraint_primary": "Първичен ключ",
   "edit_panel_constraint_unique": "Уникалност",

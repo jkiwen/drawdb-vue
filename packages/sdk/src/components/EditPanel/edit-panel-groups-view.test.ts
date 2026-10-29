@@ -133,11 +133,9 @@ describe("EditPanel appearance group", () => {
     ui.selectTable("t_users");
     await wrapper.vm.$nextTick();
 
-    const input = wrapper.find('[data-testid="appearance-color"]');
-    await input.setValue("#ff0000");
-    await input.trigger("change");
+    await wrapper.find('[data-testid="appearance-color-preset-teal"]').trigger("click");
 
-    assert.equal(table(diagram, "t_users").color, "#ff0000");
+    assert.equal(table(diagram, "t_users").color, "#0d9488");
   });
 
   it("toggles the lock of the table", async () => {
@@ -150,29 +148,15 @@ describe("EditPanel appearance group", () => {
     assert.equal(table(diagram, "t_users").locked, true);
   });
 
-  it("clears the colour when the field is emptied", async () => {
+  it("clears the colour when the default swatch is picked", async () => {
     const { wrapper, diagram, ui } = mountPanel();
     ui.selectTable("t_users");
     await wrapper.vm.$nextTick();
 
-    const input = wrapper.find('[data-testid="appearance-color"]');
-    await input.setValue("#ff0000");
-    await input.trigger("change");
-    await input.setValue("");
-    await input.trigger("change");
+    await wrapper.find('[data-testid="appearance-color-preset-rose"]').trigger("click");
+    assert.equal(table(diagram, "t_users").color, "#e11d48");
 
-    assert.equal(table(diagram, "t_users").color, undefined);
-  });
-
-  it("ignores a value that is not a colour", async () => {
-    const { wrapper, diagram, ui } = mountPanel();
-    ui.selectTable("t_users");
-    await wrapper.vm.$nextTick();
-
-    const input = wrapper.find('[data-testid="appearance-color"]');
-    await input.setValue("not a colour");
-    await input.trigger("change");
-
+    await wrapper.find('[data-testid="appearance-color-clear"]').trigger("click");
     assert.equal(table(diagram, "t_users").color, undefined);
   });
 });

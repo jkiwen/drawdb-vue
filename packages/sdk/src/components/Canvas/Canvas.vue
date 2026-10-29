@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import { useCanvasEvents } from "../../composables/use-canvas-events.ts";
+import { setViewportMeasurer } from "../../composables/canvas-viewport.ts";
 import { useZoomActions } from "../../composables/use-zoom-actions.ts";
 import { useCanvasItems } from "../../composables/use-canvas-items.ts";
 import Area from "./Area.vue";
@@ -140,7 +141,10 @@ const ui = useUIStore();
  */
 function onMenuCommand(key: string): void {
   canvas.runMenuCommand(key);
-  ui.closeContextMenu();
+  // The menu is drawn from the reference of the canvas, so it is closed where
+  // it is drawn; closing the store alone left it on the screen (bug report of
+  // 2026-10-29).
+  canvas.closeMenu();
 }
 
 watch(
@@ -173,10 +177,20 @@ onMounted(() => {
     }
   }
   reportViewport();
+  // The toolbar places a new element from the size of the canvas and then
+  // centres it; both read this measurement so they cannot disagree while the
+  // layout is still settling (review of 2026-10-29).
+  setViewportMeasurer(() => {
+    const rect = svgRef.value?.getBoundingClientRect();
+    if (!rect || rect.width <= 0 || rect.height <= 0) return null;
+    zoomActions.setViewport({ width: rect.width, height: rect.height });
+    return { width: rect.width, height: rect.height };
+  });
   window.addEventListener("resize", reportViewport);
 });
 
 onBeforeUnmount(() => {
+  setViewportMeasurer(null);
   canvasEvents.detach();
   viewportObserver?.disconnect();
   viewportObserver = null;

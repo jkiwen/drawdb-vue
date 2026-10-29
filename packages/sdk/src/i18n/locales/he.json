@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "פיזי בלבד",
   "edit_panel_batch_locked": "השינוי הקבוצתי לא הוחל: לפחות אחת מהטבלאות הנבחרות נעולה.",
   "edit_panel_child_role": "תפקיד הצאצא",
+  "edit_panel_color_custom": "צבע מותאם אישית",
+  "edit_panel_color_default": "צבע ברירת מחדל",
   "edit_panel_constraint_foreign": "מפתח זר",
   "edit_panel_constraint_primary": "מפתח ראשי",
   "edit_panel_constraint_unique": "ייחודי",

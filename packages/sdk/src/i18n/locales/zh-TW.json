@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "僅物理",
   "edit_panel_batch_locked": "未套用批次修改：至少有一個選取的資料表已鎖定。",
   "edit_panel_child_role": "子角色",
+  "edit_panel_color_custom": "自訂顏色",
+  "edit_panel_color_default": "預設顏色",
   "edit_panel_constraint_foreign": "外鍵",
   "edit_panel_constraint_primary": "主鍵",
   "edit_panel_constraint_unique": "唯一",

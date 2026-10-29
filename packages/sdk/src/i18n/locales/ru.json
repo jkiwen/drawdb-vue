@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "только физ.",
   "edit_panel_batch_locked": "Групповое изменение не применено: хотя бы одна выбранная таблица заблокирована.",
   "edit_panel_child_role": "Роль дочерней стороны",
+  "edit_panel_color_custom": "Свой цвет",
+  "edit_panel_color_default": "Цвет по умолчанию",
   "edit_panel_constraint_foreign": "Внешний ключ",
   "edit_panel_constraint_primary": "Первичный ключ",
   "edit_panel_constraint_unique": "Уникальный",

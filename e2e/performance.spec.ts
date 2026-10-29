@@ -16,11 +16,23 @@ const TABLE_COUNT = 100;
 /** The time, in milliseconds, that a drag of the canvas may take. */
 const DRAG_BUDGET_MS = 500;
 
-/** Adds a number of tables to the diagram of the editor. */
+/**
+ * Adds a number of tables to the diagram of the editor and spreads them out.
+ *
+ * A new table lands in the middle of the visible canvas, so creating a hundred
+ * of them in a row stacks them on top of each other; the specs here measure the
+ * drawing of a diagram whose tables lie apart, which is what the grid layout
+ * of the toolbar is for (it arranges the whole canvas when nothing is chosen).
+ */
 async function addTables(page: import("@playwright/test").Page, count: number) {
   for (let index = 0; index < count; index += 1) {
     await page.getByTestId("add-table-btn").click();
   }
+  await page.getByTestId("canvas").click({ position: { x: 4, y: 4 } });
+  await page.getByTestId("toolbar-layout-grid").click();
+  // The canvas followed the tables as they were created; it goes back to the
+  // origin so that the drawing is measured from there.
+  await page.getByTestId("toolbar-zoom-reset").click();
 }
 
 test.describe("performance", () => {

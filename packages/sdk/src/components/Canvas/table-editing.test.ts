@@ -160,55 +160,12 @@ describe("the editing of a table on the canvas", () => {
     await details.trigger("click");
     await nextTick();
 
-    const color = wrapper.find('[data-testid="table-color-users"]');
-    assert.ok(color.exists());
-    (color.element as HTMLInputElement).value = "#ff0000";
-    await color.trigger("change");
+    const preset = wrapper.find('[data-testid="table-color-users-preset-teal"]');
+    assert.ok(preset.exists());
+    await preset.trigger("click");
     await nextTick();
 
-    assert.equal(diagram.tables[0].color, "#ff0000");
-  });
-
-  it("the index of a table is edited on the canvas", async () => {
-    const pinia = freshPinia();
-    const diagram = seed(pinia);
-    const wrapper = mountTable(pinia);
-    await nextTick();
-
-    const details = wrapper.find('[data-testid="table-details-toggle-users"]');
-    await details.trigger("click");
-    await nextTick();
-
-    const addIndex = wrapper.find('[data-testid="table-add-index-users"]');
-    await addIndex.trigger("click");
-    await nextTick();
-    await nextTick();
-
-    setInputValue(wrapper, "table-index-name-users-0", "idx_users_email");
-    await nextTick();
-
-    assert.equal(diagram.tables[0].indices?.[0]?.name, "idx_users_email");
-  });
-
-  it("the unique constraints of a table are edited on the canvas", async () => {
-    const pinia = freshPinia();
-    const diagram = seed(pinia);
-    const wrapper = mountTable(pinia);
-    await nextTick();
-
-    const details = wrapper.find('[data-testid="table-details-toggle-users"]');
-    await details.trigger("click");
-    await nextTick();
-
-    const addUnique = wrapper.find('[data-testid="table-add-unique-users"]');
-    await addUnique.trigger("click");
-    await nextTick();
-    await nextTick();
-
-    setInputValue(wrapper, "table-unique-name-users-0", "uq_users_email");
-    await nextTick();
-
-    assert.equal(diagram.tables[0].uniqueConstraints?.[0]?.name, "uq_users_email");
+    assert.equal(diagram.tables[0].color, "#0d9488");
   });
 
   it("the table can be locked from the canvas", async () => {

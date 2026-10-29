@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "இயல் மட்டும்",
   "edit_panel_batch_locked": "தொகுதி மாற்றங்கள் பயன்படுத்தப்படவில்லை: தேர்ந்தெடுத்த அட்டவணைகளில் ஒன்று பூட்டப்பட்டுள்ளது.",
   "edit_panel_child_role": "குழந்தைப் பங்கு",
+  "edit_panel_color_custom": "தனிப்பயன் நிறம்",
+  "edit_panel_color_default": "இயல்புநிலை நிறம்",
   "edit_panel_constraint_foreign": "அயல் விசை",
   "edit_panel_constraint_primary": "முதன்மை விசை",
   "edit_panel_constraint_unique": "தனித்துவம்",

@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "ફક્ત ફિઝિકલ",
   "edit_panel_batch_locked": "બેચ ફેરફાર લાગુ થયો નથી: પસંદ કરેલા ઓછામાં ઓછા એક ટેબલ પર લૉક છે.",
   "edit_panel_child_role": "ચાઇલ્ડ ભૂમિકા",
+  "edit_panel_color_custom": "કસ્ટમ રંગ",
+  "edit_panel_color_default": "ડિફૉલ્ટ રંગ",
   "edit_panel_constraint_foreign": "ફોરેન કી",
   "edit_panel_constraint_primary": "પ્રાથમિક કી",
   "edit_panel_constraint_unique": "અનન્ય",

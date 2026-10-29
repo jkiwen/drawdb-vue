@@ -94,7 +94,7 @@ const hasSelection = computed(() => ui.selectedTableIds.length > 0);
       icon="zoom-reset"
       :title="t('zoom_reset')"
       testid="toolbar-zoom-reset"
-      :disabled="ui.zoom === 1"
+      :disabled="ui.zoom === 1 && ui.scrollX === 0 && ui.scrollY === 0"
       @click="ui.resetView()"
     />
     <ToolbarButton

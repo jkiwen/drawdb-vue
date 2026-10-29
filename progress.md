@@ -549,3 +549,43 @@ of a dialog swallows the press before Naive UI sees it.
 
 A diagram gained a description, next to its title: model, JSON round trip and
 the update command all carry it, so it survives save and undo.
+
+## The styles and the placement of the canvas (2026-10-29)
+
+- **A colour band is drawn even when the table has none.** The strip used to be `v-if="table.color"`, so a fresh table showed no band at all and the reader could not tell "no colour" from "the default colour". The band now paints `DEFAULT_TABLE_COLOR` (`#cbd5e1`) when the table has no colour of its own; the panel's picker reaches "default" through its own swatch, which writes `undefined` again.
+- **The colour is a picker, not a hex field.** Ten presets live in `packages/sdk/src/utils/color-palette.ts` beside `DEFAULT_TABLE_COLOR`; `ColorPicker.vue` renders them plus the browser's own colour well and a "default" swatch, and reports `multiple` by marking nothing (a mixed selection has no single truth). The host can restyle the swatches with the same tokens it uses for the rest of the chrome.
+- **The canvas keeps only the style of a table.** `TableDetails.vue` used to edit the indices and the unique constraints as well; the panel now owns those (they have names and ordered columns), so the canvas block keeps the colour row and nothing else, and `tableDetailsHeight()` drops to one row plus padding.
+- **The menu is closed where it is drawn.** `Canvas.vue` closed the UI store after a command while the menu was rendered from the canvas's own reference; the two drifted and the menu stayed on screen. The command handler now calls `canvas.closeMenu()`, the same function the outside press and Escape use.
+- **New elements land where the reader looks.** `placement.ts` turns the measured viewport, scroll and zoom into the centre of the visible canvas (the same inverse the outline uses to centre a click), and each kind cascades by 24px so a second element does not hide the first. The create group selects the new element and centres it, so "add" ends with the reader looking at what they added.
+
+## The styles and the placement of the canvas (2026-10-29)
+
+**The colour strip has a default.** A table used to show its colour strip only when it
+had a colour, so a new table looked blank on top. `DEFAULT_TABLE_COLOR` from
+`packages/sdk/src/utils/color-palette.ts` is now the fallback of both the strip and the
+picker's "default" swatch, so the strip is always drawn and a table without a colour is
+still distinguishable from one painted with the default.
+
+**One palette, ten tokens, three entry points.** `TABLE_COLOR_PRESETS` holds ten named
+colours; the aspect panel (single and multiple tables), the canvas details box and the
+table header all go through `ColorPicker.vue`. Multiple selection reports `multiple` and
+marks no swatch: no colour is true of a mixed selection, and a picker that lies about it
+would be worse than one that says nothing.
+
+**The canvas details keep only the style.** Keys are edited in the panel now, so the box
+lost its index and unique-constraint inputs and its height formula lost the rows those
+inputs used to need; the keys of a table are read and written in one place.
+
+**A menu closes where it is drawn.** The menu's state lived twice — a local ref drew it
+and the UI store carried a copy — so clearing the store left it on screen. `runMenuCommand`
+now closes through `canvas.closeMenu()`, the component that owns the reference.
+
+**New elements land in the middle of the view.** Placement reads the viewport on demand
+(`setViewportMeasurer`/`measureViewport`) instead of a value measured at mount, because a
+host can mount the canvas before its layout settles: the table and the area that follows
+it were placed from two different centres. Each new element is centred, cascaded by 24px
+per element already on the canvas, selected and centred in the viewport.
+
+**The reset button also resets a scrolled canvas.** It was disabled at 100% zoom, which
+left a canvas scrolled far from the origin with no way back; it is now enabled unless the
+zoom is 100% and both scroll offsets are zero.

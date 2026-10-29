@@ -6,6 +6,7 @@ import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useInlineEdit } from "../../composables/use-inline-edit.ts";
 import { TABLE_COLOR_STRIP_HEIGHT } from "./geometry.ts";
+import { DEFAULT_TABLE_COLOR } from "../../utils/color-palette.ts";
 import type { TableRenderModel } from "./render-model.ts";
 
 defineOptions({ name: "DrawDBTableHeader" });
@@ -77,9 +78,12 @@ function onToggleLock(event: Event): void {
     :data-testid="`table-header-${table.id}`"
   >
     <span
-      v-if="table.color"
       class="ddb-table__color-strip"
-      :style="{ height: `${TABLE_COLOR_STRIP_HEIGHT}px`, background: table.color }"
+      :data-testid="`table-color-strip-${table.id}`"
+      :style="{
+        height: `${TABLE_COLOR_STRIP_HEIGHT}px`,
+        background: table.color ?? DEFAULT_TABLE_COLOR,
+      }"
     />
 
     <div class="ddb-table__header-main">

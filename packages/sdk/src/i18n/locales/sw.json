@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "kimwili pekee",
   "edit_panel_batch_locked": "Mabadiliko ya kundi hayakutumika: angalau jedwali moja lililochaguliwa limefungwa.",
   "edit_panel_child_role": "Jukumu la mtoto",
+  "edit_panel_color_custom": "Rangi maalum",
+  "edit_panel_color_default": "Rangi chaguomsingi",
   "edit_panel_constraint_foreign": "Ufunguo wa nje",
   "edit_panel_constraint_primary": "Ufunguo msingi",
   "edit_panel_constraint_unique": "Ya kipekee",

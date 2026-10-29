@@ -445,3 +445,58 @@
 .pair-arrow {
   color: var(--ddb-text-muted, #71717a);
 }
+
+/* ------------------------------------------------------------ colour picker */
+
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.color-swatch {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: var(--ddb-radius-sm, 4px);
+  cursor: pointer;
+}
+
+.color-swatch:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.color-swatch--on {
+  outline: 2px solid var(--ddb-accent);
+  outline-offset: 1px;
+}
+
+.color-swatch--default {
+  background: repeating-linear-gradient(
+    45deg,
+    #e4e4e7,
+    #e4e4e7 4px,
+    #ffffff 4px,
+    #ffffff 8px
+  );
+}
+
+.color-custom {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.color-custom-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  cursor: pointer;
+}

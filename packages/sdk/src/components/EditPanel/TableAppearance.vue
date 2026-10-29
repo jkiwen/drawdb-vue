@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed } from "vue";
 import type { Table } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import styles from "./edit-panel.module.css";
 import { appearanceValues } from "./edit-panel-groups.ts";
+import ColorPicker from "./ColorPicker.vue";
 
 /**
  * The appearance group of the edit panel (design section 4.3): the colour,
@@ -17,23 +18,14 @@ const props = defineProps<{ tables: Table[] }>();
 const store = useDiagramStore();
 
 const values = computed(() => appearanceValues(props.tables));
-const MULTIPLE = "edit_panel_multiple_values";
-const COLOR_PATTERN = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
-const color = ref(values.value.color);
-watch(values, (next) => {
-  color.value = next.color;
-});
-
-function commitColor(): void {
-  const next = color.value.trim();
-  // An empty field means "no colour"; anything that is not a hex value would
-  // reach the canvas as a background the browser cannot parse, so it is
-  // dropped instead of stored.
-  if (next !== "" && !COLOR_PATTERN.test(next)) return;
-  if (values.value.colorMultiple || next !== (values.value.color ?? "")) {
-    apply({ color: next });
-  }
+/**
+ * The colour the picker reports: a hex value, or an empty string for the
+ * default band. The panel does not validate the hex — the picker can only
+ * report one the browser produced.
+ */
+function commitColor(color: string): void {
+  apply({ color });
 }
 
 function commitLocked(event: Event): void {
@@ -60,16 +52,15 @@ function apply(patch: { color?: string; locked?: boolean; details?: boolean }): 
 
 <template>
   <div :class="styles['pair-grid']" data-testid="table-appearance">
-    <label>
+    <div :class="styles.field">
       <span :class="styles.label">{{ t("edit_panel_appearance_color") }}</span>
-      <input
-        v-model="color"
-        :class="[styles.input, styles['color-input']]"
-        :placeholder="values.colorMultiple ? t(MULTIPLE) : '#rrggbb'"
-        data-testid="appearance-color"
-        @change="commitColor"
+      <ColorPicker
+        :value="values.color"
+        :multiple="values.colorMultiple"
+        testid="appearance-color"
+        @update:value="commitColor"
       />
-    </label>
+    </div>
     <div :class="styles['check-column']">
       <label :class="styles.check">
         <input

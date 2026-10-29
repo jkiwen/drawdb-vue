@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "pouze fyz.",
   "edit_panel_batch_locked": "Hromadná změna nebyla použita: alespoň jedna vybraná tabulka je uzamčena.",
   "edit_panel_child_role": "Role podřízené strany",
+  "edit_panel_color_custom": "Vlastní barva",
+  "edit_panel_color_default": "Výchozí barva",
   "edit_panel_constraint_foreign": "Cizí klíč",
   "edit_panel_constraint_primary": "Primární klíč",
   "edit_panel_constraint_unique": "Unikátní",

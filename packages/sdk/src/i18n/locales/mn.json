@@ -175,6 +175,8 @@
   "edit_panel_badge_physical_only": "зөвхөн физик",
   "edit_panel_batch_locked": "Багц өөрчлөлт хэрэглэгдсэнгүй: сонгосон хүснэгтүүдийн дор хаяж нэг нь түгжигдсэн байна.",
   "edit_panel_child_role": "Хүүхдийн үүрэг",
+  "edit_panel_color_custom": "Өөрийн өнгө",
+  "edit_panel_color_default": "Анхдагч өнгө",
   "edit_panel_constraint_foreign": "Гадаад түлхүүр",
   "edit_panel_constraint_primary": "Үндсэн түлхүүр",
   "edit_panel_constraint_unique": "Давтагдахгүй",
