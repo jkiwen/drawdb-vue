@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "ดัชนี",
   "edit_panel_index_columns": "{count} คอลัมน์",
   "edit_panel_indexes_empty": "ยังไม่มีดัชนี",
+  "edit_panel_key_logical_name": "ชื่อเชิงตรรกะ",
+  "edit_panel_key_physical_name": "ชื่อเชิงกายภาพ",
   "edit_panel_logical_attribute": "แอตทริบิวต์เชิงตรรกะ",
   "edit_panel_logical_description": "คำอธิบายเชิงตรรกะ",
   "edit_panel_logical_entity": "เอนทิตีเชิงตรรกะ",

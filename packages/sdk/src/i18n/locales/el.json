@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Δείκτες",
   "edit_panel_index_columns": "{count} στήλη | {count} στήλες",
   "edit_panel_indexes_empty": "Δεν υπάρχουν ακόμη δείκτες.",
+  "edit_panel_key_logical_name": "Λογικό όνομα",
+  "edit_panel_key_physical_name": "Φυσικό όνομα",
   "edit_panel_logical_attribute": "Λογικό γνώρισμα",
   "edit_panel_logical_description": "Λογική περιγραφή",
   "edit_panel_logical_entity": "Λογική οντότητα",

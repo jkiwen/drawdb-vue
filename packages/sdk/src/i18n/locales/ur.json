@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "انڈیکسز",
   "edit_panel_index_columns": "{count} کالم | {count} کالم",
   "edit_panel_indexes_empty": "ابھی کوئی انڈیکس نہیں ہے۔",
+  "edit_panel_key_logical_name": "منطقی نام",
+  "edit_panel_key_physical_name": "طبیعی نام",
   "edit_panel_logical_attribute": "منطقی وصف",
   "edit_panel_logical_description": "منطقی تفصیل",
   "edit_panel_logical_entity": "منطقی ہستی",

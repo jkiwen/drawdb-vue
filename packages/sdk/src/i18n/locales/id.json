@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indeks",
   "edit_panel_index_columns": "{count} kolom | {count} kolom",
   "edit_panel_indexes_empty": "Belum ada indeks.",
+  "edit_panel_key_logical_name": "Nama logis",
+  "edit_panel_key_physical_name": "Nama fisik",
   "edit_panel_logical_attribute": "Atribut logis",
   "edit_panel_logical_description": "Deskripsi logis",
   "edit_panel_logical_entity": "Entitas logis",

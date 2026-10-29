@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { keyColumns } from "@drawdb/core";
 import type { FieldId, Relationship, Table } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
@@ -24,8 +25,21 @@ const diagram = useDiagramStore();
 
 const PRIMARY_NAME = "PRIMARY";
 
+/**
+ * The columns of the primary key: the key object when the document has one,
+ * the primary flag of the fields otherwise. Reading one place keeps the card,
+ * the canvas and the script of the diagram in agreement.
+ */
+const primaryColumns = computed<FieldId[]>(() => {
+  const key = props.table.primaryKey;
+  if (key) return keyColumns(key).map((column) => column.fieldId);
+  return props.table.fields.filter((field) => field.primary === true).map((field) => field.id);
+});
+
 const primaryFields = computed(() =>
-  props.table.fields.filter((field) => field.primary === true),
+  primaryColumns.value
+    .map((id) => props.table.fields.find((field) => String(field.id) === String(id)))
+    .filter((field): field is NonNullable<typeof field> => Boolean(field)),
 );
 
 const primarySummary = computed(() => {
@@ -39,8 +53,21 @@ function freeFields(taken: readonly FieldId[]) {
   return props.table.fields.filter((field) => !used.has(String(field.id)));
 }
 
+/**
+ * Adds or drops a column of the primary key as one command, so one edit of the
+ * key is one step of the history (design section 3.8.3, ruling 3). The flags
+ * on the fields are kept in step inside the same command.
+ */
 function togglePrimary(fieldId: FieldId, on: boolean): void {
-  diagram.updateField(props.table.id, fieldId, { primary: on });
+  const current = primaryColumns.value;
+  const next = on
+    ? [...current, fieldId]
+    : current.filter((id) => String(id) !== String(fieldId));
+  diagram.setPrimaryColumns(
+    props.table.id,
+    next.map((id) => ({ fieldId: id })),
+    props.table.primaryKey?.name ?? PRIMARY_NAME,
+  );
 }
 </script>
 

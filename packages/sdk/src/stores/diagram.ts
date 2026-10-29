@@ -35,6 +35,7 @@ import { useHistoryStore } from "./history.ts";
 import { elementActions } from "./element-actions.ts";
 import { editPanelActions } from "./edit-panel-actions.ts";
 import { arrangeActions } from "./arrange-actions.ts";
+import { keyActions } from "./key-actions.ts";
 import { sidePanelActions } from "./side-panel-actions.ts";
 import { tableToggles } from "./table-toggles.ts";
 import { viewStateActions } from "./view-state-actions.ts";
@@ -267,6 +268,7 @@ export const useDiagramStore = defineStore("diagram", () => {
 
   const sidePanel = sidePanelActions(diagram, history, bump);
   const arrange = arrangeActions(diagram, history, bump);
+  const keys = keyActions(diagram, history, bump);
   const toggles = tableToggles(diagram, history, bump);
   const elements = elementActions(diagram, history, bump);
 
@@ -281,7 +283,7 @@ export const useDiagramStore = defineStore("diagram", () => {
     resizeTable, ...toggles, updateSqlHeader,
     applyRelationships, setImportedDiagram,
     addEntity, removeEntity,
-    ...sidePanel, ...elements, ...arrange, ...viewStateActions(diagram, bump),
+    ...sidePanel, ...elements, ...arrange, ...keys, ...viewStateActions(diagram, bump),
     ...editPanelActions(diagram, history, bump),
   };
 });

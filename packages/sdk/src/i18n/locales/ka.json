@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "ಸೂಚಿಗಳು",
   "edit_panel_index_columns": "{count} ಲಂಬಸಾಲು | {count} ಲಂಬಸಾಲುಗಳು",
   "edit_panel_indexes_empty": "ಇನ್ನೂ ಯಾವುದೇ ಸೂಚಿಗಳಿಲ್ಲ.",
+  "edit_panel_key_logical_name": "ತಾರ್ಕಿಕ ಹೆಸರು",
+  "edit_panel_key_physical_name": "ಭೌತಿಕ ಹೆಸರು",
   "edit_panel_logical_attribute": "ತಾರ್ಕಿಕ ಗುಣಲಕ್ಷಣ",
   "edit_panel_logical_description": "ತಾರ್ಕಿಕ ವಿವರಣೆ",
   "edit_panel_logical_entity": "ತಾರ್ಕಿಕ ಎಂಟಿಟಿ",

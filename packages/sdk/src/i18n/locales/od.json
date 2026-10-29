@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "ଇଣ୍ଡେକ୍ସଗୁଡ଼ିକ",
   "edit_panel_index_columns": "{count} କଲମ୍ | {count} କଲମ୍‌ଗୁଡ଼ିକ",
   "edit_panel_indexes_empty": "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ଇଣ୍ଡେକ୍ସ ନାହିଁ।",
+  "edit_panel_key_logical_name": "ଲଜିକାଲ ନାମ",
+  "edit_panel_key_physical_name": "ଫିଜିକାଲ ନାମ",
   "edit_panel_logical_attribute": "ଲଜିକାଲ୍ ଗୁଣ",
   "edit_panel_logical_description": "ଲଜିକାଲ୍ ବର୍ଣ୍ଣନା",
   "edit_panel_logical_entity": "ଲଜିକାଲ୍ ସତ୍ତା",

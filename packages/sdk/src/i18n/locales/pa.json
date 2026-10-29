@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "ਇੰਡੈਕਸ",
   "edit_panel_index_columns": "{count} ਕਾਲਮ | {count} ਕਾਲਮ",
   "edit_panel_indexes_empty": "ਹਾਲੇ ਕੋਈ ਇੰਡੈਕਸ ਨਹੀਂ।",
+  "edit_panel_key_logical_name": "ਤਾਰਕਿਕ ਨਾਮ",
+  "edit_panel_key_physical_name": "ਭੌਤਿਕ ਨਾਮ",
   "edit_panel_logical_attribute": "ਲੌਜੀਕਲ ਐਟ੍ਰਿਬਿਊਟ",
   "edit_panel_logical_description": "ਲੌਜੀਕਲ ਵਰਣਨ",
   "edit_panel_logical_entity": "ਲੌਜੀਕਲ ਐਂਟਿਟੀ",

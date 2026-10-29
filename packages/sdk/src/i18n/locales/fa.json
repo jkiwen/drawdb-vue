@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "شاخص‌ها",
   "edit_panel_index_columns": "{count} ستون | {count} ستون",
   "edit_panel_indexes_empty": "هنوز شاخصی وجود ندارد.",
+  "edit_panel_key_logical_name": "نام منطقی",
+  "edit_panel_key_physical_name": "نام فیزیکی",
   "edit_panel_logical_attribute": "ویژگی منطقی",
   "edit_panel_logical_description": "توضیح منطقی",
   "edit_panel_logical_entity": "موجودیت منطقی",

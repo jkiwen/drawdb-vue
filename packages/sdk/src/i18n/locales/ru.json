@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Индексы",
   "edit_panel_index_columns": "{count} столбец | {count} столбца | {count} столбцов",
   "edit_panel_indexes_empty": "Индексов пока нет.",
+  "edit_panel_key_logical_name": "Логическое имя",
+  "edit_panel_key_physical_name": "Физическое имя",
   "edit_panel_logical_attribute": "Логический атрибут",
   "edit_panel_logical_description": "Логическое описание",
   "edit_panel_logical_entity": "Логическая сущность",

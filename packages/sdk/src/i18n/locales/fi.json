@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indeksit",
   "edit_panel_index_columns": "{count} sarake | {count} saraketta",
   "edit_panel_indexes_empty": "Ei vielä indeksejä.",
+  "edit_panel_key_logical_name": "Looginen nimi",
+  "edit_panel_key_physical_name": "Fyysinen nimi",
   "edit_panel_logical_attribute": "Looginen attribuutti",
   "edit_panel_logical_description": "Looginen kuvaus",
   "edit_panel_logical_entity": "Looginen entiteetti",

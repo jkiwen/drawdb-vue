@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { createId, indexFields } from "@drawdb/core";
+import { createId, keyColumns } from "@drawdb/core";
 import type { FieldId, Index, Table } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
-import { nextIndexName } from "./constraint-forms.ts";
+import { suggestedKeyName } from "../../stores/key-actions.ts";
 import styles from "./edit-panel.module.css";
 import KeyCard from "./KeyCard.vue";
 
 /**
- * The indexes of the selected table: an index is created by naming it, then
- * takes several columns that can be ordered, removed and marked unique. Each
- * index is a card (review of 2026-10-29). The write goes through
- * `updateTable`, so the whole list lands on the undo stack as one step.
+ * The indexes of the selected table.
+ *
+ * An index is a key object as well (design section 3.8.3): it carries its own
+ * name, its ordered columns and one step of the undo stack per edit.
  */
 const props = defineProps<{ table: Table }>();
 
@@ -27,8 +27,12 @@ const draftUnique = ref(false);
 const fieldName = (id: FieldId): string =>
   props.table.fields.find((field) => String(field.id) === String(id))?.name ?? String(id);
 
+function columnsOf(item: Index) {
+  return keyColumns(item);
+}
+
 function summaryOf(item: Index): string {
-  const columns = indexFields(item).map(fieldName).join(", ");
+  const columns = columnsOf(item).map((column) => fieldName(column.fieldId)).join(", ");
   if (columns === "") return item.unique ? t("unique") : "";
   return `(${columns})${item.unique ? ` ${t("unique")}` : ""}`;
 }
@@ -38,12 +42,8 @@ function freeFields(taken: readonly FieldId[]) {
   return props.table.fields.filter((field) => !used.has(String(field.id)));
 }
 
-function write(next: Index[]): void {
-  diagram.updateTable(props.table.id, { indices: next });
-}
-
 function openCreate(): void {
-  draftName.value = nextIndexName(props.table);
+  draftName.value = suggestedKeyName("index", props.table);
   draftUnique.value = false;
   creating.value = true;
 }
@@ -53,49 +53,68 @@ function cancelCreate(): void {
 }
 
 function confirmCreate(): void {
-  const name = draftName.value.trim() || nextIndexName(props.table);
-  write([...indexes.value, { id: createId(), name, unique: draftUnique.value, fields: [] }]);
+  const name = draftName.value.trim() || suggestedKeyName("index", props.table);
+  diagram.addIndex(props.table.id, {
+    id: createId(),
+    name,
+    logicalName: name,
+    unique: draftUnique.value,
+    columns: [],
+  });
   creating.value = false;
 }
 
 function rename(index: number, name: string): void {
-  write(indexes.value.map((item, at) => (at === index ? { ...item, name } : item)));
+  const item = indexes.value[index];
+  if (!item) return;
+  diagram.renameIndex(props.table.id, String(item.id), { name });
+}
+
+function renameLogical(index: number, logicalName: string): void {
+  const item = indexes.value[index];
+  if (!item) return;
+  diagram.renameIndex(props.table.id, String(item.id), { name: item.name, logicalName });
 }
 
 function setUnique(index: number, unique: boolean): void {
-  write(indexes.value.map((item, at) => (at === index ? { ...item, unique } : item)));
+  const item = indexes.value[index];
+  if (!item) return;
+  diagram.updateTable(props.table.id, {
+    indices: indexes.value.map((entry, at) => (at === index ? { ...entry, unique } : entry)),
+  });
 }
 
 function remove(index: number): void {
-  write(indexes.value.filter((_, at) => at !== index));
+  const item = indexes.value[index];
+  if (!item) return;
+  diagram.removeIndex(props.table.id, String(item.id));
 }
 
 function addField(index: number, fieldId: string): void {
-  if (fieldId === "") return;
-  write(
-    indexes.value.map((item, at) =>
-      at === index ? { ...item, fields: [...indexFields(item), fieldId] } : item,
-    ),
-  );
+  const item = indexes.value[index];
+  if (!item || fieldId === "") return;
+  diagram.setIndexColumns(props.table.id, String(item.id), [...columnsOf(item), { fieldId }]);
 }
 
 function removeField(index: number, at: number): void {
-  write(
-    indexes.value.map((item, position) =>
-      position === index ? { ...item, fields: indexFields(item).filter((_, i) => i !== at) } : item,
-    ),
+  const item = indexes.value[index];
+  if (!item) return;
+  diagram.setIndexColumns(
+    props.table.id,
+    String(item.id),
+    columnsOf(item).filter((_, position) => position !== at),
   );
 }
 
 function moveField(index: number, at: number, delta: -1 | 1): void {
   const item = indexes.value[index];
   if (!item) return;
+  const columns = [...columnsOf(item)];
   const to = at + delta;
-  if (to < 0 || to >= indexFields(item).length) return;
-  const fields = [...indexFields(item)];
-  const [moved] = fields.splice(at, 1);
-  fields.splice(to, 0, moved!);
-  write(indexes.value.map((entry, position) => (position === index ? { ...entry, fields } : entry)));
+  if (to < 0 || to >= columns.length) return;
+  const [moved] = columns.splice(at, 1);
+  columns.splice(to, 0, moved!);
+  diagram.setIndexColumns(props.table.id, String(item.id), columns);
 }
 </script>
 
@@ -113,6 +132,7 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
     </header>
 
     <div v-if="creating" :class="styles['create-form']" data-testid="index-create">
+
       <label :class="styles.field">
         <span :class="styles.label">{{ t("name") }}</span>
         <input
@@ -164,13 +184,22 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
         >×</button>
       </template>
       <label :class="styles.field">
-        <span :class="styles.label">{{ t("name") }}</span>
+        <span :class="styles.label">{{ t("edit_panel_key_physical_name") }}</span>
         <input
           :class="styles.input"
           :value="item.name"
           :aria-label="t('index')"
           :data-testid="`index-name-${index}`"
           @change="(event) => rename(index, (event.target as HTMLInputElement).value)"
+        />
+      </label>
+      <label :class="styles.field">
+        <span :class="styles.label">{{ t("edit_panel_key_logical_name") }}</span>
+        <input
+          :class="styles.input"
+          :value="item.logicalName ?? item.name"
+          :data-testid="`index-logical-name-${index}`"
+          @change="(event) => renameLogical(index, (event.target as HTMLInputElement).value)"
         />
       </label>
       <label :class="[styles.field, styles['field-inline']]">
@@ -184,12 +213,12 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
         <span :class="styles.label">{{ t("unique") }}</span>
       </label>
       <div
-        v-for="(fieldId, at) in item.fields"
-        :key="`${String(fieldId)}-${at}`"
+        v-for="(column, at) in columnsOf(item)"
+        :key="`${String(column.fieldId)}-${at}`"
         :class="styles['constraint-row']"
         data-testid="index-field"
       >
-        <span :class="styles['constraint-fields']">{{ fieldName(fieldId) }}</span>
+        <span :class="styles['constraint-fields']">{{ fieldName(column.fieldId) }}</span>
         <button
           type="button"
           :class="[styles['link-button'], styles['link-button--muted']]"
@@ -213,14 +242,14 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
         >×</button>
       </div>
       <select
-        v-if="freeFields(indexFields(item)).length > 0"
+        v-if="freeFields(columnsOf(item).map((column) => column.fieldId)).length > 0"
         :class="styles.select"
         :data-testid="`index-add-field-${index}`"
         @change="(event) => addField(index, (event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ t("add_field") }}</option>
         <option
-          v-for="field in freeFields(indexFields(item))"
+          v-for="field in freeFields(columnsOf(item).map((column) => column.fieldId))"
           :key="String(field.id)"
           :value="String(field.id)"
         >{{ field.name }}</option>

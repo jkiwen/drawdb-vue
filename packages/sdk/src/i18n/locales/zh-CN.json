@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "索引",
   "edit_panel_index_columns": "{count} 列 | {count} 列",
   "edit_panel_indexes_empty": "暂无索引。",
+  "edit_panel_key_logical_name": "逻辑名称",
+  "edit_panel_key_physical_name": "物理名称",
   "edit_panel_logical_attribute": "逻辑属性",
   "edit_panel_logical_description": "逻辑描述",
   "edit_panel_logical_entity": "逻辑实体",

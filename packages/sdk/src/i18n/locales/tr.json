@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Dizinler",
   "edit_panel_index_columns": "{count} sütun",
   "edit_panel_indexes_empty": "Henüz dizin yok.",
+  "edit_panel_key_logical_name": "Mantıksal ad",
+  "edit_panel_key_physical_name": "Fiziksel ad",
   "edit_panel_logical_attribute": "Mantıksal öznitelik",
   "edit_panel_logical_description": "Mantıksal açıklama",
   "edit_panel_logical_entity": "Mantıksal varlık",

@@ -63,19 +63,46 @@ describe("creating a unique key", () => {
     await wrapper.find('[data-testid="constraint-add-unique"]').trigger("click");
     const name = wrapper.find('[data-testid="unique-create-name"]');
     assert.ok(name.exists(), "the form of a new unique key opens");
-    assert.equal((name.element as HTMLInputElement).value, "uk_users_1");
+    assert.equal((name.element as HTMLInputElement).value, "UK_users");
     await name.setValue("uq_email_name");
     await wrapper.find('[data-testid="unique-create-confirm"]').trigger("click");
-    const keys = usersOf(diagram).uniqueConstraints ?? [];
+    const keys = usersOf(diagram).uniqueKeys ?? [];
     assert.equal(keys.at(-1)?.name, "uq_email_name");
-    assert.deepEqual(keys.at(-1)?.fields, []);
+    assert.deepEqual(keys.at(-1)?.columns, []);
+  });
+
+  it("renames the two names of a key one at a time", async () => {
+    const { diagram } = mountPanel();
+    diagram.addUniqueKey("t_users", {
+      id: "uk_names",
+      name: "uq_physical",
+      logicalName: "uq_physical",
+      columns: [{ fieldId: "f_email" }],
+    });
+    diagram.renameUniqueKey("t_users", "uk_names", { name: "uq_physical", logicalName: "uq_logical" });
+    const renamed = usersOf(diagram).uniqueKeys?.[0];
+    assert.equal(renamed?.logicalName, "uq_logical");
+    assert.equal(renamed?.name, "uq_physical");
+
+    diagram.renameUniqueKey("t_users", "uk_names", { name: "uq_physical_2" });
+    const twice = usersOf(diagram).uniqueKeys?.[0];
+    assert.equal(twice?.name, "uq_physical_2");
+    assert.equal(twice?.logicalName, "uq_logical");
+  });
+
+  it("undoubtedly keeps the key flags of the fields in step with the primary key", async () => {
+    const { diagram } = mountPanel();
+    diagram.setPrimaryColumns("t_users", [{ fieldId: "f_email" }], "PRIMARY");
+    assert.equal(usersOf(diagram).fields.find((field) => field.id === "f_email")?.primary, true);
+    assert.equal(usersOf(diagram).fields.find((field) => field.id === "f_id")?.primary, false);
+    assert.deepEqual(usersOf(diagram).primaryKey?.columns, [{ fieldId: "f_email" }]);
   });
 
   it("creates nothing when the form is cancelled", async () => {
     const { wrapper, diagram } = mountPanel();
     await wrapper.find('[data-testid="constraint-add-unique"]').trigger("click");
     await wrapper.find('[data-testid="unique-create-cancel"]').trigger("click");
-    assert.deepEqual(usersOf(diagram).uniqueConstraints ?? [], []);
+    assert.deepEqual(usersOf(diagram).uniqueKeys ?? [], []);
     assert.equal(wrapper.find('[data-testid="unique-create-name"]').exists(), false);
   });
 });
@@ -150,14 +177,14 @@ describe("creating an index", () => {
     const { wrapper, diagram } = mountPanel();
     await wrapper.find('[data-testid="index-create-open"]').trigger("click");
     const name = wrapper.find('[data-testid="index-create-name"]');
-    assert.equal((name.element as HTMLInputElement).value, "idx_users_1");
+    assert.equal((name.element as HTMLInputElement).value, "Idx_users");
     await name.setValue("idx_users_email_name");
     await wrapper.find('[data-testid="index-create-confirm"]').trigger("click");
     const indexes = usersOf(diagram).indices ?? [];
     assert.equal(indexes.at(-1)?.name, "idx_users_email_name");
     await wrapper.find('[data-testid="index-add-field-0"]').setValue("f_email");
     await wrapper.find('[data-testid="index-add-field-0"]').setValue("f_name");
-    assert.deepEqual(usersOf(diagram).indices?.[0]?.fields, ["f_email", "f_name"]);
+    assert.deepEqual(usersOf(diagram).indices?.[0]?.columns?.map((column) => column.fieldId), ["f_email", "f_name"]);
   });
 
   it("orders, removes and marks an index unique", async () => {
@@ -167,11 +194,11 @@ describe("creating an index", () => {
     await wrapper.find('[data-testid="index-add-field-0"]').setValue("f_email");
     await wrapper.find('[data-testid="index-add-field-0"]').setValue("f_name");
     await wrapper.find('[data-testid="index-field-down-0-0"]').trigger("click");
-    assert.deepEqual(usersOf(diagram).indices?.[0]?.fields, ["f_name", "f_email"]);
+    assert.deepEqual(usersOf(diagram).indices?.[0]?.columns?.map((column) => column.fieldId), ["f_name", "f_email"]);
     await wrapper.find('[data-testid="index-field-up-0-1"]').trigger("click");
-    assert.deepEqual(usersOf(diagram).indices?.[0]?.fields, ["f_email", "f_name"]);
+    assert.deepEqual(usersOf(diagram).indices?.[0]?.columns?.map((column) => column.fieldId), ["f_email", "f_name"]);
     await wrapper.find('[data-testid="index-remove-field-0-1"]').trigger("click");
-    assert.deepEqual(usersOf(diagram).indices?.[0]?.fields, ["f_email"]);
+    assert.deepEqual(usersOf(diagram).indices?.[0]?.columns?.map((column) => column.fieldId), ["f_email"]);
     await wrapper.find('[data-testid="index-unique-0"]').setValue(true);
     assert.equal(usersOf(diagram).indices?.[0]?.unique, true);
     await wrapper.find('[data-testid="index-remove-0"]').trigger("click");

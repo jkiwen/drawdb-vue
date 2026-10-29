@@ -108,3 +108,5 @@
 ## 执行偏差记录
 
 （执行中追加）
+- Task 6 的 FK 卡片仍以 `relationship.name` 作为约束名（`table.foreignKeys[]` 已由载入器与关系命令生成，但面板还没写它）；`comment` 字段的输入框尚未加到卡片；这两项留给 Task 7/8 之前补。
+- Task 6 的双名输入用两个新键 `edit_panel_key_logical_name` / `edit_panel_key_physical_name`；`KeyCard` 的标题只显示物理名，逻辑名在卡体内。

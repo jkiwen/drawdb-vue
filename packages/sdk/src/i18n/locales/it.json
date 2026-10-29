@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indici",
   "edit_panel_index_columns": "{count} colonna | {count} colonne",
   "edit_panel_indexes_empty": "Ancora nessun indice.",
+  "edit_panel_key_logical_name": "Nome logico",
+  "edit_panel_key_physical_name": "Nome fisico",
   "edit_panel_logical_attribute": "Attributo logico",
   "edit_panel_logical_description": "Descrizione logica",
   "edit_panel_logical_entity": "Entità logica",

@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "சுட்டிகள்",
   "edit_panel_index_columns": "{count} நிரல் | {count} நிரல்கள்",
   "edit_panel_indexes_empty": "இன்னும் சுட்டிகள் இல்லை.",
+  "edit_panel_key_logical_name": "தருக்கப் பெயர்",
+  "edit_panel_key_physical_name": "இயல்புப் பெயர்",
   "edit_panel_logical_attribute": "தருக்கப் பண்பு",
   "edit_panel_logical_description": "தருக்க விவரம்",
   "edit_panel_logical_entity": "தருக்க உறுப்பு",

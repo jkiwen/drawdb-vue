@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "انڊيڪس",
   "edit_panel_index_columns": "{count} ڪالم | {count} ڪالم",
   "edit_panel_indexes_empty": "اڃا ڪو انڊيڪس ناهي.",
+  "edit_panel_key_logical_name": "منطقي نالو",
+  "edit_panel_key_physical_name": "طبعي نالو",
   "edit_panel_logical_attribute": "منطقي خاصيت",
   "edit_panel_logical_description": "منطقي تفصيل",
   "edit_panel_logical_entity": "منطقي اينٽٽي",

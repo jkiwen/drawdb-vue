@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indexen",
   "edit_panel_index_columns": "{count} kolom | {count} kolommen",
   "edit_panel_indexes_empty": "Nog geen indexen.",
+  "edit_panel_key_logical_name": "Logische naam",
+  "edit_panel_key_physical_name": "Fysieke naam",
   "edit_panel_logical_attribute": "Logisch attribuut",
   "edit_panel_logical_description": "Logische beschrijving",
   "edit_panel_logical_entity": "Logische entiteit",

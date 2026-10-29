@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "索引",
   "edit_panel_index_columns": "{count} 欄 | {count} 欄",
   "edit_panel_indexes_empty": "尚無索引。",
+  "edit_panel_key_logical_name": "邏輯名稱",
+  "edit_panel_key_physical_name": "實體名稱",
   "edit_panel_logical_attribute": "邏輯屬性",
   "edit_panel_logical_description": "邏輯描述",
   "edit_panel_logical_entity": "邏輯實體",

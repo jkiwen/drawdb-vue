@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "אינדקסים",
   "edit_panel_index_columns": "{count} עמודה | {count} עמודות",
   "edit_panel_indexes_empty": "אין אינדקסים עדיין.",
+  "edit_panel_key_logical_name": "שם לוגי",
+  "edit_panel_key_physical_name": "שם פיזי",
   "edit_panel_logical_attribute": "מאפיין לוגי",
   "edit_panel_logical_description": "תיאור לוגי",
   "edit_panel_logical_entity": "ישות לוגית",

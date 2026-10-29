@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "इंडेक्स",
   "edit_panel_index_columns": "{count} कॉलम | {count} कॉलम्स",
   "edit_panel_indexes_empty": "अभी कोई इंडेक्स नहीं है।",
+  "edit_panel_key_logical_name": "तार्किक नाम",
+  "edit_panel_key_physical_name": "भौतिक नाम",
   "edit_panel_logical_attribute": "तार्किक विशेषता",
   "edit_panel_logical_description": "तार्किक विवरण",
   "edit_panel_logical_entity": "तार्किक इकाई",

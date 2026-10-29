@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "ئىندېكسلىر",
   "edit_panel_index_columns": "{count} ئىستون | {count} ئىستون",
   "edit_panel_indexes_empty": "تېخى ھېچقانداق ئىندېكس يوق.",
+  "edit_panel_key_logical_name": "لوگىكىلىق ئىسىم",
+  "edit_panel_key_physical_name": "فىزىكىلىق ئىسىم",
   "edit_panel_logical_attribute": "لوگىكىلىق خۇسۇسىيەت",
   "edit_panel_logical_description": "لوگىكىلىق چۈشەندۈرۈش",
   "edit_panel_logical_entity": "لوگىكىلىق ئوبيېكت",

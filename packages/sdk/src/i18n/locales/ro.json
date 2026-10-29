@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indici",
   "edit_panel_index_columns": "{count} coloană | {count} coloane",
   "edit_panel_indexes_empty": "Încă nu există indici.",
+  "edit_panel_key_logical_name": "Nume logic",
+  "edit_panel_key_physical_name": "Nume fizic",
   "edit_panel_logical_attribute": "Atribut logic",
   "edit_panel_logical_description": "Descriere logică",
   "edit_panel_logical_entity": "Entitate logică",

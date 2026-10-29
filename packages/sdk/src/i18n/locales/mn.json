@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Индексүүд",
   "edit_panel_index_columns": "{count} багана",
   "edit_panel_indexes_empty": "Одоогоор индекс байхгүй.",
+  "edit_panel_key_logical_name": "Логик нэр",
+  "edit_panel_key_physical_name": "Физик нэр",
   "edit_panel_logical_attribute": "Логик шинж чанар",
   "edit_panel_logical_description": "Логик тайлбар",
   "edit_panel_logical_entity": "Логик объект",

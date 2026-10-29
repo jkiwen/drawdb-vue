@@ -32,9 +32,9 @@ function sampleDiagram(): Diagram {
       fieldTypeSource: "explicit",
     },
   ];
-  users.uniqueConstraints = [{ name: "uq_name", fields: ["f_name"] }];
+  users.uniqueKeys = [{ id: "uk_name", name: "uq_name", logicalName: "uq_name", columns: [{ fieldId: "f_name" }] }];
   users.indices = [
-    { id: "i_name", name: "idx_name", unique: false, fields: ["f_name"] },
+    { id: "i_name", name: "idx_name", logicalName: "idx_name", unique: false, columns: [{ fieldId: "f_name" }] },
   ];
   const orders = createTable({
     id: "t_orders",

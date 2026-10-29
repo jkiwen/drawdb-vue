@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indexek",
   "edit_panel_index_columns": "{count} oszlop | {count} oszlop",
   "edit_panel_indexes_empty": "Még nincsenek indexek.",
+  "edit_panel_key_logical_name": "Logikai név",
+  "edit_panel_key_physical_name": "Fizikai név",
   "edit_panel_logical_attribute": "Logikai attribútum",
   "edit_panel_logical_description": "Logikai leírás",
   "edit_panel_logical_entity": "Logikai entitás",

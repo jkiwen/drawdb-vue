@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Fahirisi",
   "edit_panel_index_columns": "{count} safu | {count} safu",
   "edit_panel_indexes_empty": "Hakuna fahirisi bado.",
+  "edit_panel_key_logical_name": "Jina la kimantiki",
+  "edit_panel_key_physical_name": "Jina la kimwili",
   "edit_panel_logical_attribute": "Sifa ya kimantiki",
   "edit_panel_logical_description": "Maelezo ya kimantiki",
   "edit_panel_logical_entity": "Huluki ya kimantiki",

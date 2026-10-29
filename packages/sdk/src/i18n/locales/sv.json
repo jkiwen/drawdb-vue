@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Index",
   "edit_panel_index_columns": "{count} kolumn | {count} kolumner",
   "edit_panel_indexes_empty": "Inga index än.",
+  "edit_panel_key_logical_name": "Logiskt namn",
+  "edit_panel_key_physical_name": "Fysiskt namn",
   "edit_panel_logical_attribute": "Logiskt attribut",
   "edit_panel_logical_description": "Logisk beskrivning",
   "edit_panel_logical_entity": "Logisk entitet",

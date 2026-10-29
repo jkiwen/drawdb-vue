@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "సూచికలు",
   "edit_panel_index_columns": "{count} కాలమ్ | {count} కాలమ్‌లు",
   "edit_panel_indexes_empty": "ఇంకా సూచికలు లేవు.",
+  "edit_panel_key_logical_name": "తార్కిక పేరు",
+  "edit_panel_key_physical_name": "భౌతిక పేరు",
   "edit_panel_logical_attribute": "లాజికల్ ఆట్రిబ్యూట్",
   "edit_panel_logical_description": "లాజికల్ వివరణ",
   "edit_panel_logical_entity": "లాజికల్ ఎంటిటీ",

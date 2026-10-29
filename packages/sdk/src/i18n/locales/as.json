@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "ইণ্ডেক্সসমূহ",
   "edit_panel_index_columns": "{count} কলাম | {count} কলামসমূহ",
   "edit_panel_indexes_empty": "এতিয়ালৈকে কোনো ইণ্ডেক্স নাই।",
+  "edit_panel_key_logical_name": "লজিকেল নাম",
+  "edit_panel_key_physical_name": "ফিজিকেল নাম",
   "edit_panel_logical_attribute": "লজিকেল এট্ৰিবিউট",
   "edit_panel_logical_description": "লজিকেল বিৱৰণ",
   "edit_panel_logical_entity": "লজিকেল এণ্টিটি",

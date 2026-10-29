@@ -43,7 +43,7 @@ function sampleDiagram(): Diagram {
       fieldTypeSource: "explicit",
     },
   ];
-  users.uniqueConstraints = [{ id: "uk1", name: "uq_email", fields: ["f_email"] }];
+  users.uniqueKeys = [{ id: "uk1", name: "uq_email", logicalName: "uq_email", columns: [{ fieldId: "f_email" }] }];
   const orders = createTable({ id: "t_orders", name: "orders", x: 400, y: 0 });
   orders.fields = [
     {
@@ -102,7 +102,7 @@ describe("the constraints editor", () => {
     const { wrapper, diagram } = mountPanel();
     const input = wrapper.find('[data-testid="constraint-name-unique-0"]');
     await input.setValue("uq_email_name");
-    assert.equal(table(diagram, "t_users").uniqueConstraints?.[0]?.name, "uq_email_name");
+    assert.equal(table(diagram, "t_users").uniqueKeys?.[0]?.name, "uq_email_name");
   });
 
   it("adds a unique key under the name the form asks for", async () => {
@@ -111,32 +111,32 @@ describe("the constraints editor", () => {
     const name = wrapper.find('[data-testid="unique-create-name"]');
     await name.setValue("uq_name");
     await wrapper.find('[data-testid="unique-create-confirm"]').trigger("click");
-    const keys = table(diagram, "t_users").uniqueConstraints ?? [];
+    const keys = table(diagram, "t_users").uniqueKeys ?? [];
     assert.equal(keys.length, 2);
     assert.equal(keys[1]?.name, "uq_name");
-    assert.deepEqual(keys[1]?.fields, []);
+    assert.deepEqual(keys[1]?.columns?.map((column) => column.fieldId), []);
   });
 
   it("orders and removes the columns of a unique key", async () => {
     const { wrapper, diagram } = mountPanel();
     await wrapper.find('[data-testid="constraint-add-field-0"]').setValue("f_name");
-    assert.deepEqual(table(diagram, "t_users").uniqueConstraints?.[0]?.fields, [
+    assert.deepEqual(table(diagram, "t_users").uniqueKeys?.[0]?.columns?.map((column) => column.fieldId), [
       "f_email",
       "f_name",
     ]);
     await wrapper.find('[data-testid="constraint-field-down-0-0"]').trigger("click");
-    assert.deepEqual(table(diagram, "t_users").uniqueConstraints?.[0]?.fields, [
+    assert.deepEqual(table(diagram, "t_users").uniqueKeys?.[0]?.columns?.map((column) => column.fieldId), [
       "f_name",
       "f_email",
     ]);
     await wrapper.find('[data-testid="constraint-remove-field-0-1"]').trigger("click");
-    assert.deepEqual(table(diagram, "t_users").uniqueConstraints?.[0]?.fields, ["f_name"]);
+    assert.deepEqual(table(diagram, "t_users").uniqueKeys?.[0]?.columns?.map((column) => column.fieldId), ["f_name"]);
   });
 
   it("removes a unique key", async () => {
     const { wrapper, diagram } = mountPanel();
     await wrapper.find('[data-testid="constraint-remove-unique-0"]').trigger("click");
-    assert.deepEqual(table(diagram, "t_users").uniqueConstraints, []);
+    assert.deepEqual(table(diagram, "t_users").uniqueKeys, []);
   });
 
   it("renames a foreign key through the relationship it stands for", async () => {

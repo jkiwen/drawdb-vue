@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indekser",
   "edit_panel_index_columns": "{count} kolonne | {count} kolonner",
   "edit_panel_indexes_empty": "Ingen indekser ennå.",
+  "edit_panel_key_logical_name": "Logisk navn",
+  "edit_panel_key_physical_name": "Fysisk navn",
   "edit_panel_logical_attribute": "Logisk attributt",
   "edit_panel_logical_description": "Logisk beskrivelse",
   "edit_panel_logical_entity": "Logisk entitet",

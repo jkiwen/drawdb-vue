@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Індекси",
   "edit_panel_index_columns": "{count} стовпець | {count} стовпці | {count} стовпців",
   "edit_panel_indexes_empty": "Індексів ще немає.",
+  "edit_panel_key_logical_name": "Логічна назва",
+  "edit_panel_key_physical_name": "Фізична назва",
   "edit_panel_logical_attribute": "Логічний атрибут",
   "edit_panel_logical_description": "Логічний опис",
   "edit_panel_logical_entity": "Логічна сутність",

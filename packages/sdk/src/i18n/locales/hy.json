@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Ինդեքսներ",
   "edit_panel_index_columns": "{count} սյունակ | {count} սյունակ",
   "edit_panel_indexes_empty": "Դեռ ինդեքսներ չկան։",
+  "edit_panel_key_logical_name": "Տրամաբանական անվանում",
+  "edit_panel_key_physical_name": "Ֆիզիկական անվանում",
   "edit_panel_logical_attribute": "Տրամաբանական ատրիբուտ",
   "edit_panel_logical_description": "Տրամաբանական նկարագրություն",
   "edit_panel_logical_entity": "Տրամաբանական միավոր",

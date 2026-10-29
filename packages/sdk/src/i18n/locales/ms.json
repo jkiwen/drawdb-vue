@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indeks",
   "edit_panel_index_columns": "{count} lajur",
   "edit_panel_indexes_empty": "Belum ada indeks.",
+  "edit_panel_key_logical_name": "Nama logik",
+  "edit_panel_key_physical_name": "Nama fizikal",
   "edit_panel_logical_attribute": "Atribut logik",
   "edit_panel_logical_description": "Penerangan logik",
   "edit_panel_logical_entity": "Entiti logik",

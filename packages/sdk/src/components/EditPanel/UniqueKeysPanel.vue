@@ -1,23 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { createId } from "@drawdb/core";
-import type { FieldId, Table, UniqueConstraint } from "@drawdb/core";
+import { createId, keyColumns } from "@drawdb/core";
+import type { FieldId, Table, UniqueKey } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
-import { nextUniqueName } from "./constraint-forms.ts";
+import { suggestedKeyName } from "../../stores/key-actions.ts";
 import styles from "./edit-panel.module.css";
 import KeyCard from "./KeyCard.vue";
 
 /**
- * The unique keys of the selected table: a key is created by naming it, then
- * edited the way the primary key is — columns are added from a picker,
- * ordered and removed. Each key is a card (review of 2026-10-29).
+ * The unique keys of the selected table.
+ *
+ * A key is an object of its own (design section 3.8.3): it has a name, an
+ * ordered list of columns and its own step on the undo stack, so creating,
+ * renaming, ordering and removing are all one command each.
  */
 const props = defineProps<{ table: Table }>();
 
 const diagram = useDiagramStore();
 
-const keys = computed<UniqueConstraint[]>(() => props.table.uniqueConstraints ?? []);
+const keys = computed<UniqueKey[]>(() => props.table.uniqueKeys ?? []);
 
 const creating = ref(false);
 const draftName = ref("");
@@ -25,21 +27,22 @@ const draftName = ref("");
 const fieldName = (id: FieldId): string =>
   props.table.fields.find((field) => String(field.id) === String(id))?.name ?? String(id);
 
-function summaryOf(key: UniqueConstraint): string {
-  return key.fields.length > 0 ? `(${key.fields.map(fieldName).join(", ")})` : "";
+function columnsOf(key: UniqueKey) {
+  return keyColumns(key);
 }
 
-function freeFields(taken: readonly string[]) {
+function summaryOf(key: UniqueKey): string {
+  const columns = columnsOf(key).map((column) => fieldName(column.fieldId));
+  return columns.length > 0 ? `(${columns.join(", ")})` : "";
+}
+
+function freeFields(taken: readonly FieldId[]) {
   const used = new Set(taken.map(String));
   return props.table.fields.filter((field) => !used.has(String(field.id)));
 }
 
-function write(next: UniqueConstraint[]): void {
-  diagram.updateTable(props.table.id, { uniqueConstraints: next });
-}
-
 function openCreate(): void {
-  draftName.value = nextUniqueName(props.table);
+  draftName.value = suggestedKeyName("unique", props.table);
   creating.value = true;
 }
 
@@ -48,47 +51,60 @@ function cancelCreate(): void {
 }
 
 function confirmCreate(): void {
-  const name = draftName.value.trim() || nextUniqueName(props.table);
-  write([...keys.value, { id: createId(), name, fields: [] }]);
+  const name = draftName.value.trim() || suggestedKeyName("unique", props.table);
+  diagram.addUniqueKey(props.table.id, {
+    id: createId(),
+    name,
+    logicalName: name,
+    columns: [],
+  });
   creating.value = false;
 }
 
 function rename(index: number, name: string): void {
-  write(keys.value.map((key, at) => (at === index ? { ...key, name } : key)));
+  const key = keys.value[index];
+  if (!key) return;
+  diagram.renameUniqueKey(props.table.id, String(key.id), { name });
+}
+
+function renameLogical(index: number, logicalName: string): void {
+  const key = keys.value[index];
+  if (!key) return;
+  diagram.renameUniqueKey(props.table.id, String(key.id), { name: key.name, logicalName });
 }
 
 function remove(index: number): void {
-  write(keys.value.filter((_, at) => at !== index));
+  const key = keys.value[index];
+  if (!key) return;
+  diagram.removeUniqueKey(props.table.id, String(key.id));
 }
 
 function addField(index: number, fieldId: string): void {
-  if (fieldId === "") return;
-  write(
-    keys.value.map((key, at) =>
-      at === index ? { ...key, fields: [...key.fields, fieldId] } : key,
-    ),
-  );
+  const key = keys.value[index];
+  if (!key || fieldId === "") return;
+  diagram.setUniqueColumns(props.table.id, String(key.id), [...columnsOf(key), { fieldId }]);
 }
 
 function removeField(index: number, at: number): void {
-  write(
-    keys.value.map((key, position) =>
-      position === index ? { ...key, fields: key.fields.filter((_, i) => i !== at) } : key,
-    ),
+  const key = keys.value[index];
+  if (!key) return;
+  diagram.setUniqueColumns(
+    props.table.id,
+    String(key.id),
+    columnsOf(key).filter((_, position) => position !== at),
   );
 }
 
 function moveField(index: number, at: number, delta: -1 | 1): void {
   const key = keys.value[index];
   if (!key) return;
+  const columns = [...columnsOf(key)];
   const to = at + delta;
-  if (to < 0 || to >= key.fields.length) return;
-  const fields = [...key.fields];
-  const [moved] = fields.splice(at, 1);
-  fields.splice(to, 0, moved!);
-  write(keys.value.map((item, position) => (position === index ? { ...item, fields } : item)));
+  if (to < 0 || to >= columns.length) return;
+  const [moved] = columns.splice(at, 1);
+  columns.splice(to, 0, moved!);
+  diagram.setUniqueColumns(props.table.id, String(key.id), columns);
 }
-
 </script>
 
 <template>
@@ -105,6 +121,7 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
     </header>
 
     <div v-if="creating" :class="styles['create-form']" data-testid="unique-create">
+
       <label :class="styles.field">
         <span :class="styles.label">{{ t("name") }}</span>
         <input
@@ -152,7 +169,7 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
         >×</button>
       </template>
       <label :class="styles.field">
-        <span :class="styles.label">{{ t("name") }}</span>
+        <span :class="styles.label">{{ t("edit_panel_key_physical_name") }}</span>
         <input
           :class="styles.input"
           :value="key.name"
@@ -161,13 +178,22 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
           @change="(event) => rename(index, (event.target as HTMLInputElement).value)"
         />
       </label>
+      <label :class="styles.field">
+        <span :class="styles.label">{{ t("edit_panel_key_logical_name") }}</span>
+        <input
+          :class="styles.input"
+          :value="key.logicalName ?? key.name"
+          :data-testid="`constraint-logical-name-unique-${index}`"
+          @change="(event) => renameLogical(index, (event.target as HTMLInputElement).value)"
+        />
+      </label>
       <div
-        v-for="(fieldId, at) in key.fields"
-        :key="`${String(fieldId)}-${at}`"
+        v-for="(column, at) in columnsOf(key)"
+        :key="`${String(column.fieldId)}-${at}`"
         :class="styles['constraint-row']"
         data-testid="constraint-unique-field"
       >
-        <span :class="styles['constraint-fields']">{{ fieldName(fieldId) }}</span>
+        <span :class="styles['constraint-fields']">{{ fieldName(column.fieldId) }}</span>
         <button
           type="button"
           :class="[styles['link-button'], styles['link-button--muted']]"
@@ -191,14 +217,14 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
         >×</button>
       </div>
       <select
-        v-if="freeFields(key.fields.map(String)).length > 0"
+        v-if="freeFields(columnsOf(key).map((column) => column.fieldId)).length > 0"
         :class="styles.select"
         :data-testid="`constraint-add-field-${index}`"
         @change="(event) => addField(index, (event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ t("add_field") }}</option>
         <option
-          v-for="field in freeFields(key.fields.map(String))"
+          v-for="field in freeFields(columnsOf(key).map((column) => column.fieldId))"
           :key="String(field.id)"
           :value="String(field.id)"
         >{{ field.name }}</option>

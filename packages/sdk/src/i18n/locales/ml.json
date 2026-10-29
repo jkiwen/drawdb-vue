@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "ഇൻഡെക്സുകൾ",
   "edit_panel_index_columns": "{count} കോളം | {count} കോളങ്ങൾ",
   "edit_panel_indexes_empty": "ഇതുവരെ ഇൻഡെക്സുകളില്ല.",
+  "edit_panel_key_logical_name": "ലോജിക്കൽ നാമം",
+  "edit_panel_key_physical_name": "ഫിസിക്കൽ നാമം",
   "edit_panel_logical_attribute": "ലോജിക്കൽ ആട്രിബ്യൂട്ട്",
   "edit_panel_logical_description": "ലോജിക്കൽ വിവരണം",
   "edit_panel_logical_entity": "ലോജിക്കൽ എന്റിറ്റി",

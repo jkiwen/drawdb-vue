@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "インデックス",
   "edit_panel_index_columns": "{count} 列",
   "edit_panel_indexes_empty": "インデックスはまだありません。",
+  "edit_panel_key_logical_name": "論理名",
+  "edit_panel_key_physical_name": "物理名",
   "edit_panel_logical_attribute": "論理属性",
   "edit_panel_logical_description": "論理説明",
   "edit_panel_logical_entity": "論理エンティティ",

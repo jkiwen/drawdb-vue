@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "المؤشرات",
   "edit_panel_index_columns": "{count} عمود | {count} أعمدة",
   "edit_panel_indexes_empty": "لا توجد مؤشرات بعد.",
+  "edit_panel_key_logical_name": "الاسم المنطقي",
+  "edit_panel_key_physical_name": "الاسم الفيزيائي",
   "edit_panel_logical_attribute": "سمة منطقية",
   "edit_panel_logical_description": "وصف منطقي",
   "edit_panel_logical_entity": "كيان منطقي",

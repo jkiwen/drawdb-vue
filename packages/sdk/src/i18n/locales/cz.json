@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Indexy",
   "edit_panel_index_columns": "{count} sloupec | {count} sloupce | {count} sloupců",
   "edit_panel_indexes_empty": "Zatím žádné indexy.",
+  "edit_panel_key_logical_name": "Logický název",
+  "edit_panel_key_physical_name": "Fyzický název",
   "edit_panel_logical_attribute": "Logický atribut",
   "edit_panel_logical_description": "Logický popis",
   "edit_panel_logical_entity": "Logická entita",

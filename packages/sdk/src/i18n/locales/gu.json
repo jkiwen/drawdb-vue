@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "ઇન્ડેક્સ",
   "edit_panel_index_columns": "{count} કૉલમ | {count} કૉલમો",
   "edit_panel_indexes_empty": "હજી કોઈ ઇન્ડેક્સ નથી.",
+  "edit_panel_key_logical_name": "લોજિકલ નામ",
+  "edit_panel_key_physical_name": "ફિઝિકલ નામ",
   "edit_panel_logical_attribute": "લોજિકલ એટ્રિબ્યુટ",
   "edit_panel_logical_description": "લોજિકલ વર્ણન",
   "edit_panel_logical_entity": "લોજિકલ એન્ટિટી",

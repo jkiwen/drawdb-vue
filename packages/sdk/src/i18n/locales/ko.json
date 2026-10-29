@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "인덱스",
   "edit_panel_index_columns": "{count}개 열",
   "edit_panel_indexes_empty": "아직 인덱스가 없습니다.",
+  "edit_panel_key_logical_name": "논리 이름",
+  "edit_panel_key_physical_name": "물리 이름",
   "edit_panel_logical_attribute": "논리 속성",
   "edit_panel_logical_description": "논리 설명",
   "edit_panel_logical_entity": "논리 엔터티",

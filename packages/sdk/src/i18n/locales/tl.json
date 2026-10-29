@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Mga index",
   "edit_panel_index_columns": "{count} hanay | {count} hanay",
   "edit_panel_indexes_empty": "Wala pang index.",
+  "edit_panel_key_logical_name": "Lohikal na pangalan",
+  "edit_panel_key_physical_name": "Pisikal na pangalan",
   "edit_panel_logical_attribute": "Lohikal na attribute",
   "edit_panel_logical_description": "Lohikal na paglalarawan",
   "edit_panel_logical_entity": "Lohikal na entity",

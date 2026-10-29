@@ -199,6 +199,8 @@
   "edit_panel_group_indexes": "Chỉ mục",
   "edit_panel_index_columns": "{count} cột",
   "edit_panel_indexes_empty": "Chưa có chỉ mục nào.",
+  "edit_panel_key_logical_name": "Tên logic",
+  "edit_panel_key_physical_name": "Tên vật lý",
   "edit_panel_logical_attribute": "Thuộc tính logic",
   "edit_panel_logical_description": "Mô tả logic",
   "edit_panel_logical_entity": "Thực thể logic",
