@@ -84,7 +84,7 @@ describe("parseDBML", () => {
     assert.equal(posts.indices?.length, 1);
     assert.equal(posts.indices?.[0].name, "idx_posts_user");
     assert.deepEqual(
-      posts.indices?.[0].fields.map(
+      (posts.indices?.[0].fields ?? []).map(
         (id) => posts.fields.find((f) => f.id === id)?.name,
       ),
       ["user_id"],

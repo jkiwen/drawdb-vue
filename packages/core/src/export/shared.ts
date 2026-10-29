@@ -3,6 +3,8 @@ import type { Field } from "../models/field.ts";
 import type { PhysicalSpec } from "../models/physical.ts";
 import type { Relationship } from "../models/relationship.ts";
 import type { Table } from "../models/table.ts";
+import type { Index } from "../models/keys.ts";
+import { keyColumns } from "../models/keys.ts";
 import { getTypeMetadata } from "./dialect-meta.ts";
 
 /**
@@ -126,6 +128,27 @@ export function exportLogicalNameComment(table: Table, field: Field): string {
     return "";
   }
   return `\t-- ${attribute.name}\n`;
+}
+
+/**
+ * The columns of an index, in index order, quoted for the dialect. A
+ * column that names a direction carries it; a reader that dropped it would
+ * export an index the database builds in the wrong order.
+ */
+export function indexColumnList(
+  table: Table,
+  index: Index,
+  quote: (s: string) => string,
+): string {
+  return keyColumns(index)
+    .map((column) => {
+      const name =
+        table.fields.find((field) => String(field.id) === String(column.fieldId))
+          ?.name ?? String(column.fieldId);
+      const quoted = quote(name);
+      return column.order ? `${quoted} ${column.order.toUpperCase()}` : quoted;
+    })
+    .join(", ");
 }
 
 export function uniqueConstraintClause(

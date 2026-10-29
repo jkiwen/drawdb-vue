@@ -7,6 +7,7 @@ import {
   exportLogicalNameComment,
   fieldSizeSuffix,
   getFkColumnNames,
+  indexColumnList,
   uniqueConstraintClause,
 } from "./shared.ts";
 import { appendViews } from "./views.ts";
@@ -111,13 +112,7 @@ function tablesToGeneric(diagram: Diagram): string {
       const indexStatements = (table.indices ?? [])
         .map(
           (i) =>
-            `CREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(i.name)}\nON ${quoteIdentifier(table.name)} (${i.fields
-              .map((f) =>
-                quoteIdentifier(
-                  table.fields.find((fl) => fl.id === f)?.name ?? String(f),
-                ),
-              )
-              .join(", ")});`,
+            `CREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(i.name)}\nON ${quoteIdentifier(table.name)} (${indexColumnList(table, i, quoteIdentifier)});`,
         )
         .join("\n");
 

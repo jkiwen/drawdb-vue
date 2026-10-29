@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { createId } from "@drawdb/core";
+import { createId, indexFields } from "@drawdb/core";
 import type { FieldId, Index, Table } from "@drawdb/core";
 import { t } from "../../i18n/index.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
@@ -28,7 +28,7 @@ const fieldName = (id: FieldId): string =>
   props.table.fields.find((field) => String(field.id) === String(id))?.name ?? String(id);
 
 function summaryOf(item: Index): string {
-  const columns = item.fields.map(fieldName).join(", ");
+  const columns = indexFields(item).map(fieldName).join(", ");
   if (columns === "") return item.unique ? t("unique") : "";
   return `(${columns})${item.unique ? ` ${t("unique")}` : ""}`;
 }
@@ -74,7 +74,7 @@ function addField(index: number, fieldId: string): void {
   if (fieldId === "") return;
   write(
     indexes.value.map((item, at) =>
-      at === index ? { ...item, fields: [...item.fields, fieldId] } : item,
+      at === index ? { ...item, fields: [...indexFields(item), fieldId] } : item,
     ),
   );
 }
@@ -82,7 +82,7 @@ function addField(index: number, fieldId: string): void {
 function removeField(index: number, at: number): void {
   write(
     indexes.value.map((item, position) =>
-      position === index ? { ...item, fields: item.fields.filter((_, i) => i !== at) } : item,
+      position === index ? { ...item, fields: indexFields(item).filter((_, i) => i !== at) } : item,
     ),
   );
 }
@@ -91,8 +91,8 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
   const item = indexes.value[index];
   if (!item) return;
   const to = at + delta;
-  if (to < 0 || to >= item.fields.length) return;
-  const fields = [...item.fields];
+  if (to < 0 || to >= indexFields(item).length) return;
+  const fields = [...indexFields(item)];
   const [moved] = fields.splice(at, 1);
   fields.splice(to, 0, moved!);
   write(indexes.value.map((entry, position) => (position === index ? { ...entry, fields } : entry)));
@@ -213,14 +213,14 @@ function moveField(index: number, at: number, delta: -1 | 1): void {
         >×</button>
       </div>
       <select
-        v-if="freeFields(item.fields).length > 0"
+        v-if="freeFields(indexFields(item)).length > 0"
         :class="styles.select"
         :data-testid="`index-add-field-${index}`"
         @change="(event) => addField(index, (event.target as HTMLSelectElement).value)"
       >
         <option value="">{{ t("add_field") }}</option>
         <option
-          v-for="field in freeFields(item.fields)"
+          v-for="field in freeFields(indexFields(item))"
           :key="String(field.id)"
           :value="String(field.id)"
         >{{ field.name }}</option>

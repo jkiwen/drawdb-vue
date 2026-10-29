@@ -6,6 +6,7 @@ import {
   exportFieldComment,
   exportLogicalNameComment,
   getInlineFK,
+  indexColumnList,
   uniqueConstraintClause,
 } from "./shared.ts";
 import { appendViews } from "./views.ts";
@@ -106,13 +107,7 @@ function tablesToSqlite(diagram: Diagram): string {
           (i) =>
             `\nCREATE ${i.unique ? "UNIQUE " : ""}INDEX IF NOT EXISTS ${quoteIdentifier(
               i.name,
-            )}\nON ${quoteIdentifier(table.name)} (${i.fields
-              .map((f) =>
-                quoteIdentifier(
-                  table.fields.find((fl) => fl.id === f)?.name ?? String(f),
-                ),
-              )
-              .join(", ")});`,
+            )}\nON ${quoteIdentifier(table.name)} (${indexColumnList(table, i, quoteIdentifier)});`,
         )
         .join("\n")}`;
     })

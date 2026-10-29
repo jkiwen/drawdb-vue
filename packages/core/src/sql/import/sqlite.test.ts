@@ -151,7 +151,7 @@ describe("fromSQLite", () => {
     assert.equal(table.indices?.[0].name, "idx_posts_title");
     assert.equal(table.indices?.[0].unique, false);
     assert.deepEqual(
-      table.indices?.[0].fields.map(
+      (table.indices?.[0].fields ?? []).map(
         (id) => table.fields.find((f) => f.id === id)?.name,
       ),
       ["title"],
@@ -161,7 +161,7 @@ describe("fromSQLite", () => {
     assert.equal(table.indices?.[1].name, "uq_posts_title_id");
     assert.equal(table.indices?.[1].unique, true);
     assert.deepEqual(
-      table.indices?.[1].fields.map(
+      (table.indices?.[1].fields ?? []).map(
         (id) => table.fields.find((f) => f.id === id)?.name,
       ),
       ["title", "id"],

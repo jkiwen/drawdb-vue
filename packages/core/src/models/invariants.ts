@@ -81,12 +81,28 @@ export function removeFieldAtomic(table: Table, fieldId: FieldId): Table {
   const attributes = (table.logical?.attributes ?? []).filter(
     (a) => a.fieldId !== fieldId,
   );
+  const withoutField = <T extends { fieldId: FieldId }>(columns: T[] | undefined) =>
+    columns?.filter((column) => String(column.fieldId) !== String(fieldId));
+  // An index that has not been migrated yet carries its ids in fields only;
+  // its columns stay undefined instead of becoming an empty array.
+  const columnsOf = <T extends { fieldId: FieldId }>(columns: T[] | undefined) =>
+    columns === undefined ? [] : (withoutField(columns) ?? []);
   const indices = table.indices
-    ?.map((ix) => ({ ...ix, fields: ix.fields.filter((id) => id !== fieldId) }))
-    .filter((ix) => ix.fields.length > 0);
+    ?.map((ix) => ({
+      ...ix,
+      columns: ix.columns === undefined ? undefined : columnsOf(ix.columns),
+      fields: (ix.fields ?? []).filter((id) => String(id) !== String(fieldId)),
+    }))
+    .filter((ix) => (ix.columns?.length ?? ix.fields?.length ?? 0) > 0);
+  const uniqueKeys = table.uniqueKeys
+    ?.map((uk) => ({ ...uk, columns: columnsOf(uk.columns) }))
+    .filter((uk) => uk.columns.length > 0);
+  const primaryKey = table.primaryKey
+    ? { ...table.primaryKey, columns: columnsOf(table.primaryKey.columns) }
+    : undefined;
   const uniqueConstraints = table.uniqueConstraints
-    ?.map((uc) => ({ ...uc, fields: uc.fields.filter((id) => id !== fieldId) }))
-    .filter((uc) => uc.fields.length > 0);
+    ?.map((uc) => ({ ...uc, fields: (uc.fields ?? []).filter((id) => String(id) !== String(fieldId)) }))
+    .filter((uc) => (uc.fields?.length ?? 0) > 0);
   return {
     ...table,
     fields,
@@ -94,6 +110,10 @@ export function removeFieldAtomic(table: Table, fieldId: FieldId): Table {
       ? { ...table.logical, attributes }
       : table.logical,
     indices,
+    // A key without columns is not a key any more, so an empty one is dropped;
+    // a primary key keeps its place because the table still declares one.
+    primaryKey: primaryKey?.columns.length ? primaryKey : undefined,
+    uniqueKeys,
     uniqueConstraints,
   };
 }

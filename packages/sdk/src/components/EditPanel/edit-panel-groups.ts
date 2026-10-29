@@ -1,3 +1,4 @@
+import { indexFields } from "@drawdb/core";
 import type {
   FieldTypeSource,
   Relationship,
@@ -87,7 +88,7 @@ export function tableIndexes(table: Table): IndexRow[] {
     id: String(index.id ?? index.name),
     name: index.name,
     unique: index.unique === true,
-    fields: index.fields.map((fieldId) => {
+    fields: indexFields(index).map((fieldId) => {
       const field = table.fields.find(
         (candidate) => String(candidate.id) === String(fieldId),
       );

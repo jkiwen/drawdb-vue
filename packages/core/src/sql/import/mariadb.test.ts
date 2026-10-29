@@ -96,7 +96,7 @@ describe("fromMariaDB", () => {
     assert.equal(users.indices?.length, 1);
     assert.equal(users.indices?.[0].name, "idx_email");
     assert.deepEqual(
-      users.indices?.[0].fields.map(
+      (users.indices?.[0].fields ?? []).map(
         (id) => users.fields.find((f) => f.id === id)?.name,
       ),
       ["email"],

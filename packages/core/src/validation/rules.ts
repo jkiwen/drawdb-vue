@@ -1,5 +1,6 @@
 import type { DatabaseType, Diagram } from "../models/diagram.ts";
 import type { Table } from "../models/table.ts";
+import { keyColumns } from "../models/keys.ts";
 import { getTypeMetadata } from "../types/registry.ts";
 import { classifyDefaultKind } from "../types/registry.ts";
 import type { DefaultKind } from "../types/registry.ts";
@@ -317,7 +318,7 @@ export function checkIndices(diagram: Diagram): DiagramIssue[] {
           ),
         );
       }
-      if (!(index?.fields?.length > 0)) {
+      if (!(index && keyColumns(index).length > 0)) {
         found.push(
           issue(
             "index.no_fields",

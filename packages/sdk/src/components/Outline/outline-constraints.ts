@@ -1,3 +1,4 @@
+import { indexFields } from "@drawdb/core";
 import type { Diagram, Table } from "@drawdb/core";
 import type { OutlineNode, OutlineViewLayer } from "./outline-nodes.ts";
 import { matchesNode } from "./outline-nodes.ts";
@@ -103,7 +104,7 @@ export function keyNodes(
       `index:${refId}`,
       refId,
       `INDEX ${item.name}`,
-      `${item.name} (${fieldNames(item.fields)})`,
+      `${item.name} (${fieldNames(indexFields(item))})`,
     );
     if (node) indexNodes.push(node);
   }

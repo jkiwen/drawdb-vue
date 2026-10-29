@@ -121,7 +121,7 @@ test("imports unique constraints and indices", () => {
   assert.equal(users.indices?.[0].name, "idx_users_name");
   assert.equal(users.indices?.[0].unique, true);
   assert.deepEqual(
-    users.indices?.[0].fields.map(
+    (users.indices?.[0].fields ?? []).map(
       (id) => users.fields.find((f) => f.id === id)?.name,
     ),
     ["name"],
@@ -129,7 +129,7 @@ test("imports unique constraints and indices", () => {
   assert.equal(users.indices?.[1].name, "idx_users_id_name");
   assert.equal(users.indices?.[1].unique, false);
   assert.deepEqual(
-    users.indices?.[1].fields.map(
+    (users.indices?.[1].fields ?? []).map(
       (id) => users.fields.find((f) => f.id === id)?.name,
     ),
     ["id", "name"],

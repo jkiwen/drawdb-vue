@@ -6,6 +6,7 @@ import {
   exportLogicalNameComment,
   fieldSizeSuffix,
   getFkColumnNames,
+  indexColumnList,
   uniqueConstraintClause,
 } from "./shared.ts";
 
@@ -186,13 +187,7 @@ function tablesToMssql(diagram: Diagram): string {
           (i) =>
             `\nCREATE ${i.unique ? "UNIQUE " : ""}INDEX ${quoteIdentifier(
               i.name,
-            )}\nON ${quoteIdentifier(table.name)} (${i.fields
-              .map((f) =>
-                quoteIdentifier(
-                  table.fields.find((fl) => fl.id === f)?.name ?? String(f),
-                ),
-              )
-              .join(", ")});\nGO\n`,
+            )}\nON ${quoteIdentifier(table.name)} (${indexColumnList(table, i, quoteIdentifier)});\nGO\n`,
         )
         .join("");
 

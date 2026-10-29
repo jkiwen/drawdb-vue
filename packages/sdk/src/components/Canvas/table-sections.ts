@@ -1,3 +1,4 @@
+import { indexFields } from "@drawdb/core";
 import type { Table, ViewLayer, ViewStateToggles } from "@drawdb/core";
 import {
   TABLE_COMMENT_INSET,
@@ -229,10 +230,10 @@ function indexSection(table: Table, layer: ViewLayer): TableSectionModel | null 
   const lines: string[] = [];
   const refs: SectionRef[] = [];
   for (const index of table.indices ?? []) {
-    const fields = fieldList(names, index.fields);
+    const fields = fieldList(names, indexFields(index));
     const body = index.name ? `${index.name} (${fields})` : `(${fields})`;
     lines.push(index.unique ? `${body} UNIQUE` : body);
-    refs.push({ fieldId: index.fields[0] ?? "" });
+    refs.push({ fieldId: indexFields(index)[0] ?? "" });
   }
   return keySection("index", "INDEX", lines, refs, { fieldId: "" });
 }

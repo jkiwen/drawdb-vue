@@ -207,7 +207,7 @@ describe("fromMSSQL", () => {
     assert.equal(users.indices?.[0].name, "ix_users_email");
     assert.equal(users.indices?.[0].unique, true);
     assert.deepEqual(
-      users.indices?.[0].fields.map(
+      (users.indices?.[0].fields ?? []).map(
         (id) => users.fields.find((f) => f.id === id)?.name,
       ),
       ["email"],
