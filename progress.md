@@ -620,3 +620,27 @@ onto the dialects and the printing of the sheet — into the places the design a
   an A4 at 96 dpi and start the next page when the height is spent.
 - Verification: run-tests.mjs 1286 pass, pnpm typecheck five programs clean, e2e 55 pass,
   turbo run build 4/4.
+
+## The erwin importer arrived (2026-10-30)
+
+The importer reads the XML Standard File of ERWin 7 with a small parser of
+its own rather than a dependency, because the shape of the file is simple and
+the tolerance it needs is the opposite of what a strict parser offers.
+
+It is lenient but not silent (spec 16.5): every element or value it cannot
+turn into something becomes an invalid marker on the diagram, with the path,
+the name and the original text, and the report says how many of each. A
+diagram imported from erwin therefore opens, edits and exports as usual, with
+the parts that were not understood marked where they stood.
+
+The physical types of an erwin file are marked `imported` rather than
+`mapped` (Q8): the file states a type, the type system did not compute it, and
+a reader that later edits the type has to know which one it is overwriting.
+
+Domains are read into the report and left out of the diagram: the domain
+store lives in the SDK type scope, and the importer does not write across the
+layer it belongs to (section 5).
+
+Verified by `run-tests.mjs` (core + sdk), the five typecheck programs, the
+e2e suite and the build; the commits are listed in the plan of P7.
+

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { importSQL, parseDBML } from "@drawdb/core";
+import { importErwinXml, importSQL, parseDBML } from "@drawdb/core";
+import type { ErwinImportReport } from "@drawdb/core";
 import type { DatabaseType, Diagram } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
 
@@ -16,7 +17,7 @@ defineOptions({ name: "DrawDBImportDialog" });
 const props = withDefaults(
   defineProps<{
     open?: boolean;
-    format?: "sql" | "dbml" | "json";
+    format?: "sql" | "dbml" | "json" | "erwin";
     database?: DatabaseType;
   }>(),
   { open: false, format: "sql", database: "generic" },
@@ -32,15 +33,22 @@ const source = ref("");
 const error = ref("");
 const success = ref(false);
 const parsed = ref<Diagram | null>(null);
+/** What the erwin reader read, shown before the diagram is adopted. */
+const report = ref<ErwinImportReport | null>(null);
 
 /** Parses the source the user typed and prepares the import. */
 function apply(): void {
   error.value = "";
   success.value = false;
   parsed.value = null;
+  report.value = null;
   try {
     if (props.format === "sql") {
       parsed.value = importSQL(source.value, props.database);
+    } else if (props.format === "erwin") {
+      const imported = importErwinXml(source.value, { database: props.database });
+      parsed.value = imported.diagram;
+      report.value = imported.report;
     } else if (props.format === "dbml") {
       parsed.value = parseDBML(source.value, { database: props.database });
     } else {
@@ -86,6 +94,44 @@ function close(): void {
       data-testid="import-input"
       rows="8"
     ></textarea>
+    <dl v-if="report" class="ddb-import__report" data-testid="import-report">
+      <div>
+        <dt>Version</dt>
+        <dd data-testid="import-report-version">{{ report.version }}</dd>
+      </div>
+      <div>
+        <dt>Entities</dt>
+        <dd data-testid="import-report-entities">{{ report.entities }}</dd>
+      </div>
+      <div>
+        <dt>Attributes</dt>
+        <dd data-testid="import-report-attributes">{{ report.attributes }}</dd>
+      </div>
+      <div>
+        <dt>Fields</dt>
+        <dd data-testid="import-report-fields">{{ report.fields }}</dd>
+      </div>
+      <div>
+        <dt>Domains</dt>
+        <dd data-testid="import-report-domains">{{ report.domains }}</dd>
+      </div>
+      <div>
+        <dt>Relationships</dt>
+        <dd data-testid="import-report-relationships">{{ report.relationships }}</dd>
+      </div>
+      <div>
+        <dt>Skipped</dt>
+        <dd data-testid="import-report-skipped">{{ report.skipped.length }}</dd>
+      </div>
+    </dl>
+    <ul v-if="report && report.skipped.length > 0" class="ddb-import__skipped" data-testid="import-report-list">
+      <li v-for="(item, index) in report.skipped" :key="index" data-testid="import-report-item">
+        {{ item.path }} — {{ item.sourceName }} ({{ item.reason }})
+      </li>
+    </ul>
+    <ul v-if="report && report.notes.length > 0" class="ddb-import__notes" data-testid="import-notes">
+      <li v-for="(note, index) in report.notes" :key="index">{{ note }}</li>
+    </ul>
     <p v-if="error" class="ddb-import__error" data-testid="import-error">
       {{ error }}
     </p>
@@ -158,6 +204,28 @@ function close(): void {
   font-size: 13px;
   padding: 8px;
   resize: vertical;
+}
+.ddb-import__report {
+  display: grid;
+  gap: 4px 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+.ddb-import__report dt {
+  color: var(--ddb-text-muted, #666);
+  font-size: 11px;
+}
+.ddb-import__report dd {
+  font-size: 13px;
+  margin: 0;
+}
+.ddb-import__skipped,
+.ddb-import__notes {
+  font-size: 12px;
+  margin: 0;
+  max-height: 120px;
+  overflow: auto;
+  padding-left: 18px;
 }
 .ddb-import__error {
   color: var(--ddb-danger, #d03050);

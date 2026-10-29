@@ -11,7 +11,7 @@ export type EditorDialogName =
   | "relationship";
 
 /** The formats the import dialog understands. */
-export type ImportFormat = "sql" | "dbml" | "json";
+export type ImportFormat = "sql" | "dbml" | "json" | "erwin";
 
 /** The formats the SQL preview dialog understands. */
 export type SqlPreviewFormat = "sql" | "dbml";

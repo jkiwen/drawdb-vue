@@ -46,3 +46,12 @@ export type {
 export * from "./utils/arrange-tables.ts";
 export * from "./utils/clone.ts";
 export * from "./utils/id.ts";
+
+// The erwin compatibility layer (P7, spec section 16).
+export type { InvalidMarker } from "./models/invalid-marker.ts";
+export type { ErwinAttribute, ErwinDocument, ErwinDomain, ErwinEntity, ErwinField, ErwinRelationship, ErwinSkip, ErwinSkipReason, ErwinTypeRef } from "./erwin/erwin-model.ts";
+export { readErwinDocument } from "./erwin/erwin-model.ts";
+export type { ErwinImportOptions, ErwinImportReport, ErwinImportResult } from "./erwin/erwin-import.ts";
+export { familyOfType, importErwinXml } from "./erwin/erwin-import.ts";
+export type { XmlNode } from "./erwin/xml.ts";
+export { parseXml } from "./erwin/xml.ts";

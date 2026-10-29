@@ -20,6 +20,18 @@ import type { Diagram } from "@drawdb/core";
 
 /** The dialogs of the editor: the preview, the import and the inference. */
 
+/** A small ERWin 7 Standard File: two attributes, two fields and an unknown element. */
+const ERWIN_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<Model Version="7">
+  <Entity EntryId="E1" EntryName="Customer" TableName="customers">
+    <Attribute attributeid="A1" attributeName="Customer id" attributetype="Integer" fieldid="F1" primaryKey="true"/>
+    <Attribute attributeid="A2" attributeName="Email" attributetype="String" fieldid="F2"/>
+    <Field fieldId="F1" fieldName="customer_id"><FieldType Datatype="int" length="4"/></Field>
+    <Field fieldId="F2" fieldName="email"><FieldType Datatype="varchar" length="120"/></Field>
+  </Entity>
+  <UDP><Something/></UDP>
+</Model>`;
+
 function seed(): Diagram {
   return {
     id: "d1",
@@ -241,6 +253,28 @@ describe("ImportDialog", () => {
     await nextTick();
     assert.equal(diagram.tables.length, 1);
     assert.equal(diagram.tables[0].fields.length, 2);
+  });
+
+  it("the import dialog reads an erwin file and shows what it read", async () => {
+    const diagram = setup(seed());
+    const wrapper = mountDialog(ImportDialog, { open: true, format: "erwin" });
+    await nextTick();
+    setValue(wrapper, "import-input", ERWIN_XML);
+    await nextTick();
+    await wrapper.find('[data-testid="import-apply"]').trigger("click");
+    await nextTick();
+    assert.equal(wrapper.find('[data-testid="import-report-version"]').text(), "7");
+    assert.equal(wrapper.find('[data-testid="import-report-entities"]').text(), "1");
+    assert.equal(wrapper.find('[data-testid="import-report-attributes"]').text(), "2");
+    assert.equal(wrapper.find('[data-testid="import-report-skipped"]').text(), "1");
+    assert.match(wrapper.find('[data-testid="import-report-list"]').text(), /UDP/);
+    await wrapper.find('[data-testid="import-confirm"]').trigger("click");
+    await nextTick();
+    // The file describes one table, so the diagram of the editor has it.
+    assert.equal(diagram.tables.length, 1);
+    assert.equal(diagram.tables[0].name, "customers");
+    assert.equal(diagram.tables[0].fields[0].fieldTypeSource, "imported");
+    assert.equal(diagram.diagram.invalidMarkers?.length, 1);
   });
 
   it("the import dialog imports a json diagram", async () => {

@@ -26,7 +26,7 @@ withDefaults(
     /** The SVG markup of the canvas, handed to the image export. */
     svg?: string;
     /** The format the import dialog reads its source as. */
-    importFormat?: "sql" | "dbml" | "json";
+    importFormat?: "sql" | "dbml" | "json" | "erwin";
     /** The dialect the import dialog parses the source with. */
     database?: DatabaseType;
     /** The format the preview of the SQL opens in, when the host picks one. */

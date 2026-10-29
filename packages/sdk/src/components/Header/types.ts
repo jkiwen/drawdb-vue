@@ -29,6 +29,7 @@ export const DEFAULT_MENU_GROUPS: MenuBarGroup[] = [
       { key: "save", label: "Save" },
       { key: "import-sql", label: "Import SQL" },
       { key: "import-json", label: "Import JSON" },
+      { key: "import-erwin", label: "Import erwin XML" },
       { key: "export-sql", label: "Export SQL" },
       { key: "export-dbml", label: "Export DBML" },
       { key: "export-json", label: "Export JSON" },

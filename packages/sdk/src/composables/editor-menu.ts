@@ -74,6 +74,9 @@ export function runEditorMenu(
     case "file:import-json":
       actions.openDialog("import", { format: "json" });
       return true;
+    case "file:import-erwin":
+      actions.openDialog("import", { format: "erwin" });
+      return true;
     case "file:export-png":
       actions.openDialog("imageExport");
       return true;

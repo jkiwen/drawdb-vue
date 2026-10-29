@@ -2,6 +2,7 @@ import type { Area } from "./area.ts";
 import type { CustomType } from "./type.ts";
 import type { Enum } from "./enum.ts";
 import type { LogicalRelationship } from "./logical-relationship.ts";
+import type { InvalidMarker } from "./invalid-marker.ts";
 import type { Metadata } from "./metadata.ts";
 import type { Note } from "./note.ts";
 import type { Relationship } from "./relationship.ts";
@@ -43,6 +44,12 @@ export interface Diagram {
   enums: Enum[];
   views: View[];
   metadata?: Metadata;
+  /**
+   * The pieces of an imported file the reader could not turn into a value
+   * (P7, ruling Q18): the diagram stays valid and the report points at what
+   * the user may want to fix by hand.
+   */
+  invalidMarkers?: InvalidMarker[];
   /**
    * The view state of the diagram (UI document section 9.2, ruling Q2):
    * saved with the diagram, restored on load, never part of the undo stack.

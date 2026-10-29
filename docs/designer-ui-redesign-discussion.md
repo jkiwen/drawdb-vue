@@ -656,3 +656,13 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 | 独立的类型页 | packages/app/src/views/TypesView.vue + /types 路由 | 整页挂同一份 DSM，关闭回到首页 |
 | 打印与预览（Q8） | packages/sdk/src/components/Print/ | 分页的 A4 纸面（print-layout.ts 的 printPages），文件组带两个入口，window.print 交给浏览器 |
 
+## 12.9 第十轮改动（2026-10-30，P7 erwin 导入）
+
+| 项 | 落地 | 说明 |
+| --- | --- | --- |
+| XML 读取 | `packages/core/src/erwin/xml.ts` | 无依赖的宽容解析器：元素/属性/文本/CDATA、实体解码、标签不配对时按名字收栈、名字归一化（忽略大小写与 `_`/`-`） |
+| erwin 文档 | `packages/core/src/erwin/erwin-model.ts` | `readErwinDocument` 读成实体/属性/字段/域/关系；版本取根元素 `Version`，读不到记 `unknown`；未知元素与读不懂的值进 `skipped` |
+| 映射 | `packages/core/src/erwin/erwin-import.ts` | 表名取物理名、逻辑实体取 `EntryName`、物理类型标 `imported`、PK 由标记合成、关系由 `Relationship` 合成，末尾跑 `normalizeDiagramKeys` |
+| 无效标记 | `Diagram.invalidMarkers` | Q18：位置在、语义标无效；标记随图序列化，不参与导出 |
+| 报告与入口 | `ImportDialog` 的 `format: "erwin"`、文件菜单 `Import erwin XML` | 对话框先显示版本/实体/属性/字段/域/关系/跳过的计数与列表，再确认替换 |
+
