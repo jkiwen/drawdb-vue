@@ -39,7 +39,6 @@ function makeTable(patch: Partial<Table> = {}): Table {
         name: "id",
         fieldType: { type: "INTEGER" },
         fieldTypeSource: "mapped",
-        primary: true,
       },
       {
         id: "f2",
@@ -85,10 +84,18 @@ function makeTable(patch: Partial<Table> = {}): Table {
     },
     comment: "The people table",
     indices: [
-      { id: "i1", name: "idx_email", unique: false, fields: ["f2"] },
-      { id: "i2", name: "idx_org", unique: true, fields: ["f3"] },
+      { id: "i1", name: "idx_email", unique: false, columns: [{ fieldId: "f2" }] },
+      { id: "i2", name: "idx_org", unique: true, columns: [{ fieldId: "f3" }] },
     ],
-    uniqueConstraints: [{ id: "u1", name: "uk_email", fields: ["f2"] }],
+    uniqueKeys: [
+      {
+        id: "u1",
+        name: "uk_email",
+        logicalName: "uk_email",
+        columns: [{ fieldId: "f2" }],
+      },
+    ],
+    primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f1" }] },
     ...patch,
   } as Table;
 }
@@ -135,7 +142,7 @@ describe("tableSections", () => {
 
   it("lists the primary key, the foreign keys, the unique keys and the indices", () => {
     const table = makeTable();
-    assert.deepEqual(sectionOf(table, "primary")?.lines, ["PRIMARY (id)"]);
+    assert.deepEqual(sectionOf(table, "primary")?.lines, ["PK_users (id)"]);
     assert.deepEqual(sectionOf(table, "foreign")?.lines, [
       "fk_posts_user: org_id → organisations.id",
     ]);
@@ -167,7 +174,8 @@ describe("tableSections", () => {
         },
       ],
       indices: [],
-      uniqueConstraints: [],
+      uniqueKeys: [],
+      primaryKey: undefined,
       comment: undefined,
     } as Partial<Table>);
     assert.deepEqual(kinds(table), ["foreign"]);
@@ -199,7 +207,7 @@ describe("tableSections", () => {
   });
 
   it("reads the keys of the logical layer from the attributes", () => {
-    const table = makeTable({ indices: [], uniqueConstraints: [] } as Partial<Table>);
+    const table = makeTable({ indices: [], uniqueKeys: [], primaryKey: undefined } as Partial<Table>);
     const sections = tableSections({
       table,
       layer: "logical",
@@ -359,7 +367,6 @@ describe("tableSections with the key objects (P2')", () => {
 
   it("lists the unique keys of the key objects", () => {
     const table = makeTable({
-      uniqueConstraints: [],
       fields: makeTable().fields.map((field) => ({ ...field, unique: false })),
       uniqueKeys: [
         {

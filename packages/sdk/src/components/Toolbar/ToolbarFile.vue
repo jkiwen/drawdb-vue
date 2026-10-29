@@ -6,8 +6,8 @@
  * key — the editor routes it through the same path as the menu bar
  * (`runEditorMenu` of the editor-menu composable).
  *
- * Printing is out of this iteration: the design leaves it to P6 with the
- * print preview, so the group does not carry the two print buttons yet.
+ * Printing hands the sheet to the print preview of the editor (ruling Q8);
+ * the host may still claim either key through its own menu handler.
  */
 import { t } from "../../i18n/index.ts";
 import ToolbarButton from "./ToolbarButton.vue";
@@ -22,6 +22,8 @@ const ACTIONS = [
   { key: "file:saveAs", icon: "file-save-as", titleKey: "file_save_as", testid: "toolbar-file-save-as" },
   { key: "file:import", icon: "file-import", titleKey: "file_import", testid: "toolbar-file-import" },
   { key: "file:export", icon: "file-export", titleKey: "file_export", testid: "toolbar-file-export" },
+  { key: "file:print-preview", icon: "file-print-preview", titleKey: "file_print_preview", testid: "toolbar-file-print-preview" },
+  { key: "file:print", icon: "file-print", titleKey: "file_print", testid: "toolbar-file-print" },
 ];
 </script>
 

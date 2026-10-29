@@ -23,7 +23,7 @@ const same = (a: FieldId | string | number, b: FieldId | string | number): boole
 
 /** The first free `uk_<table>_<n>`. */
 export function nextUniqueName(table: Table): string {
-  const taken = new Set((table.uniqueConstraints ?? []).map((key) => key.name));
+  const taken = new Set((table.uniqueKeys ?? []).map((key) => key.name));
   for (let n = 1; ; n += 1) {
     const name = `uk_${table.name}_${n}`;
     if (!taken.has(name)) return name;

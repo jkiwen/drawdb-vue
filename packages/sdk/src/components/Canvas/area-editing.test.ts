@@ -693,8 +693,9 @@ describe("the collapse of an area", () => {
       y: 80,
       logical: { id: "l_users", name: "users", attributes: [] },
       fields: [
-        { id: "users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+        { id: "users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
       ],
+      primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "users_id" }] },
     });
     diagram.addTable({
       id: "posts",
@@ -703,9 +704,10 @@ describe("the collapse of an area", () => {
       y: 600,
       logical: { id: "l_posts", name: "posts", attributes: [] },
       fields: [
-        { id: "posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+        { id: "posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
         { id: "posts_user_id", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
       ],
+      primaryKey: { id: "pk_posts", name: "PK_posts", logicalName: "PK_posts", columns: [{ fieldId: "posts_id" }] },
     });
     diagram.addRelationship({
       id: "rel-1",

@@ -6,7 +6,8 @@ import { useDiagramStore } from "../../stores/diagram.ts";
 import type { FocusIssueTarget } from "../../stores/selection-actions.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import type { DialectDiagnostic, DialectSeverity } from "./dialect-lint.ts";
-import { emptyTypeScope, lintDialect } from "./dialect-lint.ts";
+import { lintDialect } from "./dialect-lint.ts";
+import { useTypeScopeStore } from "../../stores/type-scope.ts";
 
 /** The channel an alert of the bottom panel comes from. */
 export type AlertSource = "diagram" | "dialect";
@@ -138,7 +139,7 @@ export function useAlerts(): {
 
   const dialectDiagnostics = computed<DialectDiagnostic[]>(() => {
     void diagram.revision;
-    return lintDialect(diagram.diagram, emptyTypeScope());
+    return lintDialect(diagram.diagram, useTypeScopeStore().getSnapshot());
   });
 
   const alerts = computed<AlertItem[]>(() => {

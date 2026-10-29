@@ -1,4 +1,4 @@
-import { keyColumns, indexFields } from "@drawdb/core";
+import { keyColumns } from "@drawdb/core";
 import type { Table, ViewLayer } from "@drawdb/core";
 import {
   TABLE_SECTION_LABEL_HEIGHT,
@@ -71,10 +71,7 @@ export function primarySection(table: Table, layer: ViewLayer): TableSectionMode
   }
   const key = table.primaryKey;
   const columns = key === undefined ? [] : keyColumns(key);
-  const ids =
-    columns.length > 0
-      ? columns.map((column) => column.fieldId)
-      : table.fields.filter((field) => field.primary === true).map((field) => field.id);
+  const ids = columns.map((column) => column.fieldId);
   const names = fieldList(fieldNames(table), ids);
   const label = key?.name ?? "PRIMARY";
   return keySection(
@@ -144,14 +141,6 @@ export function uniqueSection(table: Table, layer: ViewLayer): TableSectionModel
       covered.add(String(id));
     }
   }
-  for (const constraint of table.uniqueConstraints ?? []) {
-    const fields = fieldList(names, constraint.fields);
-    lines.push(constraint.name ? `${constraint.name} (${fields})` : `(${fields})`);
-    refs.push({ fieldId: constraint.fields[0] ?? "" });
-    for (const id of constraint.fields) {
-      covered.add(String(id));
-    }
-  }
   for (const field of table.fields) {
     if (field.unique === true && !covered.has(String(field.id))) {
       lines.push(field.name);
@@ -171,20 +160,17 @@ export function indexSection(table: Table, layer: ViewLayer): TableSectionModel 
   const refs: SectionRef[] = [];
   for (const index of table.indices ?? []) {
     const columns = keyColumns(index);
-    const fields =
-      columns.length > 0
-        ? columns
-            .map((column) => {
-              const name = fieldList(names, [column.fieldId]);
-              return column.order === undefined
-                ? name
-                : `${name} ${column.order === "desc" ? "DESC" : "ASC"}`;
-            })
-            .join(", ")
-        : fieldList(names, indexFields(index));
+    const fields = columns
+      .map((column) => {
+        const name = fieldList(names, [column.fieldId]);
+        return column.order === undefined
+          ? name
+          : `${name} ${column.order === "desc" ? "DESC" : "ASC"}`;
+      })
+      .join(", ");
     const body = index.name ? `${index.name} (${fields})` : `(${fields})`;
     lines.push(index.unique ? `${body} UNIQUE` : body);
-    refs.push({ fieldId: columns[0]?.fieldId ?? indexFields(index)[0] ?? "" });
+    refs.push({ fieldId: columns[0]?.fieldId ?? "" });
   }
   return keySection("index", "INDEX", lines, refs, { fieldId: "" });
 }

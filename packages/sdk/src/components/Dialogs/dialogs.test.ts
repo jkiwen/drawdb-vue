@@ -40,9 +40,10 @@ function seed(): Diagram {
           ],
         },
         fields: [
-          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
           { id: "f2", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
         ],
+        primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f1" }] },
       },
     ],
     relationships: [],
@@ -74,9 +75,10 @@ function seedWithChild(): Diagram {
       ],
     },
     fields: [
-      { id: "f3", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+      { id: "f3", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
       { id: "f4", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
     ],
+    primaryKey: { id: "pk_orders", name: "PK_orders", logicalName: "PK_orders", columns: [{ fieldId: "f3" }] },
   });
   return diagram;
 }

@@ -5,6 +5,7 @@ import type {
   Field,
   FieldId,
   LogicalAttribute,
+  TypeScopeSnapshot,
   LogicalRelationship,
   Note,
   PhysicalSpec,
@@ -152,15 +153,16 @@ export interface FieldPairRow {
 }
 
 // The physical spec a logical attribute suggests for a dialect: the
-// resolution of the core with an empty type scope (the sdk loads no
-// custom domains yet). An unmapped result — a domain reference, an
-// unknown family or a family without a dialect mapping — has no
-// suggestion.
+// resolution of the core against the scope the editor carries (the
+// application and workspace layers of the type system). An unmapped result —
+// a domain reference, an unknown family or a family without a dialect
+// mapping — has no suggestion.
 export function suggestPhysicalSpec(
   attribute: LogicalAttribute,
   database: DatabaseType,
+  scope: TypeScopeSnapshot = emptyTypeScope(),
 ): PhysicalSpec | undefined {
-  const result = resolveType(attribute, database, emptyTypeScope());
+  const result = resolveType(attribute, database, scope);
   return result.unmapped ? undefined : result.suggested;
 }
 

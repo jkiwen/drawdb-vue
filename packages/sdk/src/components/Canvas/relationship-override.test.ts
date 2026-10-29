@@ -27,10 +27,16 @@ function seed(pinia: ReturnType<typeof createPinia>) {
       y: 100,
       logical: { id: `l_${id}`, name: id, attributes: [] },
       fields: [
-        { id: `${id}_id`, name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, notNull: true },
+        { id: `${id}_id`, name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", notNull: true },
         { id: `${id}_name`, name: "name", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
         { id: `${id}_mail`, name: "mail", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
       ],
+      primaryKey: {
+        id: `pk_${id}`,
+        name: `PK_${id}`,
+        logicalName: `PK_${id}`,
+        columns: [{ fieldId: `${id}_id` }],
+      },
     });
   }
 

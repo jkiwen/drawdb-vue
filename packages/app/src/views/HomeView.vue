@@ -4,6 +4,8 @@ import { RouterLink, useRouter } from "vue-router";
 import { createId, type Diagram } from "@drawdb/core";
 import { downloadDiagramJson, readDiagramJsonFile } from "../services/diagram-io.ts";
 import { getStorage } from "../services/storage.ts";
+import { t } from "@drawdb/vue-sdk";
+import PreferencesDialog from "../components/PreferencesDialog.vue";
 
 const router = useRouter();
 const diagrams = ref<Diagram[]>([]);
@@ -17,6 +19,9 @@ const error = ref("");
  * that is not a ref does not work in the production build.
  */
 const picker = ref<HTMLInputElement | undefined>();
+
+/** Whether the application-wide preferences are open (ruling Q7). */
+const preferencesOpen = ref(false);
 
 async function refresh() {
   loading.value = true;
@@ -65,6 +70,12 @@ onMounted(refresh);
         <RouterLink class="button ghost" to="/templates" data-testid="link-templates">
           Templates
         </RouterLink>
+        <RouterLink class="button ghost" to="/types" data-testid="link-types">
+          {{ t("type_system_title") }}
+        </RouterLink>
+        <button class="button ghost" type="button" data-testid="open-preferences" @click="preferencesOpen = true">
+          {{ t("settings") }}
+        </button>
         <button class="button ghost" type="button" data-testid="import-json" @click="pickDiagram">
           Import JSON
         </button>
@@ -110,4 +121,12 @@ onMounted(refresh);
       </li>
     </ul>
   </section>
+  <div v-if="preferencesOpen" class="preferences-backdrop" data-testid="preferences-backdrop" @click.self="preferencesOpen = false">
+    <div class="preferences-sheet">
+      <PreferencesDialog />
+      <button class="button ghost" type="button" data-testid="close-preferences" @click="preferencesOpen = false">
+        {{ t("close") }}
+      </button>
+    </div>
+  </div>
 </template>

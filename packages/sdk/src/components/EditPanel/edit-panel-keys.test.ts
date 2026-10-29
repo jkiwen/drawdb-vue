@@ -18,10 +18,11 @@ function sampleDiagram(): Diagram {
   const diagram = createEmptyDiagram();
   const users = createTable({ id: "t_users", name: "users", logicalName: "User", x: 0, y: 0 });
   users.fields = [
-    { id: "f_id", name: "id", fieldType: { type: "INT" }, fieldTypeSource: "mapped", primary: true },
+    { id: "f_id", name: "id", fieldType: { type: "INT" }, fieldTypeSource: "mapped" },
     { id: "f_email", name: "email", fieldType: { type: "VARCHAR" }, fieldTypeSource: "explicit" },
     { id: "f_name", name: "name", fieldType: { type: "VARCHAR" }, fieldTypeSource: "explicit" },
   ];
+users.primaryKey = { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f_id" }] };
   const orders = createTable({ id: "t_orders", name: "orders", x: 400, y: 0 });
   orders.fields = [
     { id: "o_id", name: "id", fieldType: { type: "INT" }, fieldTypeSource: "mapped" },
@@ -91,12 +92,11 @@ describe("creating a unique key", () => {
     assert.equal(twice?.logicalName, "uq_logical");
   });
 
-  it("undoubtedly keeps the key flags of the fields in step with the primary key", async () => {
+  it("replaces the primary key columns when it is set", async () => {
     const { diagram } = mountPanel();
     diagram.setPrimaryColumns("t_users", [{ fieldId: "f_email" }], "PRIMARY");
-    assert.equal(usersOf(diagram).fields.find((field) => field.id === "f_email")?.primary, true);
-    assert.equal(usersOf(diagram).fields.find((field) => field.id === "f_id")?.primary, false);
     assert.deepEqual(usersOf(diagram).primaryKey?.columns, [{ fieldId: "f_email" }]);
+    assert.ok(!usersOf(diagram).primaryKey?.columns.some((column) => column.fieldId === "f_id"));
   });
 
   it("creates nothing when the form is cancelled", async () => {

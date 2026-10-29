@@ -26,14 +26,12 @@ const diagram = useDiagramStore();
 const PRIMARY_NAME = "PRIMARY";
 
 /**
- * The columns of the primary key: the key object when the document has one,
- * the primary flag of the fields otherwise. Reading one place keeps the card,
- * the canvas and the script of the diagram in agreement.
+ * The columns of the primary key. The key object is the only source, so the
+ * card, the canvas and the script of the diagram agree.
  */
 const primaryColumns = computed<FieldId[]>(() => {
   const key = props.table.primaryKey;
-  if (key) return keyColumns(key).map((column) => column.fieldId);
-  return props.table.fields.filter((field) => field.primary === true).map((field) => field.id);
+  return key === undefined ? [] : keyColumns(key).map((column) => column.fieldId);
 });
 
 const primaryFields = computed(() =>

@@ -37,6 +37,20 @@ const overview = computed(() => fieldOverview(rows.value));
 function onRemove(row: (typeof rows.value)[number]): void {
   removeFieldPair(store, props.table, row);
 }
+
+/** Adds or drops one column of the primary key of the table. */
+function onCommitPrimary(fieldId: FieldId, on: boolean): void {
+  const primary = props.table.primaryKey;
+  const current = (primary?.columns ?? []).map((column) => column.fieldId);
+  const next = on
+    ? [...current, fieldId]
+    : current.filter((id) => String(id) !== String(fieldId));
+  store.setPrimaryColumns(
+    props.table.id,
+    next.map((id) => ({ fieldId: id })),
+    primary?.name ?? "PRIMARY",
+  );
+}
 </script>
 
 <template>
@@ -58,7 +72,7 @@ function onRemove(row: (typeof rows.value)[number]): void {
           @commit-logical-family="(id, family) => commitLogicalFamily(store, props.table, id, family)"
           @commit-physical-name="(id, value) => commitPhysicalName(store, props.table, id, value)"
           @commit-physical-type="(id, spec) => commitPhysicalType(store, props.table, id, spec)"
-          @commit-primary="(id, on) => store.updateField(props.table.id, id, { primary: on })"
+          @commit-primary="onCommitPrimary"
           @remove="onRemove(row)"
         />
       </div>

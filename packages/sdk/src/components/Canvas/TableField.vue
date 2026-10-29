@@ -8,6 +8,7 @@ import { useDiagramStore } from "../../stores/diagram.ts";
 import { useInlineEdit } from "../../composables/use-inline-edit.ts";
 import { t } from "../../i18n/index.ts";
 import type { TableFieldRowModel } from "./render-model.ts";
+import { nextPrimaryColumns, primaryKeyName } from "../primary-key-edit.ts";
 
 defineOptions({ name: "DrawDBTableField" });
 
@@ -139,12 +140,10 @@ function onCommitType(): void {
 
 function onTogglePrimary(event: Event): void {
   event.stopPropagation();
-  if (props.locked || !props.editable || !props.field) {
-    return;
-  }
-  diagram.updateField(props.table.id, props.field.id, {
-    primary: !props.field.primary,
-  });
+  if (props.locked || !props.editable || !props.field) return;
+  const fieldId = props.field.id;
+  const isPrimary = (props.table.primaryKey?.columns ?? []).some((column) => String(column.fieldId) === String(fieldId));
+  diagram.setPrimaryColumns(props.table.id, nextPrimaryColumns(props.table, fieldId, !isPrimary), primaryKeyName(props.table));
 }
 
 function onRemove(event: Event): void {

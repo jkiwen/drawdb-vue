@@ -28,7 +28,6 @@ function sampleDiagram(): Diagram {
       name: "id",
       fieldType: { type: "INT" },
       fieldTypeSource: "mapped",
-      primary: true,
     },
     {
       id: "f_email",
@@ -43,6 +42,7 @@ function sampleDiagram(): Diagram {
       fieldTypeSource: "explicit",
     },
   ];
+users.primaryKey = { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f_id" }] };
   users.uniqueKeys = [{ id: "uk1", name: "uq_email", logicalName: "uq_email", columns: [{ fieldId: "f_email" }] }];
   const orders = createTable({ id: "t_orders", name: "orders", x: 400, y: 0 });
   orders.fields = [
@@ -89,13 +89,19 @@ describe("the constraints editor", () => {
     const { wrapper, diagram } = mountPanel();
     const picker = wrapper.find('[data-testid="constraint-add-field-primary"]');
     await picker.setValue("f_name");
-    assert.equal(table(diagram, "t_users").fields[2]?.primary, true);
+    const users = table(diagram, "t_users");
+    assert.ok(
+      (users.primaryKey?.columns ?? []).some((column) => column.fieldId === users.fields[2]?.id),
+    );
   });
 
   it("drops a column from the primary key", async () => {
     const { wrapper, diagram } = mountPanel();
     await wrapper.find('[data-testid="constraint-remove-field-primary"]').trigger("click");
-    assert.equal(table(diagram, "t_users").fields[0]?.primary, false);
+    const users = table(diagram, "t_users");
+    assert.ok(
+      !(users.primaryKey?.columns ?? []).some((column) => column.fieldId === users.fields[0]?.id),
+    );
   });
 
   it("renames a unique key", async () => {

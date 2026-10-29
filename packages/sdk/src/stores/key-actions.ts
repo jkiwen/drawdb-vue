@@ -11,7 +11,6 @@ import {
 import type {
   Command,
   Diagram,
-  FieldId,
   Index,
   IndexColumn,
   PrimaryKey,
@@ -38,7 +37,6 @@ export class SetPrimaryKeyCommand implements Command {
   private readonly columns: IndexColumn[];
   private readonly name: string | undefined;
   private previousKey: PrimaryKey | undefined;
-  private previousFlags: { id: FieldId; primary: boolean }[] = [];
 
   constructor(diagram: Diagram, tableId: TableId, columns: IndexColumn[], name?: string) {
     this.diagram = diagram;
@@ -55,15 +53,6 @@ export class SetPrimaryKeyCommand implements Command {
     const table = this.table();
     if (!table) return;
     this.previousKey = table.primaryKey;
-    this.previousFlags = table.fields.map((field) => ({
-      id: field.id,
-      primary: field.primary === true,
-    }));
-
-    const members = new Set(this.columns.map((column) => String(column.fieldId)));
-    for (const field of table.fields) {
-      field.primary = members.has(String(field.id));
-    }
 
     table.primaryKey =
       this.columns.length === 0
@@ -80,10 +69,6 @@ export class SetPrimaryKeyCommand implements Command {
     const table = this.table();
     if (!table) return;
     table.primaryKey = this.previousKey;
-    for (const flag of this.previousFlags) {
-      const field = table.fields.find((entry) => String(entry.id) === String(flag.id));
-      if (field) field.primary = flag.primary;
-    }
   }
 
   private table(): Table | undefined {

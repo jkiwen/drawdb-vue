@@ -52,8 +52,8 @@ const fieldOptions = computed(() =>
 );
 
 /** The primary key of the selected table, the field a table alone points at. */
-const primaryKeyId = computed(() =>
-  selectedTable.value?.fields.find((field) => field.primary)?.id,
+const primaryKeyId = computed(
+  () => selectedTable.value?.primaryKey?.columns[0]?.fieldId,
 );
 
 function onTableChange(value: string | number | null): void {

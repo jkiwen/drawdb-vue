@@ -50,7 +50,7 @@ const tables = computed(() => diagram.tables);
 function primaryKeyOf(tableId: string | number | null): string | number | null {
   if (tableId === null) return null;
   const table = diagram.tableById(tableId);
-  return table?.fields.find((field) => field.primary)?.id ?? null;
+  return table?.primaryKey?.columns[0]?.fieldId ?? null;
 }
 
 /**

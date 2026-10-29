@@ -1,6 +1,7 @@
 import { AutoArrangeCommand, ToggleTableLockCommand, autoArrange } from "@drawdb/core";
 import { useDiagramStore } from "../../../stores/diagram.ts";
 import { useHistoryStore } from "../../../stores/history.ts";
+import { SetPrimaryKeyCommand } from "../../../stores/key-actions.ts";
 import { createTable, uniqueTableName } from "../../../utils/elements.ts";
 import type { ContextMenuTarget } from "./interaction-state.ts";
 
@@ -73,9 +74,20 @@ export function useCanvasCommands(): CanvasCommands {
           return false;
         }
         if (key === "field:primary") {
-          diagram.updateField(target.tableId, target.fieldId, {
-            primary: !field.primary,
-          });
+          const table = diagram.tableById(target.tableId);
+          if (!table) {
+            return false;
+          }
+          const primaryColumns = table.primaryKey?.columns ?? [];
+          const isPrimary = primaryColumns.some(
+            (column) => String(column.fieldId) === String(target.fieldId),
+          );
+          const columns = isPrimary
+            ? primaryColumns.filter(
+                (column) => String(column.fieldId) !== String(target.fieldId),
+              )
+            : [...primaryColumns, { fieldId: target.fieldId }];
+          history.execute(new SetPrimaryKeyCommand(diagram.diagram, table.id, columns));
         }
         if (key === "field:not-null") {
           diagram.updateField(target.tableId, target.fieldId, {

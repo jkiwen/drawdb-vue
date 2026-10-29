@@ -141,8 +141,14 @@ test("opens the editor of a diagram", async () => {
             ],
           },
           fields: [
-            { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+            { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
           ],
+          primaryKey: {
+            id: "pk_users",
+            name: "PK_users",
+            logicalName: "PK_users",
+            columns: [{ fieldId: "f1" }],
+          },
         },
       ];
       await storage.save(diagram);
@@ -175,8 +181,14 @@ test("arranges the tables and opens the issues of the diagram", async () => {
           ],
         },
         fields: [
-          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
         ],
+        primaryKey: {
+          id: "pk_users",
+          name: "PK_users",
+          logicalName: "PK_users",
+          columns: [{ fieldId: "f1" }],
+        },
       },
       {
         id: "t2",
@@ -191,8 +203,14 @@ test("arranges the tables and opens the issues of the diagram", async () => {
           ],
         },
         fields: [
-          { id: "f2", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "f2", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
         ],
+        primaryKey: {
+          id: "pk_invoices",
+          name: "PK_invoices",
+          logicalName: "PK_invoices",
+          columns: [{ fieldId: "f2" }],
+        },
       },
     ];
     await storage.save(diagram);

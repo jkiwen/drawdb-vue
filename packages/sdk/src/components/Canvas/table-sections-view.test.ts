@@ -41,10 +41,10 @@ function seed(pinia: Pinia) {
         name: "id",
         fieldType: { type: "INTEGER" },
         fieldTypeSource: "explicit",
-        primary: true,
         notNull: true,
       },
     ],
+    primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "users_id" }] },
   });
 
   return diagram;

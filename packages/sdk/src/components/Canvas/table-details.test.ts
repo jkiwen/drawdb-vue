@@ -57,12 +57,20 @@ function setup() {
       ],
     },
     fields: [
-      { id: "users_id", name: "id", fieldType: { type: "INT" }, fieldTypeSource: "explicit", primary: true, notNull: true },
+      { id: "users_id", name: "id", fieldType: { type: "INT" }, fieldTypeSource: "explicit", notNull: true },
       { id: "users_email", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit", notNull: true },
     ],
-    indices: [{ id: "idx_users_email", name: "idx_users_email", unique: false, fields: ["email"] }],
-    uniqueConstraints: [{ id: "uq_users_email", name: "uq_users_email", fields: ["email"] }],
+    indices: [{ id: "idx_users_email", name: "idx_users_email", unique: false, columns: [{ fieldId: "users_email" }] }],
+    uniqueKeys: [
+      {
+        id: "uq_users_email",
+        name: "uq_users_email",
+        logicalName: "uq_users_email",
+        columns: [{ fieldId: "users_email" }],
+      },
+    ],
     locked: false,
+    primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "users_id" }] },
   });
   const table = diagram.tableById("users");
   assert.ok(table);
@@ -78,8 +86,15 @@ test("the height of a table grows with the details it shows", () => {
   const closed = makeTable();
   const open = makeTable({
     details: true,
-    indices: [{ name: "idx_email", unique: false, fields: ["email"] }],
-    uniqueConstraints: [{ name: "uq_email", fields: ["email"] }],
+    indices: [{ id: "idx_email", name: "idx_email", unique: false, columns: [{ fieldId: "email" }] }],
+    uniqueKeys: [
+      {
+        id: "uq_email",
+        name: "uq_email",
+        logicalName: "uq_email",
+        columns: [{ fieldId: "email" }],
+      },
+    ],
   });
   assert.equal(tableDetailsHeight(closed), 0);
   // The index and constraint editors left the details; only the colour row

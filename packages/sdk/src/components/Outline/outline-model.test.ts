@@ -78,8 +78,20 @@ function sampleDiagram(): Diagram {
     },
   ];
 
-  users.fields[0]!.primary = true;
-  users.uniqueConstraints = [{ id: "uk1", name: "uq_name", fields: ["f_name"] }];
+  users.primaryKey = {
+    id: "pk_users",
+    name: "PK_users",
+    logicalName: "PK_users",
+    columns: [{ fieldId: "f_id" }],
+  };
+  users.uniqueKeys = [
+    {
+      id: "uk1",
+      name: "uq_name",
+      logicalName: "uq_name",
+      columns: [{ fieldId: "f_name" }],
+    },
+  ];
   diagram.tables = [users, orders];
   diagram.relationships = [
     {
@@ -208,7 +220,7 @@ describe("buildOutlineTree", () => {
     // The keys sit under their own group rows, in the panel's order.
     assert.deepEqual(
       groupOf(users, "primary").map((node) => node.label),
-      ["PK PRIMARY"],
+      ["PK PK_users"],
     );
     assert.deepEqual(
       groupOf(users, "unique").map((node) => node.label),
@@ -219,7 +231,7 @@ describe("buildOutlineTree", () => {
       ["FK fk_orders_users", "FK users → users"],
     );
     // The columns of a key live in the tooltip, not in the tree.
-    assert.equal(groupOf(users, "primary")[0]!.altLabel, "PRIMARY (id)");
+    assert.equal(groupOf(users, "primary")[0]!.altLabel, "PK_users (id)");
     assert.equal(groupOf(users, "unique")[0]!.altLabel, "uq_name (user_name)");
     // The logical layer names the same constraint the same way.
     const logical = buildOutlineTree(sampleDiagram(), "logical");

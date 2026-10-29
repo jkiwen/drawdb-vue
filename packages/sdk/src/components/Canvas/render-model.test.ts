@@ -67,7 +67,6 @@ function makeTable(overrides: Partial<Table> = {}): Table {
         name: "id",
         fieldType: { type: "INTEGER" },
         fieldTypeSource: "explicit",
-        primary: true,
         notNull: true,
       },
       {
@@ -84,6 +83,7 @@ function makeTable(overrides: Partial<Table> = {}): Table {
         unique: true,
       },
     ],
+    primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f1" }] },
     ...overrides,
   };
 }
@@ -328,7 +328,7 @@ describe("tableRenderModel display modes", () => {
     };
     const model = tableRenderModel(
       makeTable({
-        indices: [{ id: "i1", name: "idx_email", unique: false, fields: ["f2"] }],
+        indices: [{ id: "i1", name: "idx_email", unique: false, columns: [{ fieldId: "f2" }] }],
       } as never),
       "physical",
       withIndexes,

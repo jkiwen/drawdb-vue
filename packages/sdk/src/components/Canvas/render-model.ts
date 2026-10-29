@@ -206,9 +206,8 @@ export function tableFieldRows(
     nameFallback: false,
     typeLabel: fieldLabel(field),
     typePlaceholder: false,
-    // The key object wins over the stale flag, so the canvas and the panel
-    // agree on which columns are the primary key (plan Task 7).
-    primary: keyMembers.size > 0 ? keyMembers.has(String(field.id)) : field.primary === true,
+    // The primary key object is the only source of the key membership.
+    primary: keyMembers.has(String(field.id)),
     unique: field.unique === true,
     notNull: field.notNull === true,
     foreign: options?.foreignFieldIds?.has(String(field.id)) === true,

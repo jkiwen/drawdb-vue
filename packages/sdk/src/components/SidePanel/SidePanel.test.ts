@@ -29,9 +29,10 @@ function seed(): Diagram {
           ],
         },
         fields: [
-          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
           { id: "f2", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit", notNull: true },
         ],
+        primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f1" }] },
       },
       { id: "t2", name: "orders", x: 300, y: 0, logical: { id: "l_t2", name: "orders", attributes: [] }, fields: [] },
     ],
@@ -125,7 +126,9 @@ describe("SidePanel", () => {
     useUIStore().selectTable("t1");
     const wrapper = mount(SidePanel, { global: { plugins: [naive] } });
     await wrapper.find('[data-testid="field-primary-f2"]').trigger("click");
-    assert.equal(diagram.fieldById("t1", "f2")?.primary, true);
+    assert.ok(
+      (diagram.tableById("t1")?.primaryKey?.columns ?? []).some((column) => column.fieldId === "f2"),
+    );
   });
 
   it("deletes the selected table", async () => {

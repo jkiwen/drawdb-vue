@@ -5,6 +5,7 @@ import { createId } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import { elementBounds, heldByLockedArea } from "../../utils/elements.ts";
+import { nextPrimaryColumns, primaryKeyName } from "../primary-key-edit.ts";
 import "./tables-tab.css";
 
 /**
@@ -105,6 +106,13 @@ function commitFieldType(fieldId: string | number, value: string): void {
   });
 }
 
+function isPrimary(fieldId: string | number): boolean {
+  const table = selectedTable.value;
+  return (table?.primaryKey?.columns ?? []).some(
+    (column) => String(column.fieldId) === String(fieldId),
+  );
+}
+
 function setFieldFlag(
   fieldId: string | number,
   flag: "primary" | "unique" | "notNull",
@@ -112,6 +120,14 @@ function setFieldFlag(
 ): void {
   const table = selectedTable.value;
   if (!table) return;
+  if (flag === "primary") {
+    diagram.setPrimaryColumns(
+      table.id,
+      nextPrimaryColumns(table, fieldId, value),
+      primaryKeyName(table),
+    );
+    return;
+  }
   diagram.updateField(table.id, fieldId, { [flag]: value });
 }
 
@@ -228,7 +244,7 @@ function removeTable(): void {
             @change="commitFieldType(field.id, $event)"
           />
           <NCheckbox
-            :checked="!!field.primary"
+            :checked="isPrimary(field.id)"
             :data-testid="`field-primary-${field.id}`"
             :disabled="locked"
             @update:checked="setFieldFlag(field.id, 'primary', $event)"

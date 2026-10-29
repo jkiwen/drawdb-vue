@@ -117,11 +117,17 @@ function commitType(spec: import("@drawdb/core").PhysicalSpec): void {
 }
 
 /**
- * Whether the column is part of the primary key. The flag lives on the
- * physical field, so the logical view layer shows it read-only, the way it
+ * Whether the column is part of the primary key. The key object lives on the
+ * table, so the logical view layer shows the value read-only, the way it
  * shows the other physical values.
  */
-const primary = computed(() => props.row.field?.primary === true);
+const primary = computed(() => {
+  const fieldId = props.row.field?.id;
+  if (fieldId === undefined) return false;
+  return (props.table.primaryKey?.columns ?? []).some(
+    (column) => String(column.fieldId) === String(fieldId),
+  );
+});
 
 function commitPrimary(event: Event): void {
   if (!props.row.field) return;

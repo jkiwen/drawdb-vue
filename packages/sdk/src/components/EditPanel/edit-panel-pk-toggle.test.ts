@@ -21,7 +21,6 @@ function sampleDiagram(): Diagram {
       name: "id",
       fieldType: { type: "INT" },
       fieldTypeSource: "mapped",
-      primary: true,
     },
     {
       id: "f_email",
@@ -30,6 +29,7 @@ function sampleDiagram(): Diagram {
       fieldTypeSource: "explicit",
     },
   ];
+users.primaryKey = { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f_id" }] };
   diagram.tables = [users];
   return diagram;
 }
@@ -56,12 +56,14 @@ describe("the primary key toggle of a field card", () => {
     const toggle = wrapper.find('[data-testid="field-primary-f_email"]');
     assert.ok(toggle.exists(), "the card of email offers the toggle");
     await toggle.setValue(true);
-    assert.equal(usersOf(diagram).fields[1]?.primary, true);
+    const users = usersOf(diagram);
+    assert.ok((users.primaryKey?.columns ?? []).some((column) => column.fieldId === users.fields[1]?.id));
   });
 
   it("drops a field out of the primary key", async () => {
     const { wrapper, diagram } = mountPanel();
     await wrapper.find('[data-testid="field-primary-f_id"]').setValue(false);
-    assert.notEqual(usersOf(diagram).fields[0]?.primary, true);
+    const users = usersOf(diagram);
+    assert.ok(!(users.primaryKey?.columns ?? []).some((column) => column.fieldId === users.fields[0]?.id));
   });
 });

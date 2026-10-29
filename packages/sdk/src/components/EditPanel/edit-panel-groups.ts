@@ -1,4 +1,4 @@
-import { indexFields } from "@drawdb/core";
+import { keyColumns } from "@drawdb/core";
 import type {
   FieldTypeSource,
   Relationship,
@@ -45,22 +45,25 @@ export function tableConstraints(
   };
 
   const rows: ConstraintRow[] = [];
-  const primary = table.fields.filter((field) => field.primary === true);
+  const primary =
+    table.primaryKey === undefined
+      ? []
+      : keyColumns(table.primaryKey).map((column) => nameOf(column.fieldId));
   if (primary.length > 0) {
     rows.push({
       kind: "primary",
       id: "primary",
       name: "PRIMARY",
-      fields: primary.map((field) => field.name),
+      fields: primary,
     });
   }
 
-  for (const unique of table.uniqueConstraints ?? []) {
+  for (const unique of table.uniqueKeys ?? []) {
     rows.push({
       kind: "unique",
       id: `unique:${unique.name}`,
       name: unique.name,
-      fields: unique.fields.map(nameOf),
+      fields: keyColumns(unique).map((column) => nameOf(column.fieldId)),
     });
   }
 
@@ -88,11 +91,11 @@ export function tableIndexes(table: Table): IndexRow[] {
     id: String(index.id ?? index.name),
     name: index.name,
     unique: index.unique === true,
-    fields: indexFields(index).map((fieldId) => {
+    fields: keyColumns(index).map((column) => {
       const field = table.fields.find(
-        (candidate) => String(candidate.id) === String(fieldId),
+        (candidate) => String(candidate.id) === String(column.fieldId),
       );
-      return field?.name ?? String(fieldId);
+      return field?.name ?? String(column.fieldId);
     }),
   }));
 }

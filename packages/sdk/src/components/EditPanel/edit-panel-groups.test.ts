@@ -23,7 +23,6 @@ function table(overrides: Partial<Table> = {}): Table {
         name: "id",
         fieldType: { type: "INTEGER" },
         fieldTypeSource: "mapped",
-        primary: true,
       },
       {
         id: "f_code",
@@ -38,9 +37,10 @@ function table(overrides: Partial<Table> = {}): Table {
         fieldTypeSource: "imported",
       },
     ],
-    uniqueConstraints: [{ name: "uq_code", fields: ["f_code"] }],
-    indices: [{ name: "idx_user", unique: false, fields: ["f_user"] }],
+    uniqueKeys: [{ id: "uq_code", name: "uq_code", logicalName: "uq_code", columns: [{ fieldId: "f_code" }] }],
+    indices: [{ id: "idx_user", name: "idx_user", unique: false, columns: [{ fieldId: "f_user" }] }],
     ...overrides,
+    primaryKey: { id: "pk_orders", name: "PK_orders", logicalName: "PK_orders", columns: [{ fieldId: "f_id" }] },
   };
 }
 
@@ -78,7 +78,12 @@ test("names the fields of an index, falling back to the raw id", () => {
   const rows = tableIndexes(
     table({
       indices: [
-        { name: "idx_user", unique: false, fields: ["f_user", "f_gone"] },
+        {
+          id: "idx_user",
+          name: "idx_user",
+          unique: false,
+          columns: [{ fieldId: "f_user" }, { fieldId: "f_gone" }],
+        },
       ],
     }),
   );
@@ -88,8 +93,8 @@ test("names the fields of an index, falling back to the raw id", () => {
 });
 
 test("reports a single index value across the selection", () => {
-  const a = table({ indices: [{ name: "a", unique: true, fields: [] }] });
-  const b = table({ id: "t_other", indices: [{ name: "b", unique: true, fields: [] }] });
+  const a = table({ indices: [{ id: "a", name: "a", unique: true, columns: [] }] });
+  const b = table({ id: "t_other", indices: [{ id: "b", name: "b", unique: true, columns: [] }] });
   const indexes = tableIndexes(b);
   assert.equal(indexes.length, 1);
   assert.equal(appearanceValues([a, b]).colorMultiple, false);

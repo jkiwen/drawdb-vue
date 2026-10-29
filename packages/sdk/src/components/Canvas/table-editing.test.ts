@@ -40,12 +40,12 @@ function seed(pinia: Pinia) {
         name: "id",
         fieldType: { type: "INTEGER" },
         fieldTypeSource: "explicit",
-        primary: true,
         notNull: true,
       },
       { id: "users_name", name: "name", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
       { id: "users_email", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit" },
     ],
+    primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "users_id" }] },
   });
 
   return diagram;

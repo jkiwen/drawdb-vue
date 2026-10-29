@@ -23,7 +23,6 @@ function sampleDiagram(): Diagram {
       name: "id",
       fieldType: { type: "INT" },
       fieldTypeSource: "mapped",
-      primary: true,
     },
     {
       id: "f_name",
@@ -32,6 +31,7 @@ function sampleDiagram(): Diagram {
       fieldTypeSource: "explicit",
     },
   ];
+users.primaryKey = { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f_id" }] };
   users.uniqueKeys = [{ id: "uk_name", name: "uq_name", logicalName: "uq_name", columns: [{ fieldId: "f_name" }] }];
   users.indices = [
     { id: "i_name", name: "idx_name", logicalName: "idx_name", unique: false, columns: [{ fieldId: "f_name" }] },

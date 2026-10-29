@@ -69,7 +69,7 @@ export function useLinking(options: LinkingOptions = {}): LinkingApi {
 
   /** The first primary key of a table, the target of a link without a field. */
   function primaryKeyOf(table: Table | undefined): RelationshipId | undefined {
-    return table?.fields.find((field) => field.primary)?.id;
+    return table?.primaryKey?.columns[0]?.fieldId;
   }
 
   /**

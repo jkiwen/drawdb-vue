@@ -1,0 +1,119 @@
+/* The sheet of the print preview (ruling Q8). The page keeps the size of an A4
+   sheet at 96 dpi, so the reader sees the pagination the browser will use. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.36);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 96vw;
+  max-height: 92vh;
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--ddb-surface, #ffffff);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.28);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ddb-text, #18181b);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.button {
+  padding: 3px 10px;
+  border: 1px solid var(--ddb-border, #e4e4e7);
+  border-radius: 5px;
+  background: var(--ddb-surface, #ffffff);
+  color: var(--ddb-text, #18181b);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.button:hover {
+  border-color: var(--ddb-accent, #175e7a);
+  color: var(--ddb-accent, #175e7a);
+}
+
+.primary {
+  border-color: var(--ddb-accent, #175e7a);
+  color: var(--ddb-accent, #175e7a);
+}
+
+.counter {
+  min-width: 48px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--ddb-text-muted, #71717a);
+}
+
+.empty {
+  margin: 0;
+  padding: 24px;
+  font-size: 12px;
+  color: var(--ddb-text-muted, #71717a);
+}
+
+.pages {
+  overflow: auto;
+  border: 1px solid var(--ddb-border, #e4e4e7);
+  border-radius: 6px;
+  background: #fafafa;
+}
+
+.page {
+  position: relative;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.box {
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 8px;
+  border: 1px solid #a1a1aa;
+  border-radius: 4px;
+}
+
+.boxTitle {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
+  color: #18181b;
+}
+
+.boxLine {
+  margin: 0;
+  font-size: 10px;
+  line-height: 14px;
+  color: #3f3f46;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

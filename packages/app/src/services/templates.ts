@@ -33,10 +33,11 @@ const blog: Diagram = {
         ],
       },
       fields: [
-        { id: "f_users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, increment: true, notNull: true },
+        { id: "f_users_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", increment: true, notNull: true },
         { id: "f_users_email", name: "email", fieldType: { type: "VARCHAR", length: 255 }, fieldTypeSource: "explicit", unique: true, notNull: true },
         { id: "f_users_name", name: "name", fieldType: { type: "VARCHAR", length: 120 }, fieldTypeSource: "explicit" },
       ],
+      primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f_users_id" }] },
     },
     {
       id: "t_posts",
@@ -55,12 +56,13 @@ const blog: Diagram = {
         ],
       },
       fields: [
-        { id: "f_posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, increment: true, notNull: true },
+        { id: "f_posts_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", increment: true, notNull: true },
         { id: "f_posts_user_id", name: "user_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", notNull: true },
         { id: "f_posts_title", name: "title", fieldType: { type: "VARCHAR", length: 200 }, fieldTypeSource: "explicit", notNull: true },
         { id: "f_posts_body", name: "body", fieldType: { type: "TEXT" }, fieldTypeSource: "explicit" },
         { id: "f_posts_published", name: "published", fieldType: { type: "BOOLEAN" }, fieldTypeSource: "explicit", default: "false" },
       ],
+      primaryKey: { id: "pk_posts", name: "PK_posts", logicalName: "PK_posts", columns: [{ fieldId: "f_posts_id" }] },
     },
     {
       id: "t_comments",
@@ -77,10 +79,11 @@ const blog: Diagram = {
         ],
       },
       fields: [
-        { id: "f_comments_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, increment: true, notNull: true },
+        { id: "f_comments_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", increment: true, notNull: true },
         { id: "f_comments_post_id", name: "post_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", notNull: true },
         { id: "f_comments_body", name: "body", fieldType: { type: "TEXT" }, fieldTypeSource: "explicit", notNull: true },
       ],
+      primaryKey: { id: "pk_comments", name: "PK_comments", logicalName: "PK_comments", columns: [{ fieldId: "f_comments_id" }] },
     },
   ],
   relationships: [
@@ -130,9 +133,10 @@ const store: Diagram = {
         ],
       },
       fields: [
-        { id: "f_categories_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, increment: true, notNull: true },
+        { id: "f_categories_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", increment: true, notNull: true },
         { id: "f_categories_name", name: "name", fieldType: { type: "VARCHAR", length: 120 }, fieldTypeSource: "explicit", notNull: true },
       ],
+      primaryKey: { id: "pk_categories", name: "PK_categories", logicalName: "PK_categories", columns: [{ fieldId: "f_categories_id" }] },
     },
     {
       id: "t_products",
@@ -151,12 +155,13 @@ const store: Diagram = {
         ],
       },
       fields: [
-        { id: "f_products_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, increment: true, notNull: true },
+        { id: "f_products_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", increment: true, notNull: true },
         { id: "f_products_category_id", name: "category_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", notNull: true },
         { id: "f_products_name", name: "name", fieldType: { type: "VARCHAR", length: 200 }, fieldTypeSource: "explicit", notNull: true },
         { id: "f_products_price", name: "price", fieldType: { type: "DECIMAL", precision: 10, scale: 2 }, fieldTypeSource: "explicit", notNull: true },
         { id: "f_products_stock", name: "stock", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", default: "0" },
       ],
+      primaryKey: { id: "pk_products", name: "PK_products", logicalName: "PK_products", columns: [{ fieldId: "f_products_id" }] },
     },
     {
       id: "t_orders",
@@ -174,11 +179,12 @@ const store: Diagram = {
         ],
       },
       fields: [
-        { id: "f_orders_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true, increment: true, notNull: true },
+        { id: "f_orders_id", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", increment: true, notNull: true },
         { id: "f_orders_product_id", name: "product_id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", notNull: true },
         { id: "f_orders_quantity", name: "quantity", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", default: "1", notNull: true },
         { id: "f_orders_total", name: "total", fieldType: { type: "DECIMAL", precision: 10, scale: 2 }, fieldTypeSource: "explicit", notNull: true },
       ],
+      primaryKey: { id: "pk_orders", name: "PK_orders", logicalName: "PK_orders", columns: [{ fieldId: "f_orders_id" }] },
     },
   ],
   relationships: [

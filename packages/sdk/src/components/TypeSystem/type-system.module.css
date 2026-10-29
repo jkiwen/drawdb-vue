@@ -1,0 +1,233 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: min(1080px, 100%);
+  height: min(760px, 100%);
+  border-radius: 8px;
+  background: var(--ddb-surface);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ddb-border);
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+}
+
+.headActions {
+  display: flex;
+  gap: 10px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 14px 0;
+  border-bottom: 1px solid var(--ddb-border);
+}
+
+.tab {
+  padding: 6px 12px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ddb-text-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tabOn {
+  border-bottom-color: var(--ddb-accent);
+  color: var(--ddb-accent);
+}
+
+.body {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+  padding: 8px;
+  gap: 2px;
+  border-right: 1px solid var(--ddb-border);
+  overflow-y: auto;
+}
+
+.navItem {
+  padding: 5px 8px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ddb-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.navItemOn {
+  background: var(--ddb-surface-muted);
+  color: var(--ddb-accent);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 12px 14px;
+  overflow-y: auto;
+}
+
+.domainsHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.domainsTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ddb-text-muted);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border: 1px solid var(--ddb-border);
+  border-radius: 6px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--ddb-text-muted);
+}
+
+.input {
+  padding: 3px 6px;
+  border: 1px solid var(--ddb-border);
+  border-radius: 4px;
+  background: var(--ddb-input-bg);
+  color: var(--ddb-fg);
+  font: inherit;
+}
+
+.formActions {
+  display: flex;
+  gap: 10px;
+}
+
+.diagnostic {
+  margin: 4px 0;
+  color: var(--ddb-danger);
+  font-size: 12px;
+}
+
+.empty {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ddb-text-muted);
+}
+
+.domains {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.domainRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--ddb-border);
+  font-size: 12px;
+}
+
+.domainName {
+  flex: 1 1 auto;
+}
+
+.domainFamily {
+  color: var(--ddb-text-muted);
+}
+
+.linkButton {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--ddb-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ddb-text);
+}
+
+.id {
+  margin-left: 6px;
+  font-family: var(--ddb-font-mono);
+  font-size: 11px;
+  color: var(--ddb-text-muted);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table th,
+.table td {
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--ddb-border);
+  text-align: left;
+}
+
+.table thead th {
+  font-weight: 600;
+  color: var(--ddb-text-muted);
+}
+
+.number {
+  width: 72px;
+}

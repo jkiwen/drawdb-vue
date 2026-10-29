@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount } from "vue";
+import { computed, onBeforeUnmount, ref } from "vue";
 import type { PropType } from "vue";
 import { NConfigProvider, NGlobalStyle, darkTheme, lightTheme } from "naive-ui";
 import { setActivePinia } from "pinia";
@@ -13,6 +13,8 @@ import type {
   StorageAdapter,
 } from "@drawdb/core";
 import EditorLayout from "./EditorLayout.vue";
+import TypeSystemDialog from "./TypeSystem/TypeSystemDialog.vue";
+import PrintPreviewDialog from "./Print/PrintPreviewDialog.vue";
 import "../styles/tokens.css";
 import { useEditorCommands } from "../composables/use-editor-commands.ts";
 import { useEditorPlugins } from "../composables/use-editor-plugins.ts";
@@ -82,7 +84,18 @@ const props = defineProps({
   autoSaveInterval: { type: Number, default: 5000 },
   /** Which parts of the editor chrome are shown (Q13). */
   chrome: { type: Object as PropType<EditorChromeOptions>, default: undefined },
+  /**
+   * Whether the host claims the "config:open" menu entry. When it is passed
+   * the editor forwards the entry through the `menu` event instead of
+   * opening the data type system itself.
+   */
+  onOpenDsm: { type: Function as PropType<() => void>, default: undefined },
 });
+
+const typeSystemOpen = ref(false);
+
+/** Whether the print preview is open (ruling Q8). */
+const printOpen = ref(false);
 
 const emit = defineEmits<{
   (event: "update:modelValue", diagram: Diagram): void;
@@ -173,6 +186,19 @@ const stopPanelHotkeys = usePanelHotkeys();
  * application, which owns the pages they need.
  */
 function onMenu(key: string): void {
+  // The configuration group opens the data type system of the editor when the
+  // host has not claimed the entry: a host that wants its own page passes
+  // `onOpenDsm` and gets the event instead (ruling Q16).
+  if (key === "config:open" && !props.onOpenDsm) {
+    typeSystemOpen.value = true;
+    return;
+  }
+  // Printing is the sheet of the diagram, which the SDK can paginate itself
+  // (ruling Q8): the preview opens here unless the host claimed the key.
+  if (key === "file:print-preview" || key === "file:print") {
+    printOpen.value = true;
+    return;
+  }
   if (!commands.onMenu(key)) {
     emit("menu", key);
   }
@@ -217,6 +243,8 @@ defineExpose({
       @save="commands.runSave"
       @menu="onMenu"
     />
+    <TypeSystemDialog :open="typeSystemOpen" @close="typeSystemOpen = false" />
+    <PrintPreviewDialog v-model:open="printOpen" :tables="diagramStore.diagram.tables" />
   </NConfigProvider>
 </template>
 

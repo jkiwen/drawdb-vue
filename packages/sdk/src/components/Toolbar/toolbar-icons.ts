@@ -80,6 +80,11 @@ export const TOOLBAR_ICONS: Record<string, string> = {
     '<path d="M12 3v10"/><path d="M8 9l4 4 4-4"/><path d="M4 17v3h16v-3"/>',
   "file-export":
     '<path d="M12 13V3"/><path d="M8 7l4-4 4 4"/><path d="M4 17v3h16v-3"/>',
+  // Printing (ruling Q8): a sheet, and the preview of the sheets.
+  "file-print-preview":
+    '<path d="M5 4h9l5 5v11H5z"/><path d="M14 4v5h5"/><circle cx="11" cy="14" r="2.5"/>',
+  "file-print":
+    '<path d="M7 8V3h10v5"/><rect x="4" y="8" width="16" height="8" rx="2"/><path d="M7 16h10v5H7z"/>',
   // Config (design 6.9, the group is still to be decided).
   settings:
     '<circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M5 5l3 3"/><path d="M16 16l3 3"/><path d="M19 5l-3 3"/><path d="M8 16l-3 3"/>',

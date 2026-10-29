@@ -59,8 +59,9 @@ function seedValid(): Diagram {
           ],
         },
         fields: [
-          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+          { id: "f1", name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
         ],
+        primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f1" }] },
       },
     ],
   };
@@ -98,9 +99,9 @@ function seedFixable(): Diagram {
             name: "id",
             fieldType: { type: "GEOGRAPHY" },
             fieldTypeSource: "mapped",
-            primary: true,
           },
         ],
+        primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f1" }] },
       },
     ],
   } as Diagram;

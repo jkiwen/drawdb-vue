@@ -7,6 +7,7 @@ import {
 import HomeView from "../views/HomeView.vue";
 import EditorView from "../views/EditorView.vue";
 import TemplateView from "../views/TemplateView.vue";
+import TypesView from "../views/TypesView.vue";
 
 /** The routes of the standalone application. */
 export const appRoutes = [
@@ -15,6 +16,7 @@ export const appRoutes = [
   { path: "/editor/:id", name: "editor-diagram", component: EditorView },
   { path: "/templates", name: "templates", component: TemplateView },
   { path: "/templates/:id", name: "template", component: TemplateView },
+  { path: "/types", name: "types", component: TypesView },
   { path: "/:pathMatch(.*)*", name: "not-found", component: HomeView },
 ];
 

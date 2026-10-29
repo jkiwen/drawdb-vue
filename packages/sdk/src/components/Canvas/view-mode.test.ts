@@ -58,7 +58,6 @@ function seed(): Diagram {
             name: "id",
             fieldType: { type: "INTEGER" },
             fieldTypeSource: "explicit",
-            primary: true,
             notNull: true,
           },
           {
@@ -74,6 +73,7 @@ function seed(): Diagram {
             fieldTypeSource: "explicit",
           },
         ],
+        primaryKey: { id: "pk_users", name: "PK_users", logicalName: "PK_users", columns: [{ fieldId: "f1" }] },
       },
       {
         // No logical name: the title falls back to the physical name.

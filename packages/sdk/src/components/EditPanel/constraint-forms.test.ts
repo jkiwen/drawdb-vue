@@ -32,14 +32,14 @@ describe("the names a new key gets", () => {
   it("numbers a unique key until the name is free", () => {
     const table = users();
     assert.equal(nextUniqueName(table), "uk_users_1");
-    table.uniqueConstraints = [{ id: "k1", name: "uk_users_1", fields: [] }];
+    table.uniqueKeys = [{ id: "k1", name: "uk_users_1", logicalName: "uk_users_1", columns: [] }];
     assert.equal(nextUniqueName(table), "uk_users_2");
   });
 
   it("numbers an index until the name is free", () => {
     const table = users();
     assert.equal(nextIndexName(table), "idx_users_1");
-    table.indices = [{ id: "i1", name: "idx_users_1", unique: false, fields: [] }];
+    table.indices = [{ id: "i1", name: "idx_users_1", unique: false, columns: [] }];
     assert.equal(nextIndexName(table), "idx_users_2");
   });
 

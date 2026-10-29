@@ -50,8 +50,14 @@ function seedTable(diagram: DiagramStore, table: Pick<Table, "id" | "x" | "y">):
       ],
     },
     fields: [
-      { id: fieldId, name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit", primary: true },
+      { id: fieldId, name: "id", fieldType: { type: "INTEGER" }, fieldTypeSource: "explicit" },
     ],
+    primaryKey: {
+      id: `pk_${table.id}`,
+      name: `PK_${table.id}`,
+      logicalName: `PK_${table.id}`,
+      columns: [{ fieldId }],
+    },
     ...table,
   });
 }

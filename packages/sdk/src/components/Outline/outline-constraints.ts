@@ -1,4 +1,4 @@
-import { indexFields, keyColumns } from "@drawdb/core";
+import { keyColumns } from "@drawdb/core";
 import type { Diagram, Table } from "@drawdb/core";
 import type { OutlineNode, OutlineViewLayer } from "./outline-nodes.ts";
 import { matchesNode } from "./outline-nodes.ts";
@@ -58,9 +58,7 @@ export function keyNodes(
 
   const primaryKey = table.primaryKey;
   const primaryIds =
-    primaryKey === undefined
-      ? table.fields.filter((field) => field.primary === true).map((field) => field.id)
-      : keyColumns(primaryKey).map((column) => column.fieldId);
+    primaryKey === undefined ? [] : keyColumns(primaryKey).map((column) => column.fieldId);
   const primaryName = primaryKey?.name ?? "PRIMARY";
   const primaryNodes =
     primaryIds.length > 0
@@ -83,17 +81,6 @@ export function keyNodes(
       String(constraint.id ?? index),
       `UK ${constraint.name}`,
       `${constraint.name} (${fieldNames(ids)})`,
-    );
-    if (node) uniqueNodes.push(node);
-  }
-  const legacyUnique = table.uniqueKeys === undefined ? table.uniqueConstraints ?? [] : [];
-  for (const [index, constraint] of legacyUnique.entries()) {
-    const refId = String(constraint.id ?? `uk${index}`);
-    const node = key(
-      `unique:${refId}`,
-      refId,
-      `UK ${constraint.name}`,
-      `${constraint.name} (${fieldNames(constraint.fields)})`,
     );
     if (node) uniqueNodes.push(node);
   }
@@ -130,7 +117,7 @@ export function keyNodes(
       `index:${refId}`,
       refId,
       `INDEX ${item.name}`,
-      `${item.name} (${fieldNames(indexFields(item))})`,
+      `${item.name} (${fieldNames(keyColumns(item).map((column) => column.fieldId))})`,
     );
     if (node) indexNodes.push(node);
   }
