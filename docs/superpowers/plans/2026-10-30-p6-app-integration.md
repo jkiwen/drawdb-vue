@@ -1,6 +1,6 @@
 # P6 — the app side of the type system, and print
 
-**Status:** Task 1–4 已交付（2026-10-30）；Task 5（51 locale）× Task 6（文档）在收尾
+**Status:** ✅ 已交付（2026-10-30，master）— Task 1–6 全部落地（2026-10-30）；Task 5（51 locale）× Task 6（文档）在收尾
 **Branch:** master（与最近几轮一致，按任务分批提交）
 **Spec:** `docs/superpowers/specs/2026-10-26-erwin-type-system-design.md` §6.9A / Q7 / Q8 / Q16
 **UI doc:** `docs/designer-ui-redesign-discussion.md` §6.9 / §12.7 之后
