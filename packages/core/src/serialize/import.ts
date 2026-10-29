@@ -3,6 +3,7 @@ import type { DatabaseType, Diagram } from "../models/diagram.ts";
 import type { Area } from "../models/area.ts";
 import type { Enum } from "../models/enum.ts";
 import type { FieldId } from "../models/field.ts";
+import { normalizeDiagramKeys } from "../models/key-migration.ts";
 import type { LogicalRelationship } from "../models/logical-relationship.ts";
 import type { Note } from "../models/note.ts";
 import { normalizeViewState } from "../models/view-state.ts";
@@ -180,7 +181,11 @@ export function importDiagramJson(
   // field (UI document section 9.2, ruling Q2).
   diagram.viewState = normalizeViewState(property(record, "viewState"));
 
-  return diagram;
+  // The keys are objects now (spec section 3.8.3, P2' task 2): a legacy document
+  // still carries a primary flag per field, unique constraints and indices made
+  // of field ids. The loader rewrites them once, so every reader afterwards
+  // sees one shape only.
+  return normalizeDiagramKeys(diagram);
 }
 
 /**
