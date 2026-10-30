@@ -666,3 +666,13 @@ P5 **未覆盖**、留给后续期的部分（有意为之，不是缺口遗漏�
 | 无效标记 | `Diagram.invalidMarkers` | Q18：位置在、语义标无效；标记随图序列化，不参与导出 |
 | 报告与入口 | `ImportDialog` 的 `format: "erwin"`、文件菜单 `Import erwin XML` | 对话框先显示版本/实体/属性/字段/域/关系/跳过的计数与列表，再确认替换 |
 
+### 12.9A erwin 读取器的实现备注（2026-10-30）
+
+真实样本（ERWin 7.3.1822）落地时补的三条：
+
+- 读取按「切片解析」而不是「建整棵树」：`scanElements()` 一次线性扫描，
+  只把 Entity / Domain / Key_Group / Relationship 的切片交给解析器，内存跟着一个元素走。
+- 键的列来自 `Key_Group_Member` 对象（`Attribute_Ref` + `Key_Group_Sort_Order`），
+  不是属性 id 的直接列表；PK/AK/IE/IF1/IF2 分别映射到主键、唯一键与索引。
+- 流式读取放弃了「枚举未知元素」，因此跳过项统一记 `asymmetric`（读到了什么、哪里对不上），
+  报告仍是逐项列出，只是依据不同。

@@ -644,3 +644,23 @@ layer it belongs to (section 5).
 Verified by `run-tests.mjs` (core + sdk), the five typecheck programs, the
 e2e suite and the build; the commits are listed in the plan of P7.
 
+## The erwin reader learned the real file (2026-10-30)
+
+The first P7 pass was written against the shape sketched in the spec, and the
+real standard file the review shipped (ERWin 7.3.1822, 1.39 MB, 22 entities)
+does not look like it: attributes live under `Attribute_Groups`, keys under
+`Key_Group_Groups`, and a key names `Key_Group_Member` objects that point at
+attributes through `Attribute_Ref` rather than naming attributes directly.
+The reader was rewritten to read the file as it is.
+
+The extraction is a single linear pass that slices the interesting elements
+out and parses each slice on its own (`scanElements`), because the review
+asked for an approach that does not scan the whole text and because designs
+of several hundred tables are the target. A 600-entity synthetic document
+keeps that honest in the tests.
+
+Keys now map by their erwin type: PK to the primary key, AK/IE to unique keys,
+IF1/IF2 to indexes, anything else is reported as unsupported. The one thing
+the streaming reader gives up is enumerating unknown elements — it can only
+say what it read and where it disagreed — so the report lists skips by where
+it failed (asymmetric) rather than by what else the file contains.

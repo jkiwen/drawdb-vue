@@ -55,3 +55,28 @@
   告警归档（Q18 的第三个通道）留给后续。
 - 域（Domain）只读进报告、不挂到图上：SDK 的 type-scope store 才是域的宿主，
   importer 不越层写它。
+
+## 执行偏差记录（2026-10-30，真实样本之后）
+
+计划的第一版按 spec §16.7 的结构示意（`EntryName`/`tableName`/`Attributes`/`Fields`）实现，
+拿到真实文件（`fixtures/erwin/DEVSV_MessageCenter.xml`，ERWin 7.3.1822，1.39 MB，22 实体）
+之后按真实 schema 重写了读取层：
+
+1. **读取方式改为流式切片**：`scanElements(source, names, onElement)` 一次线性扫描，
+   只把 Entity/Domain/Key_Group/Relationship 的切片解析成节点，内存跟着一个元素走。
+   用户明确要求「不建议进行全文扫描」，且大型设计超过 500 张表；`samples.test.ts`
+   用一个 600 实体的合成文档钉住这一条（单次读取 < 4s）。
+2. **元素名与层级按真实文件**：属性在 `<Entity>/<Attribute_Groups>/<Attribute>` 下，
+   键在 `<Entity>/<Key_Group_Groups>/<Key_Group>` 下，键的列不是属性 id 而是
+   `<Key_Group_Member>` 对象（其 `<Attribute_Ref>` 指属性、`<Key_Group_Sort_Order>` 指方向）。
+   取值一律用元素名而不是位置，命名空间前缀（`EMX:`）在扫描时剥掉。
+3. **键的映射**：PK → `table.primaryKey`；AK/IE（erwin 的唯一索引）→ `table.uniqueKeys`；
+   IF1/IF2（erwin 为外键加的索引）→ `table.indices`（`unique` 取 `Is_Unique`）；
+   其它类型（如 IE 以外的新码）记 `unsupported` 并进报告。
+4. **不再枚举未知元素**：流式读取看不到「所有元素名」，所以 `unknown-element` 只在显式
+   跳过点出现；其余跳过一律是 `asymmetric`（属性缺物理类型、键成员解析不到、实体无属性、
+   关系端点缺失）。这一点改变了 Q18 的「逐项列出」语气：报告仍然逐项列，
+   但依据是「我读了什么、哪里对不上」而不是「文件里还有什么」。
+5. **样本断言**：`erwin-import.test.ts` 的最后一例直接读真实文件——版本 `7.3.1822`、
+   22 实体、139 列、≥19 张表带 PK、15 条关系、至少一张表带索引；文件不存在时该例跳过
+   （CI 里没有样本也能跑）。
