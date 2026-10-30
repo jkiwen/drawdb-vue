@@ -278,8 +278,19 @@ export function planImport(
     incoming !== null && target !== null && target !== undefined
       ? importConflicts(incoming, target)
       : [];
-  const decided = new Set((decisions.conflicts ?? []).map((entry) => entry.id));
-  const undecided = conflicts.filter((conflict) => !decided.has(conflict.id));
+  const decided = new Map((decisions.conflicts ?? []).map((entry) => [entry.id, entry.action]));
+  // Merging a table folds its columns and keys into the one the diagram keeps,
+  // so the clashes inside it are settled by that one decision.
+  const merged = new Set(
+    conflicts
+      .filter((conflict) => conflict.kind === "table" && decided.get(conflict.id) === "merge")
+      .map((conflict) => `Table[${conflict.name}]/`),
+  );
+  const live = conflicts.filter(
+    (conflict) =>
+      conflict.kind === "table" || ![...merged].some((prefix) => conflict.path.startsWith(prefix)),
+  );
+  const undecided = live.filter((conflict) => !decided.has(conflict.id));
 
   const chosen = decisions.tables === undefined ? undefined : new Set(decisions.tables.map(String));
   const tables = (incoming?.tables ?? []).filter(
@@ -332,7 +343,7 @@ export function planImport(
     adds,
     issues,
     blocking,
-    conflicts,
+    conflicts: live,
     domainConflicts: domains.undecided,
     notes,
     tables: tables.map((table) => String(table.id)),

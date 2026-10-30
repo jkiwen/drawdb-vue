@@ -92,5 +92,7 @@ export type {
 } from "./import/plan.ts";
 export { importConflicts, planImport, summarizeTarget } from "./import/plan.ts";
 export type { DomainConflict, DomainDecision, DomainSide } from "./import/domains.ts";
+export type { ApplyImportResult } from "./import/apply.ts";
+export { applyImport } from "./import/apply.ts";
 export type { ValidateImportOptions } from "./import/validate.ts";
 export { blockingIssues, repairMode, validateImport } from "./import/validate.ts";
