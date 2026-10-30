@@ -79,5 +79,18 @@ export { buildImportSource, countDiagram, formatOfFileName } from "./import/sour
 export type { DomainMergeNote, DomainMergeResult } from "./import/domains.ts";
 export { mergeDiagramDomains } from "./import/domains.ts";
 export { diagramScopeOf, scopeWithDiagram } from "./types/diagram-scope.ts";
+export type {
+  ConflictAction,
+  ConflictDecision,
+  ImportConflict,
+  ImportConflictKind,
+  ImportPlan,
+  ImportPlanDecisions,
+  ImportStatus,
+  ImportTargetKind,
+  ImportTargetSummary,
+} from "./import/plan.ts";
+export { importConflicts, planImport, summarizeTarget } from "./import/plan.ts";
+export type { DomainConflict, DomainDecision, DomainSide } from "./import/domains.ts";
 export type { ValidateImportOptions } from "./import/validate.ts";
 export { blockingIssues, repairMode, validateImport } from "./import/validate.ts";
