@@ -22,15 +22,54 @@ import type { Diagram } from "@drawdb/core";
 
 /** A small ERWin 7 Standard File: two attributes, two fields and an unknown element. */
 const ERWIN_XML = `<?xml version="1.0" encoding="UTF-8"?>
-<Model Version="7">
-  <Entity EntryId="E1" EntryName="Customer" TableName="customers">
-    <Attribute attributeid="A1" attributeName="Customer id" attributetype="Integer" fieldid="F1" primaryKey="true"/>
-    <Attribute attributeid="A2" attributeName="Email" attributetype="String" fieldid="F2"/>
-    <Field fieldId="F1" fieldName="customer_id"><FieldType Datatype="int" length="4"/></Field>
-    <Field fieldId="F2" fieldName="email"><FieldType Datatype="varchar" length="120"/></Field>
+<ERwin FileVersion="7.3.1822" Format="ERwin" xmlns="http://www.ca.com/erwin">
+<EMX:Model>
+  <Entity id="{E1}+00000000" name="Customer">
+    <EntityProps>
+      <Name>Customer</Name>
+      <Physical_Name>customers</Physical_Name>
+    </EntityProps>
+    <Attribute_Groups>
+      <Attribute id="{A1}+00000000" name="Customer id">
+        <AttributeProps>
+          <Name>Customer id</Name>
+          <Physical_Name>customer_id</Physical_Name>
+          <Physical_Data_Type>INT(4)</Physical_Data_Type>
+          <Null_Option_Type>1</Null_Option_Type>
+        </AttributeProps>
+      </Attribute>
+      <Attribute id="{A2}+00000000" name="Email">
+        <AttributeProps>
+          <Name>Email</Name>
+          <Physical_Name>email</Physical_Name>
+          <Physical_Data_Type>VARCHAR2(120)</Physical_Data_Type>
+          <Null_Option_Type>0</Null_Option_Type>
+        </AttributeProps>
+      </Attribute>
+    </Attribute_Groups>
+    <Key_Group_Groups>
+      <Key_Group id="{K1}+00000000" name="PK_customers">
+        <Key_GroupProps>
+          <Name>PK_customers</Name>
+          <Key_Group_Type>PK</Key_Group_Type>
+          <Is_Unique>true</Is_Unique>
+          <Key_Group_Members_Order_Ref_Array>
+            <Key_Group_Members_Order_Ref index="0">{M1}+00000000</Key_Group_Members_Order_Ref>
+          </Key_Group_Members_Order_Ref_Array>
+        </Key_GroupProps>
+        <Key_Group_Member_Groups>
+          <Key_Group_Member id="{M1}+00000000" name="Customer id">
+            <Key_Group_MemberProps>
+              <Attribute_Ref>{A1}+00000000</Attribute_Ref>
+              <Key_Group_Sort_Order>ASC</Key_Group_Sort_Order>
+            </Key_Group_MemberProps>
+          </Key_Group_Member>
+        </Key_Group_Member_Groups>
+      </Key_Group>
+    </Key_Group_Groups>
   </Entity>
-  <UDP><Something/></UDP>
-</Model>`;
+</EMX:Model>
+</ERwin>`;
 
 function seed(): Diagram {
   return {
@@ -263,18 +302,17 @@ describe("ImportDialog", () => {
     await nextTick();
     await wrapper.find('[data-testid="import-apply"]').trigger("click");
     await nextTick();
-    assert.equal(wrapper.find('[data-testid="import-report-version"]').text(), "7");
+    assert.equal(wrapper.find('[data-testid="import-report-version"]').text(), "7.3.1822");
     assert.equal(wrapper.find('[data-testid="import-report-entities"]').text(), "1");
     assert.equal(wrapper.find('[data-testid="import-report-attributes"]').text(), "2");
-    assert.equal(wrapper.find('[data-testid="import-report-skipped"]').text(), "1");
-    assert.match(wrapper.find('[data-testid="import-report-list"]').text(), /UDP/);
+    assert.equal(wrapper.find('[data-testid="import-report-skipped"]').text(), "0");
     await wrapper.find('[data-testid="import-confirm"]').trigger("click");
     await nextTick();
     // The file describes one table, so the diagram of the editor has it.
     assert.equal(diagram.tables.length, 1);
     assert.equal(diagram.tables[0].name, "customers");
     assert.equal(diagram.tables[0].fields[0].fieldTypeSource, "imported");
-    assert.equal(diagram.diagram.invalidMarkers?.length, 1);
+    assert.equal(diagram.diagram.invalidMarkers?.length, 0);
   });
 
   it("the import dialog imports a json diagram", async () => {

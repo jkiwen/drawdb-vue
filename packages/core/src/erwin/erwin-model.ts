@@ -1,19 +1,20 @@
 /**
- * The shape the erwin reader hands to the importer (P7, spec section 16).
+ * The erwin document model of P7, read in one pass (spec section 16).
  *
- * The reader knows the erwin XML of ERWin 7 and the names the other versions
- * use for the same elements (Q17). It does not decide what a diagram is: it
- * reports what the file says, and marks the parts it could not read so the
- * importer can keep the position and say why (Q18).
+ * The importer reads the XML Standard File of ERwin 7 (the sample is
+ * 7.3.1822). The file is large on purpose-built models (hundreds of tables),
+ * so the reader never builds a tree of the whole document: it slices the
+ * elements it wants out of the text and parses each slice on its own. What it
+ * could not read is recorded as a skip, not thrown away (Q18).
  */
 import type { XmlNode } from "./xml.ts";
-import { attributeNamed, childNamed, childrenNamed, normalizeXmlName, textOf } from "./xml.ts";
+import { attributeNamed, childNamed, childrenNamed, descendantsNamed, parseXml, scanElements, textOf } from "./xml.ts";
 
 export type ErwinSkipReason = "unknown-element" | "unparsable" | "unsupported" | "asymmetric";
 
 /** One piece of the file the reader could not turn into a value (Q18). */
 export interface ErwinSkip {
-  /** Where in the file, e.g. "Entity[2]/Attribute[1]/FieldType". */
+  /** Where in the file, e.g. "Entity[2]/Attribute[1]". */
   path: string;
   /** The element or the attribute that was skipped. */
   sourceName: string;
@@ -24,8 +25,12 @@ export interface ErwinSkip {
   original?: string;
 }
 
+/** A data type as erwin writes it, e.g. `VARCHAR2(32)` or `NUMBER(10,2)`. */
 export interface ErwinTypeRef {
+  /** The base name, as written: `VARCHAR2`, `NUMBER`, `DATE`. */
   name: string;
+  /** The raw text the file has, kept for the report. */
+  raw?: string;
   length?: number;
   precision?: number;
   scale?: number;
@@ -33,216 +38,294 @@ export interface ErwinTypeRef {
 
 export interface ErwinAttribute {
   id: string;
+  /** The logical name (`Name`). */
   name: string;
-  description?: string;
-  /** The logical data type of the attribute, as the file names it. */
-  typeName?: string;
-  /** The id of the physical field it describes (section 3.5.1). */
-  fieldId?: string;
-  /** True when the file marks the attribute as part of the primary key. */
-  primary?: boolean;
-  /** True when the file marks the attribute as unique. */
-  unique?: boolean;
-}
-
-export interface ErwinField {
-  id: string;
-  name: string;
-  description?: string;
-  type?: ErwinTypeRef;
-  nullable?: boolean;
+  /** The physical name (`Physical_Name`). */
+  physicalName: string;
+  comment?: string;
+  logicalType?: ErwinTypeRef;
+  physicalType?: ErwinTypeRef;
+  /** True when the file says the column is NOT NULL. */
+  notNull?: boolean;
+  /** The domain the attribute is typed by (`Parent_Domain_Ref`). */
+  domainId?: string;
 }
 
 export interface ErwinEntity {
   id: string;
-  /** The name the model speaks (`EntryName`). */
-  logicalName: string;
-  /** The name the database speaks (`TableName`). */
+  /** The logical name (`Name`). */
+  name: string;
+  /** The physical name (`Physical_Name`). */
   physicalName: string;
-  description?: string;
   comment?: string;
+  definition?: string;
   attributes: ErwinAttribute[];
-  fields: ErwinField[];
 }
 
 export interface ErwinDomain {
   id: string;
   name: string;
-  typeName?: string;
+  builtInId?: string;
+  physicalName?: string;
+  logicalType?: ErwinTypeRef;
   parentId?: string;
+}
+
+export type ErwinKeyKind = "primary" | "unique" | "foreign" | "index" | "other";
+
+export interface ErwinKeyGroup {
+  id: string;
+  name: string;
+  kind: ErwinKeyKind;
+  /** The raw `Key_Group_Type`: PK, AK, FK, IE… */
+  type: string;
+  physicalName?: string;
+  constraintName?: string;
+  unique?: boolean;
+  /** The columns the key is made of, in file order. */
+  members: ErwinKeyMember[];
+}
+
+/** One column of a key: the attribute it points at and its sort order. */
+export interface ErwinKeyMember {
+  /** The attribute the member points at (`Attribute_Ref`). */
+  attributeId: string;
+  order?: "asc" | "desc";
 }
 
 export interface ErwinRelationship {
   id: string;
-  name?: string;
-  parentId?: string;
-  childId?: string;
-  parentFieldId?: string;
-  childFieldId?: string;
+  name: string;
+  physicalName?: string;
+  /** The raw `Cardinality` code the file states. */
   cardinality?: string;
+  parentEntityId?: string;
+  childEntityId?: string;
+  keyGroupId?: string;
 }
 
 export interface ErwinDocument {
-  /** The version the file announces, or "unknown" when it does not. */
+  /** The `FileVersion` of the root element, e.g. "7.3.1822". */
   version: string;
   entities: ErwinEntity[];
   domains: ErwinDomain[];
+  keyGroups: ErwinKeyGroup[];
   relationships: ErwinRelationship[];
   skipped: ErwinSkip[];
 }
 
-/** The names of an element, in every version the plan acknowledges (Q17). */
-const ALIASES = {
-  version: ["version", "Version", "ERWinVersion", "ModelVersion"],
-  entity: ["Entity", "Table", "EntityNode", "TableNode"],
-  attribute: ["Attribute", "EntityAttribute", "Column"],
-  field: ["Field", "TableField", "FieldNode"],
-  domain: ["Domain", "DomainNode"],
-  relationship: ["Relationship", "RelationshipNode", "ForeignKey"],
-} as const;
-
-const NUMERIC = /^-?\d+(\.\d+)?$/;
-
-/** Reads a number the file writes as a value or as an attribute. */
-function numberOf(node: XmlNode, names: readonly string[], path: string, skipped: ErwinSkip[]): number | undefined {
-  const raw = attributeNamed(node, names) ?? textOf(node, names);
+/** Splits `VARCHAR2(32)` or `NUMBER(10,2)` into the base name and its numbers. */
+export function readDataType(raw: string | undefined): ErwinTypeRef | undefined {
   if (raw === undefined) return undefined;
-  const trimmed = raw.trim();
-  if (trimmed.length === 0) return undefined;
-  if (!NUMERIC.test(trimmed)) {
-    skipped.push({ path, sourceName: names[0]!, reason: "unparsable", detail: "a number was expected", original: trimmed });
-    return undefined;
+  const text = raw.trim();
+  if (text.length === 0) return undefined;
+  const match = /^([^()]+?)\s*(?:\(([^)]*)\))?$/.exec(text);
+  if (!match) return { name: text, raw: text };
+  const base = match[1]!.trim();
+  const numbers = (match[2] ?? "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0)
+    .map((part) => (/^\d+$/.test(part) ? Number(part) : Number.NaN));
+  const sized = /char|binary|bit|text|raw|blob|clob|nvarchar|varchar/i.test(base);
+  const numeric = /decimal|numeric|number|float|double|real/i.test(base);
+  if (numbers.length === 0 || numbers.some((value) => Number.isNaN(value))) {
+    return { name: base, raw: text };
   }
-  return Number(trimmed);
+  if (numeric) {
+    return { name: base, raw: text, precision: numbers[0], scale: numbers[1] };
+  }
+  if (sized) {
+    return { name: base, raw: text, length: numbers[0] };
+  }
+  return { name: base, raw: text, length: numbers[0] };
 }
 
-/** Reads the type of a field: `<FieldType Datatype="varchar2" length="50"/>`. */
-function readFieldType(node: XmlNode | undefined, path: string, skipped: ErwinSkip[]): ErwinTypeRef | undefined {
-  if (!node) return undefined;
-  const name = attributeNamed(node, ["Datatype", "DataType", "TypeName", "Type"])
-    ?? textOf(node, ["Name", "TypeName"])
-    ?? node.text.trim();
-  if (name.length === 0) {
-    skipped.push({ path, sourceName: node.name, reason: "unparsable", detail: "the type of the field is empty" });
-    return undefined;
-  }
-  const length = numberOf(node, ["length", "Length", "size", "Size"], `${path}/length`, skipped);
-  const precision = numberOf(node, ["precision", "Precision"], `${path}/precision`, skipped);
-  const scale = numberOf(node, ["scale", "Scale"], `${path}/scale`, skipped);
-  return { name, length, precision, scale };
+/** The properties bag of an element (`<EntityProps>` inside `<Entity>`). */
+function propsOf(node: XmlNode, name: string): XmlNode {
+  return childNamed(node, [`${name}Props`, name]) ?? node;
 }
 
-/** True when the node marks one of its attributes as set. */
-function flagOf(node: XmlNode, names: readonly string[]): boolean {
-  const raw = attributeNamed(node, names);
-  if (raw === undefined) return false;
-  return /^(true|yes|1|y)$/i.test(raw.trim());
+function keyKindOf(type: string): ErwinKeyKind {
+  const upper = type.trim().toUpperCase();
+  if (upper === "PK") return "primary";
+  if (upper === "AK" || upper === "UK") return "unique";
+  if (upper === "FK") return "foreign";
+  // IE is erwin's unique index; IF1/IF2 are the indexes it adds for a
+  // foreign key, which are indexes and not constraints.
+  if (upper === "IE") return "unique";
+  if (/^IF\d*$/.test(upper)) return "index";
+  return "other";
 }
 
-function pathOf(parent: string, name: string, index: number): string {
-  return `${parent}/${name}[${index}]`;
-}
-
-/** Reads one entity, with its logical attributes and its physical fields. */
-function readEntity(node: XmlNode, index: number, skipped: ErwinSkip[]): ErwinEntity | undefined {
-  const path = pathOf("Entity", node.name, index);
-  const id = attributeNamed(node, ["EntryId", "EntityId", "id"]) ?? textOf(node, ["EntryId", "Id"]) ?? `entity_${index + 1}`;
-  const logicalName = attributeNamed(node, ["EntryName", "LogicalName", "Name"]) ?? textOf(node, ["EntryName", "LogicalName"]) ?? "";
-  const physicalName = attributeNamed(node, ["TableName", "PhysicalName"]) ?? textOf(node, ["TableName", "PhysicalName"]) ?? "";
-  if (logicalName.length === 0 && physicalName.length === 0) {
-    skipped.push({ path, sourceName: node.name, reason: "asymmetric", detail: "an entity without a name is not imported" });
-    return undefined;
+function readAttribute(node: XmlNode, where: string, skipped: ErwinSkip[]): ErwinAttribute {
+  const props = propsOf(node, node.name);
+  const name = textOf(props, ["Name"]) ?? attributeNamed(node, ["name"]) ?? "";
+  const physicalName = textOf(props, ["Physical_Name"]) ?? name;
+  const logicalType = readDataType(textOf(props, ["Logical_Data_Type"]));
+  const physicalType = readDataType(textOf(props, ["Physical_Data_Type"]));
+  if (physicalType === undefined) {
+    skipped.push({ path: where, sourceName: name, reason: "asymmetric", detail: "the column has no physical data type" });
   }
-
-  const attributes: ErwinAttribute[] = childrenNamed(node, ALIASES.attribute).map((child, at) => {
-    const attributePath = pathOf(path, child.name, at);
-    if (flagOf(child, ["unsupported"])) {
-      skipped.push({ path: attributePath, sourceName: child.name, reason: "unsupported", detail: "the attribute is marked unsupported" });
-    }
-    return {
-      id: attributeNamed(child, ["attributeid", "AttributeId", "id"]) ?? `attribute_${index}_${at + 1}`,
-      name: attributeNamed(child, ["attributeName", "AttributeName", "Name"]) ?? child.text.trim(),
-      description: attributeNamed(child, ["arributeDesc", "attributeDesc", "AttributeDesc", "Description"]),
-      typeName: attributeNamed(child, ["attributetype", "attributeType", "AttributeType", "Datatype"]),
-      fieldId: attributeNamed(child, ["fieldid", "FieldId", "FieldID"]),
-      primary: flagOf(child, ["primaryKey", "PrimaryKey", "isPrimaryKey"]),
-      unique: flagOf(child, ["unique", "Unique", "isUnique"]),
-    };
-  });
-
-  const fields: ErwinField[] = childrenNamed(node, ALIASES.field).map((child, at) => {
-    const fieldPath = pathOf(path, child.name, at);
-    return {
-      id: attributeNamed(child, ["fieldId", "FieldId", "FieldID", "id"]) ?? `field_${index}_${at + 1}`,
-      name: attributeNamed(child, ["fieldName", "FieldName", "Name"]) ?? textOf(child, ["fieldName", "Name"]) ?? "",
-      description: attributeNamed(child, ["Comment", "comment", "Description"]),
-      type: readFieldType(childNamed(child, ["FieldType", "Type"]), `${fieldPath}/FieldType`, skipped),
-      nullable: !flagOf(child, ["notNull", "NotNull", "isNotNull"]),
-    };
-  });
-
-  // A logical attribute without a field, or the other way round, is the
-  // asymmetry section 3.5.1 calls an exception (Q18).
-  const attributeFieldIds = new Set(attributes.map((attribute) => attribute.fieldId).filter(Boolean));
-  for (const field of fields) {
-    if (attributeFieldIds.size > 0 && !attributeFieldIds.has(field.id)) {
-      skipped.push({ path, sourceName: field.name, reason: "asymmetric", detail: `the field "${field.name}" has no logical attribute` });
-    }
-  }
-
   return {
-    id,
-    logicalName: logicalName.length > 0 ? logicalName : physicalName,
-    physicalName: physicalName.length > 0 ? physicalName : logicalName,
-    description: attributeNamed(node, ["EntryDesc", "EntityDesc", "Description"]),
-    comment: attributeNamed(node, ["comment", "Comment", "TableComment"]),
-    attributes,
-    fields,
+    id: attributeNamed(node, ["id"]) ?? name,
+    name,
+    physicalName,
+    comment: textOf(props, ["Comment"]),
+    logicalType,
+    physicalType,
+    notNull: textOf(props, ["Null_Option_Type"]) === "1" || undefined,
+    domainId: textOf(props, ["Parent_Domain_Ref"]),
   };
 }
 
-/** Reads the erwin document into the plain shape the importer maps (Q17). */
-export function readErwinDocument(root: XmlNode): ErwinDocument {
-  const skipped: ErwinSkip[] = [];
-  const version = attributeNamed(root, ALIASES.version)
-    ?? textOf(root, ALIASES.version)
-    ?? "unknown";
-
-  const entities = childrenNamed(root, ALIASES.entity)
-    .map((node, index) => readEntity(node, index, skipped))
-    .filter((entity): entity is ErwinEntity => entity !== undefined);
-
-  const domains: ErwinDomain[] = childrenNamed(root, ALIASES.domain).map((node, index) => ({
-    id: attributeNamed(node, ["DomainId", "id"]) ?? `domain_${index + 1}`,
-    name: attributeNamed(node, ["DomainName", "Name"]) ?? textOf(node, ["DomainName", "Name"]) ?? "",
-    typeName: attributeNamed(node, ["Datatype", "Type", "TypeName"]),
-    parentId: attributeNamed(node, ["ParentId", "parentId"]),
-  })).filter((domain) => domain.name.length > 0);
-
-  const relationships: ErwinRelationship[] = childrenNamed(root, ALIASES.relationship).map((node, index) => ({
-    id: attributeNamed(node, ["RelationshipId", "id"]) ?? `relationship_${index + 1}`,
-    name: attributeNamed(node, ["RelationshipName", "Name", "FKName"]),
-    parentId: attributeNamed(node, ["ParentEntityId", "ParentId", "parentId"]),
-    childId: attributeNamed(node, ["ChildEntityId", "ChildId", "childId"]),
-    parentFieldId: attributeNamed(node, ["ParentFieldId", "ParentFieldID"]),
-    childFieldId: attributeNamed(node, ["ChildFieldId", "ChildFieldID"]),
-    cardinality: attributeNamed(node, ["Cardinality", "cardinality"]),
-  }));
-
-  // Everything else is reported rather than dropped silently.
-  const known = new Set(
-    [ALIASES.entity, ALIASES.domain, ALIASES.relationship, ["Version", "version"]].flat().map(normalizeXmlName),
+function readEntity(node: XmlNode, index: number, skipped: ErwinSkip[]): { entity: ErwinEntity; keys: ErwinKeyGroup[] } {
+  const props = propsOf(node, "Entity");
+  const name = textOf(props, ["Name"]) ?? attributeNamed(node, ["name"]) ?? "";
+  const physicalName = textOf(props, ["Physical_Name"]) ?? name;
+  const where = `Entity[${index}]`;
+  // The attributes of an entity sit inside its attribute groups.
+  const attributes = descendantsNamed(node, ["Attribute", "Column"]).map((child, at) =>
+    readAttribute(child, `${where}/Attribute[${at}]`, skipped),
   );
-  for (const child of root.children) {
-    if (!known.has(normalizeXmlName(child.name))) {
-      skipped.push({
-        path: child.name,
-        sourceName: child.name,
-        reason: "unknown-element",
-        detail: "the element is not part of the erwin schema the importer knows",
-      });
-    }
+  if (attributes.length === 0) {
+    skipped.push({ path: where, sourceName: name, reason: "asymmetric", detail: "the entity has no attributes" });
   }
+  // The key groups of an entity live inside the entity element as well.
+  const keys = descendantsNamed(node, ["Key_Group"]).map((child, at) => readKeyGroup(child, at, skipped));
+  return {
+    entity: {
+      id: attributeNamed(node, ["id"]) ?? name,
+      name,
+      physicalName,
+      comment: textOf(props, ["Comment"]),
+      definition: textOf(props, ["Definition"]),
+      attributes,
+    },
+    keys,
+  };
+}
 
-  return { version, entities, domains, relationships, skipped };
+function readDomain(node: XmlNode, index: number, skipped: ErwinSkip[]): ErwinDomain {
+  const props = propsOf(node, "Domain");
+  const name = textOf(props, ["Name"]) ?? attributeNamed(node, ["name"]) ?? "";
+  const where = `Domain[${index}]`;
+  const logicalType = readDataType(textOf(props, ["Logical_Data_Type"]) ?? textOf(props, ["Physical_Data_Type"]));
+  if (logicalType === undefined) {
+    skipped.push({ path: where, sourceName: name, reason: "asymmetric", detail: "the domain has no data type" });
+  }
+  return {
+    id: attributeNamed(node, ["id"]) ?? name,
+    name,
+    builtInId: textOf(props, ["Built_In_Id"]),
+    physicalName: textOf(props, ["Physical_Name"]),
+    logicalType,
+    parentId: textOf(props, ["Parent_Domain_Ref"]),
+  };
+}
+
+function readKeyGroup(node: XmlNode, index: number, skipped: ErwinSkip[]): ErwinKeyGroup {
+  const props = propsOf(node, "Key_Group");
+  const type = textOf(props, ["Key_Group_Type"]) ?? "";
+  const kind = keyKindOf(type);
+  const name = textOf(props, ["Name"]) ?? attributeNamed(node, ["name"]) ?? "";
+  // The order-ref array names member objects, and each member object points
+  // at the attribute it stands for; the member's sort order comes along.
+  const memberList = childNamed(props, ["Key_Group_Members_Order_Ref_Array"]) ?? props;
+  const memberRefs = childrenNamed(memberList, ["Key_Group_Members_Order_Ref"])
+    .map((child) => child.text.trim())
+    .filter((value) => value.length > 0);
+  const memberById = new Map<string, ErwinKeyMember>();
+  for (const memberNode of descendantsNamed(node, ["Key_Group_Member"])) {
+    const memberProps = propsOf(memberNode, "Key_Group_Member");
+    const id = attributeNamed(memberNode, ["id"]) ?? "";
+    const attributeId = textOf(memberProps, ["Attribute_Ref"]);
+    if (id.length === 0 || attributeId === undefined) continue;
+    const order = textOf(memberProps, ["Key_Group_Sort_Order"])?.toLowerCase();
+    memberById.set(id, { attributeId, ...(order === "desc" ? { order: "desc" as const } : order === "asc" ? { order: "asc" as const } : {}) });
+  }
+  const members: ErwinKeyMember[] = [];
+  for (const ref of memberRefs) {
+    const member = memberById.get(ref);
+    if (member) members.push(member);
+    else skipped.push({ path: `Key_Group[${index}]`, sourceName: name, reason: "asymmetric", detail: `the key names a member the file does not have: ${ref}` });
+  }
+  if (kind === "other") {
+    skipped.push({ path: `Key_Group[${index}]`, sourceName: name, reason: "unsupported", detail: `the key type "${type}" is not imported` });
+  }
+  return {
+    id: attributeNamed(node, ["id"]) ?? name,
+    name,
+    kind,
+    type,
+    physicalName: textOf(props, ["Physical_Name"]),
+    constraintName: textOf(props, ["Constraint_Name"]),
+    unique: textOf(props, ["Is_Unique"]) === "true" || undefined,
+    members,
+  };
+}
+
+function readRelationship(node: XmlNode): ErwinRelationship {
+  const props = propsOf(node, "Relationship");
+  const name = textOf(props, ["Name"]) ?? attributeNamed(node, ["name"]) ?? "";
+  return {
+    id: attributeNamed(node, ["id"]) ?? name,
+    name,
+    physicalName: textOf(props, ["Physical_Name"]),
+    cardinality: textOf(props, ["Cardinality"]),
+    parentEntityId: textOf(props, ["Parent_Entity_Ref"]),
+    childEntityId: textOf(props, ["Child_Entity_Ref"]),
+    keyGroupId: textOf(props, ["Key_Group_Ref"]),
+  };
+}
+
+/** The `FileVersion` of the root element, read without parsing the document. */
+export function readErwinVersion(source: string): string {
+  // The file starts with a prolog (`<?xml …?>`); the root element comes after
+  // it, so the first tag that is neither a prolog nor a declaration is used.
+  let at = source.indexOf("<");
+  while (at >= 0 && (source[at + 1] === "?" || source[at + 1] === "!")) {
+    at = source.indexOf("<", source.indexOf(">", at) + 1);
+  }
+  if (at < 0) return "unknown";
+  const end = source.indexOf(">", at);
+  if (end < 0) return "unknown";
+  const head = parseXml(source.slice(at, end + 1));
+  return attributeNamed(head, ["FileVersion", "Version"]) ?? "unknown";
+}
+
+const IMPORTED_ELEMENTS = ["Entity", "Domain", "Key_Group", "Relationship"] as const;
+
+/**
+ * Reads the document in one pass: every interesting element is sliced out and
+ * parsed on its own, so memory follows one element rather than the file.
+ */
+export function readErwinDocument(source: string): ErwinDocument {
+  const skipped: ErwinSkip[] = [];
+  const document: ErwinDocument = {
+    version: readErwinVersion(source),
+    entities: [],
+    domains: [],
+    keyGroups: [],
+    relationships: [],
+    skipped,
+  };
+
+  let entityCount = 0;
+  let domainCount = 0;
+  let keyCount = 0;
+  scanElements(source, IMPORTED_ELEMENTS, (name, slice) => {
+    const node = parseXml(slice);
+    const normalized = name.replace(/^[^:]+:/, "");
+    if (normalized === "Entity") {
+      const read = readEntity(node, entityCount++, skipped);
+      document.entities.push(read.entity);
+      document.keyGroups.push(...read.keys);
+    }
+    else if (normalized === "Domain") document.domains.push(readDomain(node, domainCount++, skipped));
+    else if (normalized === "Key_Group") document.keyGroups.push(readKeyGroup(node, keyCount++, skipped));
+    else document.relationships.push(readRelationship(node));
+  });
+
+  return document;
 }

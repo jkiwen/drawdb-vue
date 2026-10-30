@@ -143,6 +143,20 @@ export function parseXml(source: string): XmlNode {
 }
 
 /** The children whose name matches one of the names, ignoring case and separators. */
+/** Every element below `node` with one of `names`, in document order. */
+export function descendantsNamed(node: XmlNode, names: readonly string[]): XmlNode[] {
+  const wanted = names.map(normalizeXmlName);
+  const found: XmlNode[] = [];
+  const walk = (current: XmlNode): void => {
+    for (const child of current.children) {
+      if (wanted.includes(normalizeXmlName(child.name))) found.push(child);
+      walk(child);
+    }
+  };
+  walk(node);
+  return found;
+}
+
 export function childrenNamed(node: XmlNode, names: readonly string[]): XmlNode[] {
   const wanted = new Set(names.map(normalizeXmlName));
   return node.children.filter((child) => wanted.has(normalizeXmlName(child.name)));
@@ -174,3 +188,77 @@ export function textOf(node: XmlNode, names: readonly string[]): string | undefi
 export function normalizeXmlName(name: string): string {
   return name.replace(/[_\-\s]/g, "").toLowerCase();
 }
+
+/** True when the char after a tag name ends it (`>`, `/`, or whitespace). */
+function endsName(source: string, at: number): boolean {
+  const after = source[at];
+  return after === undefined || after === ">" || after === "/" || /\s/.test(after);
+}
+
+/** The next index of the tag `prefix+name` whose name is not a longer one. */
+function indexOfTag(source: string, prefix: string, from: number): number {
+  let at = source.indexOf(prefix, from);
+  while (at >= 0) {
+    if (endsName(source, at + prefix.length)) return at;
+    at = source.indexOf(prefix, at + 1);
+  }
+  return -1;
+}
+
+/** The index just past the closing tag that matches the start tag at `from`. */
+function elementEnd(source: string, name: string, from: number): number {
+  let depth = 0;
+  let at = from;
+  while (at < source.length) {
+    const nextOpen = indexOfTag(source, `<${name}`, at);
+    const nextClose = indexOfTag(source, `</${name}`, at);
+    if (nextClose < 0) return source.length;
+    if (nextOpen >= 0 && nextOpen < nextClose) {
+      depth += 1;
+      at = nextOpen + name.length + 1;
+      continue;
+    }
+    depth -= 1;
+    const end = source.indexOf(">", nextClose);
+    const after = end < 0 ? source.length : end + 1;
+    if (depth <= 0) return after;
+    at = after;
+  }
+  return source.length;
+}
+
+/**
+ * Walks a document once and hands over the slice of every element it wants.
+ *
+ * The importer never needs the whole document: for a model with hundreds of
+ * tables the useful part is the entities and the keys, and the rest is
+ * drawing bookkeeping. Slicing each interesting element out and parsing that
+ * slice keeps memory proportional to one element instead of the file
+ * (the review asked for an extraction that is not a full text scan).
+ */
+export function scanElements(
+  source: string,
+  names: readonly string[],
+  onElement: (name: string, slice: string) => void,
+): number {
+  const wanted = names.map((name) => name.replace(/[_\-\s]/g, "").toLowerCase());
+  let at = 0;
+  let found = 0;
+  while (at < source.length) {
+    const open = source.indexOf("<", at);
+    if (open < 0) break;
+    let nameEnd = open + 1;
+    while (nameEnd < source.length && !/[\s/>]/.test(source[nameEnd]!)) nameEnd += 1;
+    const name = source.slice(open + 1, nameEnd).replace(/^[^:]+:/, "");
+    if (!wanted.includes(normalizeXmlName(name))) {
+      at = open + 1;
+      continue;
+    }
+    const end = elementEnd(source, name, open);
+    onElement(name, source.slice(open, end));
+    found += 1;
+    at = end;
+  }
+  return found;
+}
+
