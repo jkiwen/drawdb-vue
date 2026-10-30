@@ -77,6 +77,10 @@
 3. **300 行守卫**：向导必然拆成 4 个步骤组件 + `import.module.css`；`DrawDBEditor.vue` 已接近上限，入口接线优先放进 `composables/`。
 4. **不弱化断言**：迁移测试时保留原有用例的语义（如"导入后图里有 1 张表"），只是换入口。
 
-## 执行偏差记录
+## ## 追加裁决（2026-10-30）：域名冲突执行域内合并
+
+评审裁定：两个图各自定义了同名域时不逐项选、不改名，而是**在域内合并**。`packages/core/src/import/domains.ts` 的 `mergeDiagramDomains()` 已实现该规则（物理规格按方言取并集、同方言保留图内、族与参数保留图内语义、导入侧域 id 经 `idMap` 重指、报告记录被替换/补上的方言）。Task 4 的 apply 必须消费 `idMap` 重指导入属性的 `logicalType.domainId`，并在报告里带上 `DomainMergeNote`。
+
+执行偏差记录
 
 （执行期填写）

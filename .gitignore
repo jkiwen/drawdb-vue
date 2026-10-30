@@ -15,3 +15,4 @@ test-results
 .tmp-shots/
 .tmp-i18n/
 .tmp-e2e/
+.tmp-tests/

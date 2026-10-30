@@ -76,6 +76,8 @@ export type {
   ImportSource,
 } from "./import/types.ts";
 export { buildImportSource, countDiagram, formatOfFileName } from "./import/source.ts";
+export type { DomainMergeNote, DomainMergeResult } from "./import/domains.ts";
+export { mergeDiagramDomains } from "./import/domains.ts";
 export { diagramScopeOf, scopeWithDiagram } from "./types/diagram-scope.ts";
 export type { ValidateImportOptions } from "./import/validate.ts";
 export { blockingIssues, repairMode, validateImport } from "./import/validate.ts";
