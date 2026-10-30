@@ -3,6 +3,7 @@ import type { DatabaseType } from "../models/diagram.ts";
 import type { Enum } from "../models/enum.ts";
 import type { LogicalRelationship } from "../models/logical-relationship.ts";
 import type { InvalidMarker } from "../models/invalid-marker.ts";
+import type { LogicalDomain } from "../models/domain.ts";
 import type { Metadata } from "../models/metadata.ts";
 import type { Note } from "../models/note.ts";
 import type { Relationship } from "../models/relationship.ts";
@@ -31,6 +32,7 @@ export interface DiagramJson {
   views: View[];
   metadata?: Metadata;
   invalidMarkers?: InvalidMarker[];
+  domains?: LogicalDomain[];
   viewState?: ViewState;
 }
 

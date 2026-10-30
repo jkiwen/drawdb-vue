@@ -171,6 +171,8 @@ export function importDiagramJson(
   diagram.enums = [...(collection(record, "enums") as Enum[])];
   diagram.views = [...(collection(record, "views") as View[])];
 
+  const domains = property(record, "domains");
+  if (Array.isArray(domains)) diagram.domains = domains as Diagram["domains"];
   const invalidMarkers = property(record, "invalidMarkers");
   if (Array.isArray(invalidMarkers)) diagram.invalidMarkers = invalidMarkers as Diagram["invalidMarkers"];
   const metadata = property(record, "metadata");

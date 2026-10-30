@@ -80,3 +80,14 @@
 5. **样本断言**：`erwin-import.test.ts` 的最后一例直接读真实文件——版本 `7.3.1822`、
    22 实体、139 列、≥19 张表带 PK、15 条关系、至少一张表带索引；文件不存在时该例跳过
    （CI 里没有样本也能跑）。
+
+### 追加偏差（2026-10-30，评审裁决：自定义逻辑类型属于图）
+
+评审指出 erwin 的 `INT-4` 这类**基于基础逻辑类型定义的自定义逻辑类型**在文件里是存在的，属于**图级别**，导入时必须读进来，不能只出现在报告里。据此补上一步：
+
+- `Diagram` 增 `domains?: LogicalDomain[]`（随图序列化，`serialize/types.ts` / `export.ts` / `import.ts` 三处携带）。
+- erwin 的 `Domain` 元素里，`Built_In_Id` 为 1..6 或名字为 `<root>`/`<default>`/`String`/`Number`/`Datetime`/`Blob` 的是 erwin 自带的类别，不重复登记；其余（含 `Built_In_Id` 为 0 或缺失）是**模型自己声明的**自定义逻辑类型，读成 `LogicalDomain`：`family` 由其逻辑类型名推得、`params` 由 `Logical_Data_Type` 拆解、`physical` 记在导入时的目标方言下（来自 `Physical_Data_Type`）、`parentId` 保留（Q13，不继承）。
+- 用 `Parent_Domain_Ref` 指向这些域的属性，`logicalType` 写成 `{ domainId }`，于是逻辑视图显示域的名字、物理视图显示域在目标方言下的类型。
+- 新增 `packages/core/src/types/diagram-scope.ts` 的 `diagramScopeOf()` / `scopeWithDiagram()`：把 `diagram.domains` 铺进作用域的 diagram 层（图 > 工作区 > 应用，最内层优先）。面板的 `suggestPhysicalSpec` 与底部告警的 `lintDialect` 都改走它，否则导入图里的域对编辑面板「不存在」。
+- `resolve.ts` 的 `findDomain` 现在同时认两种键：注册表按名字键控（Q1 全局唯一按名），导入的 diagram 层按 **id** 键控（属性引用的是 id，改名不破引用）。
+- 真实样本复核：20 个自定义逻辑类型随图、130 个属性指向它们、6 个 erwin 自带类别不重复登记；`消息通道ID` → 域 `_ID` → `VARCHAR2(32)`（oraclesql，无诊断）。

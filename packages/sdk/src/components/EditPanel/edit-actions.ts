@@ -11,6 +11,7 @@ import type { useDiagramStore } from "../../stores/diagram.ts";
 import type { FieldPairRow } from "./edit-panel-model.ts";
 import { suggestPhysicalSpec } from "./edit-panel-model.ts";
 import { useTypeScopeStore } from "../../stores/type-scope.ts";
+import { scopeWithDiagram } from "@drawdb/core";
 
 /**
  * The commit helpers of the edit panel. Every helper takes the diagram
@@ -216,7 +217,7 @@ export function addFieldPair(store: DiagramStore, table: Table): void {
     ? suggestPhysicalSpec(
         { id: "", name: "", logicalType: { family: family.id } },
         store.diagram.database,
-        useTypeScopeStore().getSnapshot(),
+        scopeWithDiagram(useTypeScopeStore().getSnapshot(), store.diagram),
       )
     : undefined;
   const field: Field = {

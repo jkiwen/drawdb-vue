@@ -664,3 +664,7 @@ IF1/IF2 to indexes, anything else is reported as unsupported. The one thing
 the streaming reader gives up is enumerating unknown elements — it can only
 say what it read and where it disagreed — so the report lists skips by where
 it failed (asymmetric) rather than by what else the file contains.
+
+## The custom logical types belong to the diagram (2026-10-30)
+
+An erwin model states its own logical types — `_ID`, `_IntValue`, and in other models `INT-4`, a four-byte `INT` — as `Domain` elements without one of erwin's six `Built_In_Id` categories. The review ruled that they are diagram-level types, so they now travel with the diagram (`Diagram.domains`), the attributes name them by id (`logicalType: { domainId }`), and the resolver reads them as the innermost scope layer (`diagramScopeOf`). The panel and the lint go through `scopeWithDiagram`, so an imported diagram is never resolved without them. The real sample keeps 20 of them (the other 6 domains are erwin's own categories), 130 attributes point at one, and `消息通道ID` resolves to `VARCHAR2(32)` for Oracle with no diagnostics.

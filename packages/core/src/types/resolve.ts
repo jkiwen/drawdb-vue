@@ -193,7 +193,14 @@ function findDomain(
   name: string,
 ): LogicalDomain | undefined {
   for (const level of SCOPE_ORDER) {
-    const domain = scope[level].domains?.[name];
+    const layer = scope[level].domains;
+    if (layer === undefined) {
+      continue;
+    }
+    // A layer is keyed by the name of its domains (the registry is globally
+    // unique by name); a diagram layer written by an import is keyed by the
+    // id the attributes carry, so both keys are honoured.
+    const domain = layer[name] ?? Object.values(layer).find((candidate) => candidate.id === name);
     if (domain) {
       return domain;
     }

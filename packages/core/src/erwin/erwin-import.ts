@@ -18,6 +18,7 @@ import type {
   Diagram,
   Index,
   LogicalAttribute,
+  LogicalDomain,
   LogicalEntity,
   LogicalTypeRef,
   PhysicalField,
@@ -30,7 +31,15 @@ import type { InvalidMarker } from "../models/invalid-marker.ts";
 import { createEmptyDiagram } from "../models/diagram.ts";
 import { normalizeDiagramKeys } from "../models/key-migration.ts";
 import { nextKeyName } from "../models/key-names.ts";
-import type { ErwinAttribute, ErwinDocument, ErwinEntity, ErwinKeyGroup, ErwinSkip, ErwinTypeRef } from "./erwin-model.ts";
+import type {
+  ErwinAttribute,
+  ErwinDocument,
+  ErwinDomain,
+  ErwinEntity,
+  ErwinKeyGroup,
+  ErwinSkip,
+  ErwinTypeRef,
+} from "./erwin-model.ts";
 import { readErwinDocument } from "./erwin-model.ts";
 
 /** What the import did, in the numbers a report shows. */
@@ -128,6 +137,72 @@ function physicalOf(attribute: ErwinAttribute): PhysicalField {
   };
 }
 
+/** erwin's own domain categories: the model inherits them, it does not declare them. */
+const ERWIN_BUILT_IN_DOMAINS = new Set(["<root>", "<default>", "String", "Number", "Datetime", "Blob"]);
+
+/** The parameters a type reference states, in the terms of the family. */
+function paramsOf(type: ErwinTypeRef | undefined, family: string): { length?: number; precision?: number; scale?: number } | undefined {
+  if (type === undefined) return undefined;
+  if (type.length !== undefined && (family === "string" || family === "text" || family === "binary")) {
+    return { length: type.length };
+  }
+  if (type.precision !== undefined) {
+    return type.scale === undefined ? { precision: type.precision } : { precision: type.precision, scale: type.scale };
+  }
+  return undefined;
+}
+
+/**
+ * The custom logical types of the model: erwin keeps a user-defined domain as a
+ * `Domain` element without a `Built_In_Id`, derived from a parent domain and
+ * spelling the same type for the logical and the physical model (for example
+ * `INT-4`, an `INT` with four bytes). They belong to the diagram, so they are
+ * read into `diagram.domains` and the attributes that name one point at it
+ * (review ruling, 2026-10-30).
+ */
+function domainsOf(
+  document: ErwinDocument,
+  database: DatabaseType,
+): { domains: LogicalDomain[]; idOf: Map<string, string> } {
+  const idOf = new Map<string, string>();
+  const read: { domain: LogicalDomain; erwinId: string; parentErwinId?: string }[] = [];
+  for (const source of document.domains) {
+    if (isErwinBuiltInDomain(source)) continue;
+    const id = `domain_${source.id}`;
+    const family = familyOfType(source.logicalType?.name ?? source.physicalType?.name);
+    const params = paramsOf(source.logicalType, family);
+    const physicalType = source.physicalType;
+    const physicalParams = paramsOf(physicalType, family);
+    idOf.set(source.id, id);
+    read.push({
+      erwinId: source.id,
+      parentErwinId: source.parentId,
+      domain: {
+        id,
+        name: source.name,
+        family,
+        ...(params === undefined ? {} : { params }),
+        ...(physicalType === undefined
+          ? {}
+          : { physical: { [database]: { type: physicalType.name, ...(physicalParams ?? {}) } } }),
+      },
+    });
+  }
+  // A custom type may derive from another one; the link is kept (Q13) but the
+  // resolver does not inherit through it.
+  for (const entry of read) {
+    const parent = entry.parentErwinId === undefined ? undefined : idOf.get(entry.parentErwinId);
+    if (parent !== undefined) entry.domain.parentId = parent;
+  }
+  return { domains: read.map((entry) => entry.domain), idOf };
+}
+
+/** erwin keeps its six categories in `Built_In_Id` 1..6; 0 is the model's own. */
+function isErwinBuiltInDomain(domain: ErwinDomain): boolean {
+  if (domain.name === "" || ERWIN_BUILT_IN_DOMAINS.has(domain.name)) return true;
+  return domain.builtInId !== undefined && /^[1-6]$/.test(domain.builtInId.trim());
+}
+
 function columnsOf(key: ErwinKeyGroup): { fieldId: string; order?: "asc" | "desc" }[] {
   return key.members.map((member) => ({
     fieldId: member.attributeId,
@@ -173,7 +248,13 @@ function indexesOf(keys: ErwinKeyGroup[], tableName: string, logicalName: string
 }
 
 /** Reads one entity into a table with its logical entity and its fields. */
-function tableOf(entity: ErwinEntity, index: number, keys: ErwinKeyGroup[], report: ErwinImportReport): Table {
+function tableOf(
+  entity: ErwinEntity,
+  index: number,
+  keys: ErwinKeyGroup[],
+  report: ErwinImportReport,
+  domainOf: Map<string, string>,
+): Table {
   const fields = entity.attributes.map(physicalOf);
   const fieldById = new Map(fields.map((field) => [String(field.id), field]));
 
@@ -191,11 +272,12 @@ function tableOf(entity: ErwinEntity, index: number, keys: ErwinKeyGroup[], repo
       });
     }
     const keyRole = primaryMembers.has(attribute.id) ? "primary" : uniqueMembers.has(attribute.id) ? "alternate" : undefined;
+    const domainId = attribute.domainId === undefined ? undefined : domainOf.get(attribute.domainId);
     return {
       id: attribute.id,
       name: attribute.name || attribute.physicalName,
       ...(attribute.comment === undefined ? {} : { description: attribute.comment }),
-      logicalType: logicalTypeOf(attribute.logicalType),
+      logicalType: domainId === undefined ? logicalTypeOf(attribute.logicalType) : { domainId },
       fieldId: attribute.id,
       ...(keyRole === undefined ? {} : { keyRole }),
       ...(attribute.notNull ? { required: true } : {}),
@@ -326,7 +408,11 @@ export function importErwinXml(source: string, options: ErwinImportOptions = {})
     keysOfEntity.set(owner, list);
   }
 
-  const tables: Table[] = document.entities.map((entity, index) => tableOf(entity, index, keysOfEntity.get(entity.id) ?? [], report));
+  const database = options.database ?? "mssql";
+  const { domains, idOf: domainIdOf } = domainsOf(document, database);
+  const tables: Table[] = document.entities.map((entity, index) =>
+    tableOf(entity, index, keysOfEntity.get(entity.id) ?? [], report, domainIdOf),
+  );
   const relationships = relationshipsOf(document, tables, report);
 
   // A foreign key is the child side of a relationship (invariant INV-10 keeps
@@ -352,11 +438,12 @@ export function importErwinXml(source: string, options: ErwinImportOptions = {})
 
   const diagram: Diagram = {
     ...createEmptyDiagram(),
-    database: options.database ?? "mssql",
+    database,
     title: options.title ?? "Imported from erwin",
     tables,
     relationships,
     logicalRelationships,
+    ...(domains.length === 0 ? {} : { domains }),
   };
 
   report.markers = markersOf(document, (skip) => {
@@ -366,8 +453,12 @@ export function importErwinXml(source: string, options: ErwinImportOptions = {})
   });
   diagram.invalidMarkers = report.markers;
 
-  if (document.domains.length > 0) {
-    report.notes.push(`${document.domains.length} domains are read but not attached to the diagram; register them in the type system.`);
+  const inherited = document.domains.length - domains.length;
+  if (domains.length > 0) {
+    report.notes.push(`${domains.length} custom logical types are part of the diagram.`);
+  }
+  if (inherited > 0) {
+    report.notes.push(`${inherited} of the domains the file carries are erwin's own categories and are not repeated on the diagram.`);
   }
   const unsupportedKeys = document.keyGroups.filter((key) => key.kind === "other").length;
   if (unsupportedKeys > 0) {

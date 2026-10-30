@@ -1,4 +1,5 @@
 import { computed } from "vue";
+import { scopeWithDiagram } from "@drawdb/core";
 import type { PhysicalSpec } from "@drawdb/core";
 import type { LocalizedIssue } from "../../composables/use-issues.ts";
 import { useIssues } from "../../composables/use-issues.ts";
@@ -139,7 +140,12 @@ export function useAlerts(): {
 
   const dialectDiagnostics = computed<DialectDiagnostic[]>(() => {
     void diagram.revision;
-    return lintDialect(diagram.diagram, useTypeScopeStore().getSnapshot());
+    // The diagram carries the custom logical types of an import (erwin), so
+    // the lint reads them as the diagram layer of the scope.
+    return lintDialect(
+      diagram.diagram,
+      scopeWithDiagram(useTypeScopeStore().getSnapshot(), diagram.diagram),
+    );
   });
 
   const alerts = computed<AlertItem[]>(() => {

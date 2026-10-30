@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { importErwinXml } from "./erwin-import.ts";
 import { readErwinDocument, readErwinVersion, readDataType } from "./erwin-model.ts";
+import { exportDiagramJson } from "../serialize/export.ts";
+import { importDiagramJson } from "../serialize/import.ts";
 
 /** A slice of an XML Standard File shaped like the review sample (7.3.1822). */
 const SAMPLE = `<?xml version="1.0" encoding="UTF-8"?>
@@ -58,6 +60,7 @@ const SAMPLE = `<?xml version="1.0" encoding="UTF-8"?>
         <Logical_Data_Type>INTEGER</Logical_Data_Type>
         <Physical_Data_Type>INT(4)</Physical_Data_Type>
         <Null_Option_Type>0</Null_Option_Type>
+        <Parent_Domain_Ref>{D1}+00000000</Parent_Domain_Ref>
       </AttributeProps>
     </Attribute>
   </Entity>
@@ -296,7 +299,7 @@ describe("the erwin import", () => {
     assert.equal(report.domains, 1);
     assert.equal(report.keys, 5);
     assert.equal(report.relationships, 1);
-    assert.ok(report.notes.some((note) => note.includes("domains")));
+    assert.ok(report.notes.some((note) => note.includes("custom logical types")));
     assert.equal(diagram.invalidMarkers?.length, report.skipped.length);
     for (const marker of diagram.invalidMarkers ?? []) {
       assert.ok(typeof marker.ownerId === "string");
@@ -334,5 +337,33 @@ describe("the erwin import", () => {
     assert.ok(diagram.tables.filter((table) => table.primaryKey !== undefined).length >= 19);
     assert.equal(diagram.relationships.length, 15);
     assert.ok(diagram.tables.some((table) => (table.indices?.length ?? 0) > 0));
+  });
+});
+
+describe("the custom logical types of the model", () => {
+  it("keeps the domains the model declares as diagram-level logical types", () => {
+    const { diagram, report } = importErwinXml(SAMPLE);
+    assert.deepEqual(
+      (diagram.domains ?? []).map((domain) => [domain.name, domain.family, domain.params]),
+      [["Email address", "string", { length: 18 }]],
+    );
+    assert.ok(report.notes.some((note) => note.includes("1 custom logical types")));
+  });
+
+  it("types an attribute by the domain it names, not by the type the domain spells", () => {
+    const { diagram } = importErwinXml(SAMPLE);
+    const orders = diagram.tables.find((table) => table.name === "orders");
+    const customer = orders?.logical.attributes.find((attribute) => attribute.name === "Customer");
+    assert.deepEqual(customer?.logicalType, { domainId: "domain_{D1}+00000000" });
+  });
+
+  it("survives the round trip through the diagram json", () => {
+    const { diagram } = importErwinXml(SAMPLE);
+    const again = importDiagramJson(exportDiagramJson(diagram));
+    assert.deepEqual(again.domains, diagram.domains);
+    assert.deepEqual(
+      again.tables.flatMap((table) => table.logical.attributes.map((attribute) => attribute.logicalType)),
+      diagram.tables.flatMap((table) => table.logical.attributes.map((attribute) => attribute.logicalType)),
+    );
   });
 });

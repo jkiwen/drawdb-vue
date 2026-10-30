@@ -68,6 +68,8 @@ export interface ErwinDomain {
   builtInId?: string;
   physicalName?: string;
   logicalType?: ErwinTypeRef;
+  /** How the model's own database spells the type (erwin's physical name). */
+  physicalType?: ErwinTypeRef;
   parentId?: string;
 }
 
@@ -220,6 +222,7 @@ function readDomain(node: XmlNode, index: number, skipped: ErwinSkip[]): ErwinDo
     builtInId: textOf(props, ["Built_In_Id"]),
     physicalName: textOf(props, ["Physical_Name"]),
     logicalType,
+    physicalType: readDataType(textOf(props, ["Physical_Data_Type"])),
     parentId: textOf(props, ["Parent_Domain_Ref"]),
   };
 }
