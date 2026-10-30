@@ -19,7 +19,7 @@
 - **宽松但不静默**（延续 P7）：修复模式下阻断项转 `ImportSkip` 并写图的 `invalidMarkers`，图仍可打开。
 - **Q1**：冲突不预选、未决策则不能继续；批量动作是显式按钮。
 - **Q2**：②/④ 均可按表勾选；未选表的列/键不导入，跨向未选表的关系记 `info` 跳过。
-- **Q3**：域在报告里逐个勾选（默认不勾）才注册进 `type-scope` 的 application 层。
+- **Q3**：域随图进入 `Diagram.domains`（图级自定义逻辑类型，见 P7 裁决）；若还要把它们注册进 SDK 的 `type-scope` application 层，则在报告里逐个勾选、默认不勾。同名域之间的冲突另按 2026-10-30 裁决由用户逐项选（见文末「追加裁决」）。
 - **大图**：`applyImport` 只做一次整份快照（`before/after`），不为每个对象单独建命令；>500 表时用分块进度（P8c）。
 
 ## 现状代码事实
@@ -44,7 +44,7 @@
 测试：坏索引列报 `index.unknown_field` 且算阻断；无主键只算 warning；方言不可表达算 warning；修复模式把阻断项转 skip。
 
 ### Task 3 — 合并计划
-`packages/core/src/import/plan.ts`：`planImport(source, target, decisions) → ImportPlan`，含目标判定（空图/非空/只读）、冲突探测（表/列/键/关系/便笺区域）、表勾选过滤、域勾选、`status: "ready" | "blocked"`（Q1：有未决策冲突即 blocked）。
+`packages/core/src/import/plan.ts`：`planImport(source, target, decisions) → ImportPlan`，含目标判定（空图/非空/只读）、冲突探测（表/列/键/关系/便笺区域）、表勾选过滤、域勾选、域冲突（`domainConflicts()` 的 `DomainConflict`）与用户裁决（`DomainDecision`）、`status: "ready" | "blocked"`（Q1：有未决策冲突即 blocked）。
 测试：空图推荐 current；非空图列出冲突且 `blocked`；逐项决策后 `ready`；未勾选的表不进 `adds`，跨向关系记 info。
 
 ### Task 4 — 合并执行与重映射
@@ -57,7 +57,7 @@
 
 ### Task 6 — 向导 ①②（来源与报告）
 `packages/sdk/src/components/Import/ImportWizard.vue` + `ImportSourceStep.vue` + `ImportReportStep.vue` + `import.module.css`。
-测试：四格式入口；报告按级别筛选、计数、导出；域勾选默认不勾并影响 `plan`。
+测试：四格式入口；报告按级别筛选、计数、导出；域勾选默认不勾并影响 `plan`；同名域有冲突且未裁决时 `status === "blocked"`，补齐 `DomainDecision` 后变 `ready` 且 `mergeDiagramDomains()` 的 `undecided` 为空。
 
 ### Task 7 — 向导 ③④⑤（目标、冲突、执行）
 `ImportTargetStep.vue`（空/非空/只读三种盘点 + 新图/当前图/替换三选）、`ImportConflictStep.vue`（无默认、未决策禁用下一步、表勾选）、`ImportApplyStep.vue`（执行、结果、`import-result-focus` 选中并居中、`import-result-audit`）；`packages/sdk/src/stores/import-session.ts`（Pinia store 承接向导状态）。
@@ -77,10 +77,15 @@
 3. **300 行守卫**：向导必然拆成 4 个步骤组件 + `import.module.css`；`DrawDBEditor.vue` 已接近上限，入口接线优先放进 `composables/`。
 4. **不弱化断言**：迁移测试时保留原有用例的语义（如"导入后图里有 1 张表"），只是换入口。
 
-## ## 追加裁决（2026-10-30）：域名冲突执行域内合并
+## 追加裁决（2026-10-30）：域名冲突由用户裁决，没有优先级规则
 
-评审裁定：两个图各自定义了同名域时不逐项选、不改名，而是**在域内合并**。`packages/core/src/import/domains.ts` 的 `mergeDiagramDomains()` 已实现该规则（物理规格按方言取并集、同方言保留图内、族与参数保留图内语义、导入侧域 id 经 `idMap` 重指、报告记录被替换/补上的方言）。Task 4 的 apply 必须消费 `idMap` 重指导入属性的 `logicalType.domainId`，并在报告里带上 `DomainMergeNote`。
+评审裁定：两个图各自定义了同名域时，**不冲突的部分直接合并，冲突的部分交用户在向导里逐项裁决**（`DomainDecision{name, kind, database?, side}`），不存在「图内优先」或「导入优先」的规则。`packages/core/src/import/domains.ts` 已按此实现：
 
+- `domainConflicts(mine, theirs)` 列出族 / 参数 / 同方言规格三类冲突；
+- `mergeDiagramDomains(mine, theirs, decisions = [])` 只合「一致或仅一侧有」的部分，每条未裁决的冲突进 `undecided`；`undecided` 非空时**不得**应用合并；
+- `idMap` 把导入侧域 id 重指到合并后的域，`notes` 记录自动补入的方言。
+
+Task 3 要把 `undecided` 原样带进向导的决策步（未清空则下一步禁用），Task 4 的 apply 消费 `idMap` 与 `decisions`，并在报告里带上 `DomainMergeNote` 与最终的裁决记录。
 执行偏差记录
 
 （执行期填写）

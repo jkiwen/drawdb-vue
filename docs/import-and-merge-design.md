@@ -274,12 +274,16 @@ interface ImportAuditEntry {
 
 ### 9.1 追加合并要处理图级的自定义逻辑类型（2026-10-30）
 
-导入的图自带 `Diagram.domains`（见 P7 的裁决）。把它追加进一个已有图时，域的名字冲突与表的冲突不同：名字是图内的逻辑类型名，两个图各有一个 `_ID` 时既不能静默覆盖（会改掉旧属性的语义），也不该改名后不告知（旧属性仍指向旧名的话就断链）。§3.4 的冲突裁决因此把「域」单独提出：**域名冲突不交给用户逐项选，而是执行域内合并**（2026-10-30 裁决）。合并规则确定且不丢映射：
+导入的图自带 `Diagram.domains`（见 P7 的裁决）。把它追加进一个已有图时，域的名字冲突与表的冲突一样是**用户裁决**的事：两个图各有一个 `_ID` 时，既不能静默覆盖（会改掉旧属性的语义），也不存在“哪一边优先”的规则（2026-10-30 裁决）。
 
-- 物理规格按方言**取并集**：两边都写了的方言，保留图内已有的那一个，并在报告里点名被替换的方言；只有导入侧写了的方言，补进域里。
-- 逻辑族（family）两边不一致时，保留图内已有族的语义（导入不得改变已有属性的含义），报告里标出「族保留了」。
-- 逻辑参数同理；图内没有参数而导入有，则采用导入参数（不是冲突）。
-- 被合并的导入侧域 id 通过 `idMap` 重指到图内域 id，导入属性的 `logicalType` 随之改到合并后的域上；域的名字保持图内那个（不改名、不产生 `_2`）。
-- 报告在「域」这一节列出每个被合并的名字、被替换的方言、被补上的方言，以及族/参数是否被保留。
+规则（`packages/core/src/import/domains.ts`）：
 
-实现：`packages/core/src/import/domains.ts` 的 `mergeDiagramDomains(mine, theirs)` → `{ domains, idMap, notes }`，纯函数、有单测；P8 的 Task 4（apply）负责把它接进「追加合并」并消费 `idMap`。
+- **不冲突就合**：只有导入侧写了的方言直接补进域；两边都没写的维度不动。报告里的 `DomainMergeNote` 记下补进来的方言。
+- **冲突就列出来，不替你选**：`domainConflicts(mine, theirs)` 为「族不同」「两边都给了参数且不同」「同一方言两边都给了且规格不同」各返回一条 `DomainConflict{name, kind, database?, mine, theirs}`。
+- **未裁决即阻塞**：`mergeDiagramDomains(mine, theirs, decisions)` 把每一条没有对应 `DomainDecision{name, kind, database?, side}` 的冲突放进 `undecided`；`undecided` 非空时调用方**不得**应用合并。这正是向导「决策」步要清空的列表。
+- **裁决后才落值**：`side: "theirs"` 采用导入侧的值，`side: "mine"` 保留图内的值；同名域始终合并成一个，`idMap` 把导入侧域 id 重指过去，导入属性的 `logicalType.domainId` 随之改到合并后的域上。
+- **名字保持图内那个**：不改名、不产生 `_2`。
+
+报告在「域」这一节列出：新增的域、被并入的名字、补进来的方言，以及**仍需裁决的冲突**（每条带两边的值与所在维度）。
+
+实现：`packages/core/src/import/domains.ts` 的 `domainConflicts()` 与 `mergeDiagramDomains(mine, theirs, decisions)` → `{ domains, idMap, undecided, notes }`，纯函数、有单测；P8 的 Task 3 收集 `undecided` 作为向导的决策项，Task 4（apply）消费 `idMap` 并把 `notes` 写进报告。

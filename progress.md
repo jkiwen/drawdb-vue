@@ -669,7 +669,9 @@ it failed (asymmetric) rather than by what else the file contains.
 
 An erwin model states its own logical types — `_ID`, `_IntValue`, and in other models `INT-4`, a four-byte `INT` — as `Domain` elements without one of erwin's six `Built_In_Id` categories. The review ruled that they are diagram-level types, so they now travel with the diagram (`Diagram.domains`), the attributes name them by id (`logicalType: { domainId }`), and the resolver reads them as the innermost scope layer (`diagramScopeOf`). The panel and the lint go through `scopeWithDiagram`, so an imported diagram is never resolved without them. The real sample keeps 20 of them (the other 6 domains are erwin's own categories), 130 attributes point at one, and `消息通道ID` resolves to `VARCHAR2(32)` for Oracle with no diagnostics.
 
-## A shared domain name is merged inside the domain (2026-10-30)
+## A domain conflict is the user's ruling (2026-10-30)
+
+There is no priority rule between the diagram and the import: two same-named domains are merged where they agree and only where they agree. Dialects only the import describes are added without asking (the report's `DomainMergeNote` names them), while a family, a parameter or a dialect the two sides state differently is returned in `undecided` as a `DomainConflict` and the merge must not run until every one of them carries a `DomainDecision` from the wizard's decision step. `idMap` still re-points the incoming attributes at the merged domain and the name stays the one the diagram shows.
 
 The review ruled that two diagrams that name the same logical type are merged inside that type rather than asked about or renamed. `mergeDiagramDomains` unites the physical specs per dialect (the diagram's own wins where both state one, and the report names the dialect it replaced), keeps the family and parameters the diagram already uses when the two disagree, takes the import's parameters only when the diagram states none, and hands back an `idMap` so the incoming attributes point at the merged domain. No `_2` suffix: the name stays the one the diagram already showed.
 
