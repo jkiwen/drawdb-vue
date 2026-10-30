@@ -66,3 +66,13 @@ export type { ErwinImportOptions, ErwinImportReport, ErwinImportResult } from ".
 export { familyOfType, importErwinXml } from "./erwin/erwin-import.ts";
 export type { XmlNode } from "./erwin/xml.ts";
 export { parseXml, scanElements } from "./erwin/xml.ts";
+export type {
+  BuildImportSourceOptions,
+  ImportCounts,
+  ImportFormat,
+  ImportIssue,
+  ImportIssueLevel,
+  ImportSkip,
+  ImportSource,
+} from "./import/types.ts";
+export { buildImportSource, countDiagram, formatOfFileName } from "./import/source.ts";
