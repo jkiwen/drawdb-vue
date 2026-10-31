@@ -682,3 +682,15 @@ The review ruled that two diagrams that name the same logical type are merged in
 The record of an import (`ImportSession`, design section 6.1) is part of the document (`Diagram.imports`) rather than of the session: "where did these tables come from" has to travel with the tables it explains. An absent `imports` means the diagram was never imported into, which is a different fact from "imported nothing".
 
 `diffSessions()` compares two imports by the multiset of their audit codes, not by their messages: the same finding in another language is the same finding.
+
+## The import is one wizard, and the old dialog is gone (2026-10-31)
+
+P8 Task 8 收尾时定了三件事，都会影响后来的人：
+
+1. **导入只有一个入口形态——向导**。`Dialogs/ImportDialog.vue` 已删除，`EditorDialogName` 里不再有 `"import"`；任何「打开导入对话框」的代码都会被类型检查挡住。`editor-menu.ts` 的动作表因此多了 `openImport(format)`，`use-editor-commands.ts` 把它接到 `useImportWizardStore().begin(format)`。
+2. **菜单、拖拽、宿主 API 三处进同一个 store**（设计稿 §9.2，Q6 裁决：拖拽等同向导）。拖拽把文件读成文本后直接 `advance()` 到报告步——用户丢下文件就是为了看「它读到了什么」，不该再点一次「下一步」。宿主若要自己接管，`onImport?(format) => boolean` 返回 `true` 即可，向导不会打开。
+3. **`ImportCommand` 的快照是浅的、有意的**。`before` 只 `copy()` 顶层数组（导入建的是**新**文档，旧数组此后不会再被改），`next` 才走 `cloneDiagram` 深拷。深拷整份 500 表文档要 10–20 MB，且 Vue 的 reactive 代理过不了 `structuredClone`（`DataCloneError`）——`import/clone.ts` 的 JSON 拷贝就是为此存在的。
+
+向导的步骤是 `source → report → target → conflict → apply`，其中 `apply` 是**结果**屏而不是「执行」按钮所在处：执行在 Decisions 步，成功后才跳到 Done，undo 提示才有地方站。`applyImport()` 只做「并进已有文档」，`targetKind === "new"` 由 store 用 `cloneDiagram(source.diagram)` 自己造。
+
+对话框退役顺便清掉两处类型债：`EditorDialogs.vue` 的 `importOpen`/`importFormat`/`database` 三个 prop 与 `EditorLayout.vue` 的 `database` prop（只服务于旧对话框）都已删除。i18n 新增的 57 个 `wizard_*` 键走三路 subagent 并行翻译，50 个 locale 一律 643 键、占位符不改写。

@@ -9,6 +9,7 @@ import type {
   DatabaseType,
   Diagram,
   DiagramIssue,
+  ImportFormat,
   MetadataSchema,
   StorageAdapter,
 } from "@drawdb/core";
@@ -25,6 +26,7 @@ import { resolvePinia } from "../composables/pinia.ts";
 import { setLocale } from "../i18n/index.ts";
 import { useDialogStore } from "../stores/dialogs.ts";
 import { useImportWizardStore } from "../stores/import-wizard.ts";
+import { useImportEntry } from "../composables/use-import-entry.ts";
 import { useDiagramStore } from "../stores/diagram.ts";
 import { useHistoryStore } from "../stores/history.ts";
 import { useSaveStore } from "../stores/save.ts";
@@ -84,6 +86,13 @@ const props = defineProps({
   autoSave: { type: Boolean, default: false },
   /** The delay between two automatic saves, in milliseconds. */
   autoSaveInterval: { type: Number, default: 5000 },
+  /**
+   * Whether the host takes the import entries over (P8 task 8).
+   *
+   * Returning `true` keeps the wizard closed and leaves the work to the host,
+   * which is how a page that already has its own import flow opts out.
+   */
+  onImport: { type: Function as PropType<(format: ImportFormat) => boolean>, default: undefined },
   /** Which parts of the editor chrome are shown (Q13). */
   chrome: { type: Object as PropType<EditorChromeOptions>, default: undefined },
   /**
@@ -184,6 +193,10 @@ const stopPanelHotkeys = usePanelHotkeys();
 // The import of P8 owns the three file keys: the wizard reads the file, shows
 // what it found and asks where it goes before anything touches the diagram.
 const importWizard = useImportWizardStore();
+const { openImport, onDrop } = useImportEntry({
+  wizard: importWizard,
+  onImport: (format) => props.onImport?.(format) === true,
+});
 const IMPORT_KEYS: Record<string, "sql" | "dbml" | "json" | "erwin"> = {
   "file:import": "sql",
   "file:import-sql": "sql",
@@ -208,6 +221,7 @@ function onMenu(key: string): void {
   }
   const importFormat = IMPORT_KEYS[key];
   if (importFormat !== undefined) {
+    if (props.onImport?.(importFormat) === true) return;
     importWizard.begin(importFormat);
     return;
   }
@@ -234,6 +248,8 @@ defineExpose({
   exportDbml: commands.exportDbml,
   exportJson: commands.exportJson,
   importSql: commands.importSql,
+  /** Opens the import wizard with the given format (P8 task 8). */
+  openImport,
   runCommand: plugins.runCommand,
   getDiagram: (): Diagram => deepClone(diagramStore.diagram),
   /** Arranges the tables of the diagram. */
@@ -250,13 +266,14 @@ defineExpose({
     :theme="theme"
     class="ddb-editor"
     data-testid="drawdb-editor"
+    @dragover.prevent
+    @drop.prevent="onDrop"
   >
     <NGlobalStyle />
     <EditorLayout
       :plugin-slots="plugins.pluginSlots.value"
       :show-side-panel="showSidePanel"
       :custom-types="customTypes"
-      :database="diagramStore.diagram.database"
       :chrome="chrome"
       @save="commands.runSave"
       @menu="onMenu"

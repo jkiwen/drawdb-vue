@@ -287,3 +287,14 @@ interface ImportAuditEntry {
 报告在「域」这一节列出：新增的域、被并入的名字、补进来的方言，以及**仍需裁决的冲突**（每条带两边的值与所在维度）。
 
 实现：`packages/core/src/import/domains.ts` 的 `domainConflicts()` 与 `mergeDiagramDomains(mine, theirs, decisions)` → `{ domains, idMap, undecided, notes }`，纯函数、有单测；P8 的 Task 3 收集 `undecided` 作为向导的决策项，Task 4（apply）消费 `idMap` 并把 `notes` 写进报告。
+
+### 9.2 四个入口都进同一个向导（2026-10-31 定稿，Q6 同时裁决）
+
+设计 §目标 要求菜单、工具栏、拖拽、宿主 API 四个入口走同一条流水线。P8 Task 8 的落地：
+
+- **菜单**：`file:import` 与 `file:import-{sql,dbml,json,erwin}` 五个键都进 `useImportWizardStore().begin(format)`；`Header/types.ts` 补了 **Import DBML**（此前菜单只有 SQL/JSON/erwin，而向导一直支持 DBML）。
+- **拖拽（Q6 裁决：等同向导）**：文件拖到编辑器上即打开向导，扩展名定格式（`.sql` / `.dbml` / `.json` / `.xml`），文本读完直接落到**报告**步，不打断用户再多点一次「下一步」。落在未知扩展名上不做事——不弹错误提示。
+- **宿主 API**：`DrawDBEditor` 的 `defineExpose` 增 `openImport(format, seed?)`；对应的 props 钩子是 `onImport?(format) => boolean`，宿主返回 `true` 表示自己接管，向导不打开（`DrawDBEditorOptions` 同步声明）。
+- **工具栏**：不设独立按钮。工具栏的 File 组与菜单是同一份 `DEFAULT_MENU_GROUPS`，再加一个按钮只会出现两个同样的入口。
+
+代价与边界：拖拽会抢走画布的 `drop` 事件（`@dragover.prevent` 在编辑器根节点上），因此宿主页面若自己监听拖拽，需要在外层 `stopPropagation`；`ImportDialog` 同日退役（向导取代），旧的 `file:import` 无格式键保留并映射到 SQL。

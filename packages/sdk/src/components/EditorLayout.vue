@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import type { PropType } from "vue";
 import type { Component } from "vue";
-import type { CustomType, DatabaseType } from "@drawdb/core";
+import type { CustomType } from "@drawdb/core";
 import type { EditorChromeOptions, ToolbarGroupId } from "../types/sdk-options.ts";
 import Canvas from "./Canvas/Canvas.vue";
 import EditPanel from "./EditPanel/EditPanel.vue";
@@ -38,8 +38,6 @@ const props = defineProps({
   showSidePanel: { type: Boolean, default: true },
   /** The custom types of the properties of the editor. */
   customTypes: { type: Array as PropType<CustomType[]>, default: () => [] },
-  /** The database the diagram is written for. The import dialog needs it. */
-  database: { type: String as PropType<DatabaseType>, default: "generic" },
   /** Which parts of the chrome are shown (Q13). Everything defaults on. */
   chrome: { type: Object as PropType<EditorChromeOptions>, default: () => ({}) },
 });
@@ -198,12 +196,9 @@ defineExpose({ openDialog, closeDialog });
     <EditorDialogs
       v-model:sql-preview-open="dialogs.sqlPreviewOpen"
       v-model:sql-preview-format="dialogs.sqlPreviewFormat"
-      v-model:import-open="dialogs.importOpen"
-      v-model:import-format="dialogs.importFormat"
       v-model:auto-relationships-open="dialogs.autoRelationshipsOpen"
       v-model:image-export-open="dialogs.imageExportOpen"
       v-model:relationship-open="dialogs.relationshipOpen"
-      :database="database"
     />
   </div>
 </template>

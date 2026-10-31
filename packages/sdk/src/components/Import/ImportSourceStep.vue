@@ -2,10 +2,10 @@
 import { computed } from "vue";
 import type { ImportFormat } from "@drawdb/core";
 import { useImportWizardStore } from "../../stores/import-wizard.ts";
+import { t } from "../../i18n/index.ts";
 import { IMPORT_FORMATS, formatOfFileName } from "./import-wizard-model.ts";
 import styles from "./import.module.css";
 
-// TODO(i18n): the labels of the wizard are English until P8 task 8 adds them.
 const wizard = useImportWizardStore();
 
 const chosen = computed(() => IMPORT_FORMATS.find((entry) => entry.format === wizard.format));
@@ -38,11 +38,11 @@ async function loadFile(event: Event): Promise<void> {
         :data-testid="`import-format-${entry.format}`"
         @click="pick(entry.format)"
       >
-        {{ entry.label }}
+        {{ t(entry.labelKey) }}
       </button>
     </div>
     <label :class="styles.field">
-      <span :class="styles.label">File</span>
+      <span :class="styles.label">{{ t("wizard_file") }}</span>
       <input
         type="file"
         accept=".sql,.dbml,.json,.xml"
@@ -55,7 +55,7 @@ async function loadFile(event: Event): Promise<void> {
       {{ wizard.fileName }}
     </p>
     <label :class="styles.field">
-      <span :class="styles.label">Or paste it here</span>
+      <span :class="styles.label">{{ t("wizard_paste") }}</span>
       <textarea
         :class="styles.text"
         data-testid="import-text"
@@ -65,7 +65,7 @@ async function loadFile(event: Event): Promise<void> {
       ></textarea>
     </label>
     <p :class="styles.hint" data-testid="import-source-hint">
-      Reading as {{ chosen?.label }} for {{ wizard.database }}.
+      {{ t("wizard_reading", { format: chosen === undefined ? "" : t(chosen.labelKey), database: wizard.database }) }}
     </p>
     <p v-if="wizard.error" :class="styles.error" data-testid="import-source-error">
       {{ wizard.error }}

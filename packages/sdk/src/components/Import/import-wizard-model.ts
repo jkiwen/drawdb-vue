@@ -6,11 +6,11 @@ export const IMPORT_STEPS = ["source", "report", "target", "conflict", "apply"] 
 export type ImportStep = (typeof IMPORT_STEPS)[number];
 
 /** What the first step offers, in the order a person is likely to need it. */
-export const IMPORT_FORMATS: readonly { format: ImportFormat; label: string }[] = [
-  { format: "sql", label: "SQL" },
-  { format: "dbml", label: "DBML" },
-  { format: "json", label: "JSON diagram" },
-  { format: "erwin", label: "erwin XML" },
+export const IMPORT_FORMATS: readonly { format: ImportFormat; labelKey: string }[] = [
+  { format: "sql", labelKey: "wizard_format_sql" },
+  { format: "dbml", labelKey: "wizard_format_dbml" },
+  { format: "json", labelKey: "wizard_format_json" },
+  { format: "erwin", labelKey: "wizard_format_erwin" },
 ];
 
 export function stepIndex(step: ImportStep): number {
@@ -38,16 +38,16 @@ export function formatOfFileName(name: string): ImportFormat | undefined {
 }
 
 /** The counts the report step shows, in reading order. */
-export function countRows(plan: ImportPlan): { key: string; label: string; value: number }[] {
+export function countRows(plan: ImportPlan): { key: string; value: number }[] {
   return [
-    { key: "tables", label: "Tables", value: plan.adds.tables },
-    { key: "fields", label: "Columns", value: plan.adds.fields },
-    { key: "keys", label: "Keys", value: plan.adds.keys },
-    { key: "relationships", label: "Relationships", value: plan.adds.relationships },
-    { key: "domains", label: "Logical types", value: plan.adds.domains },
-    { key: "notes", label: "Notes", value: plan.adds.notes },
-    { key: "areas", label: "Areas", value: plan.adds.areas },
-    { key: "skipped", label: "Skipped", value: plan.adds.skipped ?? 0 },
+    { key: "tables", value: plan.adds.tables },
+    { key: "fields", value: plan.adds.fields },
+    { key: "keys", value: plan.adds.keys },
+    { key: "relationships", value: plan.adds.relationships },
+    { key: "domains", value: plan.adds.domains },
+    { key: "notes", value: plan.adds.notes },
+    { key: "areas", value: plan.adds.areas },
+    { key: "skipped", value: plan.adds.skipped ?? 0 },
   ];
 }
 
@@ -68,22 +68,30 @@ export function levelCounts(issues: readonly ImportIssue[]): Record<ImportIssue[
  * Why the wizard cannot move on from the plan, in the words of the person
  * reading it. Empty when the plan is ready.
  */
+export interface BlockedReason {
+  /** The message key of the reason. */
+  key: string;
+  /** The number the message counts, when it counts one. */
+  count?: number;
+}
+
+/** Why the plan is not ready yet, as messages for the person reading it. */
 export function blockedReasons(
   plan: ImportPlan | null,
   decided: readonly string[] = [],
   undecidedDomains = 0,
-): string[] {
-  if (plan === null) return ["The file has not been read yet."];
+): BlockedReason[] {
+  if (plan === null) return [{ key: "wizard_reason_not_read" }];
   if (plan.status === "ready") return [];
-  const reasons: string[] = [];
+  const reasons: BlockedReason[] = [];
   if (plan.blocking.length > 0) {
-    reasons.push(`${plan.blocking.length} problem(s) have to be fixed before the import.`);
+    reasons.push({ key: "wizard_reason_blocking", count: plan.blocking.length });
   }
   const undecided = plan.conflicts.filter((conflict) => !decided.includes(conflict.id));
-  if (undecided.length > 0) reasons.push(`${undecided.length} conflict(s) need a decision.`);
+  if (undecided.length > 0) reasons.push({ key: "wizard_reason_conflicts", count: undecided.length });
   if (undecidedDomains > 0) {
-    reasons.push(`${undecidedDomains} logical type conflict(s) need a decision.`);
+    reasons.push({ key: "wizard_reason_domains", count: undecidedDomains });
   }
-  if (reasons.length === 0) reasons.push("Choose where the import goes.");
+  if (reasons.length === 0) reasons.push({ key: "wizard_reason_choose" });
   return reasons;
 }

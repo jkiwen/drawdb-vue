@@ -1,6 +1,7 @@
 import type { Component } from "vue";
 import type {
   CustomType,
+  ImportFormat,
   DatabaseType,
   Diagram,
   MetadataSchema,
@@ -138,4 +139,11 @@ export interface DrawDBEditorOptions {
   autoSaveInterval?: number;
   /** Which parts of the editor chrome are shown (Q13). */
   chrome?: EditorChromeOptions;
+  /**
+   * Whether the host takes the import entries over (P8 task 8).
+   *
+   * Returning `true` keeps the wizard closed and leaves the import to the host,
+   * which is how a page with its own import flow opts out.
+   */
+  onImport?: (format: ImportFormat) => boolean;
 }

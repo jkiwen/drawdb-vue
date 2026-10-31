@@ -150,20 +150,37 @@ test.describe("the data of a diagram", () => {
     expect(dbml).toContain("Table products");
   });
 
-  test("imports a diagram from the dialog", async ({ page }) => {
+  test("imports a diagram through the wizard", async ({ page }) => {
     await openEditor(page, "data-import-dialog");
 
     await page.getByTestId("menu-file").click();
     await page.getByText("Import SQL").click();
 
-    await expect(page.getByTestId("import-dialog")).toBeVisible();
-    await expect(page.getByTestId("import-format")).toHaveText("sql");
+    // The wizard replaced the dialog in P8: it reads, reports, asks where the
+    // tables go, and only then touches the diagram.
+    await expect(page.getByTestId("import-wizard")).toBeVisible();
+    await expect(page.getByTestId("import-format-sql")).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
 
     await page
-      .getByTestId("import-input")
+      .getByTestId("import-text")
       .fill("CREATE TABLE invoices (id INT PRIMARY KEY);");
+    await page.getByTestId("import-next").click();
+
+    await expect(page.getByTestId("import-step-report")).toBeVisible();
+    await expect(page.getByTestId("import-count-tables")).toHaveText("1");
+
+    await page.getByTestId("import-next").click();
+    await expect(page.getByTestId("import-step-target")).toBeVisible();
+    await page.getByTestId("import-next").click();
+    await expect(page.getByTestId("import-step-conflict")).toBeVisible();
     await page.getByTestId("import-apply").click();
-    await page.getByTestId("import-confirm").click();
+
+    await expect(page.getByTestId("import-step-apply")).toBeVisible();
+    await page.getByTestId("import-result-close").click();
+    await expect(page.getByTestId("import-wizard")).toHaveCount(0);
 
     await expect(canvasTables(page)).toHaveCount(1);
   });
@@ -174,12 +191,13 @@ test.describe("the data of a diagram", () => {
     await page.getByTestId("menu-file").click();
     await page.getByText("Import SQL").click();
 
-    await page
-      .getByTestId("import-input")
-      .fill("THIS IS NOT SQL");
-    await page.getByTestId("import-apply").click();
+    await page.getByTestId("import-text").fill("THIS IS NOT SQL");
+    await page.getByTestId("import-next").click();
 
-    await expect(page.getByTestId("import-error")).toBeVisible();
+    // A script that cannot be read blocks the wizard on the report step.
+    await expect(page.getByTestId("import-step-report")).toBeVisible();
+    await expect(page.getByTestId("import-issue").first()).toBeVisible();
+    await expect(page.getByTestId("import-next")).toBeDisabled();
     await expect(canvasTables(page)).toHaveCount(0);
   });
 });

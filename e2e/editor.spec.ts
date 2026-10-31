@@ -198,14 +198,17 @@ test.describe("the editor", () => {
     await expect(page.getByTestId("sql-preview-content")).toContainText("Table");
   });
 
-  test("opens the dialog of the import from the menu", async ({ page }) => {
+  test("opens the wizard of the import from the menu", async ({ page }) => {
     await openEditor(page, "editor-menu-import");
 
     await page.getByTestId("menu-file").click();
     await page.getByText("Import JSON").click();
 
-    await expect(page.getByTestId("import-dialog")).toBeVisible();
-    await expect(page.getByTestId("import-format")).toHaveText("json");
+    await expect(page.getByTestId("import-wizard")).toBeVisible();
+    await expect(page.getByTestId("import-format-json")).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
   });
 
   test("opens the dialog of the image export from the menu", async ({

@@ -2,9 +2,9 @@
 import { computed } from "vue";
 import type { ConflictAction, DomainDecision } from "@drawdb/core";
 import { useImportWizardStore } from "../../stores/import-wizard.ts";
+import { t } from "../../i18n/index.ts";
 import styles from "./import.module.css";
 
-// TODO(i18n): English until P8 task 8.
 const wizard = useImportWizardStore();
 
 const conflicts = computed(() => wizard.plan?.conflicts ?? []);
@@ -13,15 +13,17 @@ const tables = computed(() => wizard.source?.diagram?.tables ?? []);
 const chosen = computed(() => new Set(wizard.chosenTables ?? tables.value.map((table) => String(table.id))));
 const tablesActions: readonly ConflictAction[] = ["skip", "rename", "merge"];
 const otherActions: readonly ConflictAction[] = ["skip", "rename"];
-const sides = computed<{ decision: DomainDecision; label: string }[]>(() =>
+const sides = computed<{ decision: DomainDecision; key: string; name: string }[]>(() =>
   domainConflicts.value.flatMap((conflict) => [
     {
       decision: { name: conflict.name, kind: conflict.kind, database: conflict.database, side: "mine" },
-      label: `Keep ${String(conflict.mine)}`,
+      key: "wizard_keep_mine",
+      name: String(conflict.mine),
     },
     {
       decision: { name: conflict.name, kind: conflict.kind, database: conflict.database, side: "theirs" },
-      label: `Take ${String(conflict.theirs)}`,
+      key: "wizard_take_theirs",
+      name: String(conflict.theirs),
     },
   ]),
 );
@@ -44,7 +46,7 @@ function isDecided(conflict: DomainDecision & { kind: string; name: string }): b
 <template>
   <section :class="styles.step" data-testid="import-step-conflict">
     <p v-if="conflicts.length === 0 && domainConflicts.length === 0" :class="styles.hint" data-testid="import-conflicts-none">
-      Nothing clashes with the diagram on screen.
+      {{ t("wizard_conflicts_none") }}
     </p>
     <ul v-if="conflicts.length > 0" :class="styles.conflicts" data-testid="import-conflicts">
       <li v-for="conflict in conflicts" :key="conflict.id" :class="styles.conflict" data-testid="import-conflict">
@@ -62,13 +64,13 @@ function isDecided(conflict: DomainDecision & { kind: string; name: string }): b
             :data-testid="`import-decide-${conflict.id}-${action}`"
             @click="wizard.decide(conflict.id, action)"
           >
-            {{ action }}
+            {{ t(`wizard_decide_${action}`) }}
           </button>
         </div>
       </li>
     </ul>
     <div v-if="domainConflicts.length > 0" data-testid="import-domain-conflicts">
-      <p :class="styles.hint">Logical types defined by both sides:</p>
+      <p :class="styles.hint">{{ t("wizard_domains_both") }}</p>
       <ul :class="styles.conflicts">
         <li v-for="(entry, index) in sides" :key="`${entry.decision.name}-${entry.decision.kind}-${entry.decision.side}`" :class="styles.conflict">
           <div :class="styles.conflictHead">
@@ -83,14 +85,14 @@ function isDecided(conflict: DomainDecision & { kind: string; name: string }): b
               :data-testid="`import-domain-${index}-${entry.decision.side}`"
               @click="wizard.decideDomain(entry.decision)"
             >
-              {{ entry.label }}
+              {{ t(entry.key, { name: entry.name }) }}
             </button>
           </div>
         </li>
       </ul>
     </div>
     <div v-if="wizard.targetChoice === 'current' && tables.length > 0">
-      <p :class="styles.hint">Tables to bring in:</p>
+      <p :class="styles.hint">{{ t("wizard_tables_list") }}</p>
       <ul :class="styles.tableList" data-testid="import-tables">
         <li v-for="table in tables" :key="table.id" :class="styles.tableRow">
           <input

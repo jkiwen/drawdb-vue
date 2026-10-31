@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useImportWizardStore } from "../../stores/import-wizard.ts";
+import { t } from "../../i18n/index.ts";
 import { IMPORT_STEPS, stepIndex } from "./import-wizard-model.ts";
 import ImportApplyStep from "./ImportApplyStep.vue";
 import ImportConflictStep from "./ImportConflictStep.vue";
@@ -9,7 +10,6 @@ import ImportSourceStep from "./ImportSourceStep.vue";
 import ImportTargetStep from "./ImportTargetStep.vue";
 import styles from "./import.module.css";
 
-// TODO(i18n): English until P8 task 8.
 defineOptions({ name: "DrawDBImportWizard" });
 
 const wizard = useImportWizardStore();
@@ -17,11 +17,11 @@ const current = computed(() => stepIndex(wizard.step));
 const isLast = computed(() => wizard.step === "conflict");
 
 const LABELS: Record<(typeof IMPORT_STEPS)[number], string> = {
-  source: "Source",
-  report: "Report",
-  target: "Where",
-  conflict: "Decisions",
-  apply: "Done",
+  source: "wizard_step_source",
+  report: "wizard_step_report",
+  target: "wizard_step_target",
+  conflict: "wizard_step_conflict",
+  apply: "wizard_step_apply",
 };
 
 /** The conflict step is where the import happens; earlier steps only move. */
@@ -40,7 +40,7 @@ function cancel(): void {
 
 <template>
   <div v-if="wizard.open" :class="styles.wizard" data-testid="import-wizard">
-    <h2 :class="styles.title">Import a diagram</h2>
+    <h2 :class="styles.title">{{ t("wizard_title") }}</h2>
     <ol :class="styles.steps">
       <li
         v-for="(name, index) in IMPORT_STEPS"
@@ -48,7 +48,7 @@ function cancel(): void {
         :class="[styles.stepName, index === current ? styles.stepNameOn : '']"
         :data-testid="`import-stepper-${name}`"
       >
-        {{ LABELS[name] }}
+        {{ t(LABELS[name]) }}
       </li>
     </ol>
     <div :class="styles.body">
@@ -66,11 +66,11 @@ function cancel(): void {
         data-testid="import-close"
         @click="cancel"
       >
-        Close
+        {{ t("wizard_close") }}
       </button>
       <template v-else>
         <button type="button" :class="styles.button" data-testid="import-cancel" @click="cancel">
-          Cancel
+          {{ t("wizard_cancel") }}
         </button>
         <button
           v-if="current > 0"
@@ -79,7 +79,7 @@ function cancel(): void {
           data-testid="import-back"
           @click="wizard.back()"
         >
-          Back
+          {{ t("wizard_back") }}
         </button>
         <button
           type="button"
@@ -88,7 +88,7 @@ function cancel(): void {
           :data-testid="isLast ? 'import-apply' : 'import-next'"
           @click="primary"
         >
-          {{ isLast ? "Import" : "Next" }}
+          {{ isLast ? t("wizard_apply") : t("wizard_next") }}
         </button>
       </template>
     </div>

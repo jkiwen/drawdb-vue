@@ -2,10 +2,10 @@
 import { computed, ref } from "vue";
 import type { ImportIssue } from "@drawdb/core";
 import { useImportWizardStore } from "../../stores/import-wizard.ts";
+import { t } from "../../i18n/index.ts";
 import { countRows, issuesOfLevel, levelCounts } from "./import-wizard-model.ts";
 import styles from "./import.module.css";
 
-// TODO(i18n): English until P8 task 8.
 const wizard = useImportWizardStore();
 const level = ref<ImportIssue["level"] | "all">("all");
 
@@ -22,7 +22,7 @@ const blocked = computed(() => wizard.plan?.blocking.length ?? 0);
   <section :class="styles.step" data-testid="import-step-report">
     <dl v-if="wizard.plan" :class="styles.counts" data-testid="import-counts">
       <div v-for="row in rows" :key="row.key">
-        <dt>{{ row.label }}</dt>
+        <dt>{{ t(`wizard_count_${row.key}`) }}</dt>
         <dd :data-testid="`import-count-${row.key}`">{{ row.value }}</dd>
       </div>
     </dl>
@@ -37,7 +37,7 @@ const blocked = computed(() => wizard.plan?.blocking.length ?? 0);
         :data-testid="`import-filter-${entry}`"
         @click="level = entry"
       >
-        {{ entry }}
+        {{ t(`wizard_level_${entry}`) }}
         <span :data-testid="`import-filter-count-${entry}`">{{
           entry === "all" ? issues.length : counts[entry]
         }}</span>
@@ -58,7 +58,7 @@ const blocked = computed(() => wizard.plan?.blocking.length ?? 0);
       </li>
     </ul>
     <p v-if="shown.length === 0" :class="styles.hint" data-testid="import-issues-empty">
-      Nothing to report at this level.
+      {{ t("wizard_issues_empty") }}
     </p>
     <label v-if="blocked > 0" :class="styles.check">
       <input
@@ -67,7 +67,7 @@ const blocked = computed(() => wizard.plan?.blocking.length ?? 0);
         :checked="wizard.repair"
         @change="wizard.setRepair(($event.target as HTMLInputElement).checked)"
       />
-      <span>Fix what can be fixed and import the rest</span>
+      <span>{{ t("wizard_repair") }}</span>
     </label>
   </section>
 </template>

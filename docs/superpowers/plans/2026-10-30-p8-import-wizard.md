@@ -1,6 +1,6 @@
 # P8 — the import wizard, the merge and the audit
 
-**Status:** 未开始（2026-10-30）
+**Status:** ✅ 已完成（2026-10-31，分支 master）
 **设计稿：** [`docs/import-and-merge-design.md`](../import-and-merge-design.md)（裁决 Q1/Q2/Q3 已写入 §10）
 
 ## 目标
@@ -47,7 +47,7 @@
 `packages/core/src/import/plan.ts`：`planImport(source, target, decisions) → ImportPlan`，含目标判定（空图/非空/只读）、冲突探测（表/列/键/关系/便笺区域）、表勾选过滤、域勾选、域冲突（`domainConflicts()` 的 `DomainConflict`）与用户裁决（`DomainDecision`）、`status: "ready" | "blocked"`（Q1：有未决策冲突即 blocked）。
 测试：空图推荐 current；非空图列出冲突且 `blocked`；逐项决策后 `ready`；未勾选的表不进 `adds`，跨向关系记 info。
 
-### Task 4 — 合并执行与重映射
+### Task 4 — 合并执行与重映射 ✅（2026-10-31）
 `packages/core/src/import/apply.ts`：`remapDiagram(source, idMap)`、`applyImport(target, plan) → { diagram, session }`（不改入参，返回新文档）。
 测试：追加 12 表后现有对象 id 不变、导入侧 id 全变；键/索引/关系/`foreignKeys` 的引用全部指向新 id；PK 冲突时保留现有主键并记 warning。
 
@@ -55,15 +55,15 @@
 `packages/core/src/commands/import-command.ts`（`ImportCommand(diagram, before, after, label)`）；`packages/core/src/import/audit.ts`（`buildImportSession(...)`）；`Diagram.imports?: ImportSession[]` + 序列化三处往返。
 测试：undo 精确回到导入前；`imports` 往返；旧档缺省为空数组。
 
-### Task 6 — 向导 ①②（来源与报告）
+### Task 6 — 向导 ①②（来源与报告）✅（2026-10-31）
 `packages/sdk/src/components/Import/ImportWizard.vue` + `ImportSourceStep.vue` + `ImportReportStep.vue` + `import.module.css`。
 测试：四格式入口；报告按级别筛选、计数、导出；域勾选默认不勾并影响 `plan`；同名域有冲突且未裁决时 `status === "blocked"`，补齐 `DomainDecision` 后变 `ready` 且 `mergeDiagramDomains()` 的 `undecided` 为空。
 
-### Task 7 — 向导 ③④⑤（目标、冲突、执行）
+### Task 7 — 向导 ③④⑤（目标、冲突、执行）✅（2026-10-31）
 `ImportTargetStep.vue`（空/非空/只读三种盘点 + 新图/当前图/替换三选）、`ImportConflictStep.vue`（无默认、未决策禁用下一步、表勾选）、`ImportApplyStep.vue`（执行、结果、`import-result-focus` 选中并居中、`import-result-audit`）；`packages/sdk/src/stores/import-session.ts`（Pinia store 承接向导状态）。
 测试：非空图默认追加且提示未保存修改；未决策时 `import-next` 禁用；执行后 `history.canUndo` 为真且 undo 回到导入前；结果页聚焦新表。
 
-### Task 8 — 入口接线、i18n 与收尾
+### Task 8 — 入口接线、i18n 与收尾 ✅（2026-10-31）
 - `editor-menu.ts` 合并为 `file:import`（无格式）+ 保留四种带格式的键；`Header/types.ts` 增 **Import DBML**；`DrawDBEditor.vue` 的 `onMenu` 打开向导；画布 `drop` 监听（`.sql/.dbml/.json/.xml`）；SDK options 增 `onImport?: (request) => boolean`（宿主接管）。
 - `Dialogs/ImportDialog.vue` 退役（向导取代），迁移其测试。
 - i18n：`import_*` 新键写入 en，按既有流程落到 51 个 locale。
@@ -96,3 +96,14 @@ Task 3 要把 `undecided` 原样带进向导的决策步（未清空则下一步
 - 旧档缺省不是 `[]` 而是**保持 undefined**（`serialize/import.ts` 只在读到合法会话时赋值）：`imports === undefined` 表示"这张图从没被导入过"，比每份文档都带一个空数组更贴近事实，序列化往返测试按此断言。
 - `diffSessions()` 用 `code` 的多重集差，不看 message（同一 code 的文案会随 i18n 变，不该算作"变了"）。
 
+### Task 6–8（2026-10-31，提交见 git log）
+
+- **Task 6/7 的五个步骤落成 `IMPORT_STEPS = ["source","report","target","conflict","apply"]`**：`apply` 不是「执行」步而是**结果**步——执行按钮在 Decisions 步（`import-apply`），成功后跳到 Done。这样「执行」与「看结果」分开，undo 提示才有地方显示。原计划的 ③④⑤ 因此是 target / conflict / apply(结果)。
+- **`applyImport` 只服务「并进已有文档」**：`targetKind === "new"` 时它返回 `applied: false`，store 自己用 `cloneDiagram(source.diagram ?? createEmptyDiagram())` 造新图。理由：新图分支没有「合并」可言，硬塞进 apply 会让它同时承担两种语义。
+- **`structuredClone` 不能拷 Vue 的 reactive 文档**（`DataCloneError`）：`packages/core/src/import/clone.ts` 的 `cloneValue`/`cloneDiagram` 用 JSON 深拷并按需还原 `Date`；`ImportCommand` 的 `before` 只做一层 `copy()`（import 建的是新文档，旧数组不会再被改），深拷留给 `next`。
+- **旧 `Dialogs/ImportDialog.vue` 退役**（258 行删除）：`EditorDialogName` 去掉 `"import"`，`editor-menu.ts` 增 `openImport(format)`，向导是唯一入口。迁移掉的测试：`dialogs.test.ts` 里 ImportDialog 的整段 describe 与 `EditorDialogs` 的两例（改成 preview 两例），菜单键的断言改到 `editor-menu.test.ts` 与 `dialogs.test.ts` 的向导断言。
+- **i18n：57 个 `wizard_*` 键**（en 586 → 643），50 个 locale 由三路 subagent 并行翻译，全部 `keys === 643`、占位符 `{count}/{format}/{database}/{name}` 原样保留；只剩 SQL/DBML/erwin XML 这类技术词与部分同形词（fr `Tables`、de `Info`）与英文相同。
+- **四个入口**（详见设计稿 §9.2）：菜单（五个键）、拖拽（`@drop` → 直接落报告步）、宿主 API（`openImport(format, seed?)` + `onImport?` 钩子）；**不设独立工具栏按钮**——File 组与菜单同一份数据。
+- **新增 `packages/sdk/src/composables/use-import-entry.ts`**：把 `openImport`/`onDrop` 从 `DrawDBEditor.vue` 移出（该文件一度涨到 317 行，触发 300 行守卫）。
+- **验证**：core 515 + sdk 1385 pass；五个 typecheck 程序 0 错；`turbo run build` 4/4；浏览器 1440×1100 走完 SQL 导入（报告 1 表 → 当前图 → 无冲突 → Done「3 table(s) are in the diagram.」）与 erwin/DBML 入口，控制台无错误。
+- **遗留（P8b 候选）**：`importSql(sql)` 这个既有 API 仍直接替换整图、不走向导（保留兼容，文档标注为低层解析）；拖拽抢 `drop` 事件的边界情况只在设计稿里写明，未加宿主的 `stopPropagation` 示例。

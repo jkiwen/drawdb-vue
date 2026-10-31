@@ -15,6 +15,8 @@ export interface EditorMenuActions {
   exportDbml(): void;
   exportJson(): void;
   openDialog(dialog: EditorMenuDialog, options?: { format?: ImportFormat }): void;
+  /** Opens the import wizard on one format (P8: the dialog it replaces is gone). */
+  openImport(format: ImportFormat): void;
   addTable(): void;
   addNote(): void;
   addArea(): void;
@@ -69,13 +71,16 @@ export function runEditorMenu(
       actions.exportJson();
       return true;
     case "file:import-sql":
-      actions.openDialog("import", { format: "sql" });
+      actions.openImport("sql");
+      return true;
+    case "file:import-dbml":
+      actions.openImport("dbml");
       return true;
     case "file:import-json":
-      actions.openDialog("import", { format: "json" });
+      actions.openImport("json");
       return true;
     case "file:import-erwin":
-      actions.openDialog("import", { format: "erwin" });
+      actions.openImport("erwin");
       return true;
     case "file:export-png":
       actions.openDialog("imageExport");

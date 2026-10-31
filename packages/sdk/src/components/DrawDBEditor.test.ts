@@ -101,6 +101,48 @@ describe("DrawDBEditor", () => {
     assert.equal(wizard.format, "erwin");
   });
 
+  it("keeps the wizard closed when the host takes the import over", async () => {
+    const calls: string[] = [];
+    const wrapper = mountEditor({
+      onImport: (format: string) => {
+        calls.push(format);
+        return true;
+      },
+    });
+    wrapper.findComponent(EditorLayout).vm.$emit("menu", "file:import-sql");
+    await nextTick();
+    assert.deepEqual(calls, ["sql"]);
+    assert.equal(useImportWizardStore().open, false);
+    assert.equal(wrapper.find('[data-testid="import-wizard"]').exists(), false);
+  });
+
+  it("opens the wizard with the text of a dropped file", async () => {
+    const wrapper = mountEditor();
+    const file = new File(["CREATE TABLE orders (id INT NOT NULL, PRIMARY KEY (id));"], "orders.sql");
+    await wrapper.find('[data-testid="drawdb-editor"]').trigger("drop", {
+      dataTransfer: { files: [file] },
+    });
+    // The file is read asynchronously, so the wizard catches up a tick later.
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    await nextTick();
+    const wizard = useImportWizardStore();
+    assert.equal(wizard.open, true);
+    assert.equal(wizard.format, "sql");
+    assert.equal(wizard.fileName, "orders.sql");
+    assert.equal(wizard.step, "report");
+    assert.equal(wizard.plan?.adds.tables, 1);
+  });
+
+  it("ignores a dropped file the editor cannot read", async () => {
+    const wrapper = mountEditor();
+    const file = new File(["hello"], "notes.txt");
+    await wrapper.find('[data-testid="drawdb-editor"]').trigger("drop", {
+      dataTransfer: { files: [file] },
+    });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.equal(useImportWizardStore().open, false);
+  });
+
   it("renders the canvas and the outline tree", () => {
     const wrapper = mountEditor();
     assert.ok(wrapper.find('[data-testid="canvas"]').exists());

@@ -2,10 +2,10 @@
 import { computed } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useImportWizardStore } from "../../stores/import-wizard.ts";
+import { t } from "../../i18n/index.ts";
 import { useUIStore } from "../../stores/ui.ts";
 import styles from "./import.module.css";
 
-// TODO(i18n): English until P8 task 8.
 const wizard = useImportWizardStore();
 const diagramStore = useDiagramStore();
 const ui = useUIStore();
@@ -33,15 +33,15 @@ function close(): void {
 <template>
   <section :class="styles.step" data-testid="import-step-apply">
     <div :class="styles.result" data-testid="import-result">
-      <strong>{{ added }} table(s) are in the diagram.</strong>
-      <span :class="styles.hint">The import is one step of the history: undo takes it back out.</span>
+      <strong>{{ t("wizard_result_added", { count: added }) }}</strong>
+      <span :class="styles.hint">{{ t("wizard_result_undo") }}</span>
     </div>
     <div :class="styles.actions">
       <button type="button" :class="styles.button" data-testid="import-result-focus" @click="focusFirst">
-        Show me
+        {{ t("wizard_show_me") }}
       </button>
       <button type="button" :class="styles.button" data-testid="import-result-close" @click="close">
-        Done
+        {{ t("wizard_done") }}
       </button>
     </div>
     <ul v-if="entries.length > 0" :class="styles.audit" data-testid="import-audit-list">
@@ -59,7 +59,7 @@ function close(): void {
       </li>
     </ul>
     <p v-else :class="styles.hint" data-testid="import-audit-empty">
-      The file was read without anything to report.
+      {{ t("wizard_audit_clean") }}
     </p>
   </section>
 </template>

@@ -17,6 +17,7 @@ function recorder(): {
     exportJson: record("exportJson"),
     openDialog: (dialog, options) =>
       calls.push(`openDialog:${dialog}:${options?.format ?? "-"}`),
+    openImport: (format) => calls.push(`openImport:${format}`),
     addTable: record("addTable"),
     addNote: record("addNote"),
     addArea: record("addArea"),
@@ -61,13 +62,17 @@ describe("the menu of the editor", () => {
     assert.deepEqual(calls, ["exportJson"]);
   });
 
-  it("opens the import dialog with the format of the entry", () => {
+  it("opens the import wizard with the format of the entry", () => {
     const { actions, calls } = recorder();
     assert.equal(runEditorMenu("file:import-sql", actions), true);
+    assert.equal(runEditorMenu("file:import-dbml", actions), true);
     assert.equal(runEditorMenu("file:import-json", actions), true);
+    assert.equal(runEditorMenu("file:import-erwin", actions), true);
     assert.deepEqual(calls, [
-      "openDialog:import:sql",
-      "openDialog:import:json",
+      "openImport:sql",
+      "openImport:dbml",
+      "openImport:json",
+      "openImport:erwin",
     ]);
   });
 

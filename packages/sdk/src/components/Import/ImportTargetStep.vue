@@ -3,9 +3,9 @@ import { computed } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useHistoryStore } from "../../stores/history.ts";
 import { useImportWizardStore } from "../../stores/import-wizard.ts";
+import { t } from "../../i18n/index.ts";
 import styles from "./import.module.css";
 
-// TODO(i18n): English until P8 task 8.
 const wizard = useImportWizardStore();
 const history = useHistoryStore();
 const diagramStore = useDiagramStore();
@@ -21,15 +21,15 @@ const adds = computed(() => wizard.plan?.adds.tables ?? 0);
   <section :class="styles.step" data-testid="import-step-target">
     <dl :class="styles.counts">
       <div>
-        <dt>The diagram on screen</dt>
+        <dt>{{ t("wizard_target_diagram") }}</dt>
         <dd data-testid="import-target-kind">{{ kind }}</dd>
       </div>
       <div>
-        <dt>Its title</dt>
+        <dt>{{ t("wizard_target_title") }}</dt>
         <dd data-testid="import-target-title">{{ title }}</dd>
       </div>
       <div>
-        <dt>Tables coming in</dt>
+        <dt>{{ t("wizard_target_adds") }}</dt>
         <dd data-testid="import-target-adds">{{ adds }}</dd>
       </div>
     </dl>
@@ -42,7 +42,7 @@ const adds = computed(() => wizard.plan?.adds.tables ?? 0);
         data-testid="import-target-current"
         @click="wizard.setTarget('current')"
       >
-        Add to this diagram
+        {{ t("wizard_target_current") }}
       </button>
       <button
         type="button"
@@ -52,14 +52,14 @@ const adds = computed(() => wizard.plan?.adds.tables ?? 0);
         data-testid="import-target-new"
         @click="wizard.setTarget('new')"
       >
-        Start a new diagram
+        {{ t("wizard_target_new") }}
       </button>
     </div>
     <p v-if="kind === 'occupied' && wizard.targetChoice === 'current'" :class="styles.hint">
-      The tables that clash with what is here will be decided in the next step.
+      {{ t("wizard_clash_next") }}
     </p>
     <p v-if="history.canUndo" :class="styles.hint" data-testid="import-unsaved">
-      This diagram has changes that are not saved yet. The import can be undone in one step.
+      {{ t("wizard_unsaved") }}
     </p>
   </section>
 </template>

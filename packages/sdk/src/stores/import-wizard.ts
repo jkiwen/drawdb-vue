@@ -23,6 +23,7 @@ import type {
 import { useDiagramStore } from "./diagram.ts";
 import { useHistoryStore } from "./history.ts";
 import { blockedReasons, nextStep, previousStep } from "../components/Import/import-wizard-model.ts";
+import { t } from "../i18n/index.ts";
 import type { ImportStep } from "../components/Import/import-wizard-model.ts";
 
 /**
@@ -74,7 +75,9 @@ export const useImportWizardStore = defineStore("import-wizard", () => {
     ),
   );
   const reasons = computed(() =>
-    blockedReasons(plan.value, decidedIds.value, undecidedDomains.value.length),
+    blockedReasons(plan.value, decidedIds.value, undecidedDomains.value.length).map((reason) =>
+      reason.count === undefined ? t(reason.key) : t(reason.key, { count: reason.count }),
+    ),
   );
   const canNext = computed(() => {
     if (step.value === "source") return text.value.trim().length > 0;
@@ -101,14 +104,23 @@ export const useImportWizardStore = defineStore("import-wizard", () => {
     if (built.diagram === null && failure !== undefined) error.value = failure.message;
   }
 
-  /** Opens the wizard for one format, wiping whatever a previous run left. */
-  function begin(next: ImportFormat = "sql", db?: DatabaseType): void {
+  /**
+   * Opens the wizard for one format, wiping whatever a previous run left.
+   *
+   * A dropped file arrives as `seed`: the wizard then starts with its text
+   * already in the box, so the user goes straight to the report (P8 task 8).
+   */
+  function begin(
+    next: ImportFormat = "sql",
+    db?: DatabaseType,
+    seed?: { text?: string; fileName?: string },
+  ): void {
     open.value = true;
     step.value = "source";
     format.value = next;
     if (db !== undefined) database.value = db;
-    text.value = "";
-    fileName.value = undefined;
+    text.value = seed?.text ?? "";
+    fileName.value = seed?.fileName;
     source.value = null;
     plan.value = null;
     targetChoice.value = "current";

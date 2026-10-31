@@ -29,6 +29,27 @@ describe("the import wizard", () => {
     assert.equal(wizard.canNext, false);
   });
 
+  it("starts from the file a drop handed over (P8 task 8)", () => {
+    const { wizard } = setup();
+    wizard.begin("sql", undefined, { text: SQL, fileName: "shop.sql" });
+    assert.equal(wizard.text, SQL);
+    assert.equal(wizard.fileName, "shop.sql");
+    wizard.advance();
+    assert.equal(wizard.step, "report");
+    assert.equal(wizard.plan?.adds.tables, 1);
+  });
+
+  it("wipes the previous run when it opens again", () => {
+    const { wizard } = setup();
+    wizard.begin("sql", undefined, { text: SQL, fileName: "shop.sql" });
+    wizard.advance();
+    wizard.begin("dbml");
+    assert.equal(wizard.text, "");
+    assert.equal(wizard.fileName, undefined);
+    assert.equal(wizard.step, "source");
+    assert.equal(wizard.plan, null);
+  });
+
   it("reads the file and reports what it found", () => {
     const { wizard } = setup();
     wizard.begin("sql");

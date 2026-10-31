@@ -12,6 +12,7 @@ import type { SaveStore } from "../stores/save.ts";
 import type { UIStore } from "../stores/ui.ts";
 import type { EditorDialogName, ImportFormat } from "../stores/dialogs.ts";
 import { runEditorMenu } from "./editor-menu.ts";
+import { useImportWizardStore } from "../stores/import-wizard.ts";
 import {
   createArea,
   createNote,
@@ -95,6 +96,7 @@ export function useEditorCommands(
   options: EditorCommandsOptions,
 ): EditorCommandsApi {
   const { diagramStore, uiStore, saveStore } = options;
+  const importWizard = useImportWizardStore();
 
   let autoSaveTimer: ReturnType<typeof setInterval> | undefined;
 
@@ -212,6 +214,7 @@ export function useEditorCommands(
       exportJson: () => options.onExportJson?.(exportJson()),
       openDialog: (dialog, dialogOptions) =>
         options.onOpenDialog?.(dialog, dialogOptions),
+      openImport: (format) => importWizard.begin(format),
       addTable,
       addNote,
       addArea,
