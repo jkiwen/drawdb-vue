@@ -5,11 +5,13 @@ import type { Pinia } from "pinia";
 import { enableAutoUnmount, mount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import DrawDBEditor from "./DrawDBEditor.vue";
+import EditorLayout from "./EditorLayout.vue";
 import { useDiagramStore } from "../stores/diagram.ts";
 import { useUIStore } from "../stores/ui.ts";
 import { useSaveStore } from "../stores/save.ts";
 import { useViewStateStore } from "../stores/view-state.ts";
 import { useSettingsStore } from "../stores/settings.ts";
+import { useImportWizardStore } from "../stores/import-wizard.ts";
 import { MemoryStorageAdapter } from "@drawdb/core";
 import type { Diagram } from "@drawdb/core";
 import { getLocale } from "../i18n/index.ts";
@@ -86,6 +88,18 @@ describe("DrawDBEditor", () => {
       global: { plugins: [pinia, naive] },
     });
   }
+
+  it("opens the import wizard from the file menu", async () => {
+    const wrapper = mountEditor();
+    const layout = wrapper.findComponent(EditorLayout);
+    layout.vm.$emit("menu", "file:import-erwin");
+    await nextTick();
+    assert.ok(wrapper.find('[data-testid="import-wizard"]').exists());
+    assert.ok(wrapper.find('[data-testid="import-step-source"]').exists());
+    // The wizard starts on the format the menu entry names.
+    const wizard = useImportWizardStore();
+    assert.equal(wizard.format, "erwin");
+  });
 
   it("renders the canvas and the outline tree", () => {
     const wrapper = mountEditor();

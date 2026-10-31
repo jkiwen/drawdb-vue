@@ -68,6 +68,11 @@ export const useDiagramStore = defineStore("diagram", () => {
     revision.value += 1;
   }
 
+  /** Tells the readers of `revision` that the document changed in place. */
+  function refresh(): void {
+    bump();
+  }
+
   function tableById(id: TableId): Table | undefined {
     return diagram.tables.find((table) => table.id === id);
   }
@@ -275,7 +280,7 @@ export const useDiagramStore = defineStore("diagram", () => {
   return {
     diagram, revision, tables, relationships, notes, areas, enums, views, types,
     tableById, relationshipById, fieldById, isLocked,
-    setDiagram, reset, updateDiagram,
+    setDiagram, reset, updateDiagram, refresh,
     addTable, updateTable, removeTable,
     previewTablePositions,
     addRelationship, updateRelationship, removeRelationship,

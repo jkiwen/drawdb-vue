@@ -1,4 +1,5 @@
 import type { Diagram } from "../models/diagram.ts";
+import { cloneValue } from "./clone.ts";
 import type { LogicalEntity } from "../models/logical.ts";
 import type { PhysicalField } from "../models/physical.ts";
 import type { ForeignKey, Index, PrimaryKey, Table, UniqueKey } from "../models/table.ts";
@@ -20,7 +21,7 @@ export interface ApplyImportResult {
 }
 
 function clone<T>(value: T): T {
-  return structuredClone(value);
+  return cloneValue(value);
 }
 
 function normalized(name: string): string {

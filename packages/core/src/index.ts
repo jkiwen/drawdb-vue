@@ -100,5 +100,6 @@ export { appendImportSession, createImportSession, diffSessions, subjectOf } fro
 export type { ImportAuditEntry, ImportSession } from "./models/import-session.ts";
 export type { ApplyImportResult } from "./import/apply.ts";
 export { applyImport } from "./import/apply.ts";
+export { cloneDiagram, cloneValue } from "./import/clone.ts";
 export type { ValidateImportOptions } from "./import/validate.ts";
 export { blockingIssues, repairMode, validateImport } from "./import/validate.ts";

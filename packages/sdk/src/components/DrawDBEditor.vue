@@ -15,6 +15,7 @@ import type {
 import EditorLayout from "./EditorLayout.vue";
 import TypeSystemDialog from "./TypeSystem/TypeSystemDialog.vue";
 import PrintPreviewDialog from "./Print/PrintPreviewDialog.vue";
+import ImportWizard from "./Import/ImportWizard.vue";
 import "../styles/tokens.css";
 import { useEditorCommands } from "../composables/use-editor-commands.ts";
 import { useEditorPlugins } from "../composables/use-editor-plugins.ts";
@@ -23,6 +24,7 @@ import { usePanelHotkeys } from "../composables/use-panel-hotkeys.ts";
 import { resolvePinia } from "../composables/pinia.ts";
 import { setLocale } from "../i18n/index.ts";
 import { useDialogStore } from "../stores/dialogs.ts";
+import { useImportWizardStore } from "../stores/import-wizard.ts";
 import { useDiagramStore } from "../stores/diagram.ts";
 import { useHistoryStore } from "../stores/history.ts";
 import { useSaveStore } from "../stores/save.ts";
@@ -179,6 +181,17 @@ commands.configureAutoSave(props.autoSave, props.autoSaveInterval);
 // editor is mounted.
 const stopPanelHotkeys = usePanelHotkeys();
 
+// The import of P8 owns the three file keys: the wizard reads the file, shows
+// what it found and asks where it goes before anything touches the diagram.
+const importWizard = useImportWizardStore();
+const IMPORT_KEYS: Record<string, "sql" | "dbml" | "json" | "erwin"> = {
+  "file:import": "sql",
+  "file:import-sql": "sql",
+  "file:import-dbml": "dbml",
+  "file:import-json": "json",
+  "file:import-erwin": "erwin",
+};
+
 /**
  * Handles an entry of the menu of the header.
  *
@@ -191,6 +204,11 @@ function onMenu(key: string): void {
   // `onOpenDsm` and gets the event instead (ruling Q16).
   if (key === "config:open" && !props.onOpenDsm) {
     typeSystemOpen.value = true;
+    return;
+  }
+  const importFormat = IMPORT_KEYS[key];
+  if (importFormat !== undefined) {
+    importWizard.begin(importFormat);
     return;
   }
   // Printing is the sheet of the diagram, which the SDK can paginate itself
@@ -245,6 +263,7 @@ defineExpose({
     />
     <TypeSystemDialog :open="typeSystemOpen" @close="typeSystemOpen = false" />
     <PrintPreviewDialog v-model:open="printOpen" :tables="diagramStore.diagram.tables" />
+    <ImportWizard />
   </NConfigProvider>
 </template>
 

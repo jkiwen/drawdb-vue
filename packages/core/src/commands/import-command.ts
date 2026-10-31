@@ -12,6 +12,7 @@ import type { LogicalDomain } from "../models/domain.ts";
 import type { InvalidMarker } from "../models/invalid-marker.ts";
 import type { ImportSession } from "../models/import-session.ts";
 import type { DatabaseType } from "../models/diagram.ts";
+import { cloneDiagram } from "../import/clone.ts";
 
 /** Everything an import can replace in a document. */
 interface DocumentSnapshot {
@@ -33,25 +34,37 @@ interface DocumentSnapshot {
   invalidMarkers?: InvalidMarker[];
 }
 
+function copy<T>(value: T[] | undefined): T[] | undefined {
+  return value === undefined ? undefined : [...value];
+}
+
+/**
+ * A picture of the document that can be put back later.
+ *
+ * The collections are copied one level deep and not cloned: the import builds
+ * a new document, so the old arrays are never touched afterwards and their
+ * elements are exactly what undo has to restore. A deep copy would also cost
+ * 10-20 MB on a diagram of 500 tables (P8 plan, risk 1) and would break on the
+ * reactive objects the editor holds.
+ */
 function snapshotOf(diagram: Diagram): DocumentSnapshot {
-  const clone = (value: unknown): never => structuredClone(value) as never;
   return {
     title: diagram.title,
     description: diagram.description,
     database: diagram.database,
     sqlHeader: diagram.sqlHeader,
-    tables: clone(diagram.tables),
-    relationships: clone(diagram.relationships),
-    logicalRelationships: clone(diagram.logicalRelationships),
-    notes: clone(diagram.notes),
-    subjectAreas: clone(diagram.subjectAreas),
-    areas: clone(diagram.areas),
-    types: clone(diagram.types),
-    enums: clone(diagram.enums),
-    views: clone(diagram.views),
-    domains: clone(diagram.domains),
-    imports: clone(diagram.imports),
-    invalidMarkers: clone(diagram.invalidMarkers),
+    tables: copy(diagram.tables) ?? [],
+    relationships: copy(diagram.relationships) ?? [],
+    logicalRelationships: copy(diagram.logicalRelationships),
+    notes: copy(diagram.notes) ?? [],
+    subjectAreas: copy(diagram.subjectAreas) ?? [],
+    areas: copy(diagram.areas),
+    types: copy(diagram.types) ?? [],
+    enums: copy(diagram.enums) ?? [],
+    views: copy(diagram.views) ?? [],
+    domains: copy(diagram.domains),
+    imports: copy(diagram.imports),
+    invalidMarkers: copy(diagram.invalidMarkers),
   };
 }
 
@@ -70,7 +83,7 @@ export class ImportCommand implements Command {
 
   constructor(diagram: Diagram, next: Diagram, label = "Import") {
     this.diagram = diagram;
-    this.next = snapshotOf(next);
+    this.next = snapshotOf(cloneDiagram(toPlain(next)));
     this.label = label;
   }
 
@@ -102,4 +115,9 @@ export class ImportCommand implements Command {
     }
     this.previous = null;
   }
+}
+
+/** The plain data behind a reactive document, for the one deep copy we make. */
+function toPlain(diagram: Diagram): Diagram {
+  return JSON.parse(JSON.stringify(diagram)) as Diagram;
 }
