@@ -92,6 +92,12 @@ export type {
 } from "./import/plan.ts";
 export { importConflicts, planImport, summarizeTarget } from "./import/plan.ts";
 export type { DomainConflict, DomainDecision, DomainSide } from "./import/domains.ts";
+export type {
+  CreateImportSessionInput,
+  ImportSessionDiff,
+} from "./import/audit.ts";
+export { appendImportSession, createImportSession, diffSessions, subjectOf } from "./import/audit.ts";
+export type { ImportAuditEntry, ImportSession } from "./models/import-session.ts";
 export type { ApplyImportResult } from "./import/apply.ts";
 export { applyImport } from "./import/apply.ts";
 export type { ValidateImportOptions } from "./import/validate.ts";

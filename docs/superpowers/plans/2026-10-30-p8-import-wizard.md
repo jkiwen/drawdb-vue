@@ -51,7 +51,7 @@
 `packages/core/src/import/apply.ts`：`remapDiagram(source, idMap)`、`applyImport(target, plan) → { diagram, session }`（不改入参，返回新文档）。
 测试：追加 12 表后现有对象 id 不变、导入侧 id 全变；键/索引/关系/`foreignKeys` 的引用全部指向新 id；PK 冲突时保留现有主键并记 warning。
 
-### Task 5 — 历史与审计
+### Task 5 — 历史与审计 ✅（2026-10-31）
 `packages/core/src/commands/import-command.ts`（`ImportCommand(diagram, before, after, label)`）；`packages/core/src/import/audit.ts`（`buildImportSession(...)`）；`Diagram.imports?: ImportSession[]` + 序列化三处往返。
 测试：undo 精确回到导入前；`imports` 往返；旧档缺省为空数组。
 
@@ -88,4 +88,11 @@
 Task 3 要把 `undecided` 原样带进向导的决策步（未清空则下一步禁用），Task 4 的 apply 消费 `idMap` 与 `decisions`，并在报告里带上 `DomainMergeNote` 与最终的裁决记录。
 执行偏差记录
 
-（执行期填写）
+### Task 5（2026-10-31，提交见 git log）
+
+- `ImportCommand` 的签名落成 `ImportCommand(diagram, next, label = "Import")`：`before` 由命令在**执行时**自己快照，而不是由调用方传进来。理由：调用方在 `planImport` 与"用户点执行"之间隔着几步界面，期间图可能已变；构造时快照会让 undo 回到一个从未在屏幕上出现过的状态。整份深拷贝的代价（>500 表约 10–20MB）按计划风险 1 接受。
+- `buildImportSession(...)` 落成 `createImportSession(...)`（配 `countsOf`、`subjectOf`、`diffSessions`、`appendImportSession`）。命名按"从一份 plan 造一份记录"来，`failed` 的会话不带 entries（错误单独在 `error` 里），`aborted` 保留 entries——"看过并放下"本身是决策。
+- `ImportSession`/`ImportAuditEntry` 的类型放在 `packages/core/src/models/import-session.ts`，不放 `import/audit.ts`：`models/diagram.ts` 要引用它，而 models 不能反向依赖 import 层。
+- 旧档缺省不是 `[]` 而是**保持 undefined**（`serialize/import.ts` 只在读到合法会话时赋值）：`imports === undefined` 表示"这张图从没被导入过"，比每份文档都带一个空数组更贴近事实，序列化往返测试按此断言。
+- `diffSessions()` 用 `code` 的多重集差，不看 message（同一 code 的文案会随 i18n 变，不该算作"变了"）。
+

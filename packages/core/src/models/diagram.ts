@@ -3,6 +3,7 @@ import type { CustomType } from "./type.ts";
 import type { Enum } from "./enum.ts";
 import type { LogicalRelationship } from "./logical-relationship.ts";
 import type { InvalidMarker } from "./invalid-marker.ts";
+import type { ImportSession } from "./import-session.ts";
 import type { LogicalDomain } from "./domain.ts";
 import type { Metadata } from "./metadata.ts";
 import type { Note } from "./note.ts";
@@ -53,6 +54,11 @@ export interface Diagram {
   invalidMarkers?: InvalidMarker[];
   /** The logical domains this diagram defines itself (erwin custom types). */
   domains?: LogicalDomain[];
+  /**
+   * The imports that built this document (design section 6.2): the history of
+   * where these tables came from travels with the diagram it explains.
+   */
+  imports?: ImportSession[];
   /**
    * The view state of the diagram (UI document section 9.2, ruling Q2):
    * saved with the diagram, restored on load, never part of the undo stack.

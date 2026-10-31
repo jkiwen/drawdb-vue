@@ -33,6 +33,7 @@ export function exportDiagramJson(
     metadata: diagram.metadata,
     invalidMarkers: diagram.invalidMarkers,
     domains: diagram.domains,
+    imports: diagram.imports,
     viewState: diagram.viewState,
   };
 

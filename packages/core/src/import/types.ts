@@ -37,6 +37,8 @@ export interface ImportCounts {
   domains: number;
   notes: number;
   areas: number;
+  /** Pieces of the file the reader had to skip, when it knows. */
+  skipped?: number;
 }
 
 /** Options of a read: the format decides which reader runs. */

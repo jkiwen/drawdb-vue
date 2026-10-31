@@ -173,6 +173,14 @@ export function importDiagramJson(
 
   const domains = property(record, "domains");
   if (Array.isArray(domains)) diagram.domains = domains as Diagram["domains"];
+  const imports = property(record, "imports");
+  if (Array.isArray(imports)) {
+    const sessions = imports.filter(
+      (session): session is Record<string, unknown> =>
+        typeof session === "object" && session !== null && typeof (session as { id?: unknown }).id === "string",
+    );
+    if (sessions.length > 0) diagram.imports = sessions as unknown as Diagram["imports"];
+  }
   const invalidMarkers = property(record, "invalidMarkers");
   if (Array.isArray(invalidMarkers)) diagram.invalidMarkers = invalidMarkers as Diagram["invalidMarkers"];
   const metadata = property(record, "metadata");

@@ -675,3 +675,10 @@ There is no priority rule between the diagram and the import: two same-named dom
 
 The review ruled that two diagrams that name the same logical type are merged inside that type rather than asked about or renamed. `mergeDiagramDomains` unites the physical specs per dialect (the diagram's own wins where both state one, and the report names the dialect it replaced), keeps the family and parameters the diagram already uses when the two disagree, takes the import's parameters only when the diagram states none, and hands back an `idMap` so the incoming attributes point at the merged domain. No `_2` suffix: the name stays the one the diagram already showed.
 
+## An import is one step of the history (2026-10-31)
+
+`packages/core/src/import/apply.ts` decides what lands in the document; `packages/core/src/commands/import-command.ts` puts it there as **one** step, so a wrong import is one undo away. The command snapshots the document when it executes, not when it is constructed: the wizard plans first and applies later, and the diagram may have changed in between.
+
+The record of an import (`ImportSession`, design section 6.1) is part of the document (`Diagram.imports`) rather than of the session: "where did these tables come from" has to travel with the tables it explains. An absent `imports` means the diagram was never imported into, which is a different fact from "imported nothing".
+
+`diffSessions()` compares two imports by the multiset of their audit codes, not by their messages: the same finding in another language is the same finding.

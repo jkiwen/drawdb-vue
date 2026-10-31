@@ -6,5 +6,6 @@ export * from "./field-commands.ts";
 export * from "./relationship-commands.ts";
 export * from "./collection-commands.ts";
 export * from "./key-commands.ts";
+export * from "./import-command.ts";
 export * from "./auto-arrange-command.ts";
 export * from "./update-diagram.ts";
