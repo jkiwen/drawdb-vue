@@ -56,6 +56,26 @@ export class CommandManager {
     this.redoStack = [];
   }
 
+  /**
+   * Moves the history to the position `depth` entries are applied, undoing or
+   * redoing the commands in between (the history tab clicks a row).
+   *
+   * `depth` is the length the undo stack should have: 0 is the state before
+   * the first command, `snapshot().undoStack.length` is the current state. A
+   * depth beyond what the stacks can reach is clamped, and the return value
+   * says whether the move landed exactly there.
+   */
+  jumpTo(depth: number): boolean {
+    const target = Math.max(0, Math.min(Math.trunc(depth), this.undoStack.length + this.redoStack.length));
+    while (this.undoStack.length > target) {
+      if (!this.undo()) return false;
+    }
+    while (this.undoStack.length < target) {
+      if (!this.redo()) return false;
+    }
+    return true;
+  }
+
   snapshot(): CommandManagerState {
     return {
       undoStack: Object.freeze([...this.undoStack]),

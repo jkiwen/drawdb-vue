@@ -127,3 +127,53 @@ describe("command manager", () => {
     assert.equal(diagram.tables[0].fields[0].fieldType.type, "INT");
   });
 });
+
+describe("the manager jumps to a position of the history", () => {
+  function threeCommands() {
+    const diagram = createEmptyDiagram({ database: "mysql" });
+    const manager = new CommandManager();
+    for (const name of ["a", "b", "c"]) {
+      manager.execute(new AddTableCommand(diagram, emptyTable(name, name)));
+    }
+    return { diagram, manager };
+  }
+
+  it("undoes back to the position", () => {
+    const { diagram, manager } = threeCommands();
+    assert.equal(manager.jumpTo(1), true);
+    assert.equal(diagram.tables.length, 1);
+    assert.equal(manager.canRedo, true);
+  });
+
+  it("redoes forward to the position", () => {
+    const { diagram, manager } = threeCommands();
+    manager.jumpTo(0);
+    assert.equal(diagram.tables.length, 0);
+    assert.equal(manager.jumpTo(3), true);
+    assert.equal(diagram.tables.length, 3);
+    assert.equal(manager.canRedo, false);
+  });
+
+  it("does nothing when the position is the current one", () => {
+    const { diagram, manager } = threeCommands();
+    assert.equal(manager.jumpTo(3), true);
+    assert.equal(diagram.tables.length, 3);
+  });
+
+  it("clamps a position beyond the history", () => {
+    const { diagram, manager } = threeCommands();
+    assert.equal(manager.jumpTo(99), true);
+    assert.equal(diagram.tables.length, 3);
+    assert.equal(manager.jumpTo(-4), true);
+    assert.equal(diagram.tables.length, 0);
+  });
+
+  it("skips a cleared history", () => {
+    const { diagram, manager } = threeCommands();
+    manager.undo();
+    manager.clear();
+    assert.equal(manager.jumpTo(2), true);
+    assert.equal(diagram.tables.length, 2);
+    assert.equal(manager.canUndo, false);
+  });
+});
