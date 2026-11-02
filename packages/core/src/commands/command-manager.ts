@@ -66,14 +66,18 @@ export class CommandManager {
    * says whether the move landed exactly there.
    */
   jumpTo(depth: number): boolean {
-    const target = Math.max(0, Math.min(Math.trunc(depth), this.undoStack.length + this.redoStack.length));
+    const wanted = Math.trunc(depth);
+    const reachable = this.undoStack.length + this.redoStack.length;
+    const target = Math.max(0, Math.min(wanted, reachable));
     while (this.undoStack.length > target) {
       if (!this.undo()) return false;
     }
     while (this.undoStack.length < target) {
       if (!this.redo()) return false;
     }
-    return true;
+    // The position is reached exactly when it was reachable at all: a depth
+    // beyond the history lands on the closest one, and says so.
+    return target === wanted;
   }
 
   snapshot(): CommandManagerState {

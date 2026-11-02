@@ -160,11 +160,13 @@ describe("the manager jumps to a position of the history", () => {
     assert.equal(diagram.tables.length, 3);
   });
 
-  it("clamps a position beyond the history", () => {
+  it("clamps a position beyond the history and says it did not land there", () => {
     const { diagram, manager } = threeCommands();
-    assert.equal(manager.jumpTo(99), true);
+    // A position the history cannot reach lands on the closest one it can,
+    // and the answer says that the exact position was not reached.
+    assert.equal(manager.jumpTo(99), false);
     assert.equal(diagram.tables.length, 3);
-    assert.equal(manager.jumpTo(-4), true);
+    assert.equal(manager.jumpTo(-4), false);
     assert.equal(diagram.tables.length, 0);
   });
 
@@ -172,7 +174,8 @@ describe("the manager jumps to a position of the history", () => {
     const { diagram, manager } = threeCommands();
     manager.undo();
     manager.clear();
-    assert.equal(manager.jumpTo(2), true);
+    // The history is gone, so no position is reachable any more.
+    assert.equal(manager.jumpTo(2), false);
     assert.equal(diagram.tables.length, 2);
     assert.equal(manager.canUndo, false);
   });
