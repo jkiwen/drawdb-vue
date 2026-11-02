@@ -21,6 +21,7 @@ import {
   type OutlineNode,
   type OutlineSortMode,
 } from "./outline-model.ts";
+import { outlineSelectionId, selectOutlineNode } from "./outline-selection.ts";
 import classes from "./outline-tree.module.css";
 
 /**
@@ -100,17 +101,7 @@ const showNoMatches = computed(() => filterActive.value && tree.value.length ===
 
 // —— Selection (tree → ui store, ui store → reveal) ——
 
-const currentNodeId = computed(() => {
-  const field = ui.selectedFields[ui.selectedFields.length - 1];
-  if (field) return `field:${field.tableId}:${field.fieldId}`;
-  const last = (ids: (string | number)[]) => ids[ids.length - 1];
-  if (ui.selectedTableIds.length) return `table:${last(ui.selectedTableIds)}`;
-  if (ui.selectedRelationshipIds.length)
-    return `relationship:${last(ui.selectedRelationshipIds)}`;
-  if (ui.selectedNoteIds.length) return `note:${last(ui.selectedNoteIds)}`;
-  if (ui.selectedAreaIds.length) return `area:${last(ui.selectedAreaIds)}`;
-  return undefined;
-});
+const currentNodeId = computed(() => outlineSelectionId(ui));
 
 /** Expands the ancestors of a node and scrolls it into view. */
 async function reveal(nodeId: string): Promise<void> {
@@ -140,23 +131,7 @@ function select(node: OutlineNode): void {
     toggle(node.id);
     return;
   }
-  if (node.kind === "constraint") {
-    // A key belongs to its table; a foreign key also selects the relationship (issue 8).
-    ui.selectTable(String(node.parentRefId));
-    if (node.id.includes(":foreign:")) ui.selectRelationship(String(node.refId));
-  } else if (node.kind === "table" || node.kind === "area-table") ui.selectTable(String(node.refId));
-  else if (node.kind === "field")
-    ui.selectField(String(node.parentRefId), String(node.refId));
-  else if (node.kind === "relationship") ui.selectRelationship(String(node.refId));
-  else if (node.kind === "note") ui.selectNote(String(node.refId));
-  else if (node.kind === "area") ui.selectArea(String(node.refId));
-  // Views, enums and types have no ui-store selection yet; they only focus.
-  const focused = node.kind === "area-table" || node.kind === "constraint" ? "table" : node.kind;
-  emit("focus", {
-    kind: focused,
-    id: node.kind === "constraint" ? node.parentRefId! : node.refId!,
-    ...(node.kind === "field" ? { tableId: node.parentRefId! } : {}),
-  });
+  emit("focus", selectOutlineNode(ui, node));
 }
 
 // —— Context menu: rename writes the current layer, delete uses the store ——
