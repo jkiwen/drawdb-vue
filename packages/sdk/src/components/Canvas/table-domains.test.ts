@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { emptyTypeScope } from "@drawdb/core";
-import type { LogicalDomain, TypeScopeSnapshot } from "@drawdb/core";
-import { domainsByIdentity } from "./table-domains.ts";
+import type { Diagram, LogicalDomain, TypeScopeSnapshot } from "@drawdb/core";
+import { domainLookup } from "./table-domains.ts";
 
 function domain(id: string, name: string, family: LogicalDomain["family"] = "string"): LogicalDomain {
   return { id, name, family };
@@ -26,33 +26,56 @@ function snapshotWith(
   };
 }
 
+function diagramWith(domains: LogicalDomain[]): Pick<Diagram, "domains"> {
+  return { domains };
+}
+
 describe("the domains a canvas label resolves", () => {
-  it("keys a scope domain by its id and by its name", () => {
-    const map = domainsByIdentity(snapshotWith([domain("d1", "UnicodeString")]));
-    assert.equal(map.d1.name, "UnicodeString");
-    assert.equal(map.UnicodeString.id, "d1");
+  it("finds a scope domain by its name and by its id", () => {
+    const lookup = domainLookup(snapshotWith([domain("d1", "UnicodeString")]), undefined);
+    assert.equal(lookup("d1")?.name, "UnicodeString");
+    assert.equal(lookup("UnicodeString")?.id, "d1");
   });
 
-  it("lets the diagram layer win over a scope of the same name", () => {
-    const map = domainsByIdentity(snapshotWith([domain("d1", "Amount")]), [
-      domain("d2", "Amount", "decimal"),
-    ]);
-    // The closest layer to the attribute is the diagram, the way the resolver
-    // reads them.
-    assert.equal(map.Amount.id, "d2");
-    assert.equal(map.Amount.family, "decimal");
-    assert.equal(map.d1.name, "Amount");
+  it("lets the diagram layer win over a scope domain of the same name", () => {
+    const lookup = domainLookup(
+      snapshotWith([domain("d1", "Amount", "integer")]),
+      diagramWith([domain("d2", "Amount", "decimal")]),
+    );
+    // The closest layer to the attribute is the diagram, the way the
+    // resolver reads them.
+    assert.equal(lookup("Amount")?.id, "d2");
+    assert.equal(lookup("Amount")?.family, "decimal");
+    // The scope domain is still reachable through its own id.
+    assert.equal(lookup("d1")?.name, "Amount");
   });
 
   it("lets the workspace layer win over the application layer", () => {
-    const map = domainsByIdentity(
+    const lookup = domainLookup(
       snapshotWith([domain("d1", "Amount", "integer")], [domain("d2", "Amount")]),
+      undefined,
     );
-    assert.equal(map.Amount.id, "d2");
+    assert.equal(lookup("Amount")?.id, "d2");
   });
 
   it("skips a diagram domain without a name", () => {
-    const map = domainsByIdentity(emptyTypeScope(), [domain("d1", "")]);
-    assert.deepEqual(map, {});
+    const lookup = domainLookup(emptyTypeScope(), diagramWith([domain("d1", "")]));
+    assert.equal(lookup("d1"), undefined);
+  });
+
+  it("never lets a name shadow the id of another domain", () => {
+    // The scope keys its domains by their name, the diagram layer by their
+    // id. A domain whose name is the id of another one must not take its
+    // place: the id answers with its own domain.
+    const lookup = domainLookup(
+      snapshotWith([domain("d1", "d2")]),
+      diagramWith([domain("d2", "UnicodeString")]),
+    );
+    assert.equal(lookup("d2")?.name, "UnicodeString");
+  });
+
+  it("answers with nothing for a domain no layer knows", () => {
+    const lookup = domainLookup(emptyTypeScope(), undefined);
+    assert.equal(lookup("d_missing"), undefined);
   });
 });

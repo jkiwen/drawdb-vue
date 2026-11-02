@@ -92,6 +92,10 @@ const DOMAINS: Record<string, LogicalDomain> = {
   Email: { id: "Email", name: "Email address", family: "string" },
 };
 
+/** The lookup the canvas builds: a domain is found by its name or its id. */
+const lookupDomain = (key: string): LogicalDomain | undefined =>
+  DOMAINS[key] ?? Object.values(DOMAINS).find((entry) => entry.id === key);
+
 describe("logicalTypeLabel", () => {
   it("labels a builtin family with its translated name", () => {
     const label = logicalTypeLabel({ family: "string" });
@@ -100,7 +104,7 @@ describe("logicalTypeLabel", () => {
   });
 
   it("labels a domain with its name when the domains are known", () => {
-    const label = logicalTypeLabel({ domainId: "Email" }, DOMAINS);
+    const label = logicalTypeLabel({ domainId: "Email" }, lookupDomain);
     assert.equal(label.label, "Email address");
     assert.equal(label.placeholder, false);
   });
@@ -182,7 +186,7 @@ describe("tableFieldRows in the physical layer", () => {
 
 describe("tableFieldRows in the logical layer", () => {
   it("lists the attributes with their logical names and type labels", () => {
-    const rows = tableFieldRows(makeTable(), "logical", { domains: DOMAINS });
+    const rows = tableFieldRows(makeTable(), "logical", { resolveDomain: lookupDomain });
     assert.equal(rows.length, 3);
     assert.equal(rows[0].name, "identifier");
     assert.equal(rows[0].typeLabel, "Integer");
@@ -283,7 +287,7 @@ describe("tableRenderModel display modes", () => {
       table,
       "logical",
       togglesForDisplayMode("all"),
-      { domains: DOMAINS },
+      { resolveDomain: lookupDomain },
     );
     assert.equal(model.title, "Customer");
     assert.equal(model.description, "the people");

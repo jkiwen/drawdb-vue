@@ -41,12 +41,14 @@ export type TableDisplayOverrides = Partial<ViewStateToggles>;
 
 export interface TableRenderOptions {
   /**
-   * The domains a logical type reference can name, keyed by id and by name.
-   * `Table.vue` builds it from the three layers of the type scope, with the
-   * diagram's own domains (`diagram.domains`) on top; an id the map does not
-   * know is shown as its own placeholder.
+   * The lookup of the domain a logical type reference names. It answers with
+   * the domain itself or with nothing, and the key is the id or the name of
+   * the domain. `use-table-model.ts` builds it from the three layers of the
+   * type scope with the rule of the core, so the canvas and the dialect lint
+   * resolve a domain the same way; a key the lookup does not know is drawn as
+   * its own placeholder.
    */
-  domains?: Record<string, LogicalDomain>;
+  resolveDomain?: (key: string) => LogicalDomain | undefined;
   overrides?: TableDisplayOverrides;
   /** The ids of the physical fields a foreign key points from. */
   foreignFieldIds?: ReadonlySet<string>;
@@ -77,10 +79,10 @@ export interface LogicalTypeLabel {
  */
 export function logicalTypeLabel(
   type: LogicalTypeRef,
-  domains?: Record<string, LogicalDomain>,
+  resolveDomain?: (key: string) => LogicalDomain | undefined,
 ): LogicalTypeLabel {
   if ("domainId" in type && typeof type.domainId === "string") {
-    const domain = domains?.[type.domainId];
+    const domain = resolveDomain?.(type.domainId);
     return domain
       ? { label: domain.name, placeholder: false }
       : { label: type.domainId, placeholder: true };
@@ -176,7 +178,7 @@ export function tableFieldRows(
           )
         : undefined;
       const name = attribute.name?.trim();
-      const type = logicalTypeLabel(attribute.logicalType, options?.domains);
+      const type = logicalTypeLabel(attribute.logicalType, options?.resolveDomain);
       return {
         rowId: attribute.fieldId ?? attribute.id,
         fieldId: attribute.fieldId,

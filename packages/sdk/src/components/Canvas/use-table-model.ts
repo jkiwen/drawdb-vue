@@ -1,7 +1,7 @@
 import { computed, type ComputedRef } from "vue";
 import type { Table } from "@drawdb/core";
 import { tableRenderModel, type TableRenderModel } from "./render-model.ts";
-import { domainsByIdentity } from "./table-domains.ts";
+import { domainLookup } from "./table-domains.ts";
 import { foreignKeyRows } from "./table-sections.ts";
 import { foreignKeyRefs } from "./table-foreign-keys.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
@@ -27,8 +27,11 @@ export function useTableModel(liveTable: ComputedRef<Table>): {
   const toolbarScope = useToolbarScopeStore();
   const typeScope = useTypeScopeStore();
 
-  const domains = computed(() =>
-    domainsByIdentity(typeScope.getSnapshot(), diagram.diagram.domains),
+  // The lookup of a domain, built with the rule of the core: the diagram's
+  // own domains are the diagram layer of the scope, the closest layer to the
+  // attribute, and a domain is found by its name or by its id.
+  const resolveDomain = computed(() =>
+    domainLookup(typeScope.getSnapshot(), diagram.diagram),
   );
 
   /** The ids of the fields a foreign key points from (UI document 6.1). */
@@ -51,7 +54,7 @@ export function useTableModel(liveTable: ComputedRef<Table>): {
 
   const model = computed(() =>
     tableRenderModel(liveTable.value, viewState.viewLayer, viewState.toggles, {
-      domains: domains.value,
+      resolveDomain: resolveDomain.value,
       foreignFieldIds: foreignFieldIds.value,
       foreignKeys: foreignKeys.value,
       foreignKeyRefs: foreignKeyRefsOfTable.value,
