@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { diagramScopeOf, scopeWithDiagram } from "./diagram-scope.ts";
-import { emptyTypeScope, resolveType } from "./resolve.ts";
+import { emptyTypeScope, findDomainInScope, resolveType } from "./resolve.ts";
 import type { LogicalDomain } from "../models/domain.ts";
 
 function domain(name: string, id = `domain_${name}`): LogicalDomain {
@@ -47,6 +47,31 @@ describe("scopeWithDiagram", () => {
     assert.equal(result.suggested?.type, "VARCHAR2");
     assert.equal(result.suggested?.length, 32);
     assert.deepEqual(result.diagnostics, []);
+  });
+
+  it("resolves a domain of the diagram by its name as well as by its id", () => {
+    const scope = scopeWithDiagram(emptyTypeScope(), {
+      domains: [domain("Amount", "d2")],
+    });
+    // The attribute may name the domain by its id or by its name.
+    assert.equal(findDomainInScope(scope, "d2")?.name, "Amount");
+    assert.equal(findDomainInScope(scope, "Amount")?.id, "d2");
+  });
+
+  it("lets a domain of the diagram shadow a scope domain of the same name", () => {
+    const scope = scopeWithDiagram(
+      {
+        ...emptyTypeScope(),
+        workspace: {
+          domains: { Amount: { id: "d1", name: "Amount", family: "integer" } },
+        },
+      },
+      { domains: [domain("Amount", "d2")] },
+    );
+    // The diagram is the closest layer, so its domain wins.
+    assert.equal(findDomainInScope(scope, "Amount")?.id, "d2");
+    // The scope domain is still reachable through its own id.
+    assert.equal(findDomainInScope(scope, "d1")?.id, "d1");
   });
 
   it("returns the snapshot itself when the diagram has no domains", () => {

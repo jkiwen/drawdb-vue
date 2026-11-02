@@ -199,8 +199,14 @@ function findDomain(
     }
     // A layer is keyed by the name of its domains (the registry is globally
     // unique by name); a diagram layer written by an import is keyed by the
-    // id the attributes carry, so both keys are honoured.
-    const domain = layer[name] ?? Object.values(layer).find((candidate) => candidate.id === name);
+    // id the attributes carry, so both keys are honoured. A domain of a
+    // diagram layer is found by its own name as well: the closest layer to
+    // the attribute wins, so a diagram domain shadows a scope domain of the
+    // same name.
+    const domain =
+      layer[name] ??
+      Object.values(layer).find((candidate) => candidate.id === name) ??
+      Object.values(layer).find((candidate) => candidate.name === name);
     if (domain) {
       return domain;
     }
