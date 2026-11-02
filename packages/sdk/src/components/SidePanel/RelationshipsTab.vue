@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { NButton, NEmpty, NTag } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
+import { t } from "../../i18n/index.ts";
 
 /**
  * The relationships tab of the side panel.
@@ -57,7 +58,7 @@ function label(relationship: (typeof relationships.value)[number]): string {
       </li>
     </ul>
 
-    <NEmpty v-if="relationships.length === 0" description="No relationships" />
+    <NEmpty v-if="relationships.length === 0" :description="t('no_relationships')" />
   </div>
 </template>
 

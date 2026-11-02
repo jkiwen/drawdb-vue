@@ -9,6 +9,7 @@ import {
 import type { Area, AreaPropsIssueCode } from "@drawdb/core";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
+import { t } from "../../i18n/index.ts";
 
 /** The areas tab of the side panel. */
 
@@ -121,7 +122,7 @@ function saveEdit(): void {
         <div v-else class="entity-tab__editor">
           <NInput
             :value="draft.name"
-            placeholder="Area name"
+            :placeholder="t('edit_panel_area_name')"
             :status="errors.length > 0 ? 'error' : undefined"
             :data-testid="`area-name-input-${area.id}`"
             @update:value="draft.name = $event"
@@ -129,7 +130,7 @@ function saveEdit(): void {
           <NInput
             :value="draft.description"
             type="textarea"
-            placeholder="Description"
+            :placeholder="t('edit_panel_description')"
             :rows="2"
             :data-testid="`area-description-input-${area.id}`"
             @update:value="draft.description = $event"
@@ -163,7 +164,7 @@ function saveEdit(): void {
       </li>
     </ul>
 
-    <NEmpty v-if="areas.length === 0" description="No areas" />
+    <NEmpty v-if="areas.length === 0" :description="t('no_areas')" />
   </div>
 </template>
 

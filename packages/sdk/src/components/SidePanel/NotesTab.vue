@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { NButton, NEmpty } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useUIStore } from "../../stores/ui.ts";
+import { t } from "../../i18n/index.ts";
 
 /** The notes tab of the side panel. */
 
@@ -23,7 +24,7 @@ const notes = computed(() => diagram.notes);
           :data-testid="`note-item-${note.id}`"
           @click="ui.selectNote(String(note.id))"
         >
-          {{ note.title || "Untitled note" }}
+          {{ note.title || t('untitled_note') }}
         </NButton>
         <NButton
           size="tiny"
@@ -37,7 +38,7 @@ const notes = computed(() => diagram.notes);
       </li>
     </ul>
 
-    <NEmpty v-if="notes.length === 0" description="No notes" />
+    <NEmpty v-if="notes.length === 0" :description="t('no_notes')" />
   </div>
 </template>
 

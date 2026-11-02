@@ -7,6 +7,7 @@ import { useUIStore } from "../../stores/ui.ts";
 import { elementBounds, heldByLockedArea } from "../../utils/elements.ts";
 import { nextPrimaryColumns, primaryKeyName } from "../primary-key-edit.ts";
 import "./tables-tab.css";
+import { t } from "../../i18n/index.ts";
 
 /**
  * The tables tab of the side panel.
@@ -172,7 +173,7 @@ function removeTable(): void {
     <NInput
       v-model:value="ui.searchTerm"
       size="small"
-      placeholder="Search tables"
+      :placeholder="t('search')"
       data-testid="side-panel-search"
     />
 
@@ -199,7 +200,7 @@ function removeTable(): void {
         <NInput
           v-model:value="nameDraft"
           size="small"
-          placeholder="Table name"
+          :placeholder="t('name')"
           data-testid="table-name-input"
           :disabled="locked"
           @change="commitTableName"
@@ -228,7 +229,7 @@ function removeTable(): void {
           <NInput
             :value="fieldDrafts[String(field.id)]?.name ?? field.name"
             size="small"
-            placeholder="name"
+            :placeholder="t('name')"
             :data-testid="`field-name-${field.id}`"
             :disabled="locked"
             @update:value="updateDraft(field.id, 'name', $event)"
@@ -237,7 +238,7 @@ function removeTable(): void {
           <NInput
             :value="fieldDrafts[String(field.id)]?.type ?? field.fieldType.type"
             size="small"
-            placeholder="type"
+            :placeholder="t('type')"
             :data-testid="`field-type-${field.id}`"
             :disabled="locked"
             @update:value="updateDraft(field.id, 'type', $event)"
@@ -288,10 +289,10 @@ function removeTable(): void {
         data-testid="add-field-btn"
         @click="addField"
       >
-        Add field
+        {{ t('add_field') }}
       </NButton>
     </section>
 
-    <NEmpty v-else description="Select a table" />
+    <NEmpty v-else :description="t('select_a_table')" />
   </div>
 </template>

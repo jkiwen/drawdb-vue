@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import ViewEditor from "./ViewEditor.vue";
+import { t } from "../../i18n/index.ts";
 
 /** The views tab of the side panel. */
 
@@ -29,7 +30,7 @@ function update(id: string | number, updates: Record<string, unknown>): void {
       @remove="diagram.removeView(view.id)"
     />
 
-    <p v-if="views.length === 0" class="entity-tab__empty">No views yet.</p>
+    <p v-if="views.length === 0" class="entity-tab__empty">{{ t('no_views') }}</p>
   </div>
 </template>
 

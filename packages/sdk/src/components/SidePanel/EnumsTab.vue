@@ -3,6 +3,7 @@ import { computed } from "vue";
 import { NButton } from "naive-ui";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import EnumEditor from "./EnumEditor.vue";
+import { t } from "../../i18n/index.ts";
 
 /** The enums tab of the side panel. */
 
@@ -35,7 +36,7 @@ function addEnum(): void {
       data-testid="add-enum-btn"
       @click="addEnum"
     >
-      Add Enum
+      {{ t('add_enum') }}
     </NButton>
   </div>
 </template>

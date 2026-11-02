@@ -4,6 +4,7 @@ import type { PropType } from "vue";
 import type { CustomType } from "@drawdb/core";
 import { NButton, NEmpty } from "naive-ui";
 import TypeEditor from "./TypeEditor.vue";
+import { t } from "../../i18n/index.ts";
 
 /**
  * The custom types tab of the properties of the editor.
@@ -53,10 +54,10 @@ function update(index: number, updates: Record<string, unknown>): void {
       @remove-field="update(index, { fields: (type.fields ?? []).filter((_, position) => position !== $event) })"
     />
 
-    <NEmpty v-if="types.length === 0" description="No custom types" />
+    <NEmpty v-if="types.length === 0" :description="t('no_custom_types')" />
 
     <NButton size="small" class="entity-tab__add" data-testid="add-custom-type-btn" @click="addType">
-      Add Custom Type
+      {{ t('add_custom_type') }}
     </NButton>
   </div>
 </template>
