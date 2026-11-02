@@ -161,4 +161,24 @@ describe("fromOracleSQL", () => {
     assert.equal(tables[0].fields.length, 1);
     assert.equal(relationships.length, 0);
   });
+  it("imports a numeric default as the SQL text of the literal", () => {
+    const ast = parse("CREATE TABLE flags (enabled NUMBER(1) DEFAULT 0 NOT NULL);");
+    const { tables } = fromOracleSQL(ast);
+
+    assert.equal(tables[0].fields[0].default, "0");
+  });
+
+  it("reports the grammar limit of a string default", () => {
+    // `oracle-sql-parser` rejects `DEFAULT 'x'` and `DEFAULT SYSDATE`, so such
+    // a script fails as a parse error rather than losing the default silently.
+    assert.throws(
+      () => parse("CREATE TABLE flags (name VARCHAR2(20) DEFAULT 'x');"),
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.match(error.message, /Failed to parse SQL for database "oraclesql"/);
+        assert.match(error.message, /line 1/);
+        return true;
+      },
+    );
+  });
 });

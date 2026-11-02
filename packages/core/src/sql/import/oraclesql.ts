@@ -8,6 +8,7 @@ import type {
 import type { Table } from "../../models/table.ts";
 import { canonicalTypeName } from "../../types/registry.ts";
 import { createId } from "../../utils/id.ts";
+import { buildSQLFromAST } from "./shared.ts";
 import type { ASTNode } from "./shared.ts";
 import {
   addPrimaryKeyColumns,
@@ -204,9 +205,18 @@ function parseColumn(
     field.increment = true;
   }
 
-  // TODO: reconstruct default when implemented in parser
-  if (definition.default) {
-    field.default = JSON.stringify(definition.default.expr);
+  // A literal default arrives as a scalar expression (`DEFAULT 0` gives the
+  // number 0); anything the parser builds as a node is printed back to SQL the
+  // same way the other dialects store it. String and expression defaults are a
+  // limit of the Oracle grammar: `DEFAULT 'x'` and `DEFAULT SYSDATE` are
+  // rejected by the parser, so such a script fails as a parse error rather
+  // than importing a column without its default (oraclesql.test.ts pins both).
+  if (definition.default?.expr !== undefined) {
+    const expr: unknown = definition.default.expr;
+    field.default =
+      typeof expr === "object" && expr !== null
+        ? buildSQLFromAST(expr as ASTNode, diagramDb)
+        : String(expr);
   }
 
   return field;
