@@ -77,6 +77,7 @@
 - Task 33: complete (commit `1e371b5`; the menu of the editor answers on its own (`runEditorMenu`), the dialogs live in the SDK and share their state through a store, the bridge of the editor (`window.__DRAWDB__`) lets the end to end tests drive it, and five specifications of the application join the suite; 727/727 workspace specs pass at the end of the canvas work; typecheck clean)
   - Report: `docs/task-33-report.md`
 - Task 34: complete (commit `f56c6f3`; the areas of the canvas fold, lock and hold what they contain — the rule of the membership is the overlap of the two rectangles, the fold hides the tables, the notes and the views it holds, the badge of the title bar counts the relationships that reach out, the lock extends to the elements the area holds, the details of an area hang below it, and the five defects of the user are closed with them; 727/727 workspace specs pass (67 suites); typecheck clean; the end to end suite is 51 of 51; the build is 4 of 4)
+- Task 35: complete (the tree names a relationship by its layer, the canvas resolves a domain with the rule of the core, the jump of the history reports the exactness of the move and is part of the API of the editor; 1428/1428 workspace specs pass; typecheck clean; report: `docs/task-35-report.md`)
   - Report: `docs/task-34-report.md`
 - Restructure: complete (the outer repository of the React application was removed, the React application moved into `../drawdb-app` as a reference, the history kept in `../drawdb-history.bundle`, the packages packed locally instead of published to npm; 327/327 workspace specs pass; typecheck clean)
   - Report: `docs/restructure-report.md`
@@ -315,9 +316,12 @@ An area on the canvas could not be folded, could not be locked and had no panel 
 
 The model of a table now carries a logical entity (Table.logical) and every field is a physical field (PhysicalField) whose type is a stored specification (ieldType: PhysicalSpec) with a provenance flag (ieldTypeSource: mapped | explicit | imported). The legacy Field.type/Field.size pair is gone; Field is a deprecated alias of PhysicalField.
 
-- **Two-layer model (P1)** - LogicalEntity/LogicalAttribute live inside Table.logical; a field and its paired attribute are created and deleted atomically (emoveFieldAtomic in models/invariants.ts), enforced by INV-1..INV-7 validators. LogicalRelationship mirrors the physical Relationship (same id, physicalPending exempts it from INV-6). Index and unique-constraint field references moved from names to ids (Index.fields: FieldId[]), with serialize/import.ts normalising legacy name references on load. Cost if wrong: a dangling name reference silently re-points at a renamed field.
+- **Two-layer model (P1)** - LogicalEntity/LogicalAttribute live inside Table.logical; a field and its paired attribute are created and deleted atomically (
+emoveFieldAtomic in models/invariants.ts), enforced by INV-1..INV-7 validators. LogicalRelationship mirrors the physical Relationship (same id, physicalPending exempts it from INV-6). Index and unique-constraint field references moved from names to ids (Index.fields: FieldId[]), with serialize/import.ts normalising legacy name references on load. Cost if wrong: a dangling name reference silently re-points at a renamed field.
 - **Eleven builtin logical families with 77 dialect mappings (P1)** - 	ypes/builtin-families.ts; every mapping target is validated against the DATABASE_TYPE_NAMES whitelist of the registry (canonical names win over spec-table aliases, e.g. INTEGER not INT on mysql/mariadb/mssql). Family defaults live inside the mapping rows, never in defaultParams, so scope overrides win per the spec §4.1 chain (attribute > domain > family default > mapping default). Cost if wrong: a scope override would never take effect.
-- **Type resolver with three scopes (P2)** - 	ypes/resolve.ts: esolveType, alidatePhysicalType, econcilePhysicalTypes; diagram > workspace > application, first hit wins; mapped fields are recomputed on mapping change, xplicit/imported fields are left alone. Cost if wrong: user-edited physical types would be clobbered by a mapping edit.
+- **Type resolver with three scopes (P2)** - 	ypes/resolve.ts: 
+esolveType, alidatePhysicalType, 
+econcilePhysicalTypes; diagram > workspace > application, first hit wins; mapped fields are recomputed on mapping change, xplicit/imported fields are left alone. Cost if wrong: user-edited physical types would be clobbered by a mapping edit.
 - **Dialect linter (P3)** - alidation/dialect-lint.ts emits the 12 DialectDiagnostic codes of spec §6.2; it is a new channel next to DiagramIssue, computes on demand and stores nothing; LOGICAL_PHYSICAL_DIVERGED only fires for mapped fields. Cost if wrong: explicit user choices would be flagged as drift.
 - **Exporter convergence (P4)** - all 7 dialect exporters read ieldType via the shared registry (xport/dialect-meta.ts); the hand-written genericMetadata table was deleted and the generic registry entries (INTEGER, DOUBLE PRECISION, TEXT/REAL flags) were hand-curated so the generic export stays byte-identical (pinned by xport/generic.snapshot.test.ts). Diverging logical attribute names are exported as -- <name> comments above the field (spec Q7). SQL/DBML imports set ieldTypeSource: "imported" (the plan's draft said "mapped"; corrected during execution because imports carry external physical definitions that must not be recomputed). Cost if wrong: an import would lose its physical types on the first mapping edit.
 - **No legacy-data migration (decision)** - serialized diagrams keep the new shape only; 
@@ -719,3 +723,25 @@ node -e "const fs=require('fs'),p=require('path');const w=(d,o=[])=>{for(const e
 ```
 
 当前余量最少的几个文件：`Canvas/Area.vue`（300，余量 0）、`EditPanel/edit-panel-model.ts`（299）、`stores/ui.ts`（298）、`SidePanel/TablesTab.vue`（297）、`stores/diagram.ts`（296）。这几个文件再加一行就触发门禁，先抽再改。
+
+## The tree names a relationship by its layer, and the jump of the history is honest (2026-11-02)
+
+上一阶段把三件遗留事项都做了，但每一件都留了半个尾巴，这一轮把尾巴收掉：
+
+1. **大纲的关系名按层显示**。`Outline/outline-labels.ts` 以前在两层都用物理名打头（注释写的是「关系只有一个名字，树按视图层命名它」，代码却没照做），所以在逻辑视图里改关系名，名字只落到 tooltip 里，行首还是物理名——用户看到的正是「只写物理名」。现在逻辑视图以逻辑名打头、物理视图以物理名打头，另一层的名字进 `altLabel`（设计稿 §3.1「树随视图分层显示命名」），一层没有名字时借用另一层的名字。
+2. **画布的域按 core 的规则解析**。`Canvas/table-domains.ts` 不再自己拼一张「id 与 name 双向建键」的表（那张表会让一个 name 盖住另一个域的 id），改用 `scopeWithDiagram` + `findDomainInScope`——方言 lint 用的就是这两个函数，于是画布和 lint 对同一个域给出同一个答案，图自带的域（erwin 导入的类型）赢过作用域里的同名域。`render-model.ts` 的入参从「域表」改成「查找函数」。
+3. **跳转会说自己落在哪里**。`CommandManager.jumpTo` 的文档写着「返回值说明是否精确落在目标位置」，实现却把位置钳制后一律返回 `true`；现在比较「落点」与「请求的位置」，超出历史的请求返回 `false`。core 的那条用例随之改写。
+4. **宿主也能跳**。`jumpHistory(depth)` 进 `use-editor-commands.ts` → `DrawDBEditor.vue` → 应用的 `editor-bridge.ts`（`window.__DRAWDB__`），此前只有底部面板的历史 Tab 能跳，宿主和 e2e 都够不着。
+5. **测试**：`stores/history.test.ts`（新增：回跳、前跳、跨边界、钳制、响应式镜像）、`Outline/outline-labels.test.ts`（新增：两层的两个名字）、`Canvas/table-domains.test.ts`（改写：按 core 规则查找）、`Outline/outline-actions.test.ts`（新增：图里没有逻辑关系时，重命名会建出对应物，撤销后消失）、`core/commands/command-manager.test.ts`、`core/types/diagram-scope.test.ts`。
+6. **门禁**：typecheck 六段 0 错；`node --experimental-strip-types scripts/run-tests.mjs` 1428/1428 pass；core 包单独构建 OK（turbo 在本沙箱里 spawn 子进程被拒，逐包构建代替）；e2e 在本沙箱跑不了（Playwright 无法 fork worker：`spawn EPERM`）。
+
+## 三个遗留真的关了，但它们还有四个尾工（2026-11-02）
+
+上一笔提交关了三个遗留的主体：画布读逻辑域、历史 Tab 可以跳、大纲改关系名只写物理名。这一笔把它们的尾工也关了，四个缺口各自一个修复：
+
+1. **大纲的关系按所在层命名**：`packages/sdk/src/components/Outline/outline-labels.ts` 的 `relationshipLabels()` 不再两层都以物理名开头，而是以树所展示的那一层的名字开头（设计 3.1：树跟随视图层），另一层的名字落到 `altLabel`（提示中）；某一层没有名字时借另一层的。`outline-labels.test.ts` 新增 4 例，`outline-model.test.ts` 的对应例随层改写；`outline-actions.test.ts` 补上“逻辑层没有对应关系时重命名创建它，一次 undo 又删掉它”。
+2. **画布用 core 的规则找逻辑域**：`packages/sdk/src/components/Canvas/table-domains.ts` 不再自己合并三层作为一个“id ↔ name”的表，而是用 `scopeWithDiagram` / `findDomainInScope`（字段一致性检查已在用的两个函数）构造查找；`render-model.ts` 的参数从“域表”改为 `resolveDomain` 函数。因此画布与字段一致性检查解释的是同一个域，一个名字也不会遮蔽另一个域的 id。core 侧同步：`packages/core/src/types/resolve.ts` 在图层内也按域名查找（`diagram-scope.test.ts` 新增 2 例）。
+3. **历史跳转说出是否精确落地**：`CommandManager.jumpTo(depth)` 的文档写着“返回值表示是否恰好落在那个位置”，实现却总是 `true`（它将位置夹制到最近的一个后走过去）。现在它比较落地的位置与被请求的位置，越界的位置返回 `false`（core 测试两例随之改写）。
+4. **宿主可以驱动历史**：`use-editor-commands.ts` 新增 `jumpHistory(depth)`，`DrawDBEditor.vue` 对外暴露，应用的 `editor-bridge.ts` 也发布它（e2e 测试可以走这扇门）。`packages/sdk/src/stores/history.test.ts` 新增（11 例：向后跳、向前跳、跳过已执行/已撤销的边界、夹制越界位置、命令管理器的镜像）。
+
+四道门禁：`pnpm typecheck` 退出码 0；core 524 pass / sdk 1428 pass / app 40 pass，`ℙ fail 0`；build 按包一个个构建成功（turbo 在这个沙箱里无法起子进程）；`pnpm e2e` 在这里不可跑（Playwright 无法 fork 子进程，`spawn EPERM`），e2e 仍是 55 个用例。
