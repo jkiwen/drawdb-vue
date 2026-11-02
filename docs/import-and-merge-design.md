@@ -298,3 +298,37 @@ interface ImportAuditEntry {
 - **工具栏**：不设独立按钮。工具栏的 File 组与菜单是同一份 `DEFAULT_MENU_GROUPS`，再加一个按钮只会出现两个同样的入口。
 
 代价与边界：拖拽会抢走画布的 `drop` 事件（`@dragover.prevent` 在编辑器根节点上），因此宿主页面若自己监听拖拽，需要在外层 `stopPropagation`；`ImportDialog` 同日退役（向导取代），旧的 `file:import` 无格式键保留并映射到 SQL。
+
+### 9.3 低层入口 `importSql()` 与宿主拖拽的写法（2026-11-02）
+
+**`importSql(sql, database?)` 是解析器，不是导入流程。** 它调 `importSQL()` 后直接 `setDiagram()` 换掉整张图：不进向导、不产生报告、不写 `Diagram.imports`、不收集冲突、也不做「新图/并入」的选择。保留它是为了两件事——旧宿主代码的兼容，以及「宿主手里已经有脚本、想要一次性把图换掉」的程序化场景。交互式导入一律走向导（§9.2），两条路的差别要有意识地选：
+
+| | `importSql()` | 导入向导 |
+|---|---|---|
+| 结果 | 整图被替换 | 新图 / 并进当前图（可撤销为一步） |
+| 预检与报告 | 无 | 有（对象计数、告警、按级别过滤） |
+| 冲突裁决 | 无（后写的覆盖） | 逐项裁决，未裁决不得应用 |
+| 审计 | 无 | `Diagram.imports` + `ImportCommand` |
+| 历史 | 不进 undo 栈 | 一步可撤销 |
+
+**宿主自己也监听拖拽时的写法。** 编辑器的根节点上有 `@dragover.prevent` 与 `@drop.prevent`，事件会从宿主的监听器继续冒泡到它。宿主想要自己吃掉文件（比如上传到后端），要在自己的处理器里 `stopPropagation()`：
+
+```vue
+<div class="host" @drop="onHostDrop">
+  <DrawDBEditor />
+</div>
+
+<script setup lang="ts">
+function onHostDrop(event: DragEvent): void {
+  const file = event.dataTransfer?.files?.[0];
+  if (!file) return;
+  // The editor's own listener is on the inner root: stop the bubbling here
+  // or both handlers run and the wizard opens as well.
+  event.stopPropagation();
+  event.preventDefault();
+  void upload(file);
+}
+</script>
+```
+
+反过来，宿主若只想把非 `.sql/.dbml/.json/.xml` 的文件留给自己，就不用拦：编辑器对未知扩展名不做事（§9.2）。

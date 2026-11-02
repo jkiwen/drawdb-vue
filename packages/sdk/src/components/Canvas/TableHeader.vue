@@ -18,8 +18,8 @@ defineOptions({ name: "DrawDBTableHeader" });
  * canvas shows, with a pale badge when the physical name stands in for a
  * missing logical name (ruling of section 6.4). The description of the layer
  * is not drawn here any more — it is the last block of the body
- * (TableSections.vue). Only the physical layer is editable on the canvas
- * (TODO: the inline editing of the logical names).
+ * (TableSections.vue). Only the physical layer is editable on the canvas:
+ * the logical layer is read-only by ruling (design section 6.1).
  */
 const props = defineProps({
   table: { type: Object as PropType<Table>, required: true },

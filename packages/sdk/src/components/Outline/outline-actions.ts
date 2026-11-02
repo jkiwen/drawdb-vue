@@ -107,9 +107,15 @@ export function renameOutlineNode(
       return;
     }
     case "relationship":
-      // TODO: the logical name of a relationship has no store command yet;
-      // the rename writes the physical name on both layers for now.
-      store.updateRelationship(node.refId!, { name });
+      // A relationship carries two names: the physical one on the FK and the
+      // logical one on the logical relationship (INV-6 pairs them by id). The
+      // rename writes the name of the layer the tree is in, so a logical
+      // rename never overwrites the physical name (2026-11-02).
+      if (layer === "logical") {
+        store.updateLogicalRelationship(node.refId!, { name });
+      } else {
+        store.updateRelationship(node.refId!, { name });
+      }
       return;
     case "area":
       store.updateArea(node.refId!, { name });

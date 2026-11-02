@@ -694,3 +694,14 @@ P8 Task 8 收尾时定了三件事，都会影响后来的人：
 向导的步骤是 `source → report → target → conflict → apply`，其中 `apply` 是**结果**屏而不是「执行」按钮所在处：执行在 Decisions 步，成功后才跳到 Done，undo 提示才有地方站。`applyImport()` 只做「并进已有文档」，`targetKind === "new"` 由 store 用 `cloneDiagram(source.diagram)` 自己造。
 
 对话框退役顺便清掉两处类型债：`EditorDialogs.vue` 的 `importOpen`/`importFormat`/`database` 三个 prop 与 `EditorLayout.vue` 的 `database` prop（只服务于旧对话框）都已删除。i18n 新增的 57 个 `wizard_*` 键走三路 subagent 并行翻译，50 个 locale 一律 643 键、占位符不改写。
+
+## The leftovers of P8 are closed (2026-11-02)
+
+P8 收官时留下的待办全部落地，四道门禁在提交前重跑（typecheck 六段 0 错、core 520 / sdk 1400 pass、build 4/4、e2e 55 passed）。五件事：
+
+1. **画布的域标签补上了真解析**。`render-model.ts` 此前写着「SDK 还没有 type-scope store」，逻辑层的域类型只能显示 domain id 占位。现在 `Canvas/table-domains.ts` 的 `domainsByIdentity(snapshot, diagramDomains)` 把 application / workspace / diagram 三层合成一张按 **id 与 name 双向建键**的表（旧层按名字存、文档层按 id 存），同名时 diagram 层胜、workspace 胜 application；渲染逻辑搬进 `Canvas/use-table-model.ts`，`Table.vue` 从 311 行回到 264 行。测试：`table-domains.test.ts` 四例、`canvas-domains.test.ts` 三例。
+2. **历史 Tab 的条目可以点了**。`CommandManager.jumpTo(depth)` 逐条 undo/redo 到目标位置（可越界钳制、返回是否精确落位），`useHistoryStore().jumpTo()` 同步响应式镜像，`HistoryTab.vue` 把每条记录渲染成按钮并带 `data-depth`；当前所在行不可点。core 5 例、sdk 1 例。
+3. **关系的逻辑名有地方写了**。`outline-actions.ts` 的关系重命名此前在两层都写物理名（注释自称 TODO）：现在按树所在的层分投 `updateRelationship` / `updateLogicalRelationship`——关系的两个名字分别挂在 FK 与 `LogicalRelationship` 上（INV-6 按 id 配对）。两例测试覆盖「各写各的」与「一步可撤销」。
+4. **三处陈旧 TODO 改成裁决说明**：画布的逻辑层只读（`TableField.vue` / `TableHeader.vue` 不再暗示以后能内联编辑逻辑名）、`OutlineTree.vue` 的 area 隶属是几何判定（Q11）、`Toolbar.test.ts` 的头注释从「布局/对齐是 TODO」改成实际交付的九组。
+5. **低层导入与宿主拖拽写进设计稿**（`docs/import-and-merge-design.md` §9.3）：`importSql()` 是解析器不是导入流程（不报告、不裁决、不审计、不进 undo），与向导的差别列成表；宿主自己监听 `drop` 时必须 `stopPropagation()`，附最小的 Vue 写法。`use-editor-commands.ts` 的 `importSql` 注释同步指向该节。
+6. **Oracle 默认值的真实边界**：`packages/core/src/sql/import/oraclesql.ts` 里那条 `TODO: reconstruct default when implemented in parser` 换成了实情说明——`oracle-sql-parser` 对字面量默认值只接受数字（`DEFAULT 0` 的 `expr` 就是 number 0，原样存成 `"0"`），字符串与函数默认值（`DEFAULT 'x'`、`DEFAULT SYSDATE`）会让语法器直接报错，所以这类 Oracle 脚本以 `SQLImportError`（带行列号）失败，而不是静默丢掉默认值；若将来语法器给出节点，则用 `buildSQLFromAST` 存 SQL 文本（与其它方言一致）。`packages/core/src/sql/import/oraclesql.test.ts` 两例把这两种行为都钉住（core 522 pass）。

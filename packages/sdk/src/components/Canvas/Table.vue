@@ -3,12 +3,10 @@ import { computed, ref } from "vue";
 import type { PropType } from "vue";
 import type { Field, Table } from "@drawdb/core";
 import { VueDraggable } from "vue-draggable-plus";
-import { tableRenderModel, type TableFieldRowModel } from "./render-model.ts";
-import { foreignKeyRows } from "./table-sections.ts";
-import { foreignKeyRefs } from "./table-foreign-keys.ts";
+import type { TableFieldRowModel } from "./render-model.ts";
+import { useTableModel } from "./use-table-model.ts";
 import { useDiagramStore } from "../../stores/diagram.ts";
 import { useViewStateStore } from "../../stores/view-state.ts";
-import { useToolbarScopeStore } from "../../stores/toolbar-scope.ts";
 import { useSortable } from "../../composables/use-sortable.ts";
 import { elementBounds, heldByLockedArea } from "../../utils/elements.ts";
 import FieldHandle from "./FieldHandle.vue";
@@ -44,7 +42,6 @@ const emit = defineEmits([
 
 const diagram = useDiagramStore();
 const viewState = useViewStateStore();
-const toolbarScope = useToolbarScopeStore();
 const resizing = ref(false);
 const { sortableOptions, onSort } = useSortable();
 
@@ -54,47 +51,12 @@ const { sortableOptions, onSort } = useSortable();
 const liveTable = computed(() => diagram.tableById(props.table.id) ?? props.table);
 
 /**
- * The ids of the fields a foreign key points from, so the "all" display
- * mode can mark them with "FK" (UI document section 6.1).
+ * The render model of the table: everything the node draws, derived from the
+ * view layer, the display toggles and the domains of the type scope. The
+ * height comes from the model as well, so the node, the virtualization and
+ * the relationship anchors all measure the table the same way.
  */
-const foreignFieldIds = computed(() => {
-  const ids = new Set<string>();
-  for (const relationship of diagram.relationships) {
-    if (String(relationship.endTableId) === String(liveTable.value.id)) {
-      ids.add(String(relationship.endFieldId));
-    }
-  }
-  return ids;
-});
-
-/**
- * The rows of the foreign key block of the section list: one row per
- * relationship that leaves this table, `name: field → other.field`
- * (section 7 of the UI document).
- */
-const foreignKeys = computed(() =>
-  foreignKeyRows(liveTable.value, diagram.relationships, diagram.tables),
-);
-const foreignKeyRefsOfTable = computed(() =>
-  foreignKeyRefs(liveTable.value, diagram.relationships),
-);
-
-/**
- * The render model of the table: everything the node draws, derived from
- * the view layer and the display toggles. The height comes from the model
- * as well, so the node, the virtualization and the relationship anchors all
- * measure the table the same way.
- */
-const model = computed(() =>
-  tableRenderModel(liveTable.value, viewState.viewLayer, viewState.toggles, {
-    foreignFieldIds: foreignFieldIds.value,
-    foreignKeys: foreignKeys.value,
-  foreignKeyRefs: foreignKeyRefsOfTable.value,
-    // Ruling Q1: a scoped toolbar change overrides the canvas-wide toggles
-    // for this table only.
-    overrides: toolbarScope.overrideFor(String(liveTable.value.id)),
-  }),
-);
+const { model } = useTableModel(liveTable);
 
 const width = computed(() => model.value.width);
 const height = computed(() => model.value.height);

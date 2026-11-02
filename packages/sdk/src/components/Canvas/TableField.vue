@@ -18,9 +18,9 @@ defineOptions({ name: "DrawDBTableField" });
  * The row draws a render-model row (render-model.ts): in the physical layer
  * it shows the name and the type specification of the field, in the logical
  * layer the name and the logical type label of the attribute. Only a row of
- * the physical layer is editable on the canvas — the names and the types of
- * the logical model are edited from the editors (TODO: the inline editing
- * of the logical layer).
+ * the physical layer is editable on the canvas: the logical layer is
+ * read-only by ruling (design section 6.1), so its names and types are
+ * edited from the edit panel, never here.
  */
 const props = defineProps({
   table: { type: Object as PropType<Table>, required: true },

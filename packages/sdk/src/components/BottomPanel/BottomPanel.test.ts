@@ -164,6 +164,45 @@ describe("BottomPanel", () => {
     assert.ok(wrapper.find('[data-testid="history-current"]').exists());
   });
 
+  it("jumps the diagram to the position of the entry that is clicked", async () => {
+    useDiagramStore().setDiagram(seedValid());
+    const history = useHistoryStore();
+    const applied: string[] = [];
+    history.execute({
+      description: "Add table",
+      execute() {
+        applied.push("add");
+      },
+      undo() {
+        applied.pop();
+      },
+    });
+    history.execute({
+      description: "Rename table",
+      execute() {
+        applied.push("rename");
+      },
+      undo() {
+        applied.pop();
+      },
+    });
+    const wrapper = mountPanel();
+    await wrapper.find('[data-testid="tab-history"]').trigger("click");
+    const entries = wrapper.findAll('[data-testid="history-entry"]');
+    assert.equal(entries.length, 2);
+    assert.equal(entries[0].attributes("data-depth"), "2");
+    assert.equal(entries[1].attributes("data-depth"), "1");
+    await entries[1].trigger("click");
+    assert.equal(history.depth, 1);
+    assert.deepEqual(applied, ["add"]);
+    // The undone command moved below the marker: its row redoes it.
+    const after = wrapper.findAll('[data-testid="history-entry"]');
+    assert.equal(after.length, 2);
+    await after[1].trigger("click");
+    assert.equal(history.depth, 2);
+    assert.deepEqual(applied, ["add", "rename"]);
+  });
+
   it("collapses to its title bar and expands again through the toggle", async () => {
     useDiagramStore().setDiagram(seedValid());
     const settings = useSettingsStore();

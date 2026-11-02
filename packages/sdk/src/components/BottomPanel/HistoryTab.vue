@@ -10,9 +10,8 @@ import classes from "./BottomPanel.module.css";
  * undone are listed below the marker (design section 8.1: the tab is
  * sourced from the undo stack but keeps the undone records).
  *
- * TODO: make an entry clickable to undo/redo to that position once the
- * CommandManager of the core grows a jump API; for now the list is
- * read-only.
+ * An entry is a jump target: clicking it undoes or redoes the commands
+ * between the current position and that one (2026-11-02).
  */
 
 interface HistoryEntry {
@@ -20,6 +19,8 @@ interface HistoryEntry {
   description: string;
   /** Whether the command is currently applied (false = undone). */
   applied: boolean;
+  /** The undo-stack length the diagram has when the command is the last one applied. */
+  depth: number;
 }
 
 const history = useHistoryStore();
@@ -31,19 +32,25 @@ const entries = computed<HistoryEntry[]>(() => {
   void history.canUndo;
   void history.canRedo;
   const snapshot = history.snapshot();
+  const applied = snapshot.undoStack.length;
+  const undone = snapshot.redoStack.length;
   const items: HistoryEntry[] = [];
-  for (let i = snapshot.undoStack.length - 1; i >= 0; i -= 1) {
+  for (let i = applied - 1; i >= 0; i -= 1) {
     items.push({
       key: `undo-${i}`,
       description: snapshot.undoStack[i].description ?? t("history_command_fallback"),
       applied: true,
+      // Applying command i again leaves the stack at i + 1 entries.
+      depth: i + 1,
     });
   }
-  for (let i = snapshot.redoStack.length - 1; i >= 0; i -= 1) {
+  for (let i = undone - 1; i >= 0; i -= 1) {
     items.push({
       key: `redo-${i}`,
       description: snapshot.redoStack[i].description ?? t("history_command_fallback"),
       applied: false,
+      // Redo runs from the top of the stack down: i is the (undone - i)th redo.
+      depth: applied + (undone - i),
     });
   }
   return items;
@@ -55,6 +62,11 @@ const currentIndex = computed(() => {
   void history.canRedo;
   return history.snapshot().undoStack.length;
 });
+
+function jump(entry: HistoryEntry): void {
+  if (entry.depth === currentIndex.value) return;
+  history.jumpTo(entry.depth);
+}
 </script>
 
 <template>
@@ -68,12 +80,21 @@ const currentIndex = computed(() => {
         >
           {{ t("history_current_marker") }}
         </li>
-        <li
-          :class="[classes.historyEntry, !entry.applied && classes.historyUndone]"
-          :data-testid="'history-entry'"
-          :data-applied="entry.applied"
-        >
-          {{ entry.description }}
+        <li>
+          <button
+            type="button"
+            :class="[
+              classes.historyEntry,
+              !entry.applied && classes.historyUndone,
+              entry.depth === currentIndex && classes.historyEntryAt,
+            ]"
+            data-testid="history-entry"
+            :data-applied="entry.applied"
+            :data-depth="entry.depth"
+            @click="jump(entry)"
+          >
+            {{ entry.description }}
+          </button>
         </li>
       </template>
       <li

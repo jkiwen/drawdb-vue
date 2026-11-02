@@ -160,8 +160,26 @@
 }
 
 .historyEntry {
+  display: block;
+  width: 100%;
   padding: var(--ddb-space-1, 4px) var(--ddb-space-2, 8px);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
   font-size: var(--ddb-text-body, 13px);
+  text-align: left;
+  cursor: pointer;
+}
+
+.historyEntry:hover {
+  background: var(--ddb-surface-muted, #f2f4f7);
+}
+
+/* The row the diagram is currently at: clicking it changes nothing. */
+.historyEntryAt {
+  cursor: default;
+  font-weight: var(--ddb-weight-medium, 500);
 }
 
 .historyUndone {

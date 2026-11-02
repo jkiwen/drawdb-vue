@@ -27,9 +27,6 @@ import {
  * functions of the table, the view layer and the per-item display toggles,
  * so the derivation is testable without mounting a component. The display
  * modes are presets of the toggles; the canvas only ever consumes toggles.
- *
- * TODO(P2'): the `indexes` toggle is accepted but not rendered yet — the
- * index rows of the "all" mode land with the index work of P2'.
  */
 
 /**
@@ -44,9 +41,10 @@ export type TableDisplayOverrides = Partial<ViewStateToggles>;
 
 export interface TableRenderOptions {
   /**
-   * The domains of the diagram, by id. TODO: the SDK has no type-scope
-   * store yet, so the caller cannot resolve the diagram-scope domains;
-   * until then an unknown domain id is shown as its own placeholder.
+   * The domains a logical type reference can name, keyed by id and by name.
+   * `Table.vue` builds it from the three layers of the type scope, with the
+   * diagram's own domains (`diagram.domains`) on top; an id the map does not
+   * know is shown as its own placeholder.
    */
   domains?: Record<string, LogicalDomain>;
   overrides?: TableDisplayOverrides;

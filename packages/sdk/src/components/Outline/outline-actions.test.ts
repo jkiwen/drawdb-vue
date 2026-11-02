@@ -17,6 +17,7 @@ import {
   CREATABLE_CATEGORIES,
   createOutlineNode,
   creatableCategoryOf,
+  renameOutlineNode,
 } from "./outline-actions.ts";
 
 describe("createOutlineNode", () => {
@@ -76,5 +77,88 @@ describe("createOutlineNode", () => {
   it("ignores a category that has no create entry", () => {
     assert.equal(createOutlineNode(store, "tables"), null);
     assert.equal(store.diagram.tables.length, 0);
+  });
+});
+
+describe("renameOutlineNode", () => {
+  let pinia: Pinia;
+  let store: ReturnType<typeof useDiagramStore>;
+
+  const relationshipNode = {
+    id: "relationship:r1",
+    kind: "relationship" as const,
+    label: "fk_orders_users",
+    refId: "r1",
+    matched: true,
+    children: [],
+  };
+
+  beforeEach(() => {
+    pinia = createPinia();
+    setActivePinia(pinia);
+    store = useDiagramStore();
+    store.setDiagram({
+      ...createEmptyDiagram(),
+      tables: [
+        {
+          id: "t1",
+          name: "orders",
+          x: 0,
+          y: 0,
+          fields: [
+            {
+              id: "f1",
+              name: "user_id",
+              fieldType: { type: "INT" },
+              fieldTypeSource: "explicit",
+            },
+          ],
+          logical: { id: "le1", name: "Order", attributes: [] },
+        },
+        {
+          id: "t2",
+          name: "users",
+          x: 0,
+          y: 0,
+          fields: [
+            {
+              id: "f2",
+              name: "id",
+              fieldType: { type: "INT" },
+              fieldTypeSource: "explicit",
+            },
+          ],
+          logical: { id: "le2", name: "User", attributes: [] },
+        },
+      ],
+      relationships: [
+        {
+          id: "r1",
+          startTableId: "t1",
+          startFieldId: "f1",
+          endTableId: "t2",
+          endFieldId: "f2",
+          name: "fk_orders_users",
+        },
+      ],
+      logicalRelationships: [{ id: "r1", name: "places" }],
+    });
+  });
+
+  it("writes the name of the layer the tree is in", () => {
+    renameOutlineNode(store, relationshipNode, "orders the user", "logical");
+    assert.equal(store.diagram.logicalRelationships?.[0]?.name, "orders the user");
+    assert.equal(store.diagram.relationships[0]?.name, "fk_orders_users");
+
+    renameOutlineNode(store, relationshipNode, "fk_orders_owner", "physical");
+    assert.equal(store.diagram.relationships[0]?.name, "fk_orders_owner");
+    assert.equal(store.diagram.logicalRelationships?.[0]?.name, "orders the user");
+  });
+
+  it("goes through the history, so one undo restores the name", () => {
+    renameOutlineNode(store, relationshipNode, "orders the user", "logical");
+    assert.equal(useHistoryStore().depth, 1);
+    useHistoryStore().undo();
+    assert.equal(store.diagram.logicalRelationships?.[0]?.name, "places");
   });
 });

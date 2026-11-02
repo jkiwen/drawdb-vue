@@ -48,6 +48,17 @@ export const useHistoryStore = defineStore("history", () => {
     sync();
   }
 
+  /**
+   * Moves the history to a position: `depth` commands applied (the history
+   * tab clicks a row). Undo and redo run one by one, so the side effects of
+   * every command land the way they do on a single undo.
+   */
+  function jumpTo(target: number): boolean {
+    const moved = manager.jumpTo(target);
+    sync();
+    return moved;
+  }
+
   function snapshot() {
     return manager.snapshot();
   }
@@ -61,6 +72,7 @@ export const useHistoryStore = defineStore("history", () => {
     execute,
     undo,
     redo,
+    jumpTo,
     clear,
     snapshot,
   };

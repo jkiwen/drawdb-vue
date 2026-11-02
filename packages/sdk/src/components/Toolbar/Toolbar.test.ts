@@ -1,10 +1,11 @@
 /**
  * Tests for the canvas toolbar (plan Task 4, design 6.0–6.8, ruling Q1).
  *
- * Six groups ship this iteration: the display mode switch, the per-table
- * view toggles, the logical/physical layer switch, the zoom and the full
- * screen, undo/redo and the file group — plus the permanent scope indicator
- * of ruling Q1. The layout and alignment groups are a TODO of this phase.
+ * Nine groups ship: the scope indicator and the display mode switch, the
+ * per-table view toggles, the layout and alignment groups, the
+ * logical/physical layer switch, the view group (zoom, grid, full screen),
+ * undo/redo, the file group and the settings placeholder — plus the
+ * permanent scope indicator of ruling Q1.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";

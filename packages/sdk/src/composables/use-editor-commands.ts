@@ -57,7 +57,14 @@ export interface EditorCommandsApi {
   exportSql(): string;
   /** Returns the DBML of the diagram. */
   exportDbml(): string;
-  /** Replaces the diagram with the one the SQL describes. */
+  /**
+   * Replaces the diagram with the one the SQL describes.
+   *
+   * This is the low-level parse, not the import flow: it skips the wizard,
+   * the report, the conflict decisions, the audit and the undo stack
+   * (docs/import-and-merge-design.md section 9.3). Use the import wizard
+   * (`openImport`) whenever a person is importing.
+   */
   importSql(sql: string, database?: DatabaseType): Diagram;
   /** Adds a table to the diagram. */
   addTable(): void;

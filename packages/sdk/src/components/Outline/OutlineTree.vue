@@ -218,8 +218,8 @@ function onDragstart(node: OutlineNode, event: DragEvent): void {
 
 function onDrop(node: OutlineNode): void {
   if (node.kind === "area" && dragTableId.value !== null) {
-    // TODO(Q11): area membership is geometric, there is no diagram-store
-    // command for it yet; the host of the tree decides what the drop means.
+    // Ruling Q11: membership is geometric — the drop only asks the host
+    // (assign-to-area) to move the table into the bounds of the area.
     emit("assign-to-area", { tableId: dragTableId.value, areaId: node.refId! });
   }
   dragTableId.value = null;
