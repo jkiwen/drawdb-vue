@@ -68,9 +68,22 @@ not say what its own documentation promised. This is that commit.
 | Check | Result |
 | --- | --- |
 | `pnpm run typecheck` | clean (core, SDK, application, example, e2e) |
-| `node --experimental-strip-types scripts/run-tests.mjs` | 1428 tests, 1428 pass, 0 fail |
-| `pnpm --filter @drawdb/core run build` | OK (the turbo fan out cannot spawn a child process in this sandbox, so the packages are built one by one) |
+| `node --experimental-strip-types scripts/run-tests.mjs` | 1428 tests, 1428 pass, 0 fail (the same run, filtered by path: core 524, app 40) |
+| `pnpm --filter @drawdb/core run build` and `pnpm --filter @drawdb/vue-sdk run build` | OK (the turbo fan out cannot spawn a child process in this sandbox, so the packages are built one by one) |
+| `pnpm --filter drawdb-vue-app run build` | the type check of the application passes; the bundling of vite cannot run here (esbuild is spawned, and the sandbox denies it: `spawn EPERM`) |
 | `pnpm run e2e` | not runnable here: Playwright cannot fork its worker (`spawn EPERM`) |
+
+## The commits of this task
+
+| Commit | What it carries |
+| --- | --- |
+| `b09108b` | core: a domain of the diagram is found by its name as well as by its id |
+| `7444760` | core: the jump of the history says when it landed somewhere else |
+| `41604cd` | SDK: the canvas resolves a domain with the rule of the core |
+| `01112dd` | SDK: the outline names a relationship after the layer it shows |
+| `2d5cbdb` | SDK: a host application can drive the history of the editor |
+| `a8c621a` | app: the bridge of the editor jumps the history too |
+| `f285fea`, `c79c465` and the commit of this file | the ledger and this report |
 
 The new specifications of this task: `packages/sdk/src/stores/history.test.ts`
 (the jump of the store: back, forward, over the boundary, clamped, and the
