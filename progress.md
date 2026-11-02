@@ -736,3 +736,22 @@ node -e "const fs=require('fs'),p=require('path');const w=(d,o=[])=>{for(const e
 四道门禁：`pnpm typecheck` 退出码 0（core / SDK / app / example / e2e 五段）；`node --experimental-strip-types scripts/run-tests.mjs` 全量 1428 pass、`ℙ fail 0`（按路径过滤的单包子集：core 524、app 40）；build 按包一个个构建成功（core 与 SDK 成功；turbo 与 vite 的 esbuild 在这个沙箱里都起不了子进程，app 的打包跑不了，但它的类型检查通过）；`pnpm e2e` 在这里不可跑（Playwright 无法 fork 子进程，`spawn EPERM`），e2e 仍是 55 个用例。
 
 这一阶段的提交：`b09108b`（core：图里的域也能按名字找到）、`7444760`（core：跳转说明自己落在哪里）、`41604cd`（SDK：画布用 core 的规则找域）、`01112dd`（SDK：大纲按层命名关系）、`2d5cbdb`（SDK：宿主可以驱动历史）、`a8c621a`（app：桥也能跳）、`f285fea` 与 `c79c465`（文档）。
+
+## 官方文档引用的行号锚点与回退规则（2026-11-02）
+
+erwin 适配器的官方文档引用统一写成「官方页级 URL + 缓存副本:行号」，行号指向
+`sdk-workspace/docs/references/erwin/` 下的原始 `.html` 抓取件。**规则**：某条 URL 在缓存
+文档中定位不到支撑该结论的精确事实时，**不臆造行号**——回退为**页级 URL**（不带行号），
+并在 `docs/references/README.md` 的「官方文档行号锚点登记表 / 行号待补清单」登记为
+「行号待补」；补齐前该结论按"待校对"处理（与该文件「使用约定」第 4 条一致）。
+
+本轮补齐 `docs/superpowers/specs/2026-10-26-erwin-type-system-design.md` 的官方引用：
+8 处已锚定（`The_Logical_Model.html:215`、`The_Physical_Model.html:215`、
+`Model_Sources.html:216`、`Comparison_of_Logical_and_Physical_Model_Objects.html:216`、
+`name_mapping_conventions_using_macros.html:245`、
+`Data_Types_and_Data_Type_Standards.html:226`、`Set_Entity_Display_Preferences.html:221`、
+`Save_a_Model_in_XML_Format_XML_Export.html:222`）；2 处（Domain 对象构成、Domain 的
+Physical Data Type + Schema）所在页面的缓存件全文没有 `Domain` / `Physical Data Type` /
+`Anchored to Type` / `Distinct Type` 字样，**按规则回退为页级 URL 并登记为行号待补**，
+候选来源是 Implementation Guide 的抽取件（`extracts/impl-guide-domains.txt:113`），
+待确认对应官方页/章节后再补锚点。

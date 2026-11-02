@@ -36,8 +36,8 @@
 > - 逻辑视图 = 数据结构的**逻辑模型**（实体、关系、类型名称与业务含义）。
 > - 物理视图 = 数据结构的**物理模型**（表、字段、物理类型规格、约束实现）。
 
-erwin 官方的定义与本项目一致（来源：`references/erwin/html/The_Logical_Model.html`、
-`The_Physical_Model.html`）：
+erwin 官方的定义与本项目一致（来源：`references/erwin/html/The_Logical_Model.html:215`、
+`references/erwin/html/The_Physical_Model.html:215`）：
 
 - erwin 逻辑模型 = "represents all of the logical business requirements of an organization"；
   物理模型 = "captures the exact design of the physical database, including column
@@ -91,7 +91,7 @@ erwin 官方的定义与本项目一致（来源：`references/erwin/html/The_Lo
 | 不做 | 理由 |
 |---|---|
 | 一图多库 | 存储与逻辑复杂度显著增加；本期采用一图一库，多库需求通过完善映射模板 + 转换到新图满足 |
-| 跨方言应用的元定义同步 / 多来源模型同步 | erwin 有 Model Sources 机制（`references/erwin/html/Model_Sources.html`），本期不实现；列为二期 |
+| 跨方言应用的元定义同步 / 多来源模型同步 | erwin 有 Model Sources 机制（`references/erwin/html/Model_Sources.html:216`），本期不实现；列为二期 |
 | 历史数据兼容 / schema 版本迁移 | 项目处于 alpha 之前，无真实用户数据；alpha/beta 阶段 schema 变更是可承担的软件迭代成本 |
 | 逻辑/物理名称的自动同步 | 二期议题（见 §7.3）。erwin 有 NSM 的 "Physical to Logical" 开关与 `%AttName` 宏可作参考 |
 | 结构化复合类型（UDT）的完整物化 | 本期只支持**标量域**的物化策略；结构化类型沿用现状 |
@@ -136,7 +136,7 @@ erwin 官方的定义与本项目一致（来源：`references/erwin/html/The_Lo
 
 ### 3.0 双层结构总览
 
-erwin 官方对照表（`references/erwin/html/Comparison_of_Logical_and_Physical_Model_Objects.html`）：
+erwin 官方对照表（`references/erwin/html/Comparison_of_Logical_and_Physical_Model_Objects.html:216`）：
 
 | 逻辑对象 | 物理对象 | 本项目对应 |
 |---|---|---|
@@ -297,7 +297,7 @@ export interface LogicalTypeFamily {
 
 ### 3.3 逻辑域（Domain）
 
-erwin 官方的 Domain 机制（`references/erwin/html/Data_Types_and_Data_Type_Standards.html`）
+erwin 官方的 Domain 机制（`references/erwin/html/Data_Types_and_Data_Type_Standards.html`，官方页级 URL：https://bookshelf.erwin.com/bookshelf/public_html/15.0/Content/User%20Guides/erwin%20Help/Data_Types_and_Data_Type_Standards.html；**行号待补**）
 不是单向别名，而是**逻辑类型 + 物理类型 + 可选父域 + 可继承属性**的完整对象：
 
 > Domain 持有可继承属性与不可继承属性；**逻辑 edit mode 下有 Logical Data Type，
@@ -570,7 +570,7 @@ export interface Table {
 - 逻辑名 = `LogicalAttribute.name`；物理名 = `PhysicalField.name`。
 - 二者**不做自动同步**（§7.3 列为二期议题）。
   erwin 有 NSM 的 "Physical to Logical" 开关与 `%AttName` 等宏可作参考实现依据
-  （`references/erwin/html/name_mapping_conventions_using_macros.html`）。
+  （`references/erwin/html/name_mapping_conventions_using_macros.html:245`）。
 
 ### 3.7 其他元素的逻辑/物理对应（元素级审计，2026-10-27）
 
@@ -585,7 +585,7 @@ export interface Table {
 
 #### 3.7.1 erwin 官方的元素级对照
 
-来源：`references/erwin/html/Comparison_of_Logical_and_Physical_Model_Objects.html`
+来源：`references/erwin/html/Comparison_of_Logical_and_Physical_Model_Objects.html:216`
 （该页的对照表原文已核对，见本节表格右列）。
 
 | 逻辑对象 | 物理对象 | erwin 官方对照表原文要点 |
@@ -1116,7 +1116,7 @@ DBML 的 `indexes { }` 块**承载唯一索引与非唯一索引**（现状已�
 | `imported` | **默认不动**（保留 erwin 的既有物理定义） | 同上；用户可批量转为 `mapped` 以启用自动重算 |
 
 > 这一条直接对应 erwin 的官方行为：换目标数据库时 erwin **提示用户确认转换**
-> 而不是静默替换（`references/erwin/html/Data_Types_and_Data_Type_Standards.html`）。
+> 而不是静默替换（`references/erwin/html/Data_Types_and_Data_Type_Standards.html:226`）。
 
 ### 4.3 映射缺失
 
@@ -1291,7 +1291,7 @@ defaultKind` 判断。
 | 选择权 | — | 完全交给用户 |
 
 > 对应 erwin 的官方行为：切换目标数据库时 erwin **提示用户确认转换**，
-> 由用户决定是否应用（`references/erwin/html/Data_Types_and_Data_Type_Standards.html`）。
+> 由用户决定是否应用（`references/erwin/html/Data_Types_and_Data_Type_Standards.html:226`）。
 
 ### 6.5 记录
 
@@ -1341,7 +1341,7 @@ defaultKind` 判断。
   并带一个标记提示"源数据缺少物理字段"—— 这是**异常提示**，不是可用的建模状态。
 
 > 与 erwin 一致：逻辑侧显示选项里有 "Display Attribute Data Type" 与
-> "Display Attribute Domain"（`references/erwin/html/Set_Entity_Display_Preferences.html`），
+> "Display Attribute Domain"（`references/erwin/html/Set_Entity_Display_Preferences.html:221`），
 > 即逻辑视图显示的是**逻辑数据类型**，物理侧对应 "Display Column Datatype"。
 
 ### 7.2 物理视图
@@ -1424,7 +1424,7 @@ defaultKind` 判断。
 
 > erwin 侧对应的官方概念是 **Domain 的 Physical Data Type + Schema**：
 > 逻辑域可声明物理形态与所在 schema，导入/导出时分别携带
-> （`references/erwin/html/Data_Types_and_Data_Type_Standards.html`）。
+> （`references/erwin/html/Data_Types_and_Data_Type_Standards.html`，官方页级 URL：https://bookshelf.erwin.com/bookshelf/public_html/15.0/Content/User%20Guides/erwin%20Help/Data_Types_and_Data_Type_Standards.html；**行号待补**）。
 
 ---
 
@@ -1587,7 +1587,7 @@ DSL 描述至少包含：
 > Q12 的依据：erwin 的 XML 有三个变体，只有 **XML Standard Files**
 > （不展开宏与名字）是"可用于再导入 erwin Data Modeler"的格式；
 > XML Repository Format 展开宏与物理名，**不能**用 erwin 打开
-> （`references/erwin/html/Save_a_Model_in_XML_Format_XML_Export.html`）。
+> （`references/erwin/html/Save_a_Model_in_XML_Format_XML_Export.html:222`）。
 
 ---
 
