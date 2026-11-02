@@ -705,3 +705,17 @@ P8 收官时留下的待办全部落地，四道门禁在提交前重跑（typec
 4. **三处陈旧 TODO 改成裁决说明**：画布的逻辑层只读（`TableField.vue` / `TableHeader.vue` 不再暗示以后能内联编辑逻辑名）、`OutlineTree.vue` 的 area 隶属是几何判定（Q11）、`Toolbar.test.ts` 的头注释从「布局/对齐是 TODO」改成实际交付的九组。
 5. **低层导入与宿主拖拽写进设计稿**（`docs/import-and-merge-design.md` §9.3）：`importSql()` 是解析器不是导入流程（不报告、不裁决、不审计、不进 undo），与向导的差别列成表；宿主自己监听 `drop` 时必须 `stopPropagation()`，附最小的 Vue 写法。`use-editor-commands.ts` 的 `importSql` 注释同步指向该节。
 6. **Oracle 默认值的真实边界**：`packages/core/src/sql/import/oraclesql.ts` 里那条 `TODO: reconstruct default when implemented in parser` 换成了实情说明——`oracle-sql-parser` 对字面量默认值只接受数字（`DEFAULT 0` 的 `expr` 就是 number 0，原样存成 `"0"`），字符串与函数默认值（`DEFAULT 'x'`、`DEFAULT SYSDATE`）会让语法器直接报错，所以这类 Oracle 脚本以 `SQLImportError`（带行列号）失败，而不是静默丢掉默认值；若将来语法器给出节点，则用 `buildSQLFromAST` 存 SQL 文本（与其它方言一致）。`packages/core/src/sql/import/oraclesql.test.ts` 两例把这两种行为都钉住（core 522 pass）。
+
+## 组件文件的上限是 300 行（2026-11-02）
+
+`scripts/verify-constraints.test.ts` 扫 `packages/sdk/src` 与 `packages/app/src` 下所有非测试的 `.ts`/`.vue`，行数（按 `\r?\n` 切分、去掉末尾空行）大于 300 即失败；`*.test.ts`/`*.test.vue` 不计入，所以**把逻辑挪进一个测试文件并不能过门禁**——那只是把实现藏起来。
+
+给 SDK 组件加逻辑时的做法：**逻辑进模块、标记进子组件**，组件本身只负责渲染与连线。已按此把 `Outline/OutlineTree.vue` 的选中逻辑抽到同目录的 `outline-selection.ts`（纯函数 `outlineSelectionId` / `outlineFocusOf` / `selectOutlineNode`，只读写 ui store，不碰 diagram），组件从 300 行降到 275 行，行为与事件契约不变，并补了 `outline-selection.test.ts`（9 例）。已有的 `outline-tree.test.ts`（13 例）全绿，全量 1409/1409 通过，typecheck 与 build 干净。
+
+判断还剩多少余量（与门禁同一套计数）：
+
+```bash
+node -e "const fs=require('fs'),p=require('path');const w=(d,o=[])=>{for(const e of fs.readdirSync(d,{withFileTypes:true})){if(['node_modules','dist'].includes(e.name)||e.name.startsWith('.'))continue;const f=p.join(d,e.name);e.isDirectory()?w(f,o):/\.(ts|vue)$/.test(e.name)&&!/\.test\.(ts|vue)$/.test(e.name)&&o.push(f)}return o};for(const f of w('packages/sdk/src')){const l=fs.readFileSync(f,'utf-8').split(/\r?\n/);if(l[l.length-1]==='')l.pop();if(l.length>280)console.log(l.length,f)}"
+```
+
+当前余量最少的几个文件：`Canvas/Area.vue`（300，余量 0）、`EditPanel/edit-panel-model.ts`（299）、`stores/ui.ts`（298）、`SidePanel/TablesTab.vue`（297）、`stores/diagram.ts`（296）。这几个文件再加一行就触发门禁，先抽再改。
