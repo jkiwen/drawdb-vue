@@ -13,6 +13,7 @@ import type { UIStore } from "../stores/ui.ts";
 import type { EditorDialogName, ImportFormat } from "../stores/dialogs.ts";
 import { runEditorMenu } from "./editor-menu.ts";
 import { useImportWizardStore } from "../stores/import-wizard.ts";
+import { useHistoryStore } from "../stores/history.ts";
 import {
   createArea,
   createNote,
@@ -83,6 +84,15 @@ export interface EditorCommandsApi {
    * host application has to handle it.
    */
   onMenu(key: string): boolean;
+  /**
+   * Moves the history to a position: `depth` commands applied.
+   *
+   * The history tab of the bottom panel jumps the same way; this is the
+   * entry a host application uses to drive the history itself. It answers
+   * `true` when the history landed exactly on the position, and `false`
+   * when the position was out of reach.
+   */
+  jumpHistory(depth: number): boolean;
   /** Starts or stops the automatic saving. */
   configureAutoSave(enabled: boolean, interval: number): void;
   /** Stops the automatic saving. */
@@ -104,6 +114,7 @@ export function useEditorCommands(
 ): EditorCommandsApi {
   const { diagramStore, uiStore, saveStore } = options;
   const importWizard = useImportWizardStore();
+  const history = useHistoryStore();
 
   let autoSaveTimer: ReturnType<typeof setInterval> | undefined;
 
@@ -160,6 +171,10 @@ export function useEditorCommands(
     );
     diagramStore.addArea(area);
     uiStore.selectArea(String(area.id));
+  }
+
+  function jumpHistory(depth: number): boolean {
+    return history.jumpTo(depth);
   }
 
   function exportJson(): string {
@@ -275,6 +290,7 @@ export function useEditorCommands(
     addArea,
     deleteSelection,
     onMenu,
+    jumpHistory,
     configureAutoSave,
     stopAutoSave,
   };

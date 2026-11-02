@@ -247,6 +247,8 @@ defineExpose({
   exportSql: commands.exportSql,
   exportDbml: commands.exportDbml,
   exportJson: commands.exportJson,
+  /** Moves the history to a position: `depth` commands applied. */
+  jumpHistory: commands.jumpHistory,
   importSql: commands.importSql,
   /** Opens the import wizard with the given format (P8 task 8). */
   openImport,
