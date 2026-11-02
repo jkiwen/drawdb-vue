@@ -755,3 +755,12 @@ Physical Data Type + Schema）所在页面的缓存件全文没有 `Domain` / `P
 `Anchored to Type` / `Distinct Type` 字样，**按规则回退为页级 URL 并登记为行号待补**，
 候选来源是 Implementation Guide 的抽取件（`extracts/impl-guide-domains.txt:113`），
 待确认对应官方页/章节后再补锚点。
+
+## 上一阶段的遗留全部关闭（2026-11-02）
+
+上一阶段（task 35）收尾时还挂着的口子，本次逐条落地并复核；四道门禁在提交前重跑。
+
+1. **上一阶段的三件遗留复核通过，不再重写**。画布读逻辑域（`packages/sdk/src/components/Canvas/canvas-domains.test.ts`、`table-domains.test.ts`）、历史 Tab 可跳（`packages/core/src/commands/command-manager.test.ts`、`packages/sdk/src/stores/history.test.ts`）、大纲按所在层命名关系（`packages/sdk/src/components/Outline/outline-labels.test.ts`、`outline-actions.test.ts`）全绿；这三件事分别由 `b09108b`/`7444760`/`41604cd`/`01112dd`/`2d5cbdb`/`a8c621a` 落地，本次只复核行为与契约未变。
+2. **源码里最后一条 TODO 关闭**：Postgres 导出此前把 `diagram.types` 一律物化成 `CREATE TYPE`，而引用这些名字的列写的是裸名字（`"role" user_role`），一个不是裸小写标识符的名字（`Address`、`user role`）在导出里就散了。新增 `packages/core/src/export/postgres-types.ts`：`buildTypeNameResolver()` 按名字（不分大小写）找出图自己声明的枚举与自定义类型，`isBuiltin` 先问一句，**方言自带的类型不会被自定义类型遮蔽**；`materialiseCustomType()` 写出 `CREATE TYPE`，其字段若指向另一个自定义类型就写被引号包起来的名字。`postgres.ts` 用解析器改写列的类型引用，于是 `"addr" "Address"` 与 `CREATE TYPE "Address"` 对得上。原来那条 TODO 换成裁决说明：**自定义类型的物化与内联之争、以及携带来源的标记，留给下一阶段**。测试：`postgres-types.test.ts` 6 例、`postgres.test.ts` 新增 4 例（core 534 pass）。
+3. **侧栏不再把英文写进界面**：`CustomTypesTab.vue`、`NotesTab.vue`、`RelationshipsTab.vue`、`EnumsTab.vue`、`ViewsTab.vue`、`AreasTab.vue`、`TablesTab.vue` 里的空状态、按钮与占位文字改从 `t()` 取（`no_custom_types`、`no_notes`、`no_relationships`、`no_views`、`no_enums`/`add_enum`、`no_areas`、`add_custom_type`、`search`、`name`、`type`、`add_field` 等），新增的两个键 `no_areas`、`untitled_note` 在**全部 51 个语言文件**里都是真翻译（不是英文占位）。测试：`packages/sdk/src/components/SidePanel/side-panel-locales.test.ts` 3 例（英文原样、中文跟随 locale）。
+4. **门禁**：`pnpm typecheck` 退出码 0（core / SDK / app / example / e2e 五段）；`node --experimental-strip-types scripts/run-tests.mjs` 全量 **1441 pass / fail 0**（开工前 1428）；`no sdk file is longer than 300 lines` 与 `no app file is longer than 300 lines` 通过，`TablesTab.vue` 297 → 298 行仍在门禁内；`@drawdb/core` 与 `@drawdb/vue-sdk` 逐包构建成功（turbo 在这个沙箱里不能 fork 子进程，`turbo run build` 报 `os error 5`，故按包构建；app 的 `vue-tsc` 通过，vite 的 esbuild 同样因 `spawn EPERM` 起不来）；`pnpm e2e` 在这里不可跑（Playwright `spawn EPERM`），e2e 仍是 55 个用例。
