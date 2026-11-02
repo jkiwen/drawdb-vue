@@ -20,6 +20,8 @@ export interface BridgeEditor {
   exportDbml(): string;
   /** Replaces the diagram with the one the SQL describes. */
   importSql(sql: string, database?: string): unknown;
+  /** Moves the history to a position: `depth` commands applied. */
+  jumpHistory(depth: number): boolean;
   /** Runs a command that a plugin registered. */
   runCommand(key: string): boolean;
   /** Returns a copy of the diagram the editor shows. */
@@ -36,6 +38,8 @@ export interface EditorBridge {
   exportDbml(): string;
   /** Replaces the diagram with the one the SQL describes. */
   importSql(sql: string, database?: string): unknown;
+  /** Moves the history to a position: `depth` commands applied. */
+  jumpHistory(depth: number): boolean;
   /** Runs a command that a plugin registered. */
   runCommand(key: string): boolean;
   /** Returns a copy of the diagram the editor shows. */
@@ -66,6 +70,7 @@ export function createEditorBridge(
     exportDbml: (): string => getEditor()?.exportDbml() ?? "",
     importSql: (sql: string, database?: string): unknown =>
       getEditor()?.importSql(sql, database),
+    jumpHistory: (depth: number): boolean => getEditor()?.jumpHistory(depth) ?? false,
     runCommand: (key: string): boolean => getEditor()?.runCommand(key) ?? false,
     getDiagram: (): unknown => getEditor()?.getDiagram(),
     validate: (): unknown[] => getEditor()?.validate() ?? [],

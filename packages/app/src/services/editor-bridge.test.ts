@@ -17,6 +17,7 @@ function fakeEditor(): BridgeEditor {
     exportSql: () => "SELECT 1;",
     exportDbml: () => "Table users {}",
     importSql: () => ({ imported: true }),
+    jumpHistory: (depth: number) => depth === 1,
     runCommand: (key: string) => key === "demo.add-note",
     getDiagram: () => ({ notes: [] }),
   };
@@ -28,6 +29,8 @@ test("the bridge calls the editor it is bound to", () => {
   assert.equal(bridge.exportSql(), "SELECT 1;");
   assert.equal(bridge.exportDbml(), "Table users {}");
   assert.deepEqual(bridge.importSql("SELECT 1;"), { imported: true });
+  assert.equal(bridge.jumpHistory(1), true);
+  assert.equal(bridge.jumpHistory(2), false);
   assert.equal(bridge.runCommand("demo.add-note"), true);
   assert.equal(bridge.runCommand("other"), false);
   assert.deepEqual(bridge.getDiagram(), { notes: [] });
@@ -41,6 +44,7 @@ test("the bridge reports no editor before the editor is mounted", () => {
   assert.equal(bridge.editor, undefined);
   assert.equal(bridge.exportSql(), "");
   assert.equal(bridge.exportDbml(), "");
+  assert.equal(bridge.jumpHistory(1), false);
   assert.equal(bridge.runCommand("demo.add-note"), false);
   assert.equal(bridge.getDiagram(), undefined);
   assert.deepEqual(bridge.validate(), []);

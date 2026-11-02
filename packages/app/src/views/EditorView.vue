@@ -27,6 +27,7 @@ interface EditorInstance {
   exportSql(): string;
   exportDbml(): string;
   importSql(sql: string, database?: string): unknown;
+  jumpHistory(depth: number): boolean;
   runCommand(key: string): boolean;
   getDiagram(): unknown;
 }
