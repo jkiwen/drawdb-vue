@@ -207,10 +207,11 @@ describe("buildOutlineTree", () => {
 
     const logical = buildOutlineTree(sampleDiagram(), "logical");
     const logicalRelationships = category(logical, "cat:relationships");
-    // A relationship always shows its own name, whichever layer the tree is
-    // in; the logical name stays available as the secondary label.
-    assert.equal(logicalRelationships.children[0].label, "fk_orders_users");
-    assert.equal(logicalRelationships.children[0].altLabel, "places");
+    // The tree names a relationship after the layer it shows (design 3.1), so
+    // the logical view leads with the logical name and keeps the physical one
+    // as the secondary label.
+    assert.equal(logicalRelationships.children[0].label, "places");
+    assert.equal(logicalRelationships.children[0].altLabel, "fk_orders_users");
     assert.equal(logicalRelationships.children[1].label, "User → User");
   });
 

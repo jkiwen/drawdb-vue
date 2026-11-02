@@ -2,11 +2,15 @@ import type { Diagram, LogicalRelationship, Relationship } from "@drawdb/core";
 import type { OutlineViewLayer } from "./outline-nodes.ts";
 
 /**
- * The two layer names of a relationship. The relationship's own name leads
- * on both layers — a relationship is a constraint with one name, and the tree
- * should name it whatever the view layer is — with the other layer's name on
- * the secondary label. A relationship with no name at all falls back to the
- * pair of its table names on the layer in question.
+ * The two layer names of a relationship.
+ *
+ * The tree names an object after the layer it shows (design 3.1: the logical
+ * view shows the logical name of every object, the physical view the physical
+ * one), so the logical view leads with the name of the logical relationship
+ * and the physical view with the name of the physical one; the name of the
+ * other layer is the secondary label (the tooltip). A relationship with no
+ * name at all falls back to the pair of its table names on the layer in
+ * question.
  *
  * It lives in its own module so that `outline-nodes.ts` and
  * `outline-constraints.ts` can both name relationships without importing each
@@ -30,9 +34,15 @@ export function relationshipLabels(
     `${tableName(relationship.startTableId, layer)} → ${tableName(relationship.endTableId, layer)}`;
   const physical = relationship.name?.trim() ?? "";
   const logicalName = logical?.name?.trim() ?? "";
-  const label = physical || logicalName || fallback(viewLayer);
+  // The name of the layer the tree shows leads; the name of the other one is
+  // the secondary label. A layer that carries no name of its own borrows the
+  // name of the other one, so a relationship that was never named twice is
+  // still named.
+  const own = viewLayer === "logical" ? logicalName : physical;
+  const other = viewLayer === "logical" ? physical : logicalName;
+  const label = own || other || fallback(viewLayer);
   return {
     label,
-    altLabel: logicalName !== "" && logicalName !== label ? logicalName : undefined,
+    altLabel: other !== "" && other !== label ? other : undefined,
   };
 }

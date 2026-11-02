@@ -155,6 +155,19 @@ describe("renameOutlineNode", () => {
     assert.equal(store.diagram.logicalRelationships?.[0]?.name, "orders the user");
   });
 
+  it("creates the logical relationship when the diagram has none", () => {
+    store.diagram.logicalRelationships = [];
+    renameOutlineNode(store, relationshipNode, "orders the user", "logical");
+    // The logical layer needs a name of its own to write into; the command
+    // creates the counterpart and the undo removes it again.
+    assert.deepEqual(store.diagram.logicalRelationships, [
+      { id: "r1", name: "orders the user" },
+    ]);
+    assert.equal(store.diagram.relationships[0]?.name, "fk_orders_users");
+    useHistoryStore().undo();
+    assert.deepEqual(store.diagram.logicalRelationships, []);
+  });
+
   it("goes through the history, so one undo restores the name", () => {
     renameOutlineNode(store, relationshipNode, "orders the user", "logical");
     assert.equal(useHistoryStore().depth, 1);
